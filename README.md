@@ -25,6 +25,7 @@ languages: see the `wrappers/` subdirectory for some simple examples.
 
 [sundown]: https://github.com/vmg/sundown
 [benchmarks]: benchmarks.md
+[the spec]: http://spec.commonmark.org
 
 Installing
 ----------
