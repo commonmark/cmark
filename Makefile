@@ -19,7 +19,7 @@ VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 
-.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug mingw archive bench astyle
+.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug mingw archive bench astyle update-spec
 
 all: cmake_build man/man3/cmark.3
 
@@ -78,6 +78,10 @@ $(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding-3.2.0.txt
 # normally need to be generated.
 $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
+
+update-spec:
+	curl 'https://raw.githubusercontent.com/jgm/CommonMark/master/spec.txt'\
+ > $(SPEC)
 
 test: $(SPEC) cmake_build
 	make -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
