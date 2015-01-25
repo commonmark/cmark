@@ -16,6 +16,11 @@ and rendering the document to HTML or to an XML representation of the
 AST.  It also provides a command-line program, `cmark`, for
 parsing and rendering CommonMark documents.
 
+The library is fast, on par with [sundown]:  see the [benchmarks].
+
+[sundown]: https://github.com/vmg/sundown
+[benchmarks]: benchmarks.md
+
 Installing
 ----------
 
