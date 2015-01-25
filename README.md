@@ -10,13 +10,18 @@ implementations in C and JavaScript.
 For more information, see <http://commonmark.org>.
 
 This repository contains the C reference implementation.
-It provides a library with functions for parsing CommonMark
-documents to an abstract syntax tree (AST), manipulating the AST,
-and rendering the document to HTML or to an XML representation of the
-AST.  It also provides a command-line program, `cmark`, for
-parsing and rendering CommonMark documents.
+It provides a shared library (`libcmark`) with functions for parsing
+CommonMark documents to an abstract syntax tree (AST), manipulating
+the AST, and rendering the document to HTML or to an XML
+representation of the AST.  It also provides a command-line program
+(`cmark`) for parsing and rendering CommonMark documents.
 
-The library is fast, on par with [sundown]:  see the [benchmarks].
+The library and program are written in standard C99 and have
+no library dependencies. The parser is very fast, on par with
+[sundown]:  see the [benchmarks].
+
+It is easy to use `libcmark` in python, lua, ruby, and other dynamic
+languages: see the `wrappers/` subdirectory for some simple examples.
 
 [sundown]: https://github.com/vmg/sundown
 [benchmarks]: benchmarks.md
