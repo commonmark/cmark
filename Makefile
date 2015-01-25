@@ -4,7 +4,7 @@ BUILDDIR?=build
 GENERATOR?=Unix Makefiles
 MINGW_BUILDDIR?=build-mingw
 MINGW_INSTALLDIR?=windows
-SPEC=spec.txt
+SPEC=test/spec.txt
 SITE=_site
 SPECVERSION=$(shell perl -ne 'print $$1 if /^version: *([0-9.]+)/' $(SPEC))
 FUZZCHARS?=2000000  # for fuzztest
@@ -82,7 +82,7 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 test: $(SPEC) cmake_build
 	make -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
-$(ALLTESTS): spec.txt
+$(ALLTESTS): $(SPEC)
 	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
 
 leakcheck: $(ALLTESTS)

@@ -27,7 +27,7 @@ IF (PYTHONINTERP_FOUND)
 
   add_test(spectest_library
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec"
-    "${CMAKE_SOURCE_DIR}/spec.txt" "--library-dir" "${CMAKE_BINARY_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/test/spec.txt" "--library-dir" "${CMAKE_BINARY_DIR}/src"
     )
 
   add_test(pathological_tests_library
@@ -36,7 +36,7 @@ IF (PYTHONINTERP_FOUND)
     )
 
   add_test(spectest_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/spec.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/test/spec.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark"
     )
 
 ELSE(PYTHONINTERP_FOUND)
