@@ -11,8 +11,8 @@ Some benchmarks, run on an ancient Thinkpad running Intel Core 2 Duo at 2GHz.
 | cheapskate        |    8.24    |
 | peg-markdown      |    5.45    |
 | parsedown         |    5.06    |
-| **commonmark.js** |    2.09    |
-| marked            |    1.93    |
+| marked            |    1.94    |
+| **commonmark.js** |    1.93    |
 | discount          |    1.86    |
 | **cmark**         |    0.37    |
 | sundown           |    0.34    |
