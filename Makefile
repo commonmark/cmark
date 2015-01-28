@@ -47,6 +47,12 @@ debug:
 	cmake .. -DCMAKE_BUILD_TYPE=Debug; \
 	make
 
+prof:
+	mkdir -p $(BUILDDIR); \
+	cd $(BUILDDIR); \
+	cmake .. -DCMAKE_BUILD_TYPE=Profile; \
+	make
+
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
 	cd $(MINGW_BUILDDIR); \
