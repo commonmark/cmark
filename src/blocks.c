@@ -26,7 +26,7 @@ static void
 S_process_line(cmark_parser *parser, const unsigned char *buffer,
                size_t bytes);
 
-static cmark_node* make_block(cmark_node_type tag, int start_line, int start_column)
+static cmark_node* make_block(cmark_node_type tag, int start_line, size_t start_column)
 {
 	cmark_node* e;
 
@@ -84,7 +84,7 @@ static cmark_node*
 finalize(cmark_parser *parser, cmark_node* b);
 
 // Returns true if line has only space characters, else false.
-static bool is_blank(cmark_strbuf *s, int offset)
+static bool is_blank(cmark_strbuf *s, size_t offset)
 {
 	while (offset < s->size) {
 		switch (s->ptr[offset]) {
@@ -116,7 +116,7 @@ static inline bool accepts_lines(cmark_node_type block_type)
 	        block_type == NODE_CODE_BLOCK);
 }
 
-static void add_line(cmark_node* node, cmark_chunk *ch, int offset)
+static void add_line(cmark_node* node, cmark_chunk *ch, size_t offset)
 {
 	assert(node->open);
 	cmark_strbuf_put(&node->string_content, ch->data + offset, ch->len - offset);
@@ -124,7 +124,7 @@ static void add_line(cmark_node* node, cmark_chunk *ch, int offset)
 
 static void remove_trailing_blank_lines(cmark_strbuf *ln)
 {
-	int i;
+	long i;
 
 	for (i = ln->size - 1; i >= 0; --i) {
 		unsigned char c = ln->ptr[i];
@@ -185,7 +185,7 @@ static cmark_node*
 finalize(cmark_parser *parser, cmark_node* b)
 {
 	int firstlinelen;
-	int pos;
+	size_t pos;
 	cmark_node* item;
 	cmark_node* subitem;
 	cmark_node* parent;
@@ -289,7 +289,7 @@ finalize(cmark_parser *parser, cmark_node* b)
 
 // Add a cmark_node as child of another.  Return pointer to child.
 static cmark_node* add_child(cmark_parser *parser, cmark_node* parent,
-                             cmark_node_type block_type, int start_column)
+                             cmark_node_type block_type, size_t start_column)
 {
 	assert(parent);
 
@@ -338,10 +338,10 @@ static void process_inlines(cmark_node* root, cmark_reference_map *refmap)
 // Attempts to parse a list item marker (bullet or enumerated).
 // On success, returns length of the marker, and populates
 // data with the details.  On failure, returns 0.
-static int parse_list_marker(cmark_chunk *input, int pos, cmark_list **dataptr)
+static size_t parse_list_marker(cmark_chunk *input, size_t pos, cmark_list **dataptr)
 {
 	unsigned char c;
-	int startpos;
+	size_t startpos;
 	cmark_list *data;
 
 	startpos = pos;
@@ -495,7 +495,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 
 static void chop_trailing_hashtags(cmark_chunk *ch)
 {
-	int n, orig_n;
+	long n, orig_n;
 
 	cmark_chunk_rtrim(ch);
 	orig_n = n = ch->len - 1;
@@ -515,17 +515,17 @@ static void
 S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 {
 	cmark_node* last_matched_container;
-	int offset = 0;
-	int matched = 0;
-	int lev = 0;
-	int i;
+	size_t offset = 0;
+	size_t matched = 0;
+	size_t lev = 0;
+	size_t i;
 	cmark_list *data = NULL;
 	bool all_matched = true;
 	cmark_node* container;
 	cmark_node* cur = parser->current;
 	bool blank = false;
-	int first_nonspace;
-	int indent;
+	size_t first_nonspace;
+	size_t indent;
 	cmark_chunk input;
 
 	utf8proc_detab(parser->curline, buffer, bytes);
@@ -683,7 +683,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			offset = first_nonspace + matched;
 			container = add_child(parser, container, NODE_HEADER, offset + 1);
 
-			int hashpos = cmark_chunk_strchr(&input, '#', first_nonspace);
+			size_t hashpos = cmark_chunk_strchr(&input, '#', first_nonspace);
 			int level = 0;
 
 			while (peek_at(&input, hashpos) == '#') {

@@ -265,7 +265,7 @@ cmark_node_set_literal(cmark_node *node, const char *content);
 
 /** Returns the header level of 'node', or 0 if 'node' is not a header.
  */
-CMARK_EXPORT int
+CMARK_EXPORT size_t
 cmark_node_get_header_level(cmark_node *node);
 
 /** Sets the header level of 'node', returning 1 on success and 0 on error.
@@ -357,7 +357,7 @@ cmark_node_get_start_line(cmark_node *node);
 
 /** Returns the column at which 'node' begins.
  */
-CMARK_EXPORT int
+CMARK_EXPORT size_t
 cmark_node_get_start_column(cmark_node *node);
 
 /** Returns the line on which 'node' ends.
@@ -367,7 +367,7 @@ cmark_node_get_end_line(cmark_node *node);
 
 /** Returns the column at which 'node' ends.
  */
-CMARK_EXPORT int
+CMARK_EXPORT size_t
 cmark_node_get_end_column(cmark_node *node);
 
 /**

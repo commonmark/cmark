@@ -13,8 +13,8 @@ extern "C" {
 
 typedef struct {
 	cmark_list_type   list_type;
-	int               marker_offset;
-	int               padding;
+	size_t            marker_offset;
+	size_t            padding;
 	int               start;
 	cmark_delim_type  delimiter;
 	unsigned char     bullet_char;
@@ -23,15 +23,15 @@ typedef struct {
 
 typedef struct {
 	bool              fenced;
-	int               fence_length;
-	int               fence_offset;
+	size_t            fence_length;
+	size_t            fence_offset;
 	unsigned char     fence_char;
 	cmark_chunk       info;
 	cmark_chunk       literal;
 } cmark_code;
 
 typedef struct {
-	int level;
+	size_t level;
 	bool setext;
 } cmark_header;
 
@@ -52,9 +52,9 @@ struct cmark_node {
 	void *user_data;
 
 	int start_line;
-	int start_column;
+	size_t start_column;
 	int end_line;
-	int end_column;
+	size_t end_column;
 	bool open;
 	bool last_line_blank;
 
