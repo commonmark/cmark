@@ -11,7 +11,7 @@
 
 // Functions to convert cmark_nodes to HTML strings.
 
-static void escape_html(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_html(cmark_strbuf *dest, const unsigned char *source, long length)
 {
 	if (length < 0)
 		length = strlen((char *)source);
@@ -19,7 +19,7 @@ static void escape_html(cmark_strbuf *dest, const unsigned char *source, int len
 	houdini_escape_html0(dest, source, (size_t)length, 0);
 }
 
-static void escape_href(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_href(cmark_strbuf *dest, const unsigned char *source, long length)
 {
 	if (length < 0)
 		length = strlen((char *)source);
@@ -42,7 +42,7 @@ static void
 S_render_sourcepos(cmark_node *node, cmark_strbuf *html, long options)
 {
 	if (CMARK_OPT_SOURCEPOS & options) {
-		cmark_strbuf_printf(html, " data-sourcepos=\"%d:%d-%d:%d\"",
+		cmark_strbuf_printf(html, " data-sourcepos=\"%d:%ld-%d:%ld\"",
 		                    cmark_node_get_start_line(node),
 		                    cmark_node_get_start_column(node),
 		                    cmark_node_get_end_line(node),
@@ -165,7 +165,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			S_render_sourcepos(node, html, options);
 			cmark_strbuf_puts(html, "><code>");
 		} else {
-			int first_tag = 0;
+			size_t first_tag = 0;
 			while (first_tag < node->as.code.info.len &&
 			       node->as.code.info.data[first_tag] != ' ') {
 				first_tag += 1;

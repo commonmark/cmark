@@ -339,7 +339,7 @@ cmark_node_set_literal(cmark_node *node, const char *content)
 	return 0;
 }
 
-int
+size_t
 cmark_node_get_header_level(cmark_node *node)
 {
 	if (node == NULL) {
@@ -614,7 +614,7 @@ cmark_node_get_start_line(cmark_node *node)
 	return node->start_line;
 }
 
-int
+size_t
 cmark_node_get_start_column(cmark_node *node)
 {
 	if (node == NULL) {
@@ -632,7 +632,7 @@ cmark_node_get_end_line(cmark_node *node)
 	return node->end_line;
 }
 
-int
+size_t
 cmark_node_get_end_column(cmark_node *node)
 {
 	if (node == NULL) {
@@ -807,7 +807,7 @@ S_print_error(FILE *out, cmark_node *node, const char *elem)
 	if (out == NULL) {
 		return;
 	}
-	fprintf(out, "Invalid '%s' in node type %s at %d:%d\n", elem,
+	fprintf(out, "Invalid '%s' in node type %s at %d:%ld\n", elem,
 	        cmark_node_get_type_string(node), node->start_line,
 	        node->start_column);
 }

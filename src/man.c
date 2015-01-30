@@ -10,9 +10,9 @@
 
 // Functions to convert cmark_nodes to groff man strings.
 
-static void escape_man(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_man(cmark_strbuf *dest, const unsigned char *source, size_t length)
 {
-	int i;
+	size_t i;
 	unsigned char c;
 	bool beginLine = true;
 

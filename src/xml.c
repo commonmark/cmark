@@ -11,7 +11,7 @@
 
 // Functions to convert cmark_nodes to XML strings.
 
-static void escape_xml(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_xml(cmark_strbuf *dest, const unsigned char *source, long length)
 {
 	if (source != NULL) {
 		if (length < 0)
@@ -49,7 +49,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		                    cmark_node_get_type_string(node));
 
 		if (options & CMARK_OPT_SOURCEPOS && node->start_line != 0) {
-			cmark_strbuf_printf(xml, " sourcepos=\"%d:%d-%d:%d\"",
+			cmark_strbuf_printf(xml, " sourcepos=\"%d:%ld-%d:%ld\"",
 			                    node->start_line,
 			                    node->start_column,
 			                    node->end_line,
@@ -97,7 +97,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			                     "true" : "false"));
 			break;
 		case CMARK_NODE_HEADER:
-			cmark_strbuf_printf(xml, " level=\"%d\"",
+			cmark_strbuf_printf(xml, " level=\"%ld\"",
 			                    node->as.header.level);
 			break;
 		case CMARK_NODE_CODE_BLOCK:

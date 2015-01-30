@@ -52,7 +52,7 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
 				break;
 
 			if (src[i] == ';') {
-				const struct html_ent *entity = find_entity((char *)src, i);
+				const struct html_ent *entity = find_entity((char *)src, (int)i);
 
 				if (entity != NULL) {
 					size_t len = strnlen((const char *)entity->utf8, 4);
