@@ -1854,6 +1854,24 @@ them.
 <p><a href="my%20url" title="title">Foo bar</a></p>
 .
 
+The title may extend over multiple lines:
+
+.
+[foo]: /url '
+title
+line1
+line2
+'
+
+[foo]
+.
+<p><a href="/url" title="
+title
+line1
+line2
+">foo</a></p>
+.
+
 The title may be omitted:
 
 .
@@ -1923,6 +1941,17 @@ It contributes nothing to the document.
 .
 [foo]: /url
 .
+.
+
+Here is another one:
+
+.
+[
+foo
+]: /url
+bar
+.
+<p>bar</p>
 .
 
 This is not a link reference definition, because there are
@@ -2703,6 +2732,18 @@ far enough past the blockquote marker:
 <p>two</p>
 </blockquote>
 </blockquote>
+.
+
+Note that at least one space is needed between the list marker and
+any following content, so these are not list items:
+
+.
+-one
+
+2.two
+.
+<p>-one</p>
+<p>2.two</p>
 .
 
 A list item may not contain blocks that are separated by more than
@@ -4759,6 +4800,18 @@ whitespace:
 <p>*foo bar *</p>
 .
 
+A newline also counts as whitespace:
+
+.
+*foo bar
+*
+.
+<p>*foo bar</p>
+<ul>
+<li></li>
+</ul>
+.
+
 This is not emphasis, because the second `*` is
 preceded by punctuation and followed by an alphanumeric
 (hence it is not part of a [right-flanking delimiter run]:
@@ -4885,6 +4938,15 @@ followed by whitespace:
 __ foo bar__
 .
 <p>__ foo bar__</p>
+.
+
+A newline counts as whitespace:
+.
+__
+foo bar__
+.
+<p>__
+foo bar__</p>
 .
 
 This is not strong emphasis, because the opening `__` is preceded
@@ -6253,6 +6315,14 @@ Thus, `[foo]` is equivalent to `[foo][]`.
 <p>[<a href="/url" title="title"><em>foo</em> bar</a>]</p>
 .
 
+.
+[[bar [foo]
+
+[foo]: /url
+.
+<p>[[bar <a href="/url">foo</a></p>
+.
+
 The link labels are case-insensitive:
 
 .
@@ -6625,6 +6695,14 @@ Spaces are not allowed in autolinks:
 <p>&lt;http://foo.bar/baz bim&gt;</p>
 .
 
+Backslash-escapes do not work inside autolinks:
+
+.
+<http://example.com/\[\>
+.
+<p><a href="http://example.com/%5C%5B%5C">http://example.com/\[\</a></p>
+.
+
 An [email autolink](@email-autolink)
 consists of `<`, followed by an [email address],
 followed by `>`.  The link's label is the email address,
@@ -6650,6 +6728,14 @@ Examples of email autolinks:
 <foo+special@Bar.baz-bar0.com>
 .
 <p><a href="mailto:foo+special@Bar.baz-bar0.com">foo+special@Bar.baz-bar0.com</a></p>
+.
+
+Backslash-escapes do not work inside email autolinks:
+
+.
+<foo\+@bar.example.com>
+.
+<p>&lt;foo+@bar.example.com&gt;</p>
 .
 
 These are not autolinks:
