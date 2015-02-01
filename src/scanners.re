@@ -75,7 +75,7 @@ int _scan_autolink_uri(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  scheme [:]([^\x00-\x20<>\\]|escaped_char)*[>]  { return (p - start); }
+  scheme [:][^\x00-\x20<>]*[>]  { return (p - start); }
   .? { return 0; }
 */
 }
