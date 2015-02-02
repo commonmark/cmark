@@ -55,7 +55,10 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
 				const struct html_ent *entity = find_entity((char *)src, i);
 
 				if (entity != NULL) {
-					size_t len = strnlen((const char *)entity->utf8, 4);
+					int len = 0;
+					while (len < 4 && entity->utf8[len] != '\0') {
+						++len;
+					}
 					cmark_strbuf_put(ob, entity->utf8, len);
 					return i + 1;
 				}
