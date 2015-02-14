@@ -24,7 +24,7 @@ int _scan_at(int (*scanner)(const unsigned char *), cmark_chunk *c, int offset)
 
   wordchar = [^\x00-\x20];
 
-  spacechar = [ \t\n];
+  spacechar = [ \t\v\f\r\n];
 
   reg_char     = [^\\()\x00-\x20];
 
@@ -155,7 +155,7 @@ int _scan_spacechars(const unsigned char *p)
 {
   const unsigned char *start = p; \
 /*!re2c
-  [ \t\n]* { return (p - start); }
+  [ \t\v\f\r\n]* { return (p - start); }
   . { return 0; }
 */
 }
