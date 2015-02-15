@@ -5,7 +5,7 @@
 .SH "SYNOPSIS"
 .HP 6n
 \fBcmark\fR
-[\fB\-\-ast\fR]
+[options]
 file*
 .SH "DESCRIPTION"
 \fBcmark\fR
@@ -34,10 +34,11 @@ Consolidate adjacent text nodes.
 .TP 12n
 \-\-smart
 Use smart punctuation.  Straight double and single quotes will
-be rendered as curly quotes, depending on their position.  `--`
-will be rendered as an en-dash. `---` will be rendered as
-an em-dash. `...` will be rendered as ellipses.  (This option
-has no effect on XML output.)
+be rendered as curly quotes, depending on their position.
+\f[C]\-\-\f[] will be rendered as an en-dash.
+\f[C]\-\-\-\f[] will be rendered as an em-dash.
+\f[C]...\f[] will be rendered as ellipses.
+(This option has no effect on XML output.)
 .TP 12n
 \-\-help
 Print usage information.
@@ -45,4 +46,7 @@ Print usage information.
 \-\-version
 Print version.
 .SH "AUTHORS"
-John MacFarlane
+John MacFarlane, Vicent Marti, Kārlis Gaņģis, Nick Wellnhofer.
+.SH "SEE ALSO"
+.PP
+CommonMark spec:  \f[C]http://spec.commonmark.org\f[].
