@@ -7,6 +7,7 @@
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
+#include "smart.h"
 
 // Functions to convert cmark_nodes to groff man strings.
 
@@ -46,7 +47,7 @@ struct render_state {
 
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
-              struct render_state *state)
+              struct render_state *state, long options)
 {
 	cmark_node *tmp;
 	cmark_strbuf *man = state->man;
@@ -165,8 +166,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_TEXT:
-		escape_man(man, node->as.literal.data,
-		           node->as.literal.len);
+		if (options & CMARK_OPT_SMARTPUNCT) {
+			escape_with_smart(man, node, escape_man,
+					  "\\[lq]", "\\[rq]", "\\[oq]", "\\[cq]",
+					  "\\[em]", "\\[en]", "...");
+		} else {
+			escape_man(man, node->as.literal.data,
+				   node->as.literal.len);
+		}
 		break;
 
 	case CMARK_NODE_LINEBREAK:
@@ -241,7 +248,7 @@ char *cmark_render_man(cmark_node *root, long options)
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
-		S_render_node(cur, ev_type, &state);
+		S_render_node(cur, ev_type, &state, options);
 	}
 	result = (char *)cmark_strbuf_detach(&man);
 
