@@ -6,6 +6,7 @@
 #include "config.h"
 #include "cmark.h"
 #include "node.h"
+#include "utf8.h"
 #include "buffer.h"
 #include "houdini.h"
 
@@ -60,6 +61,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char start_header[] = "<h0";
 	char end_header[] = "</h0";
 	bool tight;
+	int lastout, i;
+	cmark_chunk lit;
+	char before_char, after_char, c;
+	bool left_flanking, right_flanking;
 
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 
@@ -217,8 +222,87 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_TEXT:
-		escape_html(html, node->as.literal.data,
-		            node->as.literal.len);
+		if (options & CMARK_OPT_SMARTPUNCT) {
+			lastout = 0;
+			i = 0;
+			lit = node->as.literal;
+			while (i < lit.len) {
+				c = lit.data[i];
+				// replace with efficient lookup table:
+				if (c != '"' && c != '-' && c != '\'' && c != '.') {
+					i++;
+					continue;
+				}
+				escape_html(html, lit.data + lastout,
+					    i - lastout);
+				if (c == '\'' || c == '"') {
+					before_char = i == 0 ? ',' : lit.data[i - 1];
+					after_char = i == lit.len - 1 ? ',' : lit.data[i + 1];
+					left_flanking = !utf8proc_is_space(after_char) &&
+						!(utf8proc_is_punctuation(after_char) &&
+						  !utf8proc_is_space(before_char) &&
+						  !utf8proc_is_punctuation(before_char));
+					right_flanking = !utf8proc_is_space(before_char) &&
+						!(utf8proc_is_punctuation(before_char) &&
+						  !utf8proc_is_space(after_char) &&
+						  !utf8proc_is_punctuation(after_char));
+				}
+				switch (lit.data[i]) {
+				case '"':
+					if (right_flanking) {
+						cmark_strbuf_puts(html, "&rdquo;");
+					} else {
+						cmark_strbuf_puts(html, "&ldquo;");
+					}
+					i += 1;
+					break;
+				case '\'':
+					if (left_flanking && !right_flanking) {
+						cmark_strbuf_puts(html, "&lsquo;");
+					} else {
+						cmark_strbuf_puts(html, "&rsquo;");
+					}
+					i += 1;
+					break;
+				case '-':
+					if (i < lit.len - 1 && lit.data[i + 1] == '-') {
+						if (lit.data[i + 2] == '-') {
+							cmark_strbuf_puts(html,
+									  "&mdash;");
+							i += 3;
+						} else {
+							cmark_strbuf_puts(html, "&ndash;");
+							i += 2;
+						}
+					} else {
+						cmark_strbuf_putc(html, c);
+						i += 1;
+					}
+					break;
+				case '.':
+					if (i < lit.len - 2 && lit.data[i + 1] == '.' &&
+					    lit.data[i + 2] == '.') {
+							cmark_strbuf_puts(html,
+									  "&hellip;");
+							i += 3;
+					} else {
+						cmark_strbuf_putc(html, c);
+						i += 1;
+					}
+					break;
+				default:
+					cmark_strbuf_putc(html, c);
+					i++;
+				}
+				lastout = i;
+			}
+			escape_html(html, node->as.literal.data + lastout,
+				    i - lastout);
+
+		} else {
+			escape_html(html, node->as.literal.data,
+				    node->as.literal.len);
+		}
 		break;
 
 	case CMARK_NODE_LINEBREAK:

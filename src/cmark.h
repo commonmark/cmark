@@ -496,6 +496,10 @@ char *cmark_render_man(cmark_node *root, long options);
  */
 #define CMARK_OPT_NORMALIZE 4
 
+/** Convert straight quotes to curly, --- to em dashes, -- to en dashes.
+ */
+#define CMARK_OPT_SMARTPUNCT 8
+
 /**
  * ## Version information
  */

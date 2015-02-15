@@ -26,6 +26,7 @@ void print_usage()
 	printf("  --to, -t FORMAT  Specify output format (html, xml, man)\n");
 	printf("  --sourcepos      Include source position attribute\n");
 	printf("  --hardbreaks     Treat newlines as hard line breaks\n");
+	printf("  --smart          Use smart punctuation\n");
 	printf("  --normalize      Consolidate adjacent text nodes\n");
 	printf("  --help, -h       Print usage information\n");
 	printf("  --version        Print version\n");
@@ -80,6 +81,8 @@ int main(int argc, char *argv[])
 			options |= CMARK_OPT_SOURCEPOS;
 		} else if (strcmp(argv[i], "--hardbreaks") == 0) {
 			options |= CMARK_OPT_HARDBREAKS;
+		} else if (strcmp(argv[i], "--smart") == 0) {
+			options |= CMARK_OPT_SMARTPUNCT;
 		} else if (strcmp(argv[i], "--normalize") == 0) {
 			options |= CMARK_OPT_NORMALIZE;
 		} else if ((strcmp(argv[i], "--help") == 0) ||
