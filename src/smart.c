@@ -10,6 +10,25 @@
 #include "buffer.h"
 #include "chunk.h"
 
+static const char SMART_PUNCT_TABLE[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
 void escape_with_smart(cmark_strbuf *buf,
 		       cmark_node *node,
 		       void (*escape)(cmark_strbuf *, const unsigned char *, int),
@@ -24,11 +43,11 @@ void escape_with_smart(cmark_strbuf *buf,
 	int32_t c = 0;
 	int32_t after_char = 0;
 	int32_t before_char = 0;
-	int len;
 	bool left_flanking, right_flanking;
 	int lastout = 0;
-	int i = 0;
+	int i = 0, j = 0;
 	cmark_chunk lit = node->as.literal;
+	int len;
 
 	// set before_char based on previous text node if there is one:
 	if (node->prev) {
@@ -58,17 +77,25 @@ void escape_with_smart(cmark_strbuf *buf,
 	}
 
 	while (i < lit.len) {
-		len = utf8proc_iterate(lit.data + i, lit.len - i, &c);
-		i += len;
-
-		// replace with efficient lookup table:
-		if (!(c == 34 || c == 39 || c == 45 || c == 46)) {
-			before_char = c;
+		c = lit.data[i];
+		i++;
+		if (SMART_PUNCT_TABLE[c] == 0) {
 			continue;
 		}
-		(*escape)(buf, lit.data + lastout, i - len - lastout);
+
+		(*escape)(buf, lit.data + lastout, i - 1 - lastout);
 
 		if (c == 34 || c == 39) {
+
+			// if i == 0 then before_char was set before the while loop
+			if (i > 1) {
+				j = i - 2;
+				// walk back to the beginning of the UTF_8 sequence:
+				while (j >= 0 && lit.data[j] >> 6 == 2) {
+					j--;
+				}
+				utf8proc_iterate(lit.data + j, lit.len - j, &before_char);
+			}
 
 			if (i >= lit.len) {
 				if (node->next) {
