@@ -234,18 +234,18 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 					continue;
 				}
 				escape_html(html, lit.data + lastout,
-					    i - lastout);
+				            i - lastout);
 				if (c == '\'' || c == '"') {
 					if (i == 0) {
 						if (node->prev) {
-						    if (node->prev->type == CMARK_NODE_TEXT) {
-							    before_char = node->prev->as.literal.data[node->prev->as.literal.len - 1];
-						    } else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
-							       node->prev->type == CMARK_NODE_LINEBREAK) {
-							    before_char = '\n';
-						    } else {
-							    before_char = 'x';
-						    }
+							if (node->prev->type == CMARK_NODE_TEXT) {
+								before_char = node->prev->as.literal.data[node->prev->as.literal.len - 1];
+							} else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
+							           node->prev->type == CMARK_NODE_LINEBREAK) {
+								before_char = '\n';
+							} else {
+								before_char = 'x';
+							}
 						} else {
 							before_char = '\n';
 						}
@@ -254,14 +254,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 					}
 					if (i >= lit.len - 1) {
 						if (node->next) {
-						    if (node->next->type == CMARK_NODE_TEXT) {
-							    after_char = node->next->as.literal.data[0];
-						    } else if (node->next->type == CMARK_NODE_SOFTBREAK ||
-							       node->next->type == CMARK_NODE_LINEBREAK) {
-							    before_char = '\n';
-						    } else {
-							    after_char = 'x';
-						    }
+							if (node->next->type == CMARK_NODE_TEXT) {
+								after_char = node->next->as.literal.data[0];
+							} else if (node->next->type == CMARK_NODE_SOFTBREAK ||
+							           node->next->type == CMARK_NODE_LINEBREAK) {
+								before_char = '\n';
+							} else {
+								after_char = 'x';
+							}
 						} else {
 							after_char = '\n';
 						}
@@ -269,13 +269,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 						after_char = lit.data[i + 1];
 					}
 					left_flanking = !utf8proc_is_space(after_char) &&
-						!(utf8proc_is_punctuation(after_char) &&
-						  !utf8proc_is_space(before_char) &&
-						  !utf8proc_is_punctuation(before_char));
+					                !(utf8proc_is_punctuation(after_char) &&
+					                  !utf8proc_is_space(before_char) &&
+					                  !utf8proc_is_punctuation(before_char));
 					right_flanking = !utf8proc_is_space(before_char) &&
-						!(utf8proc_is_punctuation(before_char) &&
-						  !utf8proc_is_space(after_char) &&
-						  !utf8proc_is_punctuation(after_char));
+					                 !(utf8proc_is_punctuation(before_char) &&
+					                   !utf8proc_is_space(after_char) &&
+					                   !utf8proc_is_punctuation(after_char));
 				}
 				switch (lit.data[i]) {
 				case '"':
@@ -298,7 +298,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 					if (i < lit.len - 1 && lit.data[i + 1] == '-') {
 						if (lit.data[i + 2] == '-') {
 							cmark_strbuf_puts(html,
-									  "&mdash;");
+							                  "&mdash;");
 							i += 3;
 						} else {
 							cmark_strbuf_puts(html, "&ndash;");
@@ -312,9 +312,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				case '.':
 					if (i < lit.len - 2 && lit.data[i + 1] == '.' &&
 					    lit.data[i + 2] == '.') {
-							cmark_strbuf_puts(html,
-									  "&hellip;");
-							i += 3;
+						cmark_strbuf_puts(html,
+						                  "&hellip;");
+						i += 3;
 					} else {
 						cmark_strbuf_putc(html, c);
 						i += 1;
@@ -327,11 +327,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				lastout = i;
 			}
 			escape_html(html, node->as.literal.data + lastout,
-				    i - lastout);
+			            i - lastout);
 
 		} else {
 			escape_html(html, node->as.literal.data,
-				    node->as.literal.len);
+			            node->as.literal.len);
 		}
 		break;
 

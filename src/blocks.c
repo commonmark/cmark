@@ -592,10 +592,10 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			} else { // fenced
 				matched = 0;
 				if (indent <= 3 &&
-					(peek_at(&input, first_nonspace) ==
-					 container->as.code.fence_char)) {
+				    (peek_at(&input, first_nonspace) ==
+				     container->as.code.fence_char)) {
 					matched = scan_close_code_fence(&input,
-							first_nonspace);
+					                                first_nonspace);
 				}
 				if (matched >= container->as.code.fence_length) {
 					// closing fence - and since we're at
@@ -608,7 +608,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 					// skip opt. spaces of fence offset
 					i = container->as.code.fence_offset;
 					while (i > 0 &&
-					    peek_at(&input, offset) == ' ') {
+					       peek_at(&input, offset) == ' ') {
 						offset++;
 						i--;
 					}

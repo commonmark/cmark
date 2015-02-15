@@ -279,13 +279,13 @@ scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 		after_char = 10;
 	}
 	left_flanking = numdelims > 0 && !utf8proc_is_space(after_char) &&
-	            !(utf8proc_is_punctuation(after_char) &&
-	              !utf8proc_is_space(before_char) &&
-	              !utf8proc_is_punctuation(before_char));
+	                !(utf8proc_is_punctuation(after_char) &&
+	                  !utf8proc_is_space(before_char) &&
+	                  !utf8proc_is_punctuation(before_char));
 	right_flanking = numdelims > 0 && !utf8proc_is_space(before_char) &&
-	             !(utf8proc_is_punctuation(before_char) &&
-	               !utf8proc_is_space(after_char) &&
-	               !utf8proc_is_punctuation(after_char));
+	                 !(utf8proc_is_punctuation(before_char) &&
+	                   !utf8proc_is_space(after_char) &&
+	                   !utf8proc_is_punctuation(after_char));
 	if (c == '_') {
 		*can_open = left_flanking && !right_flanking;
 		*can_close = right_flanking && !left_flanking;

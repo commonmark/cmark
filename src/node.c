@@ -263,7 +263,8 @@ cmark_node_last_child(cmark_node *node)
 }
 
 void*
-cmark_node_get_user_data(cmark_node *node) {
+cmark_node_get_user_data(cmark_node *node)
+{
 	if (node == NULL) {
 		return NULL;
 	} else {
@@ -272,7 +273,8 @@ cmark_node_get_user_data(cmark_node *node) {
 }
 
 int
-cmark_node_set_user_data(cmark_node *node, void *user_data) {
+cmark_node_set_user_data(cmark_node *node, void *user_data)
+{
 	if (node == NULL) {
 		return 0;
 	}
