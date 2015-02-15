@@ -236,8 +236,38 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				escape_html(html, lit.data + lastout,
 					    i - lastout);
 				if (c == '\'' || c == '"') {
-					before_char = i == 0 ? ',' : lit.data[i - 1];
-					after_char = i == lit.len - 1 ? ',' : lit.data[i + 1];
+					if (i == 0) {
+						if (node->prev) {
+						    if (node->prev->type == CMARK_NODE_TEXT) {
+							    before_char = node->prev->as.literal.data[node->prev->as.literal.len - 1];
+						    } else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
+							       node->prev->type == CMARK_NODE_LINEBREAK) {
+							    before_char = '\n';
+						    } else {
+							    before_char = 'x';
+						    }
+						} else {
+							before_char = '\n';
+						}
+					} else {
+						before_char = lit.data[i - 1];
+					}
+					if (i >= lit.len - 1) {
+						if (node->next) {
+						    if (node->next->type == CMARK_NODE_TEXT) {
+							    after_char = node->next->as.literal.data[0];
+						    } else if (node->next->type == CMARK_NODE_SOFTBREAK ||
+							       node->next->type == CMARK_NODE_LINEBREAK) {
+							    before_char = '\n';
+						    } else {
+							    after_char = 'x';
+						    }
+						} else {
+							after_char = '\n';
+						}
+					} else {
+						after_char = lit.data[i + 1];
+					}
 					left_flanking = !utf8proc_is_space(after_char) &&
 						!(utf8proc_is_punctuation(after_char) &&
 						  !utf8proc_is_space(before_char) &&
