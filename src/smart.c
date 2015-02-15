@@ -40,7 +40,7 @@ void escape_with_smart(cmark_strbuf *buf,
 		       const char *en_dash,
 		       const char *ellipses)
 {
-	int32_t c = 0;
+	char c;
 	int32_t after_char = 0;
 	int32_t before_char = 0;
 	bool left_flanking, right_flanking;
@@ -49,49 +49,50 @@ void escape_with_smart(cmark_strbuf *buf,
 	cmark_chunk lit = node->as.literal;
 	int len;
 
-	// set before_char based on previous text node if there is one:
-	if (node->prev) {
-		if (node->prev->type == CMARK_NODE_TEXT) {
-
-			// walk back to the beginning of the UTF_8 sequence:
-			i = node->prev->as.literal.len - 1;
-			while (i > 0 && node->prev->as.literal.data[i] >> 6 == 2) {
-				i -= 1;
-			}
-			len = utf8proc_iterate(node->prev->as.literal.data + i,
-					       node->prev->as.literal.len - i,
-					       &before_char);
-			if (len == -1) {
-				before_char = 10;
-			}
-
-		} else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
-			   node->prev->type == CMARK_NODE_LINEBREAK) {
-			before_char = 10;
-
-		} else {
-			before_char = 65;
-		}
-	} else {
-		before_char = 10;
-	}
-
 	while (i < lit.len) {
 		c = lit.data[i];
 		i++;
-		if (SMART_PUNCT_TABLE[c] == 0) {
+		if (SMART_PUNCT_TABLE[(int)c] == 0) {
 			continue;
 		}
 
-		(*escape)(buf, lit.data + lastout, i - 1 - lastout);
+		if (i - 1 - lastout > 0) {
+			(*escape)(buf, lit.data + lastout, i - 1 - lastout);
+		}
 
 		if (c == 34 || c == 39) {
+			if (i == 1) {
+                                // set before_char based on previous text node if there is one:
+				if (node->prev) {
+					if (node->prev->type == CMARK_NODE_TEXT) {
 
-			// if i == 0 then before_char was set before the while loop
-			if (i > 1) {
+						// walk to the beginning of the UTF_8 sequence:
+						j = node->prev->as.literal.len - 1;
+						while (j > 0 &&
+						       node->prev->as.literal.data[j] >> 6 == 2) {
+							j--;
+						}
+						len = utf8proc_iterate(node->prev->as.literal.data + i,
+								       node->prev->as.literal.len - i,
+								       &before_char);
+						if (len == -1) {
+							before_char = 10;
+						}
+
+					} else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
+						   node->prev->type == CMARK_NODE_LINEBREAK) {
+						before_char = 10;
+
+					} else {
+						before_char = 65;
+					}
+				} else {
+					before_char = 10;
+				}
+			} else {
 				j = i - 2;
 				// walk back to the beginning of the UTF_8 sequence:
-				while (j >= 0 && lit.data[j] >> 6 == 2) {
+				while (j > 0 && lit.data[j] >> 6 == 2) {
 					j--;
 				}
 				utf8proc_iterate(lit.data + j, lit.len - j, &before_char);
@@ -127,21 +128,21 @@ void escape_with_smart(cmark_strbuf *buf,
 		}
 
 		switch (c) {
-		case 34: // "
+		case '"':
 			if (right_flanking) {
 				cmark_strbuf_puts(buf, right_double_quote);
 			} else {
 				cmark_strbuf_puts(buf, left_double_quote);
 			}
 			break;
-		case 39: // '
+		case '\'':
 			if (left_flanking && !right_flanking) {
 				cmark_strbuf_puts(buf, left_single_quote);
 			} else {
 				cmark_strbuf_puts(buf, right_single_quote);
 			}
 			break;
-		case 45: // -
+		case '-':
 			if (i < lit.len && lit.data[i] == '-') {
 				if (lit.data[i + 1] == '-') {
 					cmark_strbuf_puts(buf, em_dash);
@@ -154,7 +155,7 @@ void escape_with_smart(cmark_strbuf *buf,
 				cmark_strbuf_putc(buf, c);
 			}
 			break;
-		case 46: // .
+		case '.':
 			if (i < lit.len - 1 && lit.data[i] == '.' &&
 			    lit.data[i + 1] == '.') {
 				cmark_strbuf_puts(buf, ellipses);
