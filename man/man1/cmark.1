@@ -32,6 +32,13 @@ Treat newlines as hard line breaks.
 \-\-normalize
 Consolidate adjacent text nodes.
 .TP 12n
+\-\-smart
+Use smart punctuation.  Straight double and single quotes will
+be rendered as curly quotes, depending on their position.  `--`
+will be rendered as an en-dash. `---` will be rendered as
+an em-dash. `...` will be rendered as ellipses.  Currently
+only supported for HTML output.
+.TP 12n
 \-\-help
 Print usage information.
 .TP 12n
