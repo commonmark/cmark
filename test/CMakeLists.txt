@@ -39,6 +39,10 @@ IF (PYTHONINTERP_FOUND)
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/test/spec.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark"
     )
 
+  add_test(smartpuncttest_executable
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/test/smart_punct.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark --smart"
+    )
+
 ELSE(PYTHONINTERP_FOUND)
 
   message("\n*** A python 3 interpreter is required to run the spec tests.\n")
