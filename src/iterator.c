@@ -132,7 +132,7 @@ void cmark_consolidate_text_nodes(cmark_node *root)
 			cmark_strbuf_puts(&buf, cmark_node_get_literal(cur));
 			tmp = cur->next;
 			while (tmp && tmp->type == CMARK_NODE_TEXT) {
-				cmark_iter_get_node(iter); // advance pointer
+				cmark_iter_next(iter); // advance pointer
 				cmark_strbuf_puts(&buf, cmark_node_get_literal(tmp));
 				next = tmp->next;
 				cmark_node_free(tmp);
