@@ -35,9 +35,9 @@ Were you alive in the 70's?
 .
 
 .
-Here is some quoted '`code`' and a "[quoted link][1]".
+Here is some quoted '`code`' and a "[quoted link](url)".
 .
-<p>Here is some quoted &lsquo;<code>code</code>&rsquo; and a &ldquo;[quoted link][1]&rdquo;.</p>
+<p>Here is some quoted &lsquo;<code>code</code>&rsquo; and a &ldquo;<a href="url">quoted link</a>&rdquo;.</p>
 .
 
 .

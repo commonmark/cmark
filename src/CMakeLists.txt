@@ -16,6 +16,7 @@ set(HEADERS
   html_unescape.h
   houdini.h
   cmark_ctype.h
+  smart.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -36,6 +37,7 @@ set(LIBRARY_SOURCES
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  smart.c
   ${HEADERS}
   )
 

@@ -9,6 +9,7 @@
 #include "utf8.h"
 #include "buffer.h"
 #include "houdini.h"
+#include "smart.h"
 
 // Functions to convert cmark_nodes to HTML strings.
 
@@ -61,10 +62,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char start_header[] = "<h0";
 	char end_header[] = "</h0";
 	bool tight;
-	int lastout, i;
-	cmark_chunk lit;
-	char before_char, after_char, c;
-	bool left_flanking, right_flanking;
 
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 
@@ -223,112 +220,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_TEXT:
 		if (options & CMARK_OPT_SMARTPUNCT) {
-			lastout = 0;
-			i = 0;
-			lit = node->as.literal;
-			while (i < lit.len) {
-				c = lit.data[i];
-				// replace with efficient lookup table:
-				if (c != '"' && c != '-' && c != '\'' && c != '.') {
-					i++;
-					continue;
-				}
-				escape_html(html, lit.data + lastout,
-				            i - lastout);
-				if (c == '\'' || c == '"') {
-					if (i == 0) {
-						if (node->prev) {
-							if (node->prev->type == CMARK_NODE_TEXT) {
-								before_char = node->prev->as.literal.data[node->prev->as.literal.len - 1];
-							} else if (node->prev->type == CMARK_NODE_SOFTBREAK ||
-							           node->prev->type == CMARK_NODE_LINEBREAK) {
-								before_char = '\n';
-							} else {
-								before_char = 'x';
-							}
-						} else {
-							before_char = '\n';
-						}
-					} else {
-						before_char = lit.data[i - 1];
-					}
-					if (i >= lit.len - 1) {
-						if (node->next) {
-							if (node->next->type == CMARK_NODE_TEXT) {
-								after_char = node->next->as.literal.data[0];
-							} else if (node->next->type == CMARK_NODE_SOFTBREAK ||
-							           node->next->type == CMARK_NODE_LINEBREAK) {
-								before_char = '\n';
-							} else {
-								after_char = 'x';
-							}
-						} else {
-							after_char = '\n';
-						}
-					} else {
-						after_char = lit.data[i + 1];
-					}
-					left_flanking = !utf8proc_is_space(after_char) &&
-					                !(utf8proc_is_punctuation(after_char) &&
-					                  !utf8proc_is_space(before_char) &&
-					                  !utf8proc_is_punctuation(before_char));
-					right_flanking = !utf8proc_is_space(before_char) &&
-					                 !(utf8proc_is_punctuation(before_char) &&
-					                   !utf8proc_is_space(after_char) &&
-					                   !utf8proc_is_punctuation(after_char));
-				}
-				switch (lit.data[i]) {
-				case '"':
-					if (right_flanking) {
-						cmark_strbuf_puts(html, "&rdquo;");
-					} else {
-						cmark_strbuf_puts(html, "&ldquo;");
-					}
-					i += 1;
-					break;
-				case '\'':
-					if (left_flanking && !right_flanking) {
-						cmark_strbuf_puts(html, "&lsquo;");
-					} else {
-						cmark_strbuf_puts(html, "&rsquo;");
-					}
-					i += 1;
-					break;
-				case '-':
-					if (i < lit.len - 1 && lit.data[i + 1] == '-') {
-						if (lit.data[i + 2] == '-') {
-							cmark_strbuf_puts(html,
-							                  "&mdash;");
-							i += 3;
-						} else {
-							cmark_strbuf_puts(html, "&ndash;");
-							i += 2;
-						}
-					} else {
-						cmark_strbuf_putc(html, c);
-						i += 1;
-					}
-					break;
-				case '.':
-					if (i < lit.len - 2 && lit.data[i + 1] == '.' &&
-					    lit.data[i + 2] == '.') {
-						cmark_strbuf_puts(html,
-						                  "&hellip;");
-						i += 3;
-					} else {
-						cmark_strbuf_putc(html, c);
-						i += 1;
-					}
-					break;
-				default:
-					cmark_strbuf_putc(html, c);
-					i++;
-				}
-				lastout = i;
-			}
-			escape_html(html, node->as.literal.data + lastout,
-			            i - lastout);
-
+			escape_with_smart(html, node, escape_html,
+					  "&ldquo;", "&rdquo;", "&lsquo;", "&rsquo;",
+					  "&mdash;", "&ndash;", "&hellip;");
 		} else {
 			escape_html(html, node->as.literal.data,
 			            node->as.literal.len);
