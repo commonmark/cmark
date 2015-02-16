@@ -368,7 +368,7 @@ static cmark_node* handle_delim(subject* subj, unsigned char c, bool smart)
 	if (c == '\'' && smart) {
 		contents = cmark_chunk_literal("’");
 	} else if (c == '"' && smart) {
-		contents = cmark_chunk_literal("”");
+		contents = cmark_chunk_literal(can_close ? "”" : "“");
 	} else {
 		contents = cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims);
 	}

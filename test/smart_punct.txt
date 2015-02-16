@@ -41,6 +41,21 @@ Here is some quoted '`code`' and a "[quoted link](url)".
 .
 
 .
+'tis the season to be 'jolly'
+.
+<p>’tis the season to be ‘jolly’</p>
+.
+
+.
+"A paragraph with no closing quote.
+
+"Second paragraph by same speaker, in fiction."
+.
+<p>“A paragraph with no closing quote.</p>
+<p>“Second paragraph by same speaker, in fiction.”</p>
+.
+
+.
 Some dashes:  one---two ---
 three---four --- five.
 .
