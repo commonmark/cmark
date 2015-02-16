@@ -262,7 +262,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	return 1;
 }
 
-char *cmark_render_man(cmark_node *root, long options)
+char *cmark_render_man(cmark_node *root, int options)
 {
 	char *result;
 	cmark_strbuf man = GH_BUF_INIT;

@@ -19,7 +19,7 @@ struct cmark_parser {
 	cmark_strbuf *curline;
 	int last_line_length;
 	cmark_strbuf *linebuf;
-	long options;
+	int options;
 };
 
 #ifdef __cplusplus

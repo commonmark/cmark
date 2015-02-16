@@ -33,7 +33,7 @@ void print_usage()
 }
 
 static void print_document(cmark_node *document, writer_format writer,
-                           long options)
+                           int options)
 {
 	char *result;
 	switch (writer) {
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 	size_t bytes;
 	cmark_node *document;
 	writer_format writer = FORMAT_HTML;
-	long options = CMARK_OPT_DEFAULT;
+	int options = CMARK_OPT_DEFAULT;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	_setmode(_fileno(stdout), _O_BINARY);

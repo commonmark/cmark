@@ -36,7 +36,7 @@ static inline void indent(struct render_state *state)
 
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
-              struct render_state *state, long options)
+              struct render_state *state, int options)
 {
 	cmark_strbuf *xml = state->xml;
 	bool literal = false;
@@ -145,7 +145,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	return 1;
 }
 
-char *cmark_render_xml(cmark_node *root, long options)
+char *cmark_render_xml(cmark_node *root, int options)
 {
 	char *result;
 	cmark_strbuf xml = GH_BUF_INIT;

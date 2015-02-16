@@ -53,11 +53,11 @@ typedef struct {
 static delimiter*
 S_insert_emph(subject *subj, delimiter *opener, delimiter *closer);
 
-static int parse_inline(subject* subj, cmark_node * parent, long options);
+static int parse_inline(subject* subj, cmark_node * parent, int options);
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap);
-static int subject_find_special_char(subject *subj, long options);
+static int subject_find_special_char(subject *subj, int options);
 
 static unsigned char *cmark_clean_autolink(cmark_chunk *url, int is_email)
 {
@@ -924,7 +924,7 @@ static cmark_node* handle_newline(subject *subj)
 	}
 }
 
-static int subject_find_special_char(subject *subj, long options)
+static int subject_find_special_char(subject *subj, int options)
 {
 	// "\n\\`&_*[]<!"
 	static const int8_t SPECIAL_CHARS[256] = {
@@ -982,7 +982,7 @@ static int subject_find_special_char(subject *subj, long options)
 
 // Parse an inline, advancing subject, and add it as a child of parent.
 // Return 0 if no inline can be parsed, 1 otherwise.
-static int parse_inline(subject* subj, cmark_node * parent, long options)
+static int parse_inline(subject* subj, cmark_node * parent, int options)
 {
 	cmark_node* new_inl = NULL;
 	cmark_chunk contents;
@@ -1058,7 +1058,7 @@ static int parse_inline(subject* subj, cmark_node * parent, long options)
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap, long options)
+extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap, int options)
 {
 	subject subj;
 	subject_from_buf(&subj, &parent->string_content, refmap);

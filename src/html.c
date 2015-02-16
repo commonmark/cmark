@@ -39,7 +39,7 @@ struct render_state {
 };
 
 static void
-S_render_sourcepos(cmark_node *node, cmark_strbuf *html, long options)
+S_render_sourcepos(cmark_node *node, cmark_strbuf *html, int options)
 {
 	if (CMARK_OPT_SOURCEPOS & options) {
 		cmark_strbuf_printf(html, " data-sourcepos=\"%d:%d-%d:%d\"",
@@ -52,7 +52,7 @@ S_render_sourcepos(cmark_node *node, cmark_strbuf *html, long options)
 
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
-              struct render_state *state, long options)
+              struct render_state *state, int options)
 {
 	cmark_node *parent;
 	cmark_node *grandparent;
@@ -302,7 +302,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	return 1;
 }
 
-char *cmark_render_html(cmark_node *root, long options)
+char *cmark_render_html(cmark_node *root, int options)
 {
 	char *result;
 	cmark_strbuf html = GH_BUF_INIT;
