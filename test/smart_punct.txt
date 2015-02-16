@@ -4,58 +4,58 @@
 "Hello," said the spider.
 "'Shelob' is my name."
 .
-<p>&ldquo;Hello,&rdquo; said the spider.
-&ldquo;&lsquo;Shelob&rsquo; is my name.&rdquo;</p>
+<p>“Hello,” said the spider.
+“‘Shelob’ is my name.”</p>
 .
 
 .
 'A', 'B', and 'C' are letters.
 .
-<p>&lsquo;A&rsquo;, &lsquo;B&rsquo;, and &lsquo;C&rsquo; are letters.</p>
+<p>‘A’, ‘B’, and ‘C’ are letters.</p>
 .
 
 .
 'Oak,' 'elm,' and 'beech' are names of trees.
 So is 'pine.'
 .
-<p>&lsquo;Oak,&rsquo; &lsquo;elm,&rsquo; and &lsquo;beech&rsquo; are names of trees.
-So is &lsquo;pine.&rsquo;</p>
+<p>‘Oak,’ ‘elm,’ and ‘beech’ are names of trees.
+So is ‘pine.’</p>
 .
 
 .
 'He said, "I want to go."'
 .
-<p>&lsquo;He said, &ldquo;I want to go.&rdquo;&rsquo;</p>
+<p>‘He said, “I want to go.”’</p>
 .
 
 .
 Were you alive in the 70's?
 .
-<p>Were you alive in the 70&rsquo;s?</p>
+<p>Were you alive in the 70’s?</p>
 .
 
 .
 Here is some quoted '`code`' and a "[quoted link](url)".
 .
-<p>Here is some quoted &lsquo;<code>code</code>&rsquo; and a &ldquo;<a href="url">quoted link</a>&rdquo;.</p>
+<p>Here is some quoted ‘<code>code</code>’ and a “<a href="url">quoted link</a>”.</p>
 .
 
 .
 Some dashes:  one---two ---
 three---four --- five.
 .
-<p>Some dashes:  one&mdash;two &mdash;
-three&mdash;four &mdash; five.</p>
+<p>Some dashes:  one—two —
+three—four — five.</p>
 .
 
 .
 Dashes between numbers: 5--7, 255--66, 1987--1999.
 .
-<p>Dashes between numbers: 5&ndash;7, 255&ndash;66, 1987&ndash;1999.</p>
+<p>Dashes between numbers: 5–7, 255–66, 1987–1999.</p>
 .
 
 .
 Ellipses...and...and....
 .
-<p>Ellipses&hellip;and&hellip;and&hellip;.</p>
+<p>Ellipses…and…and….</p>
 .

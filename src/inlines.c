@@ -271,6 +271,9 @@ scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 	while (peek_char(subj) == c) {
 		numdelims++;
 		advance(subj);
+		if (c == '\'' || c == '"') {
+			break;  // limit to 1 delim for quotes
+		}
 	}
 
 	len = utf8proc_iterate(subj->input.data + subj->pos,
@@ -289,6 +292,9 @@ scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 	if (c == '_') {
 		*can_open = left_flanking && !right_flanking;
 		*can_close = right_flanking && !left_flanking;
+	} else if (c == '\'' || c == '"') {
+		*can_open = left_flanking && !right_flanking;
+		*can_close = right_flanking;
 	} else {
 		*can_open = left_flanking;
 		*can_close = right_flanking;
@@ -349,23 +355,66 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
 	subj->last_delim = delim;
 }
 
-// Parse strong/emph or a fallback.
-// Assumes the subject has '_' or '*' at the current position.
-static cmark_node* handle_strong_emph(subject* subj, unsigned char c)
+// Assumes the subject has a c at the current position.
+static cmark_node* handle_delim(subject* subj, unsigned char c, bool smart)
 {
 	int numdelims;
 	cmark_node * inl_text;
 	bool can_open, can_close;
+	cmark_chunk contents;
 
 	numdelims = scan_delims(subj, c, &can_open, &can_close);
 
-	inl_text = make_str(cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims));
+	if (c == '\'' && smart) {
+		contents = cmark_chunk_literal("’");
+	} else if (c == '"' && smart) {
+		contents = cmark_chunk_literal("”");
+	} else {
+		contents = cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims);
+	}
 
-	if (can_open || can_close) {
+	inl_text = make_str(contents);
+
+	if ((can_open || can_close) &&
+	    (!(c == '\'' || c == '"') || smart)) {
 		push_delimiter(subj, c, can_open, can_close, inl_text);
 	}
 
 	return inl_text;
+}
+
+// Assumes we have a hyphen at the current position.
+static cmark_node* handle_hyphen(subject* subj, bool smart)
+{
+	advance(subj);
+	if (smart && peek_char(subj) == '-') {
+		advance(subj);
+		if (peek_char(subj) == '-') {
+			advance(subj);
+			return make_str(cmark_chunk_literal("—"));
+		} else {
+			return make_str(cmark_chunk_literal("–"));
+		}
+	} else {
+		return make_str(cmark_chunk_literal("-"));
+	}
+}
+
+// Assumes we have a period at the current position.
+static cmark_node* handle_period(subject* subj, bool smart)
+{
+	advance(subj);
+	if (smart && peek_char(subj) == '.') {
+		advance(subj);
+		if (peek_char(subj) == '.') {
+			advance(subj);
+			return make_str(cmark_chunk_literal("…"));
+		} else {
+			return make_str(cmark_chunk_literal(".."));
+		}
+	} else {
+		return make_str(cmark_chunk_literal("."));
+	}
 }
 
 static void process_emphasis(subject *subj, delimiter *start_delim)
@@ -381,7 +430,8 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 	// now move forward, looking for closers, and handling each
 	while (closer != NULL) {
 		if (closer->can_close &&
-		    (closer->delim_char == '*' || closer->delim_char == '_')) {
+		    (closer->delim_char == '*' || closer->delim_char == '_' ||
+		     closer->delim_char == '"' || closer->delim_char == '\'')) {
 			// Now look backwards for first matching opener:
 			opener = closer->previous;
 			while (opener != NULL && opener != start_delim) {
@@ -391,9 +441,31 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				}
 				opener = opener->previous;
 			}
-			if (opener != NULL && opener != start_delim) {
-				closer = S_insert_emph(subj, opener, closer);
-			} else {
+			if (closer->delim_char == '*' || closer->delim_char == '_') {
+				if (opener != NULL && opener != start_delim) {
+					closer = S_insert_emph(subj, opener, closer);
+				} else {
+					closer = closer->next;
+				}
+			} else if (closer->delim_char == '\'') {
+				cmark_chunk_free(&closer->inl_text->as.literal);
+				closer->inl_text->as.literal =
+					cmark_chunk_literal("’");
+				if (opener != NULL && opener != start_delim) {
+					cmark_chunk_free(&opener->inl_text->as.literal);
+					opener->inl_text->as.literal =
+						cmark_chunk_literal("‘");
+				}
+				closer = closer->next;
+			} else if (closer->delim_char == '"') {
+				cmark_chunk_free(&closer->inl_text->as.literal);
+				closer->inl_text->as.literal =
+					cmark_chunk_literal("”");
+				if (opener != NULL && opener != start_delim) {
+					cmark_chunk_free(&opener->inl_text->as.literal);
+					opener->inl_text->as.literal =
+						cmark_chunk_literal("“");
+				}
 				closer = closer->next;
 			}
 		} else {
@@ -866,7 +938,7 @@ static int subject_find_special_char(subject *subj, long options)
 	};
 
 	// " ' . -
-	static const char SMART_PUNCT_TABLE[] = {
+	static const char SMART_PUNCT_CHARS[] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0,
@@ -889,6 +961,9 @@ static int subject_find_special_char(subject *subj, long options)
 
 	while (n < subj->input.len) {
 		if (SPECIAL_CHARS[subj->input.data[n]])
+			return n;
+		if (options & CMARK_OPT_SMARTPUNCT &&
+		    SMART_PUNCT_CHARS[subj->input.data[n]])
 			return n;
 		n++;
 	}
@@ -926,7 +1001,15 @@ static int parse_inline(subject* subj, cmark_node * parent, long options)
 		break;
 	case '*':
 	case '_':
-		new_inl = handle_strong_emph(subj, c);
+	case '\'':
+	case '"':
+		new_inl = handle_delim(subj, c, options & CMARK_OPT_SMARTPUNCT);
+		break;
+	case '-':
+		new_inl = handle_hyphen(subj, options & CMARK_OPT_SMARTPUNCT);
+		break;
+	case '.':
+		new_inl = handle_period(subj, options & CMARK_OPT_SMARTPUNCT);
 		break;
 	case '[':
 		advance(subj);

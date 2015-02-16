@@ -9,7 +9,6 @@
 #include "utf8.h"
 #include "buffer.h"
 #include "houdini.h"
-#include "smart.h"
 
 // Functions to convert cmark_nodes to HTML strings.
 
@@ -219,14 +218,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_TEXT:
-		if (options & CMARK_OPT_SMARTPUNCT) {
-			escape_with_smart(html, node, escape_html,
-					  "&ldquo;", "&rdquo;", "&lsquo;", "&rsquo;",
-					  "&mdash;", "&ndash;", "&hellip;");
-		} else {
-			escape_html(html, node->as.literal.data,
-			            node->as.literal.len);
-		}
+		escape_html(html, node->as.literal.data, node->as.literal.len);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
