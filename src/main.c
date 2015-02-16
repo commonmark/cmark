@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
 	_setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-	parser = cmark_parser_new();
 	files = (int *)malloc(argc * sizeof(*files));
 
 	for (i = 1; i < argc; i++) {
@@ -117,6 +116,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	parser = cmark_parser_new(options);
 	for (i = 0; i < numfps; i++) {
 		FILE *fp = fopen(argv[files[i]], "r");
 		if (fp == NULL) {

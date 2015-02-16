@@ -44,11 +44,11 @@ typedef struct {
 static delimiter*
 S_insert_emph(subject *subj, delimiter *opener, delimiter *closer);
 
-static int parse_inline(subject* subj, cmark_node * parent);
+static int parse_inline(subject* subj, cmark_node * parent, long options);
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap);
-static int subject_find_special_char(subject *subj);
+static int subject_find_special_char(subject *subj, long options);
 
 static unsigned char *cmark_clean_autolink(cmark_chunk *url, int is_email)
 {
@@ -843,7 +843,7 @@ static cmark_node* handle_newline(subject *subj)
 	}
 }
 
-static int subject_find_special_char(subject *subj)
+static int subject_find_special_char(subject *subj, long options)
 {
 	// "\n\\`&_*[]<!"
 	static const int8_t SPECIAL_CHARS[256] = {
@@ -865,6 +865,26 @@ static int subject_find_special_char(subject *subj)
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
 
+	// " ' . -
+	static const char SMART_PUNCT_TABLE[] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	};
+
 	int n = subj->pos + 1;
 
 	while (n < subj->input.len) {
@@ -878,7 +898,7 @@ static int subject_find_special_char(subject *subj)
 
 // Parse an inline, advancing subject, and add it as a child of parent.
 // Return 0 if no inline can be parsed, 1 otherwise.
-static int parse_inline(subject* subj, cmark_node * parent)
+static int parse_inline(subject* subj, cmark_node * parent, long options)
 {
 	cmark_node* new_inl = NULL;
 	cmark_chunk contents;
@@ -927,7 +947,7 @@ static int parse_inline(subject* subj, cmark_node * parent)
 		}
 		break;
 	default:
-		endpos = subject_find_special_char(subj);
+		endpos = subject_find_special_char(subj, options);
 		contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
 		subj->pos = endpos;
 
@@ -946,12 +966,12 @@ static int parse_inline(subject* subj, cmark_node * parent)
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap)
+extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap, long options)
 {
 	subject subj;
 	subject_from_buf(&subj, &parent->string_content, refmap);
 
-	while (!is_eof(&subj) && parse_inline(&subj, parent)) ;
+	while (!is_eof(&subj) && parse_inline(&subj, parent, options)) ;
 
 	process_emphasis(&subj, NULL);
 }

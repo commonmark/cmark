@@ -50,7 +50,7 @@ static cmark_node* make_document()
 	return e;
 }
 
-cmark_parser *cmark_parser_new()
+cmark_parser *cmark_parser_new(long options)
 {
 	cmark_parser *parser = (cmark_parser*)malloc(sizeof(cmark_parser));
 	cmark_node *document = make_document();
@@ -66,6 +66,7 @@ cmark_parser *cmark_parser_new()
 	parser->curline = line;
 	parser->last_line_length = 0;
 	parser->linebuf = buf;
+	parser->options = options;
 
 	return parser;
 }
@@ -316,7 +317,7 @@ static cmark_node* add_child(cmark_parser *parser, cmark_node* parent,
 
 // Walk through cmark_node and all children, recursively, parsing
 // string content into inline content where appropriate.
-static void process_inlines(cmark_node* root, cmark_reference_map *refmap)
+static void process_inlines(cmark_node* root, cmark_reference_map *refmap, long options)
 {
 	cmark_iter *iter = cmark_iter_new(root);
 	cmark_node *cur;
@@ -327,7 +328,7 @@ static void process_inlines(cmark_node* root, cmark_reference_map *refmap)
 		if (ev_type == CMARK_EVENT_ENTER) {
 			if (cur->type == NODE_PARAGRAPH ||
 			    cur->type == NODE_HEADER) {
-				cmark_parse_inlines(cur, refmap);
+				cmark_parse_inlines(cur, refmap, options);
 			}
 		}
 	}
@@ -416,15 +417,15 @@ static cmark_node *finalize_document(cmark_parser *parser)
 	}
 
 	finalize(parser, parser->root);
-	process_inlines(parser->root, parser->refmap);
+	process_inlines(parser->root, parser->refmap, parser->options);
 
 	return parser->root;
 }
 
-cmark_node *cmark_parse_file(FILE *f)
+cmark_node *cmark_parse_file(FILE *f, long options)
 {
 	unsigned char buffer[4096];
-	cmark_parser *parser = cmark_parser_new();
+	cmark_parser *parser = cmark_parser_new(options);
 	size_t bytes;
 	cmark_node *document;
 
@@ -441,9 +442,9 @@ cmark_node *cmark_parse_file(FILE *f)
 	return document;
 }
 
-cmark_node *cmark_parse_document(const char *buffer, size_t len)
+cmark_node *cmark_parse_document(const char *buffer, size_t len, long options)
 {
-	cmark_parser *parser = cmark_parser_new();
+	cmark_parser *parser = cmark_parser_new(options);
 	cmark_node *document;
 
 	S_parser_feed(parser, (const unsigned char *)buffer, len, true);

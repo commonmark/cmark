@@ -452,13 +452,13 @@ cmark_node *cmark_parser_finish(cmark_parser *parser);
  * Returns a pointer to a tree of nodes.
  */
 CMARK_EXPORT
-cmark_node *cmark_parse_document(const char *buffer, size_t len);
+cmark_node *cmark_parse_document(const char *buffer, size_t len, long options);
 
 /** Parse a CommonMark document in file 'f', returning a pointer to
  * a tree of nodes.
  */
 CMARK_EXPORT
-cmark_node *cmark_parse_file(FILE *f);
+cmark_node *cmark_parse_file(FILE *f, long options);
 
 /**
  * ## Rendering

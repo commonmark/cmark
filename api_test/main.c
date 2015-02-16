@@ -122,7 +122,7 @@ accessors(test_batch_runner *runner)
 		"\n"
 		"[link](url 'title')\n";
 
-	cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1);
+	cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
 	// Getters
 
@@ -308,7 +308,7 @@ node_check(test_batch_runner *runner) {
 
 static void
 iterator(test_batch_runner *runner) {
-	cmark_node *doc = cmark_parse_document("> a *b*\n\nc", 10);
+	cmark_node *doc = cmark_parse_document("> a *b*\n\nc", 10, CMARK_OPT_DEFAULT);
 	int parnodes = 0;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(doc);
@@ -339,7 +339,8 @@ iterator_delete(test_batch_runner *runner) {
 		"\n"
 		"* item1\n"
 		"* item2\n";
-	cmark_node *doc  = cmark_parse_document(md, sizeof(md) - 1);
+	cmark_node *doc  = cmark_parse_document(md, sizeof(md) - 1,
+						CMARK_OPT_DEFAULT);
 	cmark_iter *iter = cmark_iter_new(doc);
 	cmark_event_type ev_type;
 
@@ -544,7 +545,8 @@ render_html(test_batch_runner *runner)
 		"foo *bar*\n"
 		"\n"
 		"paragraph 2\n";
-	cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1);
+	cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1,
+		CMARK_OPT_DEFAULT);
 
 	cmark_node *paragraph = cmark_node_first_child(doc);
 	html = cmark_render_html(paragraph, CMARK_OPT_DEFAULT);

@@ -1,4 +1,4 @@
-.TH cmark 3 "February 14, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "February 15, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -437,14 +437,14 @@ Feeds a string of length \f[I]len\f[] to \f[I]parser\f[]\&.
 Finish parsing and return a pointer to a tree of nodes.
 
 .PP
-\fIcmark_node *\f[] \fBcmark_parse_document\f[](\fIconst char *buffer\f[], \fIsize_t len\f[])
+\fIcmark_node *\f[] \fBcmark_parse_document\f[](\fIconst char *buffer\f[], \fIsize_t len\f[], \fIlong options\f[])
 
 .PP
 Parse a CommonMark document in \f[I]buffer\f[] of length \f[I]len\f[]\&.
 Returns a pointer to a tree of nodes.
 
 .PP
-\fIcmark_node *\f[] \fBcmark_parse_file\f[](\fIFILE *f\f[])
+\fIcmark_node *\f[] \fBcmark_parse_file\f[](\fIFILE *f\f[], \fIlong options\f[])
 
 .PP
 Parse a CommonMark document in file \f[I]f\f[], returning a pointer to
