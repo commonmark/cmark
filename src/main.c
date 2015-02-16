@@ -152,12 +152,6 @@ int main(int argc, char *argv[])
 	end_timer("finishing document");
 	cmark_parser_free(parser);
 
-	if (options & CMARK_OPT_NORMALIZE) {
-		start_timer();
-		cmark_consolidate_text_nodes(document);
-		end_timer("normalizing document");
-	}
-
 	start_timer();
 	print_document(document, writer, options);
 	end_timer("print_document");
