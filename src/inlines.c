@@ -14,6 +14,15 @@
 #include "inlines.h"
 
 
+static const char *EMDASH = "\xE2\x80\x94";
+static const char *ENDASH = "\xE2\x80\x93";
+static const char *ELLIPSES = "\xE2\x80\xA6";
+static const char *LEFTDOUBLEQUOTE = "\xE2\x80\x9C";
+static const char *RIGHTDOUBLEQUOTE = "\xE2\x80\x9D";
+static const char *LEFTSINGLEQUOTE = "\xE2\x80\x98";
+static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
+
+
 // Macros for creating various kinds of simple.
 #define make_str(s) make_literal(CMARK_NODE_TEXT, s)
 #define make_code(s) make_literal(CMARK_NODE_CODE, s)
@@ -366,9 +375,9 @@ static cmark_node* handle_delim(subject* subj, unsigned char c, bool smart)
 	numdelims = scan_delims(subj, c, &can_open, &can_close);
 
 	if (c == '\'' && smart) {
-		contents = cmark_chunk_literal("’");
+		contents = cmark_chunk_literal(RIGHTSINGLEQUOTE);
 	} else if (c == '"' && smart) {
-		contents = cmark_chunk_literal(can_close ? "”" : "“");
+		contents = cmark_chunk_literal(can_close ? RIGHTDOUBLEQUOTE : LEFTDOUBLEQUOTE);
 	} else {
 		contents = cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims);
 	}
@@ -391,9 +400,9 @@ static cmark_node* handle_hyphen(subject* subj, bool smart)
 		advance(subj);
 		if (peek_char(subj) == '-') {
 			advance(subj);
-			return make_str(cmark_chunk_literal("—"));
+			return make_str(cmark_chunk_literal(EMDASH));
 		} else {
-			return make_str(cmark_chunk_literal("–"));
+			return make_str(cmark_chunk_literal(ENDASH));
 		}
 	} else {
 		return make_str(cmark_chunk_literal("-"));
@@ -408,7 +417,7 @@ static cmark_node* handle_period(subject* subj, bool smart)
 		advance(subj);
 		if (peek_char(subj) == '.') {
 			advance(subj);
-			return make_str(cmark_chunk_literal("…"));
+			return make_str(cmark_chunk_literal(ELLIPSES));
 		} else {
 			return make_str(cmark_chunk_literal(".."));
 		}
@@ -450,21 +459,21 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			} else if (closer->delim_char == '\'') {
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
-					cmark_chunk_literal("’");
+					cmark_chunk_literal(RIGHTSINGLEQUOTE);
 				if (opener != NULL && opener != start_delim) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
-						cmark_chunk_literal("‘");
+						cmark_chunk_literal(LEFTSINGLEQUOTE);
 				}
 				closer = closer->next;
 			} else if (closer->delim_char == '"') {
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
-					cmark_chunk_literal("”");
+					cmark_chunk_literal(RIGHTDOUBLEQUOTE);
 				if (opener != NULL && opener != start_delim) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
-						cmark_chunk_literal("“");
+						cmark_chunk_literal(LEFTDOUBLEQUOTE);
 				}
 				closer = closer->next;
 			}
