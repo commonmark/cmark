@@ -56,11 +56,25 @@ Here is some quoted '`code`' and a "[quoted link](url)".
 .
 
 .
+\"This is not smart.\"
+This isn\'t either.
+.
+<p>&quot;This is not smart.&quot;
+This isn't either.</p>
+.
+
+.
 Some dashes:  one---two ---
 three---four --- five.
 .
 <p>Some dashes:  one—two —
 three—four — five.</p>
+.
+
+.
+Escaped dashes: \-- \-\-\-.
+.
+<p>Escaped dashes: -- ---.</p>
 .
 
 .
@@ -73,4 +87,10 @@ Dashes between numbers: 5--7, 255--66, 1987--1999.
 Ellipses...and...and....
 .
 <p>Ellipses…and…and….</p>
+.
+
+.
+No ellipses\.\.\.
+.
+<p>No ellipses...</p>
 .
