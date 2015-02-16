@@ -25,14 +25,14 @@ static void escape_man(cmark_strbuf *dest, const unsigned char *source, int leng
 			if (beginLine) {
 				cmark_strbuf_puts(dest, "\\&.");
 			} else {
-				cmark_strbuf_putc(dest, source[i]);
+				utf8proc_encode_char(c, dest);
 			}
 			break;
 		case 39:
 			if (beginLine) {
 				cmark_strbuf_puts(dest, "\\&'");
 			} else {
-				cmark_strbuf_putc(dest, source[i]);
+				utf8proc_encode_char(c, dest);
 			}
 			break;
 		case 45:
@@ -60,7 +60,7 @@ static void escape_man(cmark_strbuf *dest, const unsigned char *source, int leng
 			cmark_strbuf_puts(dest, "\\[en]");
 			break;
 		default:
-			cmark_strbuf_putc(dest, source[i]);
+			utf8proc_encode_char(c, dest);
 		}
 		beginLine = (c == 10);
 		i += len;
