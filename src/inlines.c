@@ -971,7 +971,7 @@ static int subject_find_special_char(subject *subj, int options)
 	while (n < subj->input.len) {
 		if (SPECIAL_CHARS[subj->input.data[n]])
 			return n;
-		if (options & CMARK_OPT_SMARTPUNCT &&
+		if (options & CMARK_OPT_SMART &&
 		    SMART_PUNCT_CHARS[subj->input.data[n]])
 			return n;
 		n++;
@@ -1012,13 +1012,13 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 	case '_':
 	case '\'':
 	case '"':
-		new_inl = handle_delim(subj, c, options & CMARK_OPT_SMARTPUNCT);
+		new_inl = handle_delim(subj, c, options & CMARK_OPT_SMART);
 		break;
 	case '-':
-		new_inl = handle_hyphen(subj, options & CMARK_OPT_SMARTPUNCT);
+		new_inl = handle_hyphen(subj, options & CMARK_OPT_SMART);
 		break;
 	case '.':
-		new_inl = handle_period(subj, options & CMARK_OPT_SMARTPUNCT);
+		new_inl = handle_period(subj, options & CMARK_OPT_SMART);
 		break;
 	case '[':
 		advance(subj);

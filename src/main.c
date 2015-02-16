@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 		} else if (strcmp(argv[i], "--hardbreaks") == 0) {
 			options |= CMARK_OPT_HARDBREAKS;
 		} else if (strcmp(argv[i], "--smart") == 0) {
-			options |= CMARK_OPT_SMARTPUNCT;
+			options |= CMARK_OPT_SMART;
 		} else if (strcmp(argv[i], "--normalize") == 0) {
 			options |= CMARK_OPT_NORMALIZE;
 		} else if ((strcmp(argv[i], "--help") == 0) ||
