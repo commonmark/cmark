@@ -60,7 +60,7 @@ mingw:
 	make && make install
 
 man/man3/cmark.3: src/cmark.h | $(CMARK)
-	python3 man/make_man_page.py $< > $@ \
+	python man/make_man_page.py $< > $@ \
 
 archive:
 	git archive --prefix=$(RELEASE)/ -o $(RELEASE).tar.gz HEAD
