@@ -7,31 +7,63 @@
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
+#include "utf8.h"
 
 // Functions to convert cmark_nodes to groff man strings.
 
-// TODO:  properly escape unicode punctuation used in smart mode:
-// "\\[lq]", "\\[rq]", "\\[oq]", "\\[cq]", "\\[em]", "\\[en]", "..."
 static void escape_man(cmark_strbuf *dest, const unsigned char *source, int length)
 {
-	int i;
-	unsigned char c;
+	int32_t c;
+	int i = 0;
+	int len;
 	bool beginLine = true;
 
-	for (i = 0; i < length; i++) {
-		c = source[i];
-		if (c == '.' && beginLine) {
-			cmark_strbuf_puts(dest, "\\&.");
-		} else if (c == '\'' && beginLine) {
-			cmark_strbuf_puts(dest, "\\&'");
-		} else if (c == '-') {
+	while (i < length) {
+		len = utf8proc_iterate(source + i, length - i, &c);
+		switch(c) {
+		case 46:
+			if (beginLine) {
+				cmark_strbuf_puts(dest, "\\&.");
+			} else {
+				cmark_strbuf_putc(dest, source[i]);
+			}
+			break;
+		case 39:
+			if (beginLine) {
+				cmark_strbuf_puts(dest, "\\&'");
+			} else {
+				cmark_strbuf_putc(dest, source[i]);
+			}
+			break;
+		case 45:
 			cmark_strbuf_puts(dest, "\\-");
-		} else if (c == '\\') {
+			break;
+		case 92:
 			cmark_strbuf_puts(dest, "\\e");
-		} else {
+			break;
+		case 8216: // left single quote
+			cmark_strbuf_puts(dest, "\\[oq]");
+			break;
+		case 8217: // right single quote
+			cmark_strbuf_puts(dest, "\\[cq]");
+			break;
+		case 8220: // left double quote
+			cmark_strbuf_puts(dest, "\\[lq]");
+			break;
+		case 8221: // right double quote
+			cmark_strbuf_puts(dest, "\\[rq]");
+			break;
+		case 8212: // em dash
+			cmark_strbuf_puts(dest, "\\[em]");
+			break;
+		case 8211: // en dash
+			cmark_strbuf_puts(dest, "\\[en]");
+			break;
+		default:
 			cmark_strbuf_putc(dest, source[i]);
 		}
-		beginLine = (c == '\n');
+		beginLine = (c == 10);
+		i += len;
 	}
 }
 
