@@ -6,7 +6,6 @@
 #include "config.h"
 #include "cmark.h"
 #include "node.h"
-#include "utf8.h"
 #include "buffer.h"
 #include "houdini.h"
 
