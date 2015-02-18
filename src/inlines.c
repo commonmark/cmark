@@ -277,11 +277,13 @@ scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 		}
 	}
 
-	while (peek_char(subj) == c) {
+	if (c == '\'' || c == '"') {
 		numdelims++;
-		advance(subj);
-		if (c == '\'' || c == '"') {
-			break;  // limit to 1 delim for quotes
+		advance(subj);  // limit to 1 delim for quotes
+	} else {
+		while (peek_char(subj) == c) {
+			numdelims++;
+			advance(subj);
 		}
 	}
 
