@@ -36,8 +36,8 @@ typedef struct delimiter {
 	struct delimiter *previous;
 	struct delimiter *next;
 	cmark_node *inl_text;
-	unsigned char delim_char;
 	int position;
+	unsigned char delim_char;
 	bool can_open;
 	bool can_close;
 	bool active;
