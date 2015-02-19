@@ -19,7 +19,7 @@ VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 
-.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug mingw archive bench astyle update-spec
+.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug asan mingw archive bench astyle update-spec
 
 all: cmake_build man/man3/cmark.3
 
@@ -45,6 +45,12 @@ debug:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
 	cmake .. -DCMAKE_BUILD_TYPE=Debug; \
+	make
+
+asan:
+	mkdir -p $(BUILDDIR); \
+	cd $(BUILDDIR); \
+	cmake .. -DCMAKE_BUILD_TYPE=Asan; \
 	make
 
 prof:
