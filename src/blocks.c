@@ -523,7 +523,6 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	cmark_list *data = NULL;
 	bool all_matched = true;
 	cmark_node* container;
-	cmark_node* cur = parser->current;
 	bool blank = false;
 	int first_nonspace;
 	int indent;
@@ -659,7 +658,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		blank = peek_at(&input, first_nonspace) == '\n';
 
 		if (indent >= CODE_INDENT) {
-			if (cur->type != NODE_PARAGRAPH && !blank) {
+			if (parser->current->type != NODE_PARAGRAPH && !blank) {
 				offset += CODE_INDENT;
 				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
 				container->as.code.fenced = false;
@@ -809,20 +808,20 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		cont = cont->parent;
 	}
 
-	if (cur != last_matched_container &&
+	if (parser->current != last_matched_container &&
 	    container == last_matched_container &&
 	    !blank &&
-	    cur->type == NODE_PARAGRAPH &&
-	    cmark_strbuf_len(&cur->string_content) > 0) {
+	    parser->current->type == NODE_PARAGRAPH &&
+	    cmark_strbuf_len(&parser->current->string_content) > 0) {
 
-		add_line(cur, &input, offset);
+		add_line(parser->current, &input, offset);
 
 	} else { // not a lazy continuation
 
 		// finalize any blocks that were not matched and set cur to container:
-		while (cur != last_matched_container) {
-			cur = finalize(parser, cur);
-			assert(cur != NULL);
+		while (parser->current != last_matched_container) {
+			parser->current = finalize(parser, parser->current);
+			assert(parser->current != NULL);
 		}
 
 		if (container->type == NODE_CODE_BLOCK ||
