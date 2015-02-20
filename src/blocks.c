@@ -527,6 +527,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	int first_nonspace;
 	int indent;
 	cmark_chunk input;
+	bool maybe_lazy;
 
 	utf8proc_detab(parser->curline, buffer, bytes);
 
@@ -646,7 +647,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		break_out_of_lists(parser, &container);
 	}
 
-	// unless last matched container is code cmark_node, try new container starts:
+	maybe_lazy = parser->current->type == NODE_PARAGRAPH;
+	// try new container starts:
 	while (container->type != NODE_CODE_BLOCK &&
 	       container->type != NODE_HTML) {
 
@@ -658,7 +660,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		blank = peek_at(&input, first_nonspace) == '\n';
 
 		if (indent >= CODE_INDENT) {
-			if (parser->current->type != NODE_PARAGRAPH && !blank) {
+			if (!maybe_lazy && !blank) {
 				offset += CODE_INDENT;
 				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
 				container->as.code.fenced = false;
@@ -773,6 +775,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			// if it's a line container, it can't contain other containers
 			break;
 		}
+		maybe_lazy = false;
 	}
 
 	// what remains at offset is a text line.  add the text to the
