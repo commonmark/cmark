@@ -43,7 +43,7 @@ static cmark_node* make_block(cmark_node_type tag, int start_line, int start_col
 	return e;
 }
 
-// Create a root document cmark_node.
+// Create a root document node.
 static cmark_node* make_document()
 {
 	cmark_node *e = make_block(NODE_DOCUMENT, 1, 1);
@@ -144,7 +144,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 		cmark_strbuf_truncate(ln, i);
 }
 
-// Check to see if a cmark_node ends with a blank line, descending
+// Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
 static bool ends_with_blank_line(cmark_node* node)
 {
@@ -288,14 +288,14 @@ finalize(cmark_parser *parser, cmark_node* b)
 	return parent;
 }
 
-// Add a cmark_node as child of another.  Return pointer to child.
+// Add a node as child of another.  Return pointer to child.
 static cmark_node* add_child(cmark_parser *parser, cmark_node* parent,
                              cmark_node_type block_type, int start_column)
 {
 	assert(parent);
 
-	// if 'parent' isn't the kind of cmark_node that can accept this child,
-	// then back up til we hit a cmark_node that can.
+	// if 'parent' isn't the kind of node that can accept this child,
+	// then back up til we hit a node that can.
 	while (!can_contain(parent->type, block_type)) {
 		parent = finalize(parser, parent);
 	}
@@ -315,7 +315,7 @@ static cmark_node* add_child(cmark_parser *parser, cmark_node* parent,
 }
 
 
-// Walk through cmark_node and all children, recursively, parsing
+// Walk through node and all children, recursively, parsing
 // string content into inline content where appropriate.
 static void process_inlines(cmark_node* root, cmark_reference_map *refmap, int options)
 {
@@ -544,8 +544,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 
 	parser->line_number++;
 
-	// for each containing cmark_node, try to parse the associated line start.
-	// bail out on failure:  container will point to the last matching cmark_node.
+	// for each containing node, try to parse the associated line start.
+	// bail out on failure:  container will point to the last matching node.
 
 	while (container->last_child && container->last_child->open) {
 		container = container->last_child;
@@ -635,7 +635,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		}
 
 		if (!all_matched) {
-			container = container->parent;  // back up to last matching cmark_node
+			container = container->parent;  // back up to last matching node
 			break;
 		}
 	}
