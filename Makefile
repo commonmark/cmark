@@ -59,6 +59,17 @@ prof:
 	cmake .. -DCMAKE_BUILD_TYPE=Profile; \
 	make
 
+afl:
+	@[ -n "$(AFL_PATH)" ] || { echo '$$AFL_PATH not set'; false; }
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR) && cmake .. -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-gcc
+	make
+	$(AFL_PATH)/afl-fuzz \
+	    -i test/afl_test_cases \
+	    -o test/afl_results \
+	    -m none \
+	    $(CMARK)
+
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
 	cd $(MINGW_BUILDDIR); \
