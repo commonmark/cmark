@@ -1,4 +1,4 @@
-.TH cmark 3 "March 15, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 18, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -472,6 +472,12 @@ to add an appropriate header and footer.
 
 .PP
 Render a \f[I]node\f[] tree as a groff man page, without the header.
+
+.PP
+\fIchar *\f[] \fBcmark_render_commonmark\f[](\fIcmark_node *root\f[], \fIint options\f[])
+
+.PP
+Render a \f[I]node\f[] tree as a commonmark document.
 
 .PP
 .nf
