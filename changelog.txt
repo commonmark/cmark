@@ -1,3 +1,39 @@
+[0.18]
+
+  * Switch to 2-clause BSD license, with agreement of contributors.
+  * Added Profile build type, `make prof` target.
+  * Fixed autolink scanner to conform to the spec. Backslash escapes
+    not allowed in autolinks.
+  * Don't rely on strnlen being available (Nick Wellnhofer).
+  * Updated scanners for new whitespace definition.
+  * Added `CMARK_OPT_SMART` and `--smart` option, `smart.c`, `smart.h`.
+  * Added test for `--smart` option.
+  * Fixed segfault with --normalize (closes #7).
+  * Moved normalization step from XML renderer to `cmark_parser_finish`.
+  * Added options parameter to `cmark_parse_document`, `cmark_parse_file`.
+  * Fixed man renderer's escaping for unicode characters.
+  * Don't require python3 to make `cmark.3` man page.
+  * Use ASCII escapes for punctuation characters for portability.
+  * Made `options` an int rather than a long, for consistency.
+  * Packed `cmark_node` struct to fit into 128 bytes.
+    This gives a small performance boost and lowers memory usage.
+  * Repacked `delimiter` struct to avoid hole.
+  * Fixed use-after-free bug, which arose when a paragraph containing
+    only reference links and blank space was finalized (#9).
+    Avoid using `parser->current` in the loop that creates new
+    blocks, since `finalize` in `add_child` may have removed
+    the current parser (if it contains only reference definitions).
+    This isn't a great solution; in the long run we need to rewrite
+    to make the logic clearer and to make it harder to make
+    mistakes like this one.
+  * Added 'Asan' build type. `make asan` will link against ASan; the
+    resulting executable will do checks for memory access issues.
+    Thanks @JordanMilne for the suggestion.
+  * Add Makefile target to fuzz with AFL (Nick Wellnhofer)
+    The variable `$AFL_PATH` must point to the directory containing the AFL
+    binaries. It can be set as an environment variable or passed to make on
+    the command line.
+
 [0.17]
 
   * Stripped out all JavaScript related code and documentation, moving
