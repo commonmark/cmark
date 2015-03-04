@@ -1,8 +1,8 @@
 ---
 title: CommonMark Spec
 author: John MacFarlane
-version: 0.17
-date: 2015-01-24
+version: 0.18
+date: 2015-03-03
 license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 ...
 
@@ -3591,7 +3591,7 @@ of an [ordered list] is determined by the list number of
 its initial list item.  The numbers of subsequent list items are
 disregarded.
 
-A list is [loose](@loose) if it any of its constituent
+A list is [loose](@loose) if any of its constituent
 list items are separated by blank lines, or if any of its constituent
 list items directly contain two block-level elements with a blank line
 between them.  Otherwise a list is [tight](@tight).
@@ -4581,12 +4581,14 @@ characters that is not preceded or followed by a `_` character.
 A [left-flanking delimiter run](@left-flanking-delimiter-run) is
 a [delimiter run] that is (a) not followed by [unicode whitespace],
 and (b) either not followed by a [punctuation character], or
-preceded by [unicode whitespace] or a [punctuation character].
+preceded by [unicode whitespace] or a [punctuation character] or
+the beginning of a line.
 
 A [right-flanking delimiter run](@right-flanking-delimiter-run) is
 a [delimiter run] that is (a) not preceded by [unicode whitespace],
 and (b) either not preceded by a [punctuation character], or
-followed by [unicode whitespace] or a [punctuation character].
+followed by [unicode whitespace] or a [punctuation character] or
+the end of a line.
 
 Here are some examples of delimiter runs.
 
@@ -5654,15 +5656,15 @@ _a `_`_
 .
 
 .
-**a<http://foo.bar?q=**>
+**a<http://foo.bar/?q=**>
 .
-<p>**a<a href="http://foo.bar?q=**">http://foo.bar?q=**</a></p>
+<p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
 .
 
 .
-__a<http://foo.bar?q=__>
+__a<http://foo.bar/?q=__>
 .
-<p>__a<a href="http://foo.bar?q=__">http://foo.bar?q=__</a></p>
+<p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
 .
 
 
@@ -6025,9 +6027,9 @@ and autolinks over link grouping:
 .
 
 .
-[foo<http://example.com?search=](uri)>
+[foo<http://example.com/?search=](uri)>
 .
-<p>[foo<a href="http://example.com?search=%5D(uri)">http://example.com?search=](uri)</a></p>
+<p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
 .
 
 There are three kinds of [reference link](@reference-link)s:
@@ -6165,11 +6167,11 @@ and autolinks over link grouping:
 .
 
 .
-[foo<http://example.com?search=][ref]>
+[foo<http://example.com/?search=][ref]>
 
 [ref]: /uri
 .
-<p>[foo<a href="http://example.com?search=%5D%5Bref%5D">http://example.com?search=][ref]</a></p>
+<p>[foo<a href="http://example.com/?search=%5D%5Bref%5D">http://example.com/?search=][ref]</a></p>
 .
 
 Matching is case-insensitive:
@@ -6720,9 +6722,9 @@ Here are some valid autolinks:
 .
 
 .
-<http://foo.bar.baz?q=hello&id=22&boolean>
+<http://foo.bar.baz/test?q=hello&id=22&boolean>
 .
-<p><a href="http://foo.bar.baz?q=hello&amp;id=22&amp;boolean">http://foo.bar.baz?q=hello&amp;id=22&amp;boolean</a></p>
+<p><a href="http://foo.bar.baz/test?q=hello&amp;id=22&amp;boolean">http://foo.bar.baz/test?q=hello&amp;id=22&amp;boolean</a></p>
 .
 
 .
