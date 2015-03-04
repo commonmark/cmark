@@ -461,21 +461,21 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			} else if (closer->delim_char == '\'') {
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
-					cmark_chunk_literal(RIGHTSINGLEQUOTE);
+				    cmark_chunk_literal(RIGHTSINGLEQUOTE);
 				if (opener != NULL && opener != start_delim) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
-						cmark_chunk_literal(LEFTSINGLEQUOTE);
+					    cmark_chunk_literal(LEFTSINGLEQUOTE);
 				}
 				closer = closer->next;
 			} else if (closer->delim_char == '"') {
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
-					cmark_chunk_literal(RIGHTDOUBLEQUOTE);
+				    cmark_chunk_literal(RIGHTDOUBLEQUOTE);
 				if (opener != NULL && opener != start_delim) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
-						cmark_chunk_literal(LEFTDOUBLEQUOTE);
+					    cmark_chunk_literal(LEFTDOUBLEQUOTE);
 				}
 				closer = closer->next;
 			}

@@ -200,7 +200,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_TEXT:
 		escape_man(man, node->as.literal.data,
-			   node->as.literal.len);
+		           node->as.literal.len);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
