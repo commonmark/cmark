@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 set(LIBRARY "libcmark")
+set(STATICLIBRARY "libcmark_static")
 set(HEADERS
   cmark.h
   parser.h
@@ -79,10 +80,14 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif ()
 
 add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
 # Include minor version in soname as long as major version is 0.
 set_target_properties(${LIBRARY} PROPERTIES
   OUTPUT_NAME "cmark"
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  VERSION ${PROJECT_VERSION})
+set_target_properties(${STATICLIBRARY} PROPERTIES
+  OUTPUT_NAME "cmark_static"
   VERSION ${PROJECT_VERSION})
 
 set_property(TARGET ${LIBRARY}
