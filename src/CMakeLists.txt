@@ -86,9 +86,16 @@ set_target_properties(${LIBRARY} PROPERTIES
   OUTPUT_NAME "cmark"
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
   VERSION ${PROJECT_VERSION})
-set_target_properties(${STATICLIBRARY} PROPERTIES
-  OUTPUT_NAME "cmark_static"
-  VERSION ${PROJECT_VERSION})
+
+if (MSVC)
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmark_static"
+    VERSION ${PROJECT_VERSION})
+else()
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmark"
+    VERSION ${PROJECT_VERSION})
+endif(MSVC)
 
 set_property(TARGET ${LIBRARY}
   APPEND PROPERTY MACOSX_RPATH true)
