@@ -431,7 +431,7 @@ cmark_consolidate_text_nodes(cmark_node *root);
 /** Creates a new parser object.
  */
 CMARK_EXPORT
-cmark_parser *cmark_parser_new();
+cmark_parser *cmark_parser_new(int options);
 
 /** Frees memory allocated for a parser object.
  */
