@@ -412,11 +412,12 @@ cmark_consolidate_text_nodes(cmark_node *root);
  *
  * Simple interface:
  *
- *     cmark_node *document = cmark_parse_document("Hello *world*", 12, 0);
+ *     cmark_node *document = cmark_parse_document("Hello *world*", 12,
+ *                                                 CMARK_OPT_DEFAULT);
  *
  * Streaming interface:
  *
- *     cmark_parser *parser = cmark_parser_new(0);
+ *     cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
  *     FILE *fp = fopen("myfile.md", "r");
  *     while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
  *     	   cmark_parser_feed(parser, buffer, bytes);
