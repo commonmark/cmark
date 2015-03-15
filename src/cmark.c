@@ -9,14 +9,14 @@
 const int cmark_version = CMARK_VERSION;
 const char cmark_version_string[] = CMARK_VERSION_STRING;
 
-char *cmark_markdown_to_html(const char *text, int len)
+char *cmark_markdown_to_html(const char *text, int len, int options)
 {
 	cmark_node *doc;
 	char *result;
 
-	doc = cmark_parse_document(text, len, CMARK_OPT_DEFAULT);
+	doc = cmark_parse_document(text, len, options);
 
-	result = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+	result = cmark_render_html(doc, options);
 	cmark_node_free(doc);
 
 	return result;

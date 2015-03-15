@@ -606,7 +606,8 @@ utf8(test_batch_runner *runner)
 	// Test string containing null character
 	static const char string_with_null[] = "((((\0))))";
 	char *html = cmark_markdown_to_html(string_with_null,
-					    sizeof(string_with_null) - 1);
+					    sizeof(string_with_null) - 1,
+		                            CMARK_OPT_DEFAULT);
 	STR_EQ(runner, html, "<p>((((" UTF8_REPL "))))</p>\n",
 	       "utf8 with U+0000");
 	free(html);
@@ -656,7 +657,8 @@ test_continuation_byte(test_batch_runner *runner, const char *utf8)
 		}
 		strcat(expected, "))))</p>\n");
 
-		char *html = cmark_markdown_to_html(buf, strlen(buf));
+		char *html = cmark_markdown_to_html(buf, strlen(buf),
+						    CMARK_OPT_DEFAULT);
 		STR_EQ(runner, html, expected,
 		       "invalid utf8 continuation byte %d/%d", pos, len);
 		free(html);
@@ -667,7 +669,8 @@ static void
 test_md_to_html(test_batch_runner *runner, const char *markdown,
 		const char *expected_html, const char *msg)
 {
-	char *html = cmark_markdown_to_html(markdown, strlen(markdown));
+	char *html = cmark_markdown_to_html(markdown, strlen(markdown),
+					    CMARK_OPT_DEFAULT);
 	STR_EQ(runner, html, expected_html, msg);
 	free(html);
 }

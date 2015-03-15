@@ -1,4 +1,4 @@
-.TH cmark 3 "March 09, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 15, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -10,7 +10,7 @@ DESCRIPTION
 Simple Interface
 
 .PP
-\fIchar *\f[] \fBcmark_markdown_to_html\f[](\fIconst char *text\f[], \fIint len\f[])
+\fIchar *\f[] \fBcmark_markdown_to_html\f[](\fIconst char *text\f[], \fIint len\f[], \fIint options\f[])
 
 .PP
 Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
@@ -391,7 +391,8 @@ Simple interface:
 .IP
 .nf
 \f[C]
-cmark_node *document = cmark_parse_document("Hello *world*", 12);
+cmark_node *document = cmark_parse_document("Hello *world*", 12,
+                                            CMARK_OPT_DEFAULT);
 \f[]
 .fi
 .PP
@@ -399,7 +400,7 @@ Streaming interface:
 .IP
 .nf
 \f[C]
-cmark_parser *parser = cmark_parser_new();
+cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
 FILE *fp = fopen("myfile.md", "r");
 while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
        cmark_parser_feed(parser, buffer, bytes);
