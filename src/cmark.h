@@ -547,7 +547,6 @@ extern const char cmark_version_string[];
 #define NODE_STRONG               CMARK_NODE_STRONG
 #define NODE_LINK                 CMARK_NODE_LINK
 #define NODE_IMAGE                CMARK_NODE_IMAGE
-#define NODE_LINK_LABEL           CMARK_NODE_LINK_LABEL
 #define BULLET_LIST               CMARK_BULLET_LIST
 #define ORDERED_LIST              CMARK_ORDERED_LIST
 #define PERIOD_DELIM              CMARK_PERIOD_DELIM
