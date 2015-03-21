@@ -145,7 +145,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 	}
 
 
-	for(i = 0; i < ln->size; ++i) {
+	for(; i < ln->size; ++i) {
 		c = ln->ptr[i];
 
 		if (c != '\r' && c != '\n')
