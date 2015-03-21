@@ -113,9 +113,9 @@ $(ALLTESTS): $(SPEC)
 	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
 
 leakcheck: $(ALLTESTS)
-	cat $< | valgrind --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) >/dev/null
-	cat $< | valgrind --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t man >/dev/null
-	cat $< | valgrind --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t xml >/dev/null
+	for format in html man xml commonmark; do \
+	  cat $< | valgrind --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format >/dev/null; \
+	done
 
 fuzztest:
 	{ for i in `seq 1 10`; do \
