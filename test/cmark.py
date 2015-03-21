@@ -13,7 +13,7 @@ def pipe_through_prog(prog, text):
 def use_library(lib, text):
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
-    return [0, lib(textbytes, textlen).decode('utf-8'), '']
+    return [0, lib(textbytes, textlen, 0).decode('utf-8'), '']
 
 class CMark:
     def __init__(self, prog=None, library_dir=None):
