@@ -153,6 +153,25 @@ static void lit(struct render_state *state, char *s, bool wrap)
 	out(state, str, wrap, false);
 }
 
+static int
+longest_backtick_sequence(cmark_chunk *code)
+{
+	int longest = 0;
+	int current = 0;
+	int i = 0;
+	while (i < code->len) {
+		if (code->data[i] == '`') {
+			current++;
+		} else {
+			if (current > longest) {
+				longest = current;
+			}
+			current = 0;
+		}
+		i++;
+	}
+	return longest;
+}
 
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
@@ -160,6 +179,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 {
 	cmark_node *tmp;
 	int list_number;
+	int numticks;
+	int i;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	const char *info;
 	const char *title;
@@ -223,7 +244,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_CODE_BLOCK:
 		blankline(state);
-		// TODO variable number of ticks, depending on contents
 		info = cmark_node_get_fence_info(node);
 		if (info == NULL || strlen(info) == 0) {
 			// use indented form if no info
@@ -233,12 +253,22 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_truncate(state->prefix,
 					      state->prefix->size - 4);
 		} else {
-			lit(state, "``` ", false);
+			numticks = longest_backtick_sequence(&node->as.code.literal)
+				+ 1;
+			if (numticks < 3) {
+				numticks = 3;
+			}
+			for (i = 0; i < numticks; i++) {
+				lit(state, "`", false);
+			}
+			lit(state, " ", false);
 			out(state, cmark_chunk_literal(info), false, false);
 			cr(state);
 			out(state, node->as.code.literal, false, true);
 			cr(state);
-			lit(state, "```", false);
+			for (i = 0; i < numticks; i++) {
+				lit(state, "`", false);
+			}
 		}
 		blankline(state);
 		break;
@@ -275,10 +305,20 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_CODE:
-		// TODO variable number of ticks
-		lit(state, "`", false);
+		numticks = longest_backtick_sequence(&node->as.literal) + 1;
+		for (i = 0; i < numticks; i++) {
+			lit(state, "`", false);
+		}
+		if (numticks > 1) {
+			lit(state, " ", false);
+		}
 		out(state, node->as.literal, true, false);
-		lit(state, "`", false);
+		if (numticks > 1) {
+			lit(state, " ", false);
+		}
+		for (i = 0; i < numticks; i++) {
+			lit(state, "`", false);
+		}
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
@@ -341,6 +381,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	return 1;
 }
 
+// TODO parameter for wrap width or 0 for no wrap
 char *cmark_render_commonmark(cmark_node *root, int options)
 {
 	char *result;
