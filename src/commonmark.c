@@ -161,6 +161,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	cmark_node *tmp;
 	int list_number;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
+	const char *info;
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
@@ -221,14 +222,23 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_CODE_BLOCK:
 		blankline(state);
-		// TODO variable number of ticks
-		lit(state, "```", false);
-		cr(state);
-		// TODO info string
-		// TODO use indented form if no info string?
-		out(state, node->as.code.literal, false, true);
-		cr(state);
-		lit(state, "```", false);
+		// TODO variable number of ticks, depending on contents
+		info = cmark_node_get_fence_info(node);
+		if (info == NULL || strlen(info) == 0) {
+			// use indented form if no info
+			lit(state, "    ", false);
+			cmark_strbuf_puts(state->prefix, "    ");
+			out(state, node->as.code.literal, false, false);
+			cmark_strbuf_truncate(state->prefix,
+					      state->prefix->size - 4);
+		} else {
+			lit(state, "``` ", false);
+			out(state, cmark_chunk_literal(info), false, false);
+			cr(state);
+			out(state, node->as.code.literal, false, true);
+			cr(state);
+			lit(state, "```", false);
+		}
 		blankline(state);
 		break;
 
