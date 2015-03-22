@@ -162,6 +162,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	int list_number;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	const char *info;
+	const char *title;
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
@@ -306,7 +307,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		} else {
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, true);
-			// TODO title
+			title = cmark_node_get_title(node);
+			if (title && strlen(title) > 0) {
+				lit(state, " \"", true);
+				out(state, cmark_chunk_literal(title), false, true);
+				lit(state, "\"", false);
+			}
 			lit(state, ")", false);
 		}
 		break;
@@ -317,7 +323,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		} else {
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, true);
-			// TODO title
+			title = cmark_node_get_title(node);
+			if (title && strlen(title) > 0) {
+				lit(state, " \"", true);
+				out(state, cmark_chunk_literal(title), false, true);
+				lit(state, "\"", false);
+			}
 			lit(state, ")", false);
 		}
 		break;
