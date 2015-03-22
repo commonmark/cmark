@@ -36,14 +36,17 @@ static inline void blankline(struct render_state *state)
 	}
 }
 
-static inline bool needs_escaping(int32_t c, unsigned char d)
+static inline bool
+needs_escaping(int32_t c, unsigned char next_c, struct render_state *state)
 {
-	// TODO escape potential list markers at beginning of line
-	// (add param)
 	return (c == '*' || c == '_' || c == '[' || c == ']' ||
 		c == '<' || c == '>' || c == '\\' ||
-		(c == '&' && isalpha(d)) ||
-		(c == '!' && d == '['));
+		(c == '&' && isalpha(next_c)) ||
+		(c == '!' && next_c == '[') ||
+		(state->begin_line &&
+		 (c == '-' || c == '+' || c == '#' || c == '=')) ||
+		((c == '.' || c == ')') &&
+		 isdigit(state->buffer->ptr[state->buffer->size - 1])));
 }
 
 static inline void out(struct render_state *state,
@@ -103,7 +106,8 @@ static inline void out(struct render_state *state,
 			state->column = 0;
 			state->begin_line = true;
 			state->last_breakable = 0;
-		} else if (escape && needs_escaping(c, nextc)) {
+		} else if (escape &&
+			   needs_escaping(c, nextc, state)) {
 			cmark_strbuf_putc(state->buffer, '\\');
 			utf8proc_encode_char(c, state->buffer);
 			state->column += 2;
