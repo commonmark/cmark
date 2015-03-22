@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	cmark_parser *parser;
 	size_t bytes;
 	cmark_node *document;
-	int width;
+	int width = 0;
 	char *unparsed;
 	writer_format writer = FORMAT_HTML;
 	int options = CMARK_OPT_DEFAULT;
