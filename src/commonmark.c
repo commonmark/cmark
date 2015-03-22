@@ -20,6 +20,7 @@ struct render_state {
 	int need_cr;
 	int last_breakable;
 	bool begin_line;
+	bool no_wrap;
 };
 
 static inline void cr(struct render_state *state)
@@ -62,6 +63,8 @@ static inline void out(struct render_state *state,
 	int len;
 	cmark_chunk remainder = cmark_chunk_literal("");
 	int k = state->buffer->size - 1;
+
+	wrap = wrap && !state->no_wrap;
 
 	while (state->need_cr) {
 		if (k < 0 || state->buffer->ptr[k] == '\n') {
@@ -209,8 +212,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				lit(state, "#", false);
 			}
 			lit(state, " ", false);
-			// TODO set a "nowrap" variable in state, and refer to this in out()
+			state->no_wrap = true;
 		} else {
+			state->no_wrap = false;
 			blankline(state);
 		}
 		break;
@@ -321,7 +325,8 @@ char *cmark_render_commonmark(cmark_node *root, int options)
 	char *result;
 	cmark_strbuf commonmark = GH_BUF_INIT;
 	cmark_strbuf prefix = GH_BUF_INIT;
-	struct render_state state = { &commonmark, &prefix, 0, 65, 0, 0, true };
+	struct render_state state =
+		{ &commonmark, &prefix, 0, 65, 0, 0, true, false };
 	cmark_node *cur;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(root);
