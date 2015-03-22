@@ -12,9 +12,10 @@ For more information, see <http://commonmark.org>.
 This repository contains the C reference implementation.
 It provides a shared library (`libcmark`) with functions for parsing
 CommonMark documents to an abstract syntax tree (AST), manipulating
-the AST, and rendering the document to HTML or to an XML
-representation of the AST.  It also provides a command-line program
-(`cmark`) for parsing and rendering CommonMark documents.
+the AST, and rendering the document to HTML, groff man,
+CommonMark, or an XML representation of the AST.  It also provides a
+command-line program (`cmark`) for parsing and rendering CommonMark
+documents.
 
 The library and program are written in standard C99 and have
 no library dependencies. The parser is very fast, on par with
