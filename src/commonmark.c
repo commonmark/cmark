@@ -381,14 +381,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	return 1;
 }
 
-// TODO parameter for wrap width or 0 for no wrap
-char *cmark_render_commonmark(cmark_node *root, int options)
+char *cmark_render_commonmark(cmark_node *root, int options, int width)
 {
 	char *result;
 	cmark_strbuf commonmark = GH_BUF_INIT;
 	cmark_strbuf prefix = GH_BUF_INIT;
 	struct render_state state =
-		{ &commonmark, &prefix, 0, 65, 0, 0, true, false };
+		{ &commonmark, &prefix, 0, width, 0, 0, true, false };
 	cmark_node *cur;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(root);

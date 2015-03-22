@@ -484,7 +484,7 @@ char *cmark_render_man(cmark_node *root, int options);
 /** Render a 'node' tree as a commonmark document.
  */
 CMARK_EXPORT
-char *cmark_render_commonmark(cmark_node *root, int options);
+char *cmark_render_commonmark(cmark_node *root, int options, int width);
 
 /** Default writer options.
  */
