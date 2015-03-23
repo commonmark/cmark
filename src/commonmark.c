@@ -13,6 +13,7 @@
 // Functions to convert cmark_nodes to commonmark strings.
 
 struct render_state {
+	int options;
 	cmark_strbuf* buffer;
 	cmark_strbuf* prefix;
 	int column;
@@ -296,7 +297,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_LINEBREAK:
-		lit(state, "\\", false);
+		if (!(CMARK_OPT_HARDBREAKS & state->options)) {
+			lit(state, "\\", false);
+		}
 		cr(state);
 		break;
 
@@ -386,13 +389,14 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width)
 	char *result;
 	cmark_strbuf commonmark = GH_BUF_INIT;
 	cmark_strbuf prefix = GH_BUF_INIT;
+	if (CMARK_OPT_HARDBREAKS & options) {
+		width = 0;
+	}
 	struct render_state state =
-		{ &commonmark, &prefix, 0, width, 0, 0, true, false };
+		{ options, &commonmark, &prefix, 0, width, 0, 0, true, false };
 	cmark_node *cur;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(root);
-
-	if (options == 0) options = 0; // avoid warning about unused parameters
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
