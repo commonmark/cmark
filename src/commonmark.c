@@ -207,6 +207,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_ITEM:
+		// TODO implement tight lists
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
