@@ -100,6 +100,13 @@ $(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding-3.2.0.txt
 # We include scanners.c in the repository, so this shouldn't
 # normally need to be generated.
 $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
+	@case "$$(re2c -v)" in \
+	    *\ 0.13.7*|*\ 0.14*) \
+		echo $$(re2c -v) is known to produce buggy code.; \
+		echo Try version 0.13.6 or below.; \
+		false; \
+		;; \
+	esac
 	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
 
 update-spec:
