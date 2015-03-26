@@ -22,6 +22,7 @@ struct render_state {
 	int last_breakable;
 	bool begin_line;
 	bool no_wrap;
+	bool in_tight_list_item;
 };
 
 static inline void cr(struct render_state *state)
@@ -67,6 +68,9 @@ static inline void out(struct render_state *state,
 
 	wrap = wrap && !state->no_wrap;
 
+	if (state->in_tight_list_item && state->need_cr > 1) {
+		state->need_cr = 1;
+	}
 	while (state->need_cr) {
 		if (k < 0 || state->buffer->ptr[k] == '\n') {
 			k -= 1;
@@ -189,6 +193,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char listmarker[64];
 	int marker_width;
 
+	state->in_tight_list_item =
+		node->type == CMARK_NODE_ITEM &&
+		cmark_node_get_list_tight(node->parent);
+
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
 		if (!entering) {
@@ -201,7 +209,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			lit(state, "> ", false);
 			cmark_strbuf_puts(state->prefix, "> ");
 		} else {
-			cmark_strbuf_truncate(state->prefix, state->prefix->size - 2);
+			cmark_strbuf_truncate(state->prefix,
+					      state->prefix->size - 2);
 			blankline(state);
 		}
 		break;
@@ -210,7 +219,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_ITEM:
-		// TODO implement tight lists
 		if (cmark_node_get_list_type(node->parent) ==
 		    CMARK_BULLET_LIST) {
 			marker_width = 2;
@@ -413,7 +421,8 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width)
 		width = 0;
 	}
 	struct render_state state =
-		{ options, &commonmark, &prefix, 0, width, 0, 0, true, false };
+		{ options, &commonmark, &prefix, 0, width,
+		  0, 0, true, false, false};
 	cmark_node *cur;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(root);
