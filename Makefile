@@ -25,7 +25,7 @@ all: cmake_build man/man3/cmark.3
 
 $(CMARK): cmake_build
 
-cmake_build: $(BUILDDIR)
+cmake_build: $(BUILDDIR) $(SRCDIR)/html_unescape.h $(SRCDIR)/case_fold_switch.inc $(SRCDIR)/scanners.c
 	@make -j2 -C $(BUILDDIR)
 	@echo "Binaries can be found in $(BUILDDIR)/src"
 
