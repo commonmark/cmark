@@ -304,7 +304,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_HTML:
 		blankline(state);
-		out(state, node->as.code.literal, false, false);
+		out(state, node->as.literal, false, false);
 		blankline(state);
 		break;
 
