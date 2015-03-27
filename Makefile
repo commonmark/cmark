@@ -101,9 +101,9 @@ $(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding-3.2.0.txt
 # normally need to be generated.
 $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	@case "$$(re2c -v)" in \
-	    *\ 0.13.7*|*\ 0.14*) \
-		echo $$(re2c -v) is known to produce buggy code.; \
-		echo Try version 0.13.6 or below.; \
+	    *\ 0.13.7*|*\ 0.14|*\ 0.14.1) \
+		echo "re2c versions 0.13.7 through 0.14.1 are known to produce buggy code."; \
+		echo "Try a version >= 0.14.2 or <= 0.13.6."; \
 		false; \
 		;; \
 	esac
