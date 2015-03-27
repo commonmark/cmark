@@ -348,7 +348,7 @@ static int parse_list_marker(cmark_chunk *input, int pos, cmark_list **dataptr)
 	startpos = pos;
 	c = peek_at(input, pos);
 
-	if ((c == '*' || c == '-' || c == '+') && !scan_hrule(input, pos)) {
+	if (c == '*' || c == '-' || c == '+') {
 		pos++;
 		if (!cmark_isspace(peek_at(input, pos))) {
 			return 0;
