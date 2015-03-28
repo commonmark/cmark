@@ -240,6 +240,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			marker_width = strlen(listmarker);
 		}
 		if (entering) {
+			// TODO change bullet list marker to avoid
+			// interpretation as setext headers?
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
 				lit(state, "- ", false);
@@ -259,6 +261,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_HEADER:
+		// TODO escape literal ##s at the end of header conetnt
 		if (entering) {
 			for (int i = cmark_node_get_header_level(node); i > 0; i--) {
 				lit(state, "#", false);
@@ -376,6 +379,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			lit(state, "[", false);
 		} else {
+			// TODO - emit autolink when url matches link text
 			// TODO - backslash-escape " and \ inside url, title
 			// for both links and images
 			lit(state, "](", false);
