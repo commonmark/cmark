@@ -376,6 +376,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			lit(state, "[", false);
 		} else {
+			// TODO - backslash-escape " and \ inside url, title
+			// for both links and images
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, true);
 			title = cmark_node_get_title(node);
