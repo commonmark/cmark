@@ -39,24 +39,39 @@ static inline void blankline(struct render_state *state)
 	}
 }
 
+typedef enum  {
+	NO_ESCAPING,
+	NORMAL_ESCAPING,
+	QUOTE_ESCAPING
+} escaping;
+
 static inline bool
-needs_escaping(int32_t c, unsigned char next_c, struct render_state *state)
+needs_escaping(escaping escape,
+	       int32_t c,
+	       unsigned char next_c,
+	       struct render_state *state)
 {
-	return (c == '*' || c == '_' || c == '[' || c == ']' ||
-		c == '<' || c == '>' || c == '\\' ||
-		(c == '&' && isalpha(next_c)) ||
-		(c == '!' && next_c == '[') ||
-		(state->begin_line &&
-		 (c == '-' || c == '+' || c == '#' || c == '=')) ||
-		(c == '#' && (isspace(next_c) || next_c == '\0')) ||
-		((c == '.' || c == ')') &&
-		 isdigit(state->buffer->ptr[state->buffer->size - 1])));
+	if (escape == NORMAL_ESCAPING) {
+		return (c == '*' || c == '_' || c == '[' || c == ']' ||
+			c == '<' || c == '>' || c == '\\' ||
+			(c == '&' && isalpha(next_c)) ||
+			(c == '!' && next_c == '[') ||
+			(state->begin_line &&
+			 (c == '-' || c == '+' || c == '#' || c == '=')) ||
+			(c == '#' && (isspace(next_c) || next_c == '\0')) ||
+			((c == '.' || c == ')') &&
+			 isdigit(state->buffer->ptr[state->buffer->size - 1])));
+	} else if (escape == QUOTE_ESCAPING) {
+		return (c == '"' || c == '\\');
+	} else {
+		return false;
+	}
 }
 
 static inline void out(struct render_state *state,
 		       cmark_chunk str,
 		       bool wrap,
-		       bool escape)
+		       escaping escape)
 {
 	unsigned char* source = str.data;
 	int length = str.len;
@@ -115,8 +130,7 @@ static inline void out(struct render_state *state,
 			state->column = 0;
 			state->begin_line = true;
 			state->last_breakable = 0;
-		} else if (escape &&
-			   needs_escaping(c, nextc, state)) {
+		} else if (needs_escaping(escape, c, nextc, state)) {
 			cmark_strbuf_putc(state->buffer, '\\');
 			utf8proc_encode_char(c, state->buffer);
 			state->column += 2;
@@ -156,7 +170,7 @@ static inline void out(struct render_state *state,
 static void lit(struct render_state *state, char *s, bool wrap)
 {
 	cmark_chunk str = cmark_chunk_literal(s);
-	out(state, str, wrap, false);
+	out(state, str, wrap, NO_ESCAPING);
 }
 
 static int
@@ -282,7 +296,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// use indented form if no info
 			lit(state, "    ", false);
 			cmark_strbuf_puts(state->prefix, "    ");
-			out(state, node->as.code.literal, false, false);
+			out(state, node->as.code.literal, false, NO_ESCAPING);
 			cmark_strbuf_truncate(state->prefix,
 					      state->prefix->size - 4);
 		} else {
@@ -295,9 +309,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				lit(state, "`", false);
 			}
 			lit(state, " ", false);
-			out(state, cmark_chunk_literal(info), false, false);
+			out(state, cmark_chunk_literal(info), false, NO_ESCAPING);
 			cr(state);
-			out(state, node->as.code.literal, false, true);
+			out(state, node->as.code.literal, false, NORMAL_ESCAPING);
 			cr(state);
 			for (i = 0; i < numticks; i++) {
 				lit(state, "`", false);
@@ -308,7 +322,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_HTML:
 		blankline(state);
-		out(state, node->as.literal, false, false);
+		out(state, node->as.literal, false, NO_ESCAPING);
 		blankline(state);
 		break;
 
@@ -325,7 +339,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_TEXT:
-		out(state, node->as.literal, true, true);
+		out(state, node->as.literal, true, NORMAL_ESCAPING);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
@@ -347,7 +361,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (numticks > 1) {
 			lit(state, " ", false);
 		}
-		out(state, node->as.literal, true, false);
+		out(state, node->as.literal, true, NO_ESCAPING);
 		if (numticks > 1) {
 			lit(state, " ", false);
 		}
@@ -357,7 +371,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
-		out(state, node->as.literal, true, false);
+		out(state, node->as.literal, true, NO_ESCAPING);
 		break;
 
 	case CMARK_NODE_STRONG:
@@ -384,11 +398,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// TODO - backslash-escape " and \ inside url, title
 			// for both links and images
 			lit(state, "](", false);
-			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, true);
+			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, QUOTE_ESCAPING);
 			title = cmark_node_get_title(node);
 			if (title && strlen(title) > 0) {
 				lit(state, " \"", true);
-				out(state, cmark_chunk_literal(title), false, true);
+				out(state, cmark_chunk_literal(title), false, QUOTE_ESCAPING);
 				lit(state, "\"", false);
 			}
 			lit(state, ")", false);
@@ -400,11 +414,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			lit(state, "![", false);
 		} else {
 			lit(state, "](", false);
-			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, true);
+			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, QUOTE_ESCAPING);
 			title = cmark_node_get_title(node);
 			if (title && strlen(title) > 0) {
 				lit(state, " \"", true);
-				out(state, cmark_chunk_literal(title), false, true);
+				out(state, cmark_chunk_literal(title), false, QUOTE_ESCAPING);
 				lit(state, "\"", false);
 			}
 			lit(state, ")", false);
