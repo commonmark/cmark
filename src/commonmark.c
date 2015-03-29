@@ -48,6 +48,7 @@ needs_escaping(int32_t c, unsigned char next_c, struct render_state *state)
 		(c == '!' && next_c == '[') ||
 		(state->begin_line &&
 		 (c == '-' || c == '+' || c == '#' || c == '=')) ||
+		(c == '#' && (isspace(next_c) || next_c == '\0')) ||
 		((c == '.' || c == ')') &&
 		 isdigit(state->buffer->ptr[state->buffer->size - 1])));
 }
