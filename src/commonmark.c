@@ -282,8 +282,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			marker_width = strlen(listmarker);
 		}
 		if (entering) {
-			// TODO change bullet list marker to avoid
-			// interpretation as setext headers?
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
 				lit(state, "- ", false);
