@@ -312,7 +312,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
-				lit(state, "- ", false);
+				lit(state, "* ", false);
 				cmark_strbuf_puts(state->prefix, "  ");
 			} else {
 				lit(state, listmarker, false);
