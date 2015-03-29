@@ -416,7 +416,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		for (i = 0; i < numticks; i++) {
 			lit(state, "`", false);
 		}
-		if (code->len <= 1 || code->data[0] == '`') {
+		if (code->len == 0 || code->data[0] == '`') {
 			lit(state, " ", false);
 		}
 		out(state, node->as.literal, true, LITERAL);
