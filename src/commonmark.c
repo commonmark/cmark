@@ -200,7 +200,7 @@ longest_backtick_sequence(cmark_chunk *code)
 	int longest = 0;
 	int current = 0;
 	int i = 0;
-	while (i < code->len) {
+	while (i <= code->len) {
 		if (code->data[i] == '`') {
 			current++;
 		} else {
