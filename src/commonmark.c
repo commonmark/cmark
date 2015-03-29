@@ -39,13 +39,6 @@ static inline void blankline(struct render_state *state)
 	}
 }
 
-static inline void double_blankline(struct render_state *state)
-{
-	if (state->need_cr < 3) {
-		state->need_cr = 3;
-	}
-}
-
 typedef enum  {
 	LITERAL,
 	NORMAL,
@@ -258,8 +251,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	int marker_width;
 
 	state->in_tight_list_item =
-		node->type == CMARK_NODE_ITEM &&
-		cmark_node_get_list_tight(node->parent);
+		(node->type == CMARK_NODE_ITEM &&
+		 cmark_node_get_list_tight(node->parent)) ||
+		(node->parent && node->parent->type == CMARK_NODE_ITEM &&
+		 cmark_node_get_list_tight(node->parent->parent));
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
@@ -283,8 +278,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (!entering && node->next &&
 		    (node->next->type == CMARK_NODE_CODE_BLOCK ||
 		     node->next->type == CMARK_NODE_LIST)) {
-			// two blank lines after list before code block or list
-			double_blankline(state);
+			// this ensures 2 blank lines after list,
+			// if before code block or list:
+			lit(state, "\n", false);
+			state->need_cr = 0;
 		}
 		break;
 
