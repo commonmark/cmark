@@ -254,6 +254,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	const char *info;
 	const char *title;
 	char listmarker[64];
+	char *emph_delim;
 	int marker_width;
 
 	state->in_tight_list_item =
@@ -434,10 +435,18 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_EMPH:
-		if (entering) {
-			lit(state, "*", false);
+		// If we have EMPH(EMPH(x)), we need to use *_x_*
+		// because **x** is STRONG(x):
+		if (node->parent && node->parent->type == CMARK_NODE_EMPH &&
+		    node->next == NULL && node->prev == NULL) {
+			emph_delim = "_";
 		} else {
-			lit(state, "*", false);
+			emph_delim = "*";
+		}
+		if (entering) {
+			lit(state, emph_delim, false);
+		} else {
+			lit(state, emph_delim, false);
 		}
 		break;
 
