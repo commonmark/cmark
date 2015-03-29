@@ -344,15 +344,21 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_CODE_BLOCK:
 		blankline(state);
 		info = cmark_node_get_fence_info(node);
-		if (info == NULL || strlen(info) == 0) {
-			// use indented form if no info
+		code = &node->as.code.literal;
+		if ((info == NULL || strlen(info) == 0) &&
+		    (code->len > 2 &&
+		     !isspace(code->data[0]) &&
+		     !(isspace(code->data[code->len - 1]) &&
+		       isspace(code->data[code->len - 2])))) {
+			// use indented form if no info and code doesn't
+			// begin or end with a blank line
 			lit(state, "    ", false);
 			cmark_strbuf_puts(state->prefix, "    ");
 			out(state, node->as.code.literal, false, LITERAL);
 			cmark_strbuf_truncate(state->prefix,
 					      state->prefix->size - 4);
 		} else {
-			numticks = longest_backtick_sequence(&node->as.code.literal) + 1;
+			numticks = longest_backtick_sequence(code) + 1;
 			if (numticks < 3) {
 				numticks = 3;
 			}
