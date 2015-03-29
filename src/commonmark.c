@@ -215,10 +215,37 @@ longest_backtick_sequence(cmark_chunk *code)
 }
 
 static int
+shortest_unused_backtick_sequence(cmark_chunk *code)
+{
+	int32_t used = 1;
+	int current = 0;
+	int i = 0;
+	while (i <= code->len) {
+		if (code->data[i] == '`') {
+			current++;
+		} else {
+			if (current) {
+				used |= (1 << current);
+			}
+			current = 0;
+		}
+		i++;
+	}
+	// return number of first bit that is 0:
+	i = 0;
+	while (used & 1) {
+		used = used >> 1;
+		i++;
+	}
+	return i;
+}
+
+static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
               struct render_state *state)
 {
 	cmark_node *tmp;
+	cmark_chunk *code;
 	int list_number;
 	cmark_delim_type list_delim;
 	int numticks;
@@ -324,8 +351,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_truncate(state->prefix,
 					      state->prefix->size - 4);
 		} else {
-			numticks = longest_backtick_sequence(&node->as.code.literal)
-				+ 1;
+			numticks = longest_backtick_sequence(&node->as.code.literal) + 1;
 			if (numticks < 3) {
 				numticks = 3;
 			}
@@ -378,15 +404,16 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_CODE:
-		numticks = longest_backtick_sequence(&node->as.literal) + 1;
+		code = &node->as.literal;
+		numticks = shortest_unused_backtick_sequence(code);
 		for (i = 0; i < numticks; i++) {
 			lit(state, "`", false);
 		}
-		if (numticks > 1) {
+		if (code->data[0] == '`') {
 			lit(state, " ", false);
 		}
 		out(state, node->as.literal, true, LITERAL);
-		if (numticks > 1) {
+		if (code->data[code->len - 1] == '`') {
 			lit(state, " ", false);
 		}
 		for (i = 0; i < numticks; i++) {
