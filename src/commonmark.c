@@ -455,7 +455,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
-		out(state, node->as.literal, true, LITERAL);
+		out(state, node->as.literal, false, LITERAL);
 		break;
 
 	case CMARK_NODE_STRONG:
