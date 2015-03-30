@@ -9,46 +9,43 @@
 file*
 .SH "DESCRIPTION"
 \fBcmark\fR
-acts as a pipe, reading from
-\fRstdin\fR
-or from the specified files and writing to
-\fRstdout\fR.
-It converts Markdown formatted plain text to HTML (or groff man or
-an abstract representation of the AST), using the conventions
-described in the CommonMark spec.
-If multiple files are specified, the contents of the files are simply
-concatenated before parsing.
+converts Markdown formatted plain text to either HTML, groff man,
+CommonMark XML, or CommonMark, using the conventions
+described in the CommonMark spec.  It reads input from \fIstdin\fR
+or the specified files (concatenating their contents) and writes
+output to \fIstdout\fR.
 .SH "OPTIONS"
 .TP 12n
-\-\-to, \-t \f[I]FORMAT\f[]
+.B \-\-to, \-t \f[I]FORMAT\f[]
 Specify output format (\f[C]html\f[], \f[C]man\f[], \f[C]xml\f[],
 \f[C]commonmark\f[]).
 .TP 12n
-\-\-width \f[I]WIDTH\f[]
+.B \-\-width \f[I]WIDTH\f[]
 Specify a column width to which to wrap the output. For no wrapping, use
 the value 0 (the default).  This option currently only affects the
 commonmark renderer.
 .TP 12n
-\-\-sourcepos
+.B \-\-sourcepos
 Include source position attribute.
 .TP 12n
-\-\-hardbreaks
-Treat newlines as hard line breaks.
+.B \-\-hardbreaks
+Treat newlines as hard line breaks.  If this option is specified,
+hard wrapping is disabled, regardless of the value given with \-\-width.
 .TP 12n
-\-\-normalize
+.B \-\-normalize
 Consolidate adjacent text nodes.
 .TP 12n
-\-\-smart
+.B \-\-smart
 Use smart punctuation.  Straight double and single quotes will
 be rendered as curly quotes, depending on their position.
 \f[C]\-\-\f[] will be rendered as an en-dash.
 \f[C]\-\-\-\f[] will be rendered as an em-dash.
 \f[C]...\f[] will be rendered as ellipses.
 .TP 12n
-\-\-help
+.B \-\-help
 Print usage information.
 .TP 12n
-\-\-version
+.B \-\-version
 Print version.
 .SH "AUTHORS"
 John MacFarlane, Vicent Marti, Kārlis Gaņģis, Nick Wellnhofer.
