@@ -342,13 +342,16 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		blankline(state);
 		info = cmark_node_get_fence_info(node);
 		code = &node->as.code.literal;
+		// use indented form if no info, and code doesn't
+		// begin or end with a blank line, and code isn't
+		// first thing in a list item
 		if ((info == NULL || strlen(info) == 0) &&
 		    (code->len > 2 &&
 		     !isspace(code->data[0]) &&
 		     !(isspace(code->data[code->len - 1]) &&
-		       isspace(code->data[code->len - 2])))) {
-			// use indented form if no info and code doesn't
-			// begin or end with a blank line
+		       isspace(code->data[code->len - 2]))) &&
+		    !(node->prev == NULL && node->parent &&
+		      node->parent->type == CMARK_NODE_ITEM)) {
 			lit(state, "    ", false);
 			cmark_strbuf_puts(state->prefix, "    ");
 			out(state, node->as.code.literal, false, LITERAL);
