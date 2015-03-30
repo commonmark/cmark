@@ -249,7 +249,7 @@ is_autolink(cmark_node *node)
 
 	title = cmark_node_get_title(node);
 	// if it has a title, we can't treat it as an autolink:
-	if (title != NULL && strnlen(title, 1) > 0) {
+	if (title != NULL && strlen(title) > 0) {
 		return false;
 	}
 	cmark_consolidate_text_nodes(node);
@@ -351,7 +351,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				 list_delim == CMARK_PAREN_DELIM ?
 				 ")" : ".",
 				 list_number < 10 ? "  " : " ");
-			marker_width = strnlen(listmarker, 63);
+			marker_width = strlen(listmarker);
 		}
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
@@ -392,7 +392,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		// use indented form if no info, and code doesn't
 		// begin or end with a blank line, and code isn't
 		// first thing in a list item
-		if ((info == NULL || strnlen(info, 1) == 0) &&
+		if ((info == NULL || strlen(info) == 0) &&
 		    (code->len > 2 &&
 		     !isspace(code->data[0]) &&
 		     !(isspace(code->data[code->len - 1]) &&
@@ -534,7 +534,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				    cmark_chunk_literal(cmark_node_get_url(node)),
 				    false, URL);
 				title = cmark_node_get_title(node);
-				if (title && strnlen(title, 1) > 0) {
+				if (title && strlen(title) > 0) {
 					lit(state, " \"", true);
 					out(state, cmark_chunk_literal(title),
 					    false, TITLE);
@@ -552,7 +552,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, URL);
 			title = cmark_node_get_title(node);
-			if (title && strnlen(title, 1) > 0) {
+			if (title && strlen(title) > 0) {
 				lit(state, " \"", true);
 				out(state, cmark_chunk_literal(title), false, TITLE);
 				lit(state, "\"", false);
