@@ -1,2 +1,2 @@
 #!/bin/sh
-./cmark -t commonmark | ./cmark
+./src/build/cmark -t commonmark | ./src/build/cmark
