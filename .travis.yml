@@ -20,9 +20,9 @@ before_install:
 script:
  - make
  - make test
- - make roundtrip_test
  - |
      if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]
      then
+         make roundtrip_test
          make leakcheck
      fi
