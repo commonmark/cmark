@@ -365,7 +365,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			lit(state, " ", false);
 			out(state, cmark_chunk_literal(info), false, LITERAL);
 			cr(state);
-			out(state, node->as.code.literal, false, NORMAL);
+			out(state, node->as.code.literal, false, LITERAL);
 			cr(state);
 			for (i = 0; i < numticks; i++) {
 				lit(state, "`", false);
