@@ -250,11 +250,17 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char *emph_delim;
 	int marker_width;
 
-	state->in_tight_list_item =
-		(node->type == CMARK_NODE_ITEM &&
-		 cmark_node_get_list_tight(node->parent)) ||
-		(node->parent && node->parent->type == CMARK_NODE_ITEM &&
-		 cmark_node_get_list_tight(node->parent->parent));
+	// Don't adjust tight list status til we've started the list.
+	// Otherwise we loose the blank line between a paragraph and
+	// a following list.
+	if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL &&
+	      entering)) {
+		state->in_tight_list_item =
+			(node->type == CMARK_NODE_ITEM &&
+			 cmark_node_get_list_tight(node->parent)) ||
+			(node->parent && node->parent->type == CMARK_NODE_ITEM &&
+			 cmark_node_get_list_tight(node->parent->parent));
+	}
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
