@@ -55,7 +55,7 @@ needs_escaping(escaping escape,
 {
 	if (escape == NORMAL) {
 		return (c == '*' || c == '_' || c == '[' || c == ']' ||
-			c == '<' || c == '>' || c == '\\' ||
+			c == '<' || c == '>' || c == '\\' || c == '`' ||
 			(c == '&' && isalpha(next_c)) ||
 			(c == '!' && next_c == '[') ||
 			(state->begin_line &&
