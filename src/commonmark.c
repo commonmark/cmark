@@ -9,6 +9,7 @@
 #include "node.h"
 #include "buffer.h"
 #include "utf8.h"
+#include "scanners.h"
 
 // Functions to convert cmark_nodes to commonmark strings.
 
@@ -43,8 +44,7 @@ typedef enum  {
 	LITERAL,
 	NORMAL,
 	TITLE,
-	URL,
-	BRACED_URL
+	URL
 } escaping;
 
 static inline bool
@@ -69,8 +69,6 @@ needs_escaping(escaping escape,
 	} else if (escape == URL) {
 		return (c == '`' || c == '<' || c == '>' || isspace(c) ||
 			c == '\\' || c == ')' || c == '(');
-	} else if (escape == BRACED_URL) {
-		return (c == '`' || c == '<' || c == '>' || c == '\\');
 	} else {
 		return false;
 	}
@@ -233,6 +231,33 @@ shortest_unused_backtick_sequence(cmark_chunk *code)
 	return i;
 }
 
+static bool
+is_autolink(cmark_node *node)
+{
+	const char *title;
+	const char *url;
+
+	if (node->type != CMARK_NODE_LINK) {
+		return false;
+	}
+
+	url = cmark_node_get_url(node);
+	if (url == NULL ||
+	    _scan_scheme((unsigned char *)url) == 0) {
+		return false;
+	}
+
+	title = cmark_node_get_title(node);
+	// if it has a title, we can't treat it as an autolink:
+	if (title != NULL && strnlen(title, 1) > 0) {
+		return false;
+	}
+	cmark_consolidate_text_nodes(node);
+	return (strncmp(url,
+			(char*)node->as.literal.data,
+			node->as.literal.len) == 0);
+}
+
 // if node is a block node, returns node.
 // otherwise returns first block-level node that is an ancestor of node.
 static cmark_node*
@@ -326,7 +351,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				 list_delim == CMARK_PAREN_DELIM ?
 				 ")" : ".",
 				 list_number < 10 ? "  " : " ");
-			marker_width = strlen(listmarker);
+			marker_width = strnlen(listmarker, 63);
 		}
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
@@ -367,7 +392,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		// use indented form if no info, and code doesn't
 		// begin or end with a blank line, and code isn't
 		// first thing in a list item
-		if ((info == NULL || strlen(info) == 0) &&
+		if ((info == NULL || strnlen(info, 1) == 0) &&
 		    (code->len > 2 &&
 		     !isspace(code->data[0]) &&
 		     !(isspace(code->data[code->len - 1]) &&
@@ -483,21 +508,40 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_LINK:
-		if (entering) {
-			lit(state, "[", false);
-		} else {
-			// TODO - emit autolink when url matches link text
-			// TODO - backslash-escape " and \ inside url, title
-			// for both links and images
-			lit(state, "](", false);
-			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, URL);
-			title = cmark_node_get_title(node);
-			if (title && strlen(title) > 0) {
-				lit(state, " \"", true);
-				out(state, cmark_chunk_literal(title), false, TITLE);
-				lit(state, "\"", false);
+		if (is_autolink(node)) {
+			if (entering) {
+				lit(state, "<", false);
+				if (strncmp(cmark_node_get_url(node),
+					    "mailto:", 7) == 0) {
+					lit(state,
+					    (char *)cmark_node_get_url(node) + 7,
+					    false);
+				} else {
+					lit(state,
+					    (char *)cmark_node_get_url(node),
+					    false);
+				}
+				lit(state, ">", false);
+				// return signal to skip contents of node...
+				return 0;
 			}
-			lit(state, ")", false);
+		} else {
+			if (entering) {
+				lit(state, "[", false);
+			} else {
+				lit(state, "](", false);
+				out(state,
+				    cmark_chunk_literal(cmark_node_get_url(node)),
+				    false, URL);
+				title = cmark_node_get_title(node);
+				if (title && strnlen(title, 1) > 0) {
+					lit(state, " \"", true);
+					out(state, cmark_chunk_literal(title),
+					    false, TITLE);
+					lit(state, "\"", false);
+				}
+				lit(state, ")", false);
+			}
 		}
 		break;
 
@@ -508,7 +552,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, URL);
 			title = cmark_node_get_title(node);
-			if (title && strlen(title) > 0) {
+			if (title && strnlen(title, 1) > 0) {
 				lit(state, " \"", true);
 				out(state, cmark_chunk_literal(title), false, TITLE);
 				lit(state, "\"", false);
@@ -542,7 +586,12 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width)
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
-		S_render_node(cur, ev_type, &state);
+		if (!S_render_node(cur, ev_type, &state)) {
+			// a false value causes us to skip processing
+			// the node's contents.  this is used for
+			// autolinks.
+			cmark_iter_reset(iter, cur, CMARK_EVENT_EXIT);
+		}
 	}
 	result = (char *)cmark_strbuf_detach(&commonmark);
 
