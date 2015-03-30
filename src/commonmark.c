@@ -404,7 +404,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
-		lit(state, " ", true);
+		if (state->width == 0) {
+			cr(state);
+		} else {
+			lit(state, " ", true);
+		}
 		break;
 
 	case CMARK_NODE_CODE:
