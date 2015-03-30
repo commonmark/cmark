@@ -1,3 +1,37 @@
+[0.18.2]
+
+  * Added commonmark renderer: `cmark_render_commonmark`. In addition
+    to options, this takes a `width` parameter.  A value of 0 disables
+    wrapping; a positive value wraps the document to the specified
+    width.  Note that width is automatically set to 0 if the
+    `CMARK_OPT_HARDBREAKS` option is set.
+  * The `cmark` executable now allows `-t commonmark` for output as
+    CommonMark.  A `--width` option has been added to specify wrapping
+    width.
+  * Added `roundtrip_test` Makefile target.  This runs all the spec
+    through the commonmark renderer, and then through the commonmark
+    parser, and compares normalized HTML to the test.  All tests pass
+    with the current parser and renderer, giving us some confidence that
+    the commonmark renderer is sufficiently robust.  Eventually this
+    should be pythonized and put in the cmake test routine.
+  * Removed an unnecessary check in `blocks.c`.  By the time we check
+    for a list start, we've already checked for a horizontal rule, so
+    we don't need to repeat that check here.  Thanks to Robin Stocker for
+    pointing out a similar redundancy in commonmark.js.
+  * Fixed bug in `cmark_strbuf_unescape` (`buffer.c`).  The old function
+    gave incorrect results on input like `\\*`, since the next backslash
+    would be treated as escaping the `*` instead of being escaped itself.
+  * `scanners.re`:  added `_scan_scheme`, `scan_scheme`, used in the
+    commonmark renderer.
+  * Check for `CMAKE_C_COMPILER` (not `CC_COMPILER`) when setting C flags.
+  * Update code examples in documentation, adding new parser option
+    argument, and using `CMARK_OPT_DEFAULT` (Nick Wellnhofer).
+  * Added options parameter to `cmark_markdown_to_html`.
+  * Removed obsolete reference to `CMARK_NODE_LINK_LABEL`.
+  * `make leakcheck` now checks all output formats.
+  * `test/cmark.py`:  set default options for `markdown_to_html`.
+  * Warn about buggy re2c versions (Nick Wellnhofer).
+
 [0.18.1]
 
   * Build static version of library in default build (#11).
