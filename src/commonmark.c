@@ -233,6 +233,19 @@ shortest_unused_backtick_sequence(cmark_chunk *code)
 	return i;
 }
 
+// if node is a block node, returns node.
+// otherwise returns first block-level node that is an ancestor of node.
+static cmark_node*
+get_containing_block(cmark_node *node)
+{
+	while (node &&
+	       (node->type < CMARK_NODE_FIRST_BLOCK ||
+		node->type > CMARK_NODE_LAST_BLOCK)) {
+		node = node->parent;
+	}
+	return node;
+}
+
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
               struct render_state *state)
@@ -255,11 +268,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	// a following list.
 	if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL &&
 	      entering)) {
-		state->in_tight_list_item =
-			(node->type == CMARK_NODE_ITEM &&
-			 cmark_node_get_list_tight(node->parent)) ||
-			(node->parent && node->parent->type == CMARK_NODE_ITEM &&
-			 cmark_node_get_list_tight(node->parent->parent));
+			tmp = get_containing_block(node);
+			state->in_tight_list_item =
+				(tmp->type == CMARK_NODE_ITEM &&
+				 cmark_node_get_list_tight(tmp->parent)) ||
+				(tmp &&
+				 tmp->parent &&
+				 tmp->parent->type == CMARK_NODE_ITEM &&
+				 cmark_node_get_list_tight(tmp->parent->parent));
 	}
 
 	switch (node->type) {
