@@ -372,7 +372,7 @@ extern void cmark_strbuf_unescape(cmark_strbuf *buf)
 
 	for (r = 0, w = 0; r < buf->size; ++r) {
 		if (buf->ptr[r] == '\\' && cmark_ispunct(buf->ptr[r + 1]))
-			continue;
+			r++;
 
 		buf->ptr[w++] = buf->ptr[r];
 	}
