@@ -11,6 +11,10 @@
 #include "utf8.h"
 #include "scanners.h"
 
+#if defined(_MSC_VER) && (_MSC_VER <=1800)
+#define snprintf _snprintf
+#endif
+
 // Functions to convert cmark_nodes to commonmark strings.
 
 struct render_state {
