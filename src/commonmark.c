@@ -11,10 +11,6 @@
 #include "utf8.h"
 #include "scanners.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <=1800)
-#define snprintf _snprintf
-#endif
-
 // Functions to convert cmark_nodes to commonmark strings.
 
 struct render_state {
@@ -288,7 +284,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	const char *info;
 	const char *title;
-	char listmarker[64];
+	cmark_strbuf listmarker = GH_BUF_INIT;
 	char *emph_delim;
 	int marker_width;
 
@@ -351,11 +347,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// we ensure a width of at least 4 so
 			// we get nice transition from single digits
 			// to double
-			snprintf(listmarker, 63, "%d%s%s", list_number,
-				 list_delim == CMARK_PAREN_DELIM ?
-				 ")" : ".",
-				 list_number < 10 ? "  " : " ");
-			marker_width = strlen(listmarker);
+			cmark_strbuf_printf(&listmarker,
+					    "%d%s%s", list_number,
+					    list_delim == CMARK_PAREN_DELIM ?
+					    ")" : ".",
+					    list_number < 10 ? "  " : " ");
+			marker_width = listmarker.size;
 		}
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
@@ -363,7 +360,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				lit(state, "* ", false);
 				cmark_strbuf_puts(state->prefix, "  ");
 			} else {
-				lit(state, listmarker, false);
+				lit(state, (char *)listmarker.ptr, false);
 				for (i=marker_width; i--;) {
 					cmark_strbuf_putc(state->prefix, ' ');
 				}
@@ -374,6 +371,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 					      marker_width);
 			cr(state);
 		}
+		cmark_strbuf_free(&listmarker);
 		break;
 
 	case CMARK_NODE_HEADER:
