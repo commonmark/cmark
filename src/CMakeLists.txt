@@ -109,6 +109,7 @@ if (MSVC)
     APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
 endif(MSVC)
 
+include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${LIBRARY}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
