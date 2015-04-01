@@ -82,10 +82,10 @@ endif ()
 
 add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
 add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
-# Include minor version in soname as long as major version is 0.
+# Include minor version and patch level in soname for now.
 set_target_properties(${LIBRARY} PROPERTIES
   OUTPUT_NAME "cmark"
-  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
   VERSION ${PROJECT_VERSION})
 
 if (MSVC)
