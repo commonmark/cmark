@@ -1,3 +1,13 @@
+[0.18.3]
+
+  * Include patch level in soname (Nick Wellnhofer). Minor version is
+    tied to spec version, so this allows breaking the ABI between spec
+    releases.
+  * Install compiler-provided system runtime libraries (Changjiang Yang).
+  * Use `strbuf_printf` instead of `snprintf`. `snprintf` is not
+    available on some platforms (Visual Studio 2013 and earlier).
+  * Fixed memory access bug: "invalid read of size 1" on input `[link](<>)`.
+
 [0.18.2]
 
   * Added commonmark renderer: `cmark_render_commonmark`. In addition
