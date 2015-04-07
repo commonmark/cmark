@@ -36,7 +36,7 @@ def print_test_header(headertext, example_number, start_line, end_line):
     print("Example %d (lines %d-%d) %s" % (example_number,start_line,end_line,headertext))
 
 def do_test(test, normalize, result_counts):
-    [retcode, actual_html, err] = cmark.to_html(test['markdown'])
+    [retcode, actual_html, err] = cmark.to_html(re.sub(r"\n", "\r\n", test['markdown']))
     if retcode == 0:
         expected_html = test['html']
         unicode_error = None
@@ -52,17 +52,21 @@ def do_test(test, normalize, result_counts):
             result_counts['pass'] += 1
         else:
             print_test_header(test['section'], test['example'], test['start_line'], test['end_line'])
-            sys.stdout.write(test['markdown'])
+            print("Orig: "+repr(test['markdown']))
+            print("Conv: "+repr(re.sub(r"\n", "\r\n", test['markdown'])))
+#            sys.stdout.write(test['markdown'])
             if unicode_error:
                 print("Unicode error: " + str(unicode_error))
                 print("Expected: " + repr(expected_html))
                 print("Got:      " + repr(actual_html))
             else:
-                expected_html_lines = expected_html.splitlines(True)
-                actual_html_lines = actual_html.splitlines(True)
-                for diffline in unified_diff(expected_html_lines, actual_html_lines,
-                                "expected HTML", "actual HTML"):
-                    sys.stdout.write(diffline)
+                print("Expected: " + repr(expected_html))
+                print("Got:      " + repr(actual_html))
+#                expected_html_lines = expected_html.splitlines(True)
+#                actual_html_lines = actual_html.splitlines(True)
+#                for diffline in unified_diff(expected_html_lines, actual_html_lines,
+#                                "expected HTML", "actual HTML"):
+#                    sys.stdout.write(diffline)
             sys.stdout.write('\n')
             result_counts['fail'] += 1
     else:
