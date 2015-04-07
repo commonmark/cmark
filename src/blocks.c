@@ -213,10 +213,10 @@ finalize(cmark_parser *parser, cmark_node* b)
 	           (b->type == NODE_HEADER && b->as.header.setext)) {
 		b->end_line = parser->line_number;
 		b->end_column = parser->curline->size;
-		if (b->end_column && parser->curline->ptr[b->end_column-1] == '\n')
-			b->end_column -= 1;
-		if (b->end_column && parser->curline->ptr[b->end_column-1] == '\r')
-			b->end_column -= 1;
+		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\n')
+			b->end_column--;
+		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\r')
+			b->end_column--;
 	} else {
 		b->end_line = parser->line_number - 1;
 		b->end_column = parser->last_line_length;
@@ -895,11 +895,11 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 finished:
 	parser->last_line_length = parser->curline->size;
 	if (parser->last_line_length &&
-	    parser->curline->ptr[parser->last_line_length-1] == '\n')
-		parser->last_line_length -= 1;
+	    parser->curline->ptr[parser->last_line_length - 1] == '\n')
+		parser->last_line_length--;
 	if (parser->last_line_length &&
-	    parser->curline->ptr[parser->last_line_length-1] == '\r')
-		parser->last_line_length -= 1;
+	    parser->curline->ptr[parser->last_line_length - 1] == '\r')
+		parser->last_line_length--;
 
 	cmark_strbuf_clear(parser->curline);
 
