@@ -90,9 +90,6 @@ static bool is_blank(cmark_strbuf *s, int offset)
 	while (offset < s->size) {
 		switch (s->ptr[offset]) {
 		case '\r':
-			if (s->ptr[offset + 1] == '\n')
-				offset++;
-			return true;
 		case '\n':
 			return true;
 		case ' ':
@@ -150,10 +147,6 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 
 		if (c != '\r' && c != '\n')
 			continue;
-
-		// Don't cut a CRLF in half
-		if (c == '\r' && i+1 < ln->size && ln->ptr[i+1] == '\n')
-			++i;
 
 		cmark_strbuf_truncate(ln, i);
 		break;
@@ -568,10 +561,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 
 	// Add a newline to the end if not present:
 	// TODO this breaks abstraction:
-	// Note: we assume output is LF-only
-	if (parser->curline->ptr[parser->curline->size - 1] != '\n') {
-		cmark_strbuf_putc(parser->curline, '\n');
+	if (parser->curline->ptr[parser->curline->size - 1] == '\n') {
+		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
 	}
+	if (parser->curline->ptr[parser->curline->size - 1] == '\r') {
+		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
+	}
+	cmark_strbuf_putc(parser->curline, '\n');
 	input.data = parser->curline->ptr;
 	input.len = parser->curline->size;
 
