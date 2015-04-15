@@ -117,6 +117,9 @@ static inline void out(struct render_state *state,
 		}
 
 		len = utf8proc_iterate(source + i, length - i, &c);
+		if (len == -1) { // error condition
+			return;  // return without rendering rest of string
+		}
 		nextc = source[i + len];
 		if (c == 32 && wrap) {
 			if (!state->begin_line) {

@@ -20,6 +20,9 @@ static void escape_man(cmark_strbuf *dest, const unsigned char *source, int leng
 
 	while (i < length) {
 		len = utf8proc_iterate(source + i, length - i, &c);
+		if (len == -1) { // error condition
+			return;  // return without rendering anything
+		}
 		switch(c) {
 		case 46:
 			if (beginLine) {
