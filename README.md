@@ -24,6 +24,11 @@ Advantages of this library:
 
 - **Accurate.** The library passes all CommonMark conformance tests.
 
+- **Standardized.** The library can be expected to parse CommonMark
+  the same way as any other conforming parser.  So, for example,
+  you can use `commonmark.js` on the client to preview content that
+  will be rendered on the server using `cmark`.
+
 - **Robust.** The library has been extensively fuzz-tested using
   american fuzzy lop.  The test suite includes pathological cases
   that bring many other Markdown parsers to a crawl (for example,
