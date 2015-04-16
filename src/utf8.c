@@ -172,8 +172,7 @@ int utf8proc_iterate(const uint8_t *str, int str_len, int32_t *dst)
 	case 3:
 		uc = ((str[0] & 0x0F) << 12) + ((str[1] & 0x3F) <<  6)
 		     + (str[2] & 0x3F);
-		if (uc < 0x800 || (uc >= 0xD800 && uc < 0xE000) ||
-		    (uc >= 0xFDD0 && uc < 0xFDF0)) uc = -1;
+		if (uc < 0x800 || (uc >= 0xD800 && uc < 0xE000)) uc = -1;
 		break;
 	case 4:
 		uc = ((str[0] & 0x07) << 18) + ((str[1] & 0x3F) << 12)
@@ -182,7 +181,7 @@ int utf8proc_iterate(const uint8_t *str, int str_len, int32_t *dst)
 		break;
 	}
 
-	if (uc < 0 || ((uc & 0xFFFF) >= 0xFFFE))
+	if (uc < 0)
 		return -1;
 
 	*dst = uc;
