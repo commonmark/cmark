@@ -1,15 +1,11 @@
-CommonMark
-==========
+cmark
+=====
 
-CommonMark is a rationalized version of Markdown syntax,
-with a [spec][the spec] and BSD-licensed reference
-implementations in C and JavaScript.
+`cmark` is the C reference implementation of [CommonMark], a
+rationalized version of Markdown syntax with a [spec][the spec].
+(For the JavaScript reference implementation, see
+[commonmark.js].)
 
-[Try it now!](http://try.commonmark.org/)
-
-For more information, see <http://commonmark.org>.
-
-This repository contains the C reference implementation.
 It provides a shared library (`libcmark`) with functions for parsing
 CommonMark documents to an abstract syntax tree (AST), manipulating
 the AST, and rendering the document to HTML, groff man,
@@ -17,16 +13,34 @@ CommonMark, or an XML representation of the AST.  It also provides a
 command-line program (`cmark`) for parsing and rendering CommonMark
 documents.
 
-The library and program are written in standard C99 and have
-no library dependencies. The parser is very fast, on par with
-[sundown]:  see the [benchmarks].
+Advantages of this library:
+
+- **Portable.**  The library and program are written in standard
+  C99 and have no external dependencies.  It has been tested with
+  MSVC, gcc, tcc, and clang.
+
+- **Fast.** Performance is on par with the fastest existing
+  Markdown parser, [sundown]:  see the [benchmarks].
+
+- **Accurate.** The library passes all CommonMark conformance tests.
+
+- **Robust.** The library has been extensively fuzz-tested using
+  american fuzzy lop.  The test suite includes pathological cases
+  that bring many other Markdown parsers to a crawl (for example,
+  thousands-deep nested bracketed text or block quotes).
+
+- **Flexible.** CommonMark input is parsed to an AST which can be
+  manipulated programatically prior to rendering.
+
+- **Multiple renderers.**  Output in HTML, groff man, CommonMark,
+  and a custom XML format is supported. And it is easy to write new
+  renderers to support other formats.
+
+- **Free.** BSD2-licensed.
 
 It is easy to use `libcmark` in python, lua, ruby, and other dynamic
 languages: see the `wrappers/` subdirectory for some simple examples.
 
-[sundown]: https://github.com/vmg/sundown
-[benchmarks]: benchmarks.md
-[the spec]: http://spec.commonmark.org
 
 Installing
 ----------
@@ -132,5 +146,10 @@ eliminating several worst-case performance issues.
 Nick Wellnhofer contributed many improvements, including
 most of the C library's API and its test harness.
 
+[sundown]: https://github.com/vmg/sundown
+[benchmarks]: benchmarks.md
+[the spec]: http://spec.commonmark.org
+[CommonMark]: http://commonmark.org
 [cmake]: http://www.cmake.org/download/
 [re2c]: http://re2c.org
+[commonmark.js]: https://github.com/jgm/commonmark.js
