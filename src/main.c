@@ -102,13 +102,13 @@ int main(int argc, char *argv[])
 				width = (int)strtol(argv[i], &unparsed, 10);
 				if (unparsed && strlen(unparsed) > 0) {
 					fprintf(stderr,
-					"failed parsing width '%s' at '%s'\n",
-						argv[i], unparsed);
+					        "failed parsing width '%s' at '%s'\n",
+					        argv[i], unparsed);
 					exit(1);
 				}
 			} else {
 				fprintf(stderr,
-					"--width requires an argument\n");
+				        "--width requires an argument\n");
 				exit(1);
 			}
 		} else if ((strcmp(argv[i], "-t") == 0) ||

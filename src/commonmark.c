@@ -49,35 +49,35 @@ typedef enum  {
 
 static inline bool
 needs_escaping(escaping escape,
-	       int32_t c,
-	       unsigned char next_c,
-	       struct render_state *state)
+               int32_t c,
+               unsigned char next_c,
+               struct render_state *state)
 {
 	if (escape == NORMAL) {
 		return (c == '*' || c == '_' || c == '[' || c == ']' ||
-			c == '<' || c == '>' || c == '\\' || c == '`' ||
-			(c == '&' && isalpha(next_c)) ||
-			(c == '!' && next_c == '[') ||
-			(state->begin_line &&
-			 (c == '-' || c == '+' || c == '#' || c == '=')) ||
-			(c == '#' && (isspace(next_c) || next_c == '\0')) ||
-			((c == '.' || c == ')') &&
-			 isdigit(state->buffer->ptr[state->buffer->size - 1])));
+		        c == '<' || c == '>' || c == '\\' || c == '`' ||
+		        (c == '&' && isalpha(next_c)) ||
+		        (c == '!' && next_c == '[') ||
+		        (state->begin_line &&
+		         (c == '-' || c == '+' || c == '#' || c == '=')) ||
+		        (c == '#' && (isspace(next_c) || next_c == '\0')) ||
+		        ((c == '.' || c == ')') &&
+		         isdigit(state->buffer->ptr[state->buffer->size - 1])));
 	} else if (escape == TITLE) {
 		return (c == '`' || c == '<' || c == '>' || c == '"' ||
-			c == '\\');
+		        c == '\\');
 	} else if (escape == URL) {
 		return (c == '`' || c == '<' || c == '>' || isspace(c) ||
-			c == '\\' || c == ')' || c == '(');
+		        c == '\\' || c == ')' || c == '(');
 	} else {
 		return false;
 	}
 }
 
 static inline void out(struct render_state *state,
-		       cmark_chunk str,
-		       bool wrap,
-		       escaping escape)
+                       cmark_chunk str,
+                       bool wrap,
+                       escaping escape)
 {
 	unsigned char* source = str.data;
 	int length = str.len;
@@ -100,7 +100,7 @@ static inline void out(struct render_state *state,
 			cmark_strbuf_putc(state->buffer, '\n');
 			if (state->need_cr > 1) {
 				cmark_strbuf_put(state->buffer, state->prefix->ptr,
-						 state->prefix->size);
+				                 state->prefix->size);
 			}
 		}
 		state->column = 0;
@@ -111,7 +111,7 @@ static inline void out(struct render_state *state,
 	while (i < length) {
 		if (state->begin_line) {
 			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-					 state->prefix->size);
+			                 state->prefix->size);
 			// note: this assumes prefix is ascii:
 			state->column = state->prefix->size;
 		}
@@ -127,7 +127,7 @@ static inline void out(struct render_state *state,
 				state->column += 1;
 				state->begin_line = false;
 				state->last_breakable = state->buffer->size -
-					1;
+				                        1;
 				// skip following spaces
 				while (source[i + 1] == ' ') {
 					i++;
@@ -170,7 +170,7 @@ static inline void out(struct render_state *state,
 			// add newline, prefix, and remainder
 			cmark_strbuf_putc(state->buffer, '\n');
 			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-					 state->prefix->size);
+			                 state->prefix->size);
 			cmark_strbuf_put(state->buffer, remainder.data, remainder.len);
 			state->column = state->prefix->size + remainder.len;
 			cmark_chunk_free(&remainder);
@@ -257,8 +257,8 @@ is_autolink(cmark_node *node)
 	}
 	cmark_consolidate_text_nodes(node);
 	return (strncmp(url,
-			(char*)node->as.literal.data,
-			node->as.literal.len) == 0);
+	                (char*)node->as.literal.data,
+	                node->as.literal.len) == 0);
 }
 
 // if node is a block node, returns node.
@@ -268,7 +268,7 @@ get_containing_block(cmark_node *node)
 {
 	while (node &&
 	       (node->type < CMARK_NODE_FIRST_BLOCK ||
-		node->type > CMARK_NODE_LAST_BLOCK)) {
+	        node->type > CMARK_NODE_LAST_BLOCK)) {
 		node = node->parent;
 	}
 	return node;
@@ -296,14 +296,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	// a following list.
 	if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL &&
 	      entering)) {
-			tmp = get_containing_block(node);
-			state->in_tight_list_item =
-				(tmp->type == CMARK_NODE_ITEM &&
-				 cmark_node_get_list_tight(tmp->parent)) ||
-				(tmp &&
-				 tmp->parent &&
-				 tmp->parent->type == CMARK_NODE_ITEM &&
-				 cmark_node_get_list_tight(tmp->parent->parent));
+		tmp = get_containing_block(node);
+		state->in_tight_list_item =
+		    (tmp->type == CMARK_NODE_ITEM &&
+		     cmark_node_get_list_tight(tmp->parent)) ||
+		    (tmp &&
+		     tmp->parent &&
+		     tmp->parent->type == CMARK_NODE_ITEM &&
+		     cmark_node_get_list_tight(tmp->parent->parent));
 	}
 
 	switch (node->type) {
@@ -319,7 +319,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_puts(state->prefix, "> ");
 		} else {
 			cmark_strbuf_truncate(state->prefix,
-					      state->prefix->size - 2);
+			                      state->prefix->size - 2);
 			blankline(state);
 		}
 		break;
@@ -351,10 +351,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// we get nice transition from single digits
 			// to double
 			cmark_strbuf_printf(&listmarker,
-					    "%d%s%s", list_number,
-					    list_delim == CMARK_PAREN_DELIM ?
-					    ")" : ".",
-					    list_number < 10 ? "  " : " ");
+			                    "%d%s%s", list_number,
+			                    list_delim == CMARK_PAREN_DELIM ?
+			                    ")" : ".",
+			                    list_number < 10 ? "  " : " ");
 			marker_width = listmarker.size;
 		}
 		if (entering) {
@@ -364,14 +364,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				cmark_strbuf_puts(state->prefix, "  ");
 			} else {
 				lit(state, (char *)listmarker.ptr, false);
-				for (i=marker_width; i--;) {
+				for (i = marker_width; i--;) {
 					cmark_strbuf_putc(state->prefix, ' ');
 				}
 			}
 		} else {
 			cmark_strbuf_truncate(state->prefix,
-					      state->prefix->size -
-					      marker_width);
+			                      state->prefix->size -
+			                      marker_width);
 			cr(state);
 		}
 		cmark_strbuf_free(&listmarker);
@@ -408,7 +408,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_puts(state->prefix, "    ");
 			out(state, node->as.code.literal, false, LITERAL);
 			cmark_strbuf_truncate(state->prefix,
-					      state->prefix->size - 4);
+			                      state->prefix->size - 4);
 		} else {
 			numticks = longest_backtick_sequence(code) + 1;
 			if (numticks < 3) {
@@ -517,7 +517,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			if (entering) {
 				lit(state, "<", false);
 				if (strncmp(cmark_node_get_url(node),
-					    "mailto:", 7) == 0) {
+				            "mailto:", 7) == 0) {
 					lit(state,
 					    (char *)cmark_node_get_url(node) + 7,
 					    false);
@@ -582,9 +582,10 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width)
 	if (CMARK_OPT_HARDBREAKS & options) {
 		width = 0;
 	}
-	struct render_state state =
-		{ options, &commonmark, &prefix, 0, width,
-		  0, 0, true, false, false};
+	struct render_state state = {
+		options, &commonmark, &prefix, 0, width,
+		0, 0, true, false, false
+	};
 	cmark_node *cur;
 	cmark_event_type ev_type;
 	cmark_iter *iter = cmark_iter_new(root);
