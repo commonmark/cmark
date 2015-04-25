@@ -3,13 +3,17 @@ environment:
   PYTHON_VERSION: "3.4.1"
   PYTHON_ARCH: "32"
 
-configuration:
-  - Release
-
 build_script:
-  - '@nmake.exe /nologo /f Makefile.nmake all'
+  - |
+    mkdir build 2> nul
+    pushd build
+    cmake \
+	    -G "NMake Makefiles" \
+	    -D CMAKE_BUILD_TYPE="Release" \
+	    -D CMAKE_INSTALL_PREFIX="windows" \
+    nmake /nologo && popd
 
 test_script:
-  - '@nmake.exe /nologo /f Makefile.nmake test'
-
+  - |
+    pushd build && nmake /nologo test
 
