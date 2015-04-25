@@ -6,6 +6,9 @@ environment:
 configuration:
   - Release
 
+build_script:
+  - '@nmake.exe /nologo /f Makefile.nmake all'
+
 test_script:
   - '@nmake.exe /nologo /f Makefile.nmake test'
 
