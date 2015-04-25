@@ -3,8 +3,8 @@ environment:
   PYTHON_VERSION: "3.4.1"
   PYTHON_ARCH: "32"
 
-build:
-  - '@nmake.exe /nologo /f Makefile.nmake'
+configuration:
+  - Release
 
 test_script:
   - '@nmake.exe /nologo /f Makefile.nmake test'
