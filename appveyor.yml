@@ -3,6 +3,10 @@ environment:
   PYTHON_VERSION: "3.4.1"
   PYTHON_ARCH: "32"
 
+# set up for nmake:
+install:
+  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
+
 build_script:
   - |
     mkdir build 2> nul
