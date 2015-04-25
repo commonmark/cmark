@@ -7,11 +7,9 @@ build_script:
   - |
     mkdir build 2> nul
     pushd build
-    cmake \
-      -G "NMake Makefiles" \
-      -D CMAKE_BUILD_TYPE="Release" \
-      -D CMAKE_INSTALL_PREFIX="windows" \
-    nmake /nologo && popd
+    cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE="Release" -D CMAKE_INSTALL_PREFIX="windows"
+    nmake /nologo
+    popd
 
 test_script:
   - |
