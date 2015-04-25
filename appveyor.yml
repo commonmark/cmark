@@ -4,9 +4,9 @@ environment:
   - PYTHON_ARCH: "32"
 
 build:
-  - @nmake.exe /nologo /f Makefile.nmake
+  - '@nmake.exe /nologo /f Makefile.nmake'
 
 test_script:
-  - @nmake.exe /nologo /f Makefile.nmake test
+  - '@nmake.exe /nologo /f Makefile.nmake test'
 
 
