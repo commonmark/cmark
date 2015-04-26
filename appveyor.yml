@@ -17,5 +17,5 @@ build_script:
 
 test_script:
   - |
-    cd build && nmake /nologo test
+    nmake /nologo test
 
