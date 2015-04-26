@@ -2,7 +2,7 @@ SRCDIR=src
 DATADIR=data
 BUILDDIR=build
 INSTALLDIR=windows
-SPEC=spec.txt
+SPEC=test/spec.txt
 PROG=$(BUILDDIR)\src\cmark.exe
 GENERATOR=NMake Makefiles
 
@@ -35,17 +35,3 @@ test: $(SPEC) all
 distclean: clean
 	del /q src\scanners.c 2> nul
 	del /q spec.md spec.html 2> nul
-
-### Spec ###
-
-spec.html: spec.txt template.html $(PROG)
-	python3 makespec.py html > $@
-
-spec.md: spec.txt
-	python3 makespec.py markdown > $@
-
-spec.pdf: spec.md template.tex specfilter.hs
-	pandoc -s $< --template template.tex \
-	   --filter ./specfilter.hs -o $@ --latex-engine=xelatex --toc \
-	   --number-sections -V documentclass=report -V tocdepth=2 \
-	   -V classoption=twosides
