@@ -1,3 +1,22 @@
+[0.19.0]
+
+  * Fixed `_` emphasis parsing to conform to spec (jgm/CommonMark#317).
+  * Updated `spec.txt`.
+  * Compile static library with `-DCMARK_STATIC_DEFINE` (Nick Wellnhofer).
+  * Suppress warnings about Windows runtime library files (Nick Wellnhofer).
+    Visual Studio Express editions do not include the redistributable files.
+    Set `CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS` to suppress warnings.
+  * Added appyeyor: Windows continuous integration (`appveyor.yml`).
+  * Use `os.path.join` in `test/cmark.py` for proper cross-platform paths.
+  * Fixed `Makefile.nmake`.
+  * Improved `make afl`:  added `test/afl_dictionary`, increased timeout
+    for hangs.
+  * Improved README with a description of the library's strengths.
+  * Pass-through Unicode non-characters (Nick Wellnhofer).
+    Despite their name, Unicode non-characters are valid code points. They
+    should be passed through by a library like libcmark.
+  * Check return status of `utf8proc_iterate` (#27).
+
 [0.18.3]
 
   * Include patch level in soname (Nick Wellnhofer). Minor version is
