@@ -121,6 +121,7 @@ void cmark_consolidate_text_nodes(cmark_node *root)
 	cmark_strbuf buf = GH_BUF_INIT;
 	cmark_event_type ev_type;
 	cmark_node *cur, *tmp, *next;
+	char *detached;
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
@@ -138,7 +139,9 @@ void cmark_consolidate_text_nodes(cmark_node *root)
 				cmark_node_free(tmp);
 				tmp = next;
 			}
-			cmark_node_set_literal(cur, (char *)cmark_strbuf_detach(&buf));
+			detached = (char *)cmark_strbuf_detach(&buf);
+			cmark_node_set_literal(cur, detached);
+			free(detached);
 		}
 	}
 
