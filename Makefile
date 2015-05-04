@@ -125,9 +125,14 @@ $(ALLTESTS): $(SPEC)
 	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
 
 leakcheck: $(ALLTESTS)
+	rc=0; \
 	for format in html man xml commonmark; do \
-	  cat $< | valgrind --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format >/dev/null; \
-	done
+	  for opts in "" "--smart" "--normalize"; do \
+	     echo "cmark -t $$format $$opts" ; \
+	     cat $< | valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts >/dev/null || rc=1; \
+          done; \
+	done; \
+	exit $$rc
 
 fuzztest:
 	{ for i in `seq 1 10`; do \
