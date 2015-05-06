@@ -560,7 +560,8 @@ cmark_node_set_url(cmark_node *node, const char *url)
 	case NODE_LINK:
 	case NODE_IMAGE:
 		free(node->as.link.url);
-		node->as.link.url = (unsigned char *)S_strdup(url);
+		node->as.link.url =
+		    (url == NULL) ? NULL : (unsigned char *)S_strdup(url);
 		return 1;
 	default:
 		break;
@@ -598,7 +599,8 @@ cmark_node_set_title(cmark_node *node, const char *title)
 	case NODE_LINK:
 	case NODE_IMAGE:
 		free(node->as.link.title);
-		node->as.link.title = (unsigned char *)S_strdup(title);
+		node->as.link.title =
+		    (title == NULL) ? NULL : (unsigned char *)S_strdup(title);
 		return 1;
 	default:
 		break;
