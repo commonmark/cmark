@@ -129,15 +129,16 @@ void cmark_consolidate_text_nodes(cmark_node *root)
 		    cur->next &&
 		    cur->next->type == CMARK_NODE_TEXT) {
 			cmark_strbuf_clear(&buf);
-			cmark_strbuf_puts(&buf, cmark_node_get_literal(cur));
+			cmark_strbuf_put(&buf, cur->as.literal.data, cur->as.literal.len);
 			tmp = cur->next;
 			while (tmp && tmp->type == CMARK_NODE_TEXT) {
 				cmark_iter_next(iter); // advance pointer
-				cmark_strbuf_puts(&buf, cmark_node_get_literal(tmp));
+				cmark_strbuf_put(&buf, tmp->as.literal.data, tmp->as.literal.len);
 				next = tmp->next;
 				cmark_node_free(tmp);
 				tmp = next;
 			}
+			cmark_strbuf_putc(&buf, 0);
 			cmark_node_set_literal(cur, (char *)buf.ptr);
 		}
 	}
