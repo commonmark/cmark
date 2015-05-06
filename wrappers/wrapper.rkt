@@ -1,5 +1,7 @@
 #lang racket/base
 
+;; requires racket >= 5.3 because of submodules
+
 ;; Lowlevel interface
 
 (module low-level racket/base
