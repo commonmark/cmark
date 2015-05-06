@@ -49,6 +49,10 @@ Advantages of this library:
 It is easy to use `libcmark` in python, lua, ruby, and other dynamic
 languages: see the `wrappers/` subdirectory for some simple examples.
 
+There are also libraries that wrap `libcmark` for
+[go](https://github.com/rhinoman/go-commonmark),
+[Haskell](http://hackage.haskell.org/package/cmark),
+and [Perl](https://metacpan.org/release/CommonMark).
 
 Installing
 ----------
