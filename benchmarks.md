@@ -14,8 +14,8 @@ Some benchmarks, run on an ancient Thinkpad running Intel Core 2 Duo at 2GHz.
 | marked            |    1.94    |
 | **commonmark.js** |    1.93    |
 | discount          |    1.86    |
-| **cmark**         |    0.36    |
-| sundown           |    0.34    |
+| sundown           |    0.33    |
+| **cmark**         |    0.33    |
 
 
 To run these benchmarks, use `make bench PROG=/path/to/program`.
@@ -28,6 +28,6 @@ Markdown sources of all the localizations of the first edition of
 time is the *difference* between the time to run the program
 with the benchmark input and the time to run it with no input.
 (This procedure ensures that implementations in dynamic languages are
-not penalized by startup time.) Amedian of ten runs is taken.  The
+not penalized by startup time.) A median of ten runs is taken.  The
 process is reniced to a high priority so that the system doesn't
 interrupt runs.
