@@ -138,8 +138,8 @@ void cmark_consolidate_text_nodes(cmark_node *root)
 				cmark_node_free(tmp);
 				tmp = next;
 			}
-			cmark_strbuf_putc(&buf, 0);
-			cmark_node_set_literal(cur, (char *)buf.ptr);
+			cmark_chunk_free(&cur->as.literal);
+			cur->as.literal = cmark_chunk_buf_detach(&buf);
 		}
 	}
 
