@@ -666,6 +666,40 @@ test_continuation_byte(test_batch_runner *runner, const char *utf8)
 }
 
 static void
+numeric_entities(test_batch_runner *runner)
+{
+	test_md_to_html(runner, "&#0;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0");
+	test_md_to_html(runner, "&#55295;", "<p>\xED\x9F\xBF</p>\n",
+			"Valid numeric entity 0xD7FF");
+	test_md_to_html(runner, "&#xD800;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0xD800");
+	test_md_to_html(runner, "&#xDFFF;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0xDFFF");
+	test_md_to_html(runner, "&#57344;", "<p>\xEE\x80\x80</p>\n",
+			"Valid numeric entity 0xE000");
+	test_md_to_html(runner, "&#x10FFFF;", "<p>\xF4\x8F\xBF\xBF</p>\n",
+			"Valid numeric entity 0x10FFFF");
+	test_md_to_html(runner, "&#x110000;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0x110000");
+	test_md_to_html(runner, "&#x80000000;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0x80000000");
+	test_md_to_html(runner, "&#xFFFFFFFF;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 0xFFFFFFFF");
+	test_md_to_html(runner, "&#99999999;", "<p>" UTF8_REPL "</p>\n",
+			"Invalid numeric entity 99999999");
+
+	test_md_to_html(runner, "&#;", "<p>&amp;#;</p>\n",
+			"Min decimal entity length");
+	test_md_to_html(runner, "&#x;", "<p>&amp;#x;</p>\n",
+			"Min hexadecimal entity length");
+	test_md_to_html(runner, "&#999999999;", "<p>&amp;#999999999;</p>\n",
+			"Max decimal entity length");
+	test_md_to_html(runner, "&#x000000041;", "<p>&amp;#x000000041;</p>\n",
+			"Max hexadecimal entity length");
+}
+
+static void
 test_md_to_html(test_batch_runner *runner, const char *markdown,
 		const char *expected_html, const char *msg)
 {
@@ -690,6 +724,7 @@ int main() {
 	parser(runner);
 	render_html(runner);
 	utf8(runner);
+	numeric_entities(runner);
 	test_cplusplus(runner);
 
 	test_print_summary(runner);

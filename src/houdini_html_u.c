@@ -12,32 +12,45 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
 {
 	size_t i = 0;
 
-	if (size > 3 && src[0] == '#') {
-		int codepoint = 0;
+	if (size >= 3 && src[0] == '#') {
+		int codepoint  = 0;
+		int num_digits = 0;
 
 		if (_isdigit(src[1])) {
 			for (i = 1; i < size && _isdigit(src[i]); ++i) {
-				int cp = (codepoint * 10) + (src[i] - '0');
+				codepoint = (codepoint * 10) + (src[i] - '0');
 
-				if (cp < codepoint)
-					return 0;
-
-				codepoint = cp;
+				if (codepoint >= 0x110000) {
+					// Keep counting digits but
+					// avoid integer overflow.
+					codepoint = 0x110000;
+				}
 			}
+
+			num_digits = i - 1;
 		}
 
 		else if (src[1] == 'x' || src[1] == 'X') {
 			for (i = 2; i < size && _isxdigit(src[i]); ++i) {
-				int cp = (codepoint * 16) + ((src[i] | 32) % 39 - 9);
+				codepoint = (codepoint * 16) + ((src[i] | 32) % 39 - 9);
 
-				if (cp < codepoint)
-					return 0;
-
-				codepoint = cp;
+				if (codepoint >= 0x110000) {
+					// Keep counting digits but
+					// avoid integer overflow.
+					codepoint = 0x110000;
+				}
 			}
+
+			num_digits = i - 2;
 		}
 
-		if (i < size && src[i] == ';' && codepoint) {
+		if (num_digits >= 1 && num_digits <= 8 &&
+		    i < size && src[i] == ';') {
+			if (codepoint == 0 ||
+			    (codepoint >= 0xD800 && codepoint < 0xE000) ||
+			    codepoint >= 0x110000) {
+				codepoint = 0xFFFD;
+			}
 			utf8proc_encode_char(codepoint, ob);
 			return i + 1;
 		}
