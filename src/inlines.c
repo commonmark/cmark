@@ -59,31 +59,33 @@ static void subject_from_buf(subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap);
 static int subject_find_special_char(subject *subj, int options);
 
-static unsigned char *cmark_clean_autolink(cmark_chunk *url, int is_email)
+static cmark_chunk cmark_clean_autolink(cmark_chunk *url, int is_email)
 {
 	cmark_strbuf buf = GH_BUF_INIT;
 
 	cmark_chunk_trim(url);
 
-	if (url->len == 0)
-		return NULL;
+	if (url->len == 0) {
+		cmark_chunk result = CMARK_CHUNK_EMPTY;
+		return result;
+	}
 
 	if (is_email)
 		cmark_strbuf_puts(&buf, "mailto:");
 
 	houdini_unescape_html_f(&buf, url->data, url->len);
-	return cmark_strbuf_detach(&buf);
+	return cmark_chunk_buf_detach(&buf);
 }
 
-static inline cmark_node *make_link(cmark_node *label, unsigned char *url, unsigned char *title)
+static inline cmark_node *make_link(cmark_node *label, cmark_chunk *url, cmark_chunk *title)
 {
 	cmark_node* e = (cmark_node *)calloc(1, sizeof(*e));
 	if(e != NULL) {
 		e->type = CMARK_NODE_LINK;
 		e->first_child   = label;
 		e->last_child    = label;
-		e->as.link.url   = url;
-		e->as.link.title = title;
+		e->as.link.url   = *url;
+		e->as.link.title = *title;
 		e->next = NULL;
 		label->parent = e;
 	}
@@ -92,7 +94,9 @@ static inline cmark_node *make_link(cmark_node *label, unsigned char *url, unsig
 
 static inline cmark_node* make_autolink(cmark_node* label, cmark_chunk url, int is_email)
 {
-	return make_link(label, cmark_clean_autolink(&url, is_email), NULL);
+	cmark_chunk clean_url = cmark_clean_autolink(&url, is_email);
+	cmark_chunk title = CMARK_CHUNK_EMPTY;
+	return make_link(label, &clean_url, &title);
 }
 
 // Create an inline with a literal string value.
@@ -134,19 +138,20 @@ static inline cmark_node* make_simple(cmark_node_type t)
 	return e;
 }
 
-static unsigned char *bufdup(const unsigned char *buf)
+// Duplicate a chunk by creating a copy of the buffer not by reusing the
+// buffer like cmark_chunk_dup does.
+static cmark_chunk chunk_clone(cmark_chunk *src)
 {
-	unsigned char *new_buf = NULL;
+	cmark_chunk c;
+	int len = src->len;
 
-	if (buf) {
-		int len = strlen((char *)buf);
-		new_buf = (unsigned char *)calloc(len + 1, sizeof(*new_buf));
-		if(new_buf != NULL) {
-			memcpy(new_buf, buf, len + 1);
-		}
-	}
+	c.len   = len;
+	c.data  = (unsigned char *)malloc(len + 1);
+	c.alloc = 1;
+	memcpy(c.data, src->data, len);
+	c.data[len] = '\0';
 
-	return new_buf;
+       return c;
 }
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
@@ -622,14 +627,16 @@ static cmark_node *make_str_with_entities(cmark_chunk *content)
 
 // Clean a URL: remove surrounding whitespace and surrounding <>,
 // and remove \ that escape punctuation.
-unsigned char *cmark_clean_url(cmark_chunk *url)
+cmark_chunk cmark_clean_url(cmark_chunk *url)
 {
 	cmark_strbuf buf = GH_BUF_INIT;
 
 	cmark_chunk_trim(url);
 
-	if (url->len == 0)
-		return NULL;
+	if (url->len == 0) {
+		cmark_chunk result = CMARK_CHUNK_EMPTY;
+		return result;
+	}
 
 	if (url->data[0] == '<' && url->data[url->len - 1] == '>') {
 		houdini_unescape_html_f(&buf, url->data + 1, url->len - 2);
@@ -638,16 +645,18 @@ unsigned char *cmark_clean_url(cmark_chunk *url)
 	}
 
 	cmark_strbuf_unescape(&buf);
-	return buf.size == 0 ? NULL : cmark_strbuf_detach(&buf);
+	return cmark_chunk_buf_detach(&buf);
 }
 
-unsigned char *cmark_clean_title(cmark_chunk *title)
+cmark_chunk cmark_clean_title(cmark_chunk *title)
 {
 	cmark_strbuf buf = GH_BUF_INIT;
 	unsigned char first, last;
 
-	if (title->len == 0)
-		return NULL;
+	if (title->len == 0) {
+		cmark_chunk result = CMARK_CHUNK_EMPTY;
+		return result;
+	}
 
 	first = title->data[0];
 	last = title->data[title->len - 1];
@@ -662,7 +671,7 @@ unsigned char *cmark_clean_title(cmark_chunk *title)
 	}
 
 	cmark_strbuf_unescape(&buf);
-	return buf.size == 0 ? NULL : cmark_strbuf_detach(&buf);
+	return cmark_chunk_buf_detach(&buf);
 }
 
 // Parse an autolink or HTML tag.
@@ -766,7 +775,7 @@ static cmark_node* handle_close_bracket(subject* subj, cmark_node *parent)
 	cmark_reference *ref;
 	bool is_image = false;
 	cmark_chunk url_chunk, title_chunk;
-	unsigned char *url, *title;
+	cmark_chunk url, title;
 	delimiter *opener;
 	cmark_node *link_text;
 	cmark_node *inl;
@@ -854,8 +863,8 @@ static cmark_node* handle_close_bracket(subject* subj, cmark_node *parent)
 	cmark_chunk_free(&raw_label);
 
 	if (ref != NULL) { // found
-		url = bufdup(ref->url);
-		title = bufdup(ref->title);
+		url   = chunk_clone(&ref->url);
+		title = chunk_clone(&ref->title);
 		goto match;
 	} else {
 		goto noMatch;

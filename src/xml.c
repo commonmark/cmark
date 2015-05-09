@@ -118,10 +118,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		case CMARK_NODE_LINK:
 		case CMARK_NODE_IMAGE:
 			cmark_strbuf_puts(xml, " destination=\"");
-			escape_xml(xml, node->as.link.url, -1);
+			escape_xml(xml, node->as.link.url.data,
+				   node->as.link.url.len);
 			cmark_strbuf_putc(xml, '"');
 			cmark_strbuf_puts(xml, " title=\"");
-			escape_xml(xml, node->as.link.title, -1);
+			escape_xml(xml, node->as.link.title.data,
+				   node->as.link.title.len);
 			cmark_strbuf_putc(xml, '"');
 			break;
 		default:

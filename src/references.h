@@ -12,8 +12,8 @@ extern "C" {
 struct cmark_reference {
 	struct cmark_reference *next;
 	unsigned char *label;
-	unsigned char *url;
-	unsigned char *title;
+	cmark_chunk url;
+	cmark_chunk title;
 	unsigned int hash;
 };
 

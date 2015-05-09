@@ -7,6 +7,8 @@
 #include "cmark_ctype.h"
 #include "buffer.h"
 
+#define CMARK_CHUNK_EMPTY { NULL, 0, 0 }
+
 typedef struct {
 	unsigned char *data;
 	int len;

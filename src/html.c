@@ -261,12 +261,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_LINK:
 		if (entering) {
 			cmark_strbuf_puts(html, "<a href=\"");
-			if (node->as.link.url)
-				escape_href(html, node->as.link.url, -1);
+			escape_href(html, node->as.link.url.data,
+				    node->as.link.url.len);
 
-			if (node->as.link.title) {
+			if (node->as.link.title.len) {
 				cmark_strbuf_puts(html, "\" title=\"");
-				escape_html(html, node->as.link.title, -1);
+				escape_html(html, node->as.link.title.data,
+					    node->as.link.title.len);
 			}
 
 			cmark_strbuf_puts(html, "\">");
@@ -278,15 +279,16 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_IMAGE:
 		if (entering) {
 			cmark_strbuf_puts(html, "<img src=\"");
-			if (node->as.link.url)
-				escape_href(html, node->as.link.url, -1);
+			escape_href(html, node->as.link.url.data,
+				    node->as.link.url.len);
 
 			cmark_strbuf_puts(html, "\" alt=\"");
 			state->plain = node;
 		} else {
-			if (node->as.link.title) {
+			if (node->as.link.title.len) {
 				cmark_strbuf_puts(html, "\" title=\"");
-				escape_html(html, node->as.link.title, -1);
+				escape_html(html, node->as.link.title.data,
+					    node->as.link.title.len);
 			}
 
 			cmark_strbuf_puts(html, "\" />");
