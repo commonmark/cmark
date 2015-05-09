@@ -80,10 +80,17 @@ static inline void cmark_chunk_set_cstr(cmark_chunk *c, const char *str)
 	if (c->alloc) {
 		free(c->data);
 	}
-	c->len   = strlen(str);
-	c->data  = (unsigned char *)malloc(c->len + 1);
-	c->alloc = 1;
-	memcpy(c->data, str, c->len + 1);
+	if (str == NULL) {
+		c->len   = 0;
+		c->data  = NULL;
+		c->alloc = 0;
+	}
+	else {
+		c->len   = strlen(str);
+		c->data  = (unsigned char *)malloc(c->len + 1);
+		c->alloc = 1;
+		memcpy(c->data, str, c->len + 1);
+	}
 }
 
 static inline cmark_chunk cmark_chunk_literal(const char *data)
