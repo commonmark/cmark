@@ -52,6 +52,7 @@ languages: see the `wrappers/` subdirectory for some simple examples.
 There are also libraries that wrap `libcmark` for
 [go](https://github.com/rhinoman/go-commonmark),
 [Haskell](http://hackage.haskell.org/package/cmark),
+[ruby](https://github.com/gjtorikian/commonmarker),
 and [Perl](https://metacpan.org/release/CommonMark).
 
 Installing
