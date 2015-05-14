@@ -122,12 +122,8 @@ void S_free_nodes(cmark_node *e)
 			break;
 		case NODE_LINK:
 		case NODE_IMAGE:
-			if (e->as.link.url) {
-				free(e->as.link.url);
-			}
-			if (e->as.link.title) {
-				free(e->as.link.title);
-			}
+			cmark_chunk_free(&e->as.link.url);
+			cmark_chunk_free(&e->as.link.title);
 			break;
 		default:
 			break;
@@ -280,15 +276,6 @@ cmark_node_set_user_data(cmark_node *node, void *user_data)
 	}
 	node->user_data = user_data;
 	return 1;
-}
-
-static char*
-S_strdup(const char *str)
-{
-	size_t size = strlen(str) + 1;
-	char *dup = (char *)malloc(size);
-	memcpy(dup, str, size);
-	return dup;
 }
 
 const char*
@@ -541,7 +528,7 @@ cmark_node_get_url(cmark_node *node)
 	switch (node->type) {
 	case NODE_LINK:
 	case NODE_IMAGE:
-		return (char *)node->as.link.url;
+		return cmark_chunk_to_cstr(&node->as.link.url);
 	default:
 		break;
 	}
@@ -559,8 +546,7 @@ cmark_node_set_url(cmark_node *node, const char *url)
 	switch (node->type) {
 	case NODE_LINK:
 	case NODE_IMAGE:
-		free(node->as.link.url);
-		node->as.link.url = (unsigned char *)S_strdup(url);
+		cmark_chunk_set_cstr(&node->as.link.url, url);
 		return 1;
 	default:
 		break;
@@ -579,7 +565,7 @@ cmark_node_get_title(cmark_node *node)
 	switch (node->type) {
 	case NODE_LINK:
 	case NODE_IMAGE:
-		return (char *)node->as.link.title;
+		return cmark_chunk_to_cstr(&node->as.link.title);
 	default:
 		break;
 	}
@@ -597,8 +583,7 @@ cmark_node_set_title(cmark_node *node, const char *title)
 	switch (node->type) {
 	case NODE_LINK:
 	case NODE_IMAGE:
-		free(node->as.link.title);
-		node->as.link.title = (unsigned char *)S_strdup(title);
+		cmark_chunk_set_cstr(&node->as.link.title, title);
 		return 1;
 	default:
 		break;

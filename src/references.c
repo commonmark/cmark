@@ -20,8 +20,8 @@ static void reference_free(cmark_reference *ref)
 {
 	if(ref != NULL) {
 		free(ref->label);
-		free(ref->url);
-		free(ref->title);
+		cmark_chunk_free(&ref->url);
+		cmark_chunk_free(&ref->title);
 		free(ref);
 	}
 }

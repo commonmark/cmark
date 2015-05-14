@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-unsigned char *cmark_clean_url(cmark_chunk *url);
-unsigned char *cmark_clean_title(cmark_chunk *title);
+cmark_chunk cmark_clean_url(cmark_chunk *url);
+cmark_chunk cmark_clean_title(cmark_chunk *title);
 
 void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap, int options);
 
