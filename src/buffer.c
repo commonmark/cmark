@@ -13,11 +13,10 @@
  * assume ptr is non-NULL and zero terminated even for new cmark_strbufs.
  */
 unsigned char cmark_strbuf__initbuf[1];
-unsigned char cmark_strbuf__oom[1];
 
-#define ENSURE_SIZE(b, d)					\
-	if ((d) > b->asize && cmark_strbuf_grow(b, (d)) < 0)	\
-		return -1;
+#define ENSURE_SIZE(b, d)			\
+	if ((d) > b->asize)			\
+		cmark_strbuf_grow(b, (d));	\
 
 #ifndef MIN
 #define MIN(x,y)  ((x<y) ? x : y)
@@ -33,16 +32,13 @@ void cmark_strbuf_init(cmark_strbuf *buf, int initial_size)
 		cmark_strbuf_grow(buf, initial_size);
 }
 
-int cmark_strbuf_try_grow(cmark_strbuf *buf, int target_size, bool mark_oom)
+void cmark_strbuf_grow(cmark_strbuf *buf, int target_size)
 {
 	unsigned char *new_ptr;
 	int new_size;
 
-	if (buf->ptr == cmark_strbuf__oom)
-		return -1;
-
 	if (target_size <= buf->asize)
-		return 0;
+		return;
 
 	if (buf->asize == 0) {
 		new_size = target_size;
@@ -63,9 +59,8 @@ int cmark_strbuf_try_grow(cmark_strbuf *buf, int target_size, bool mark_oom)
 	new_ptr = (unsigned char *)realloc(new_ptr, new_size);
 
 	if (!new_ptr) {
-		if (mark_oom)
-			buf->ptr = cmark_strbuf__oom;
-		return -1;
+		perror("realloc in cmark_strbuf_grow");
+		abort();
 	}
 
 	buf->asize = new_size;
@@ -75,18 +70,6 @@ int cmark_strbuf_try_grow(cmark_strbuf *buf, int target_size, bool mark_oom)
 	if (buf->size >= buf->asize)
 		buf->size = buf->asize - 1;
 	buf->ptr[buf->size] = '\0';
-
-	return 0;
-}
-
-int cmark_strbuf_grow(cmark_strbuf *buf, int target_size)
-{
-	return cmark_strbuf_try_grow(buf, target_size, true);
-}
-
-bool cmark_strbuf_oom(const cmark_strbuf *buf)
-{
-	return (buf->ptr == cmark_strbuf__oom);
 }
 
 size_t cmark_strbuf_len(const cmark_strbuf *buf)
@@ -98,7 +81,7 @@ void cmark_strbuf_free(cmark_strbuf *buf)
 {
 	if (!buf) return;
 
-	if (buf->ptr != cmark_strbuf__initbuf && buf->ptr != cmark_strbuf__oom)
+	if (buf->ptr != cmark_strbuf__initbuf)
 		free(buf->ptr);
 
 	cmark_strbuf_init(buf, 0);
@@ -112,7 +95,7 @@ void cmark_strbuf_clear(cmark_strbuf *buf)
 		buf->ptr[0] = '\0';
 }
 
-int cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, int len)
+void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, int len)
 {
 	if (len <= 0 || data == NULL) {
 		cmark_strbuf_clear(buf);
@@ -124,42 +107,38 @@ int cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, int len)
 		buf->size = len;
 		buf->ptr[buf->size] = '\0';
 	}
-	return 0;
 }
 
-int cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
+void cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
 {
-	return cmark_strbuf_set(buf,
-	                        (const unsigned char *)string,
-	                        string ? strlen(string) : 0);
+	cmark_strbuf_set(buf, (const unsigned char *)string,
+	                 string ? strlen(string) : 0);
 }
 
-int cmark_strbuf_putc(cmark_strbuf *buf, int c)
+void cmark_strbuf_putc(cmark_strbuf *buf, int c)
 {
 	ENSURE_SIZE(buf, buf->size + 2);
 	buf->ptr[buf->size++] = c;
 	buf->ptr[buf->size] = '\0';
-	return 0;
 }
 
-int cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, int len)
+void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, int len)
 {
 	if (len <= 0)
-		return 0;
+		return;
 
 	ENSURE_SIZE(buf, buf->size + len + 1);
 	memmove(buf->ptr + buf->size, data, len);
 	buf->size += len;
 	buf->ptr[buf->size] = '\0';
-	return 0;
 }
 
-int cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
+void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 {
-	return cmark_strbuf_put(buf, (const unsigned char *)string, strlen(string));
+	cmark_strbuf_put(buf, (const unsigned char *)string, strlen(string));
 }
 
-int cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
+void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 {
 	const int expected_size = buf->size + (strlen(format) * 2);
 	int len;
@@ -185,9 +164,8 @@ int cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 		va_end(args);
 
 		if (len < 0) {
-			free(buf->ptr);
-			buf->ptr = cmark_strbuf__oom;
-			return -1;
+			perror("vsnprintf in cmark_strbuf_vprintf");
+			abort();
 		}
 
 		if (len + 1 <= buf->asize - buf->size) {
@@ -197,20 +175,15 @@ int cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 
 		ENSURE_SIZE(buf, buf->size + len + 1);
 	}
-
-	return 0;
 }
 
-int cmark_strbuf_printf(cmark_strbuf *buf, const char *format, ...)
+void cmark_strbuf_printf(cmark_strbuf *buf, const char *format, ...)
 {
-	int r;
 	va_list ap;
 
 	va_start(ap, format);
-	r = cmark_strbuf_vprintf(buf, format, ap);
+	cmark_strbuf_vprintf(buf, format, ap);
 	va_end(ap);
-
-	return r;
 }
 
 void cmark_strbuf_copy_cstr(char *data, int datasize, const cmark_strbuf *buf)
@@ -242,7 +215,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf)
 {
 	unsigned char *data = buf->ptr;
 
-	if (buf->asize == 0 || buf->ptr == cmark_strbuf__oom) {
+	if (buf->asize == 0) {
 		/* return an empty string */
 		return (unsigned char *)calloc(1, 1);
 	}
