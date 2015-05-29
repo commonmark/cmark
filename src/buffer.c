@@ -42,18 +42,15 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 		return;
 
 	if (buf->asize == 0) {
-		new_size = target_size;
 		new_ptr = NULL;
 	} else {
-		new_size = buf->asize;
 		new_ptr = buf->ptr;
 	}
 
-	/* grow the buffer size by 1.5, until it's big enough
-	 * to fit our target size */
-	while (new_size < target_size)
-		// TODO: Check for overflow.
-		new_size = (new_size << 1) - (new_size >> 1);
+	/* Oversize the buffer by 50% to guarantee amortized linear time
+	 * complexity on append operations. */
+	// TODO: Check for overflow.
+	new_size = target_size + target_size / 2;
 
 	/* round allocation up to multiple of 8 */
 	// TODO: Check for overflow.
