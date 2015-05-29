@@ -167,5 +167,4 @@ endif($ENV{TIMER})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-  set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=undefined")
 endif()
