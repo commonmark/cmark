@@ -175,6 +175,12 @@ int cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 		          buf->asize - buf->size,
 		          format, args
 		      );
+#ifndef HAVE_C99_SNPRINTF
+		// Assume we're on Windows.
+		if (len < 0) {
+			len = _vscprintf(format, args);
+		}
+#endif
 
 		va_end(args);
 

@@ -21,3 +21,5 @@
 #ifndef HAVE_VA_COPY
   #define va_copy(dest, src) ((dest) = (src))
 #endif
+
+#cmakedefine HAVE_C99_SNPRINTF
