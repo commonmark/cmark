@@ -239,6 +239,7 @@ is_autolink(cmark_node *node)
 {
 	const char *title;
 	const char *url;
+	cmark_node *link_text;
 
 	if (node->type != CMARK_NODE_LINK) {
 		return false;
@@ -255,10 +256,13 @@ is_autolink(cmark_node *node)
 	if (title != NULL && strlen(title) > 0) {
 		return false;
 	}
-	cmark_consolidate_text_nodes(node);
-	return (strncmp(url,
-	                (char*)node->as.literal.data,
-	                node->as.literal.len) == 0);
+
+	link_text = node->first_child;
+	cmark_consolidate_text_nodes(link_text);
+	return ((int)strlen(url) == link_text->as.literal.len &&
+		strncmp(url,
+	                (char*)link_text->as.literal.data,
+	                link_text->as.literal.len) == 0);
 }
 
 // if node is a block node, returns node.
