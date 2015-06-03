@@ -140,8 +140,8 @@ int _scan_link_url(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [ \n]* [<] ([^<>\n\\\x00] | escaped_char | [\\])* [>] { return (p - start); }
-  [ \n]* (reg_char+ | escaped_char | in_parens_nosp)* { return (p - start); }
+  [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (p - start); }
+  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp)* { return (p - start); }
   .? { return 0; }
 */
 }
@@ -177,19 +177,19 @@ int _scan_atx_header_start(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [#]{1,6} ([ ]+|[\n])  { return (p - start); }
+  [#]{1,6} ([ ]+|[\r\n])  { return (p - start); }
   .? { return 0; }
 */
 }
 
-// Match sexext header line.  Return 1 for level-1 header,
+// Match setext header line.  Return 1 for level-1 header,
 // 2 for level-2, 0 for no match.
 int _scan_setext_header_line(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
-  [=]+ [ ]* [\n] { return 1; }
-  [-]+ [ ]* [\n] { return 2; }
+  [=]+ [ ]* [\r\n] { return 1; }
+  [-]+ [ ]* [\r\n] { return 2; }
   .? { return 0; }
 */
 }
@@ -202,9 +202,9 @@ int _scan_hrule(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ([*][ ]*){3,} [ \t]* [\n] { return (p - start); }
-  ([_][ ]*){3,} [ \t]* [\n] { return (p - start); }
-  ([-][ ]*){3,} [ \t]* [\n] { return (p - start); }
+  ([*][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
+  ([_][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
+  ([-][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
   .? { return 0; }
 */
 }
@@ -215,8 +215,8 @@ int _scan_open_code_fence(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [`]{3,} / [^`\n\x00]*[\n] { return (p - start); }
-  [~]{3,} / [^~\n\x00]*[\n] { return (p - start); }
+  [`]{3,} / [^`\r\n\x00]*[\r\n] { return (p - start); }
+  [~]{3,} / [^~\r\n\x00]*[\r\n] { return (p - start); }
   .?                        { return 0; }
 */
 }
@@ -227,8 +227,8 @@ int _scan_close_code_fence(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [`]{3,} / [ \t]*[\n] { return (p - start); }
-  [~]{3,} / [ \t]*[\n] { return (p - start); }
+  [`]{3,} / [ \t]*[\r\n] { return (p - start); }
+  [~]{3,} / [ \t]*[\r\n] { return (p - start); }
   .? { return 0; }
 */
 }

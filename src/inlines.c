@@ -583,7 +583,7 @@ static cmark_node* handle_backslash(subject *subj)
 	if (cmark_ispunct(nextchar)) {  // only ascii symbols and newline can be escaped
 		advance(subj);
 		return make_str(cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
-	} else if (nextchar == '\n') {
+	} else if (nextchar == '\r' || nextchar == '\n') {
 		advance(subj);
 		return make_linebreak();
 	} else {
@@ -939,9 +939,9 @@ static cmark_node* handle_newline(subject *subj)
 
 static int subject_find_special_char(subject *subj, int options)
 {
-	// "\n\\`&_*[]<!"
+	// "\r\n\\`&_*[]<!"
 	static const int8_t SPECIAL_CHARS[256] = {
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
@@ -1006,6 +1006,7 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 		return 0;
 	}
 	switch(c) {
+	case '\r':
 	case '\n':
 		new_inl = handle_newline(subj);
 		break;
@@ -1057,7 +1058,7 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 		subj->pos = endpos;
 
 		// if we're at a newline, strip trailing spaces.
-		if (peek_char(subj) == '\n') {
+		if (peek_char(subj) == '\r' || peek_char(subj) == '\n') {
 			cmark_chunk_rtrim(&contents);
 		}
 
@@ -1087,7 +1088,7 @@ static void spnl(subject* subj)
 	bool seen_newline = false;
 	while (peek_char(subj) == ' ' ||
 	       (!seen_newline &&
-	        (seen_newline = peek_char(subj) == '\n'))) {
+	        (seen_newline = peek_char(subj) == '\r' || peek_char(subj) == '\n'))) {
 		advance(subj);
 	}
 }
@@ -1145,7 +1146,7 @@ int cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refma
 	while (peek_char(&subj) == ' ') {
 		advance(&subj);
 	}
-	if (peek_char(&subj) == '\n') {
+	if (peek_char(&subj) == '\r' || peek_char(&subj) == '\n') {
 		advance(&subj);
 	} else if (peek_char(&subj) != 0) {
 		return 0;

@@ -89,6 +89,7 @@ static bool is_blank(cmark_strbuf *s, int offset)
 {
 	while (offset < s->size) {
 		switch (s->ptr[offset]) {
+		case '\r':
 		case '\n':
 			return true;
 		case ' ':
@@ -126,9 +127,10 @@ static void add_line(cmark_node* node, cmark_chunk *ch, int offset)
 static void remove_trailing_blank_lines(cmark_strbuf *ln)
 {
 	int i;
+	unsigned char c;
 
 	for (i = ln->size - 1; i >= 0; --i) {
-		unsigned char c = ln->ptr[i];
+		c = ln->ptr[i];
 
 		if (c != ' ' && c != '\t' && c != '\r' && c != '\n')
 			break;
@@ -139,9 +141,16 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 		return;
 	}
 
-	i = cmark_strbuf_strchr(ln, '\n', i);
-	if (i >= 0)
+
+	for(; i < ln->size; ++i) {
+		c = ln->ptr[i];
+
+		if (c != '\r' && c != '\n')
+			continue;
+
 		cmark_strbuf_truncate(ln, i);
+		break;
+	}
 }
 
 // Check to see if a node ends with a blank line, descending
@@ -185,7 +194,6 @@ static int break_out_of_lists(cmark_parser *parser, cmark_node ** bptr)
 static cmark_node*
 finalize(cmark_parser *parser, cmark_node* b)
 {
-	int firstlinelen;
 	int pos;
 	cmark_node* item;
 	cmark_node* subitem;
@@ -204,9 +212,11 @@ finalize(cmark_parser *parser, cmark_node* b)
 	           (b->type == NODE_CODE_BLOCK && b->as.code.fenced) ||
 	           (b->type == NODE_HEADER && b->as.header.setext)) {
 		b->end_line = parser->line_number;
-		b->end_column = parser->curline->size -
-		                (parser->curline->ptr[parser->curline->size - 1] == '\n' ?
-		                 1 : 0);
+		b->end_column = parser->curline->size;
+		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\n')
+			b->end_column--;
+		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\r')
+			b->end_column--;
 	} else {
 		b->end_line = parser->line_number - 1;
 		b->end_column = parser->last_line_length;
@@ -232,19 +242,28 @@ finalize(cmark_parser *parser, cmark_node* b)
 		} else {
 
 			// first line of contents becomes info
-			firstlinelen = cmark_strbuf_strchr(&b->string_content, '\n', 0);
+			for (pos = 0; pos < b->string_content.size; ++pos) {
+				if (b->string_content.ptr[pos] == '\r' ||
+				    b->string_content.ptr[pos] == '\n')
+					break;
+			}
+			assert(pos < b->string_content.size);
 
 			cmark_strbuf tmp = GH_BUF_INIT;
 			houdini_unescape_html_f(
 			    &tmp,
 			    b->string_content.ptr,
-			    firstlinelen
+			    pos
 			);
 			cmark_strbuf_trim(&tmp);
 			cmark_strbuf_unescape(&tmp);
 			b->as.code.info = cmark_chunk_buf_detach(&tmp);
 
-			cmark_strbuf_drop(&b->string_content, firstlinelen + 1);
+			if (b->string_content.ptr[pos] == '\r')
+				pos += 1;
+			if (b->string_content.ptr[pos] == '\n')
+				pos += 1;
+			cmark_strbuf_drop(&b->string_content, pos);
 		}
 		b->as.code.literal = cmark_chunk_buf_detach(&b->string_content);
 		break;
@@ -467,13 +486,22 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 	const unsigned char *end = buffer + len;
 
 	while (buffer < end) {
-		const unsigned char *eol
-		    = (const unsigned char *)memchr(buffer, '\n',
-		                                    end - buffer);
+		const unsigned char *eol;
 		size_t line_len;
 
+		for (eol = buffer; eol < end; ++eol) {
+			if (*eol == '\r' || *eol == '\n')
+				break;
+		}
+		if (eol >= end)
+			eol = NULL;
+
 		if (eol) {
-			line_len = eol + 1 - buffer;
+			if (eol < end && *eol == '\r')
+				eol++;
+			if (eol < end && *eol == '\n')
+				eol++;
+			line_len = eol - buffer;
 		} else if (eof) {
 			line_len = end - buffer;
 		} else {
@@ -534,9 +562,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 
 	// Add a newline to the end if not present:
 	// TODO this breaks abstraction:
-	if (parser->curline->ptr[parser->curline->size - 1] != '\n') {
-		cmark_strbuf_putc(parser->curline, '\n');
+	if (parser->curline->size && parser->curline->ptr[parser->curline->size - 1] == '\n') {
+		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
 	}
+	if (parser->curline->size && parser->curline->ptr[parser->curline->size - 1] == '\r') {
+		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
+	}
+	cmark_strbuf_putc(parser->curline, '\n');
 	input.data = parser->curline->ptr;
 	input.len = parser->curline->size;
 
@@ -557,7 +589,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		}
 
 		indent = first_nonspace - offset;
-		blank = peek_at(&input, first_nonspace) == '\n';
+		blank = peek_at(&input, first_nonspace) == '\n' ||
+		        peek_at(&input, first_nonspace) == '\r';
 
 		if (container->type == NODE_BLOCK_QUOTE) {
 			matched = indent <= 3 && peek_at(&input, first_nonspace) == '>';
@@ -659,7 +692,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 
 		indent = first_nonspace - offset;
 		indented = indent >= CODE_INDENT;
-		blank = peek_at(&input, first_nonspace) == '\n';
+		blank = peek_at(&input, first_nonspace) == '\n' ||
+		        peek_at(&input, first_nonspace) == '\r';
 
 		if (indented && !maybe_lazy && !blank) {
 				offset += CODE_INDENT;
@@ -712,8 +746,10 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			   container->type == NODE_PARAGRAPH &&
 		           (lev = scan_setext_header_line(&input, first_nonspace)) &&
 		           // check that there is only one line in the paragraph:
-		           cmark_strbuf_strrchr(&container->string_content, '\n',
-		                                cmark_strbuf_len(&container->string_content) - 2) < 0) {
+		           (cmark_strbuf_strrchr(&container->string_content, '\n',
+		                                 cmark_strbuf_len(&container->string_content) - 2) < 0 &&
+		           cmark_strbuf_strrchr(&container->string_content, '\r',
+		                                cmark_strbuf_len(&container->string_content) - 2) < 0)) {
 
 			container->type = NODE_HEADER;
 			container->as.header.level = lev;
@@ -739,7 +775,9 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 				i++;
 			}
 			// i = number of spaces after marker, up to 5
-			if (i >= 5 || i < 1 || peek_at(&input, offset) == '\n') {
+			if (i >= 5 || i < 1 ||
+			    peek_at(&input, offset) == '\n' ||
+			    peek_at(&input, offset) == '\r') {
 				data->padding = matched + 1;
 				if (i > 0) {
 					offset += 1;
@@ -787,7 +825,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		first_nonspace++;
 
 	indent = first_nonspace - offset;
-	blank = peek_at(&input, first_nonspace) == '\n';
+	blank = peek_at(&input, first_nonspace) == '\n' ||
+	        peek_at(&input, first_nonspace) == '\r';
 
 	if (blank && container->last_child) {
 		container->last_child->last_line_blank = true;
@@ -855,10 +894,14 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		parser->current = container;
 	}
 finished:
-	parser->last_line_length = parser->curline->size -
-	                           (parser->curline->ptr[parser->curline->size - 1] == '\n' ?
-	                            1 : 0);
-	;
+	parser->last_line_length = parser->curline->size;
+	if (parser->last_line_length &&
+	    parser->curline->ptr[parser->last_line_length - 1] == '\n')
+		parser->last_line_length--;
+	if (parser->last_line_length &&
+	    parser->curline->ptr[parser->last_line_length - 1] == '\r')
+		parser->last_line_length--;
+
 	cmark_strbuf_clear(parser->curline);
 
 }
