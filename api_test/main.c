@@ -666,6 +666,20 @@ test_continuation_byte(test_batch_runner *runner, const char *utf8)
 }
 
 static void
+line_endings(test_batch_runner *runner)
+{
+	// Test list with different line endings
+	static const char list_with_endings[] =
+		"- a\n- b\r\n- c\r- d";
+	char *html = cmark_markdown_to_html(list_with_endings,
+					    sizeof(list_with_endings) - 1,
+		                            CMARK_OPT_DEFAULT);
+	STR_EQ(runner, html, "<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n<li>d</li>\n</ul>\n",
+	       "list with different line endings");
+	free(html);
+}
+
+static void
 numeric_entities(test_batch_runner *runner)
 {
 	test_md_to_html(runner, "&#0;", "<p>" UTF8_REPL "</p>\n",
@@ -724,6 +738,7 @@ int main() {
 	parser(runner);
 	render_html(runner);
 	utf8(runner);
+	line_endings(runner);
 	numeric_entities(runner);
 	test_cplusplus(runner);
 
