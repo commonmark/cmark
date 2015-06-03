@@ -18,6 +18,12 @@
 #define CODE_INDENT 4
 #define peek_at(i, n) (i)->data[n]
 
+static inline bool
+is_line_end_char(char c)
+{
+	return (c == '\n' || c == '\r');
+}
+
 static void
 S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
               bool eof);
@@ -132,7 +138,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 	for (i = ln->size - 1; i >= 0; --i) {
 		c = ln->ptr[i];
 
-		if (c != ' ' && c != '\t' && c != '\r' && c != '\n')
+		if (c != ' ' && c != '\t' && !is_line_end_char(c))
 			break;
 	}
 
@@ -145,7 +151,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 	for(; i < ln->size; ++i) {
 		c = ln->ptr[i];
 
-		if (c != '\r' && c != '\n')
+		if (!is_line_end_char(c))
 			continue;
 
 		cmark_strbuf_truncate(ln, i);
@@ -214,9 +220,9 @@ finalize(cmark_parser *parser, cmark_node* b)
 		b->end_line = parser->line_number;
 		b->end_column = parser->curline->size;
 		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\n')
-			b->end_column--;
+			b->end_column -= 1;
 		if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\r')
-			b->end_column--;
+			b->end_column -= 1;
 	} else {
 		b->end_line = parser->line_number - 1;
 		b->end_column = parser->last_line_length;
@@ -243,8 +249,7 @@ finalize(cmark_parser *parser, cmark_node* b)
 
 			// first line of contents becomes info
 			for (pos = 0; pos < b->string_content.size; ++pos) {
-				if (b->string_content.ptr[pos] == '\r' ||
-				    b->string_content.ptr[pos] == '\n')
+				if (is_line_end_char(b->string_content.ptr[pos]))
 					break;
 			}
 			assert(pos < b->string_content.size);
@@ -490,7 +495,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 		size_t line_len;
 
 		for (eol = buffer; eol < end; ++eol) {
-			if (*eol == '\r' || *eol == '\n')
+			if (is_line_end_char(*eol))
 				break;
 		}
 		if (eol >= end)
@@ -557,28 +562,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	bool indented;
 	cmark_chunk input;
 	bool maybe_lazy;
-	int trim = 0;
-	bool cr = false;
-	bool lf = false;
 
 	utf8proc_detab(parser->curline, buffer, bytes);
 
 	// Add a newline to the end if not present:
 	// TODO this breaks abstraction:
-	if (parser->curline->size > trim &&
-	    parser->curline->ptr[parser->curline->size - 1 - trim] == '\n') {
-		trim += 1;
-		lf = true;
-	}
-	if (parser->curline->size > trim &&
-	    parser->curline->ptr[parser->curline->size - 1 - trim] == '\r') {
-		trim += 1;
-		cr = true;
-	}
-	if (cr) {
-		cmark_strbuf_truncate(parser->curline, parser->curline->size - trim);
-	}
-	if (cr || !lf) {
+	if (parser->curline->size > 0 &&
+	    !is_line_end_char(parser->curline->ptr[parser->curline->size - 1])) {
 		cmark_strbuf_putc(parser->curline, '\n');
 	}
 
@@ -602,8 +592,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		}
 
 		indent = first_nonspace - offset;
-		blank = peek_at(&input, first_nonspace) == '\n' ||
-		        peek_at(&input, first_nonspace) == '\r';
+		blank = is_line_end_char(peek_at(&input, first_nonspace));
 
 		if (container->type == NODE_BLOCK_QUOTE) {
 			matched = indent <= 3 && peek_at(&input, first_nonspace) == '>';
@@ -705,8 +694,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 
 		indent = first_nonspace - offset;
 		indented = indent >= CODE_INDENT;
-		blank = peek_at(&input, first_nonspace) == '\n' ||
-		        peek_at(&input, first_nonspace) == '\r';
+		blank = is_line_end_char(peek_at(&input, first_nonspace));
 
 		if (indented && !maybe_lazy && !blank) {
 				offset += CODE_INDENT;
@@ -760,9 +748,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		           (lev = scan_setext_header_line(&input, first_nonspace)) &&
 		           // check that there is only one line in the paragraph:
 		           (cmark_strbuf_strrchr(&container->string_content, '\n',
-		                                 cmark_strbuf_len(&container->string_content) - 2) < 0 &&
-		           cmark_strbuf_strrchr(&container->string_content, '\r',
-		                                cmark_strbuf_len(&container->string_content) - 2) < 0)) {
+		                                 cmark_strbuf_len(&container->string_content) - 2) < 0)) {
 
 			container->type = NODE_HEADER;
 			container->as.header.level = lev;
@@ -789,8 +775,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			}
 			// i = number of spaces after marker, up to 5
 			if (i >= 5 || i < 1 ||
-			    peek_at(&input, offset) == '\n' ||
-			    peek_at(&input, offset) == '\r') {
+			    is_line_end_char(peek_at(&input, offset))) {
 				data->padding = matched + 1;
 				if (i > 0) {
 					offset += 1;
@@ -838,8 +823,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		first_nonspace++;
 
 	indent = first_nonspace - offset;
-	blank = peek_at(&input, first_nonspace) == '\n' ||
-	        peek_at(&input, first_nonspace) == '\r';
+	blank = is_line_end_char(peek_at(&input, first_nonspace));
 
 	if (blank && container->last_child) {
 		container->last_child->last_line_blank = true;
@@ -910,10 +894,10 @@ finished:
 	parser->last_line_length = parser->curline->size;
 	if (parser->last_line_length &&
 	    parser->curline->ptr[parser->last_line_length - 1] == '\n')
-		parser->last_line_length--;
+		parser->last_line_length -= 1;
 	if (parser->last_line_length &&
 	    parser->curline->ptr[parser->last_line_length - 1] == '\r')
-		parser->last_line_length--;
+		parser->last_line_length -= 1;
 
 	cmark_strbuf_clear(parser->curline);
 
