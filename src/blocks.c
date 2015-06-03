@@ -526,6 +526,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	bool blank = false;
 	int first_nonspace;
 	int indent;
+	bool indented;
 	cmark_chunk input;
 	bool maybe_lazy;
 
@@ -657,10 +658,10 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			first_nonspace++;
 
 		indent = first_nonspace - offset;
+		indented = indent >= CODE_INDENT;
 		blank = peek_at(&input, first_nonspace) == '\n';
 
-		if (indent >= CODE_INDENT) {
-			if (!maybe_lazy && !blank) {
+		if (indented && !maybe_lazy && !blank) {
 				offset += CODE_INDENT;
 				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
 				container->as.code.fenced = false;
@@ -668,11 +669,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 				container->as.code.fence_length = 0;
 				container->as.code.fence_offset = 0;
 				container->as.code.info = cmark_chunk_literal("");
-			} else { // indent > 4 in lazy line
-				break;
-			}
 
-		} else if (peek_at(&input, first_nonspace) == '>') {
+		} else if (!indented && peek_at(&input, first_nonspace) == '>') {
 
 			offset = first_nonspace + 1;
 			// optional following character
@@ -680,7 +678,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 				offset++;
 			container = add_child(parser, container, NODE_BLOCK_QUOTE, offset + 1);
 
-		} else if ((matched = scan_atx_header_start(&input, first_nonspace))) {
+		} else if (!indented && (matched = scan_atx_header_start(&input, first_nonspace))) {
 
 			offset = first_nonspace + matched;
 			container = add_child(parser, container, NODE_HEADER, offset + 1);
@@ -695,7 +693,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			container->as.header.level = level;
 			container->as.header.setext = false;
 
-		} else if ((matched = scan_open_code_fence(&input, first_nonspace))) {
+		} else if (!indented && (matched = scan_open_code_fence(&input, first_nonspace))) {
 
 			container = add_child(parser, container, NODE_CODE_BLOCK, first_nonspace + 1);
 			container->as.code.fenced = true;
@@ -705,12 +703,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			container->as.code.info = cmark_chunk_literal("");
 			offset = first_nonspace + matched;
 
-		} else if ((matched = scan_html_block_tag(&input, first_nonspace))) {
+		} else if (!indented && (matched = scan_html_block_tag(&input, first_nonspace))) {
 
 			container = add_child(parser, container, NODE_HTML, first_nonspace + 1);
 			// note, we don't adjust offset because the tag is part of the text
 
-		} else if (container->type == NODE_PARAGRAPH &&
+		} else if (!indented &&
+			   container->type == NODE_PARAGRAPH &&
 		           (lev = scan_setext_header_line(&input, first_nonspace)) &&
 		           // check that there is only one line in the paragraph:
 		           cmark_strbuf_strrchr(&container->string_content, '\n',
@@ -721,7 +720,9 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			container->as.header.setext = true;
 			offset = input.len - 1;
 
-		} else if (!(container->type == NODE_PARAGRAPH && !all_matched) &&
+		} else if (!indented &&
+			   !(container->type == NODE_PARAGRAPH &&
+			     !all_matched) &&
 		           (matched = scan_hrule(&input, first_nonspace))) {
 
 			// it's only now that we know the line is not part of a setext header:
