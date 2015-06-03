@@ -557,18 +557,31 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	bool indented;
 	cmark_chunk input;
 	bool maybe_lazy;
+	int trim = 0;
+	bool cr = false;
+	bool lf = false;
 
 	utf8proc_detab(parser->curline, buffer, bytes);
 
 	// Add a newline to the end if not present:
 	// TODO this breaks abstraction:
-	if (parser->curline->size && parser->curline->ptr[parser->curline->size - 1] == '\n') {
-		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
+	if (parser->curline->size > trim &&
+	    parser->curline->ptr[parser->curline->size - 1 - trim] == '\n') {
+		trim += 1;
+		lf = true;
 	}
-	if (parser->curline->size && parser->curline->ptr[parser->curline->size - 1] == '\r') {
-		cmark_strbuf_truncate(parser->curline, parser->curline->size - 1);
+	if (parser->curline->size > trim &&
+	    parser->curline->ptr[parser->curline->size - 1 - trim] == '\r') {
+		trim += 1;
+		cr = true;
 	}
-	cmark_strbuf_putc(parser->curline, '\n');
+	if (cr) {
+		cmark_strbuf_truncate(parser->curline, parser->curline->size - trim);
+	}
+	if (cr || !lf) {
+		cmark_strbuf_putc(parser->curline, '\n');
+	}
+
 	input.data = parser->curline->ptr;
 	input.len = parser->curline->size;
 
