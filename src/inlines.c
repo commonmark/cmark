@@ -755,6 +755,7 @@ static int link_label(subject* subj, cmark_chunk *raw_label)
 
 	if (c == ']') { // match found
 		*raw_label = cmark_chunk_dup(&subj->input, startpos + 1, subj->pos - (startpos + 1));
+		cmark_chunk_trim(raw_label);
 		advance(subj);  // advance past ]
 		return 1;
 	}
@@ -1111,7 +1112,7 @@ int cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refma
 	subject_from_buf(&subj, input, NULL);
 
 	// parse label:
-	if (!link_label(&subj, &lab))
+	if (!link_label(&subj, &lab) || lab.len == 0)
 		return 0;
 
 	// colon:
