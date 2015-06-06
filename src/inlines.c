@@ -151,7 +151,7 @@ static cmark_chunk chunk_clone(cmark_chunk *src)
 	memcpy(c.data, src->data, len);
 	c.data[len] = '\0';
 
-       return c;
+	return c;
 }
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
@@ -307,9 +307,9 @@ scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 	                   !utf8proc_is_punctuation(after_char));
 	if (c == '_') {
 		*can_open = left_flanking &&
-			(!right_flanking || utf8proc_is_punctuation(before_char));
+		            (!right_flanking || utf8proc_is_punctuation(before_char));
 		*can_close = right_flanking &&
-			(!left_flanking || utf8proc_is_punctuation(after_char));
+		             (!left_flanking || utf8proc_is_punctuation(after_char));
 	} else if (c == '\'' || c == '"') {
 		*can_open = left_flanking && !right_flanking;
 		*can_close = right_flanking;

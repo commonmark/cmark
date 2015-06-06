@@ -735,7 +735,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			// note, we don't adjust offset because the tag is part of the text
 
 		} else if (!indented &&
-			   container->type == NODE_PARAGRAPH &&
+		           container->type == NODE_PARAGRAPH &&
 		           (lev = scan_setext_header_line(&input, first_nonspace)) &&
 		           // check that there is only one line in the paragraph:
 		           (cmark_strbuf_strrchr(&container->string_content, '\n',
@@ -747,8 +747,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			offset = input.len - 1;
 
 		} else if (!indented &&
-			   !(container->type == NODE_PARAGRAPH &&
-			     !all_matched) &&
+		           !(container->type == NODE_PARAGRAPH &&
+		             !all_matched) &&
 		           (matched = scan_hrule(&input, first_nonspace))) {
 
 			// it's only now that we know the line is not part of a setext header:
@@ -757,7 +757,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			offset = input.len - 1;
 
 		} else if ((matched = parse_list_marker(&input, first_nonspace, &data)) &&
-			   (!indented || container->type == NODE_LIST)) {
+		           (!indented || container->type == NODE_LIST)) {
 			// Note that we can have new list items starting with >= 4
 			// spaces indent, as long as the list container is still open.
 
@@ -800,13 +800,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			free(data);
 
 		} else if (indented && !maybe_lazy && !blank) {
-				offset += CODE_INDENT;
-				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
-				container->as.code.fenced = false;
-				container->as.code.fence_char = 0;
-				container->as.code.fence_length = 0;
-				container->as.code.fence_offset = 0;
-				container->as.code.info = cmark_chunk_literal("");
+			offset += CODE_INDENT;
+			container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
+			container->as.code.fenced = false;
+			container->as.code.fence_char = 0;
+			container->as.code.fence_length = 0;
+			container->as.code.fence_offset = 0;
+			container->as.code.info = cmark_chunk_literal("");
 
 		} else {
 			break;

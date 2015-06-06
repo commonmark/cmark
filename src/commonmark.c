@@ -260,7 +260,7 @@ is_autolink(cmark_node *node)
 	link_text = node->first_child;
 	cmark_consolidate_text_nodes(link_text);
 	return ((int)strlen(url) == link_text->as.literal.len &&
-		strncmp(url,
+	        strncmp(url,
 	                (char*)link_text->as.literal.data,
 	                link_text->as.literal.len) == 0);
 }
