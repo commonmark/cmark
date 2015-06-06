@@ -19,7 +19,7 @@
 #define peek_at(i, n) (i)->data[n]
 
 static inline bool
-is_line_end_char(char c)
+S_is_line_end_char(char c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -142,7 +142,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 	for (i = ln->size - 1; i >= 0; --i) {
 		c = ln->ptr[i];
 
-		if (c != ' ' && c != '\t' && !is_line_end_char(c))
+		if (c != ' ' && c != '\t' && !S_is_line_end_char(c))
 			break;
 	}
 
@@ -155,7 +155,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln)
 	for(; i < ln->size; ++i) {
 		c = ln->ptr[i];
 
-		if (!is_line_end_char(c))
+		if (!S_is_line_end_char(c))
 			continue;
 
 		cmark_strbuf_truncate(ln, i);
@@ -253,7 +253,7 @@ finalize(cmark_parser *parser, cmark_node* b)
 
 			// first line of contents becomes info
 			for (pos = 0; pos < b->string_content.size; ++pos) {
-				if (is_line_end_char(b->string_content.ptr[pos]))
+				if (S_is_line_end_char(b->string_content.ptr[pos]))
 					break;
 			}
 			assert(pos < b->string_content.size);
@@ -499,7 +499,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 		size_t line_len;
 
 		for (eol = buffer; eol < end; ++eol) {
-			if (is_line_end_char(*eol))
+			if (S_is_line_end_char(*eol))
 				break;
 		}
 		if (eol >= end)
@@ -558,7 +558,7 @@ S_find_first_nonspace(cmark_parser *parser, cmark_chunk *input)
 	}
 
 	parser->indent = parser->first_nonspace - parser->offset;
-	parser->blank = is_line_end_char(peek_at(input, parser->first_nonspace));
+	parser->blank = S_is_line_end_char(peek_at(input, parser->first_nonspace));
 }
 
 static void
@@ -582,7 +582,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 	// Add a newline to the end if not present:
 	// TODO this breaks abstraction:
 	if (parser->curline->size > 0 &&
-	    !is_line_end_char(parser->curline->ptr[parser->curline->size - 1])) {
+	    !S_is_line_end_char(parser->curline->ptr[parser->curline->size - 1])) {
 		cmark_strbuf_putc(parser->curline, '\n');
 	}
 
@@ -772,7 +772,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			}
 			// i = number of spaces after marker, up to 5
 			if (i >= 5 || i < 1 ||
-			    is_line_end_char(peek_at(&input, parser->offset))) {
+			    S_is_line_end_char(peek_at(&input, parser->offset))) {
 				data->padding = matched + 1;
 				if (i > 0) {
 					parser->offset += 1;
