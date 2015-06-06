@@ -696,16 +696,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 		indented = indent >= CODE_INDENT;
 		blank = is_line_end_char(peek_at(&input, first_nonspace));
 
-		if (indented && !maybe_lazy && !blank) {
-				offset += CODE_INDENT;
-				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
-				container->as.code.fenced = false;
-				container->as.code.fence_char = 0;
-				container->as.code.fence_length = 0;
-				container->as.code.fence_offset = 0;
-				container->as.code.info = cmark_chunk_literal("");
-
-		} else if (!indented && peek_at(&input, first_nonspace) == '>') {
+		if (!indented && peek_at(&input, first_nonspace) == '>') {
 
 			offset = first_nonspace + 1;
 			// optional following character
@@ -765,7 +756,10 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			container = finalize(parser, container);
 			offset = input.len - 1;
 
-		} else if ((matched = parse_list_marker(&input, first_nonspace, &data))) {
+		} else if ((matched = parse_list_marker(&input, first_nonspace, &data)) &&
+			   (!indented || container->type == NODE_LIST)) {
+			// Note that we can have new list items starting with >= 4
+			// spaces indent, as long as the list container is still open.
 
 			// compute padding:
 			offset = first_nonspace + matched;
@@ -804,6 +798,16 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, size_t bytes)
 			/* TODO: static */
 			memcpy(&container->as.list, data, sizeof(*data));
 			free(data);
+
+		} else if (indented && !maybe_lazy && !blank) {
+				offset += CODE_INDENT;
+				container = add_child(parser, container, NODE_CODE_BLOCK, offset + 1);
+				container->as.code.fenced = false;
+				container->as.code.fence_char = 0;
+				container->as.code.fence_length = 0;
+				container->as.code.fence_offset = 0;
+				container->as.code.info = cmark_chunk_literal("");
+
 		} else {
 			break;
 		}
