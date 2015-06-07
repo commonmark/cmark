@@ -22,20 +22,21 @@ unsigned char cmark_strbuf__initbuf[1];
 #define MIN(x,y)  ((x<y) ? x : y)
 #endif
 
-void cmark_strbuf_init(cmark_strbuf *buf, int initial_size)
+void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 {
 	buf->asize = 0;
 	buf->size = 0;
 	buf->ptr = cmark_strbuf__initbuf;
 
+	// TODO: Check for negative initial_size.
 	if (initial_size)
 		cmark_strbuf_grow(buf, initial_size);
 }
 
-void cmark_strbuf_grow(cmark_strbuf *buf, int target_size)
+void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 {
 	unsigned char *new_ptr;
-	int new_size;
+	bufsize_t new_size;
 
 	if (target_size <= buf->asize)
 		return;
@@ -51,9 +52,11 @@ void cmark_strbuf_grow(cmark_strbuf *buf, int target_size)
 	/* grow the buffer size by 1.5, until it's big enough
 	 * to fit our target size */
 	while (new_size < target_size)
+		// TODO: Check for overflow.
 		new_size = (new_size << 1) - (new_size >> 1);
 
 	/* round allocation up to multiple of 8 */
+	// TODO: Check for overflow.
 	new_size = (new_size + 7) & ~7;
 
 	new_ptr = (unsigned char *)realloc(new_ptr, new_size);
@@ -95,12 +98,13 @@ void cmark_strbuf_clear(cmark_strbuf *buf)
 		buf->ptr[0] = '\0';
 }
 
-void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, int len)
+void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, bufsize_t len)
 {
 	if (len <= 0 || data == NULL) {
 		cmark_strbuf_clear(buf);
 	} else {
 		if (data != buf->ptr) {
+			// TODO: Check for overflow.
 			ENSURE_SIZE(buf, len + 1);
 			memmove(buf->ptr, data, len);
 		}
@@ -117,16 +121,18 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c)
 {
+	// TODO: Check for overflow.
 	ENSURE_SIZE(buf, buf->size + 2);
 	buf->ptr[buf->size++] = c;
 	buf->ptr[buf->size] = '\0';
 }
 
-void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, int len)
+void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t len)
 {
 	if (len <= 0)
 		return;
 
+	// TODO: Check for overflow.
 	ENSURE_SIZE(buf, buf->size + len + 1);
 	memmove(buf->ptr + buf->size, data, len);
 	buf->size += len;
@@ -140,8 +146,8 @@ void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 
 void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 {
-	const int expected_size = buf->size + (strlen(format) * 2);
-	int len;
+	// TODO: Check for overflow.
+	const bufsize_t expected_size = buf->size + (strlen(format) * 2);
 
 	ENSURE_SIZE(buf, expected_size);
 
@@ -149,7 +155,7 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 		va_list args;
 		va_copy(args, ap);
 
-		len = vsnprintf(
+		int len = vsnprintf(
 		          (char *)buf->ptr + buf->size,
 		          buf->asize - buf->size,
 		          format, args
@@ -168,11 +174,13 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 			abort();
 		}
 
+		// TODO: Check for overflow.
 		if (len + 1 <= buf->asize - buf->size) {
 			buf->size += len;
 			break;
 		}
 
+		// TODO: Check for overflow.
 		ENSURE_SIZE(buf, buf->size + len + 1);
 	}
 }
@@ -186,10 +194,11 @@ void cmark_strbuf_printf(cmark_strbuf *buf, const char *format, ...)
 	va_end(ap);
 }
 
-void cmark_strbuf_copy_cstr(char *data, int datasize, const cmark_strbuf *buf)
+void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize, const cmark_strbuf *buf)
 {
-	int copylen;
+	bufsize_t copylen;
 
+	// TODO: Check negative datasize.
 	assert(data && datasize && buf);
 
 	data[0] = '\0';
@@ -224,16 +233,19 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf)
 	return data;
 }
 
-void cmark_strbuf_attach(cmark_strbuf *buf, unsigned char *ptr, int asize)
+void cmark_strbuf_attach(cmark_strbuf *buf, unsigned char *ptr, bufsize_t asize)
 {
 	cmark_strbuf_free(buf);
 
 	if (ptr) {
 		buf->ptr = ptr;
 		buf->size = strlen((char *)ptr);
+		// TODO: Check for negative asize.
 		if (asize)
+			// TODO: Check for overflow.
 			buf->asize = (asize < buf->size) ? buf->size + 1 : asize;
 		else /* pass 0 to fall back on strlen + 1 */
+			// TODO: Check for overflow.
 			buf->asize = buf->size + 1;
 	} else {
 		cmark_strbuf_grow(buf, asize);
@@ -247,19 +259,21 @@ int cmark_strbuf_cmp(const cmark_strbuf *a, const cmark_strbuf *b)
 	       (a->size < b->size) ? -1 : (a->size > b->size) ? 1 : 0;
 }
 
-int cmark_strbuf_strchr(const cmark_strbuf *buf, int c, int pos)
+bufsize_t cmark_strbuf_strchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 {
+	// TODO: Bounds check.
 	const unsigned char *p = (unsigned char *)memchr(buf->ptr + pos, c, buf->size - pos);
 	if (!p)
 		return -1;
 
-	return (int)(p - (const unsigned char *)buf->ptr);
+	return (bufsize_t)(p - (const unsigned char *)buf->ptr);
 }
 
-int cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, int pos)
+bufsize_t cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 {
-	int i;
+	bufsize_t i;
 
+	// TODO: Bounds check.
 	for (i = pos; i >= 0; i--) {
 		if (buf->ptr[i] == (unsigned char) c)
 			return i;
@@ -268,17 +282,19 @@ int cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, int pos)
 	return -1;
 }
 
-void cmark_strbuf_truncate(cmark_strbuf *buf, int len)
+void cmark_strbuf_truncate(cmark_strbuf *buf, bufsize_t len)
 {
+	// TODO: Check for negative len.
 	if (len < buf->size) {
 		buf->size = len;
 		buf->ptr[buf->size] = '\0';
 	}
 }
 
-void cmark_strbuf_drop(cmark_strbuf *buf, int n)
+void cmark_strbuf_drop(cmark_strbuf *buf, bufsize_t n)
 {
 	if (n > 0) {
+		// TODO: Bounds check.
 		buf->size = buf->size - n;
 		if (buf->size)
 			memmove(buf->ptr, buf->ptr + n, buf->size);
@@ -304,7 +320,7 @@ void cmark_strbuf_rtrim(cmark_strbuf *buf)
 
 void cmark_strbuf_trim(cmark_strbuf *buf)
 {
-	int i = 0;
+	bufsize_t i = 0;
 
 	if (!buf->size)
 		return;
@@ -322,7 +338,7 @@ void cmark_strbuf_trim(cmark_strbuf *buf)
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s)
 {
 	bool last_char_was_space = false;
-	int r, w;
+	bufsize_t r, w;
 
 	for (r = 0, w = 0; r < s->size; ++r) {
 		switch (s->ptr[r]) {
@@ -347,7 +363,7 @@ void cmark_strbuf_normalize_whitespace(cmark_strbuf *s)
 // Destructively unescape a string: remove backslashes before punctuation chars.
 extern void cmark_strbuf_unescape(cmark_strbuf *buf)
 {
-	int r, w;
+	bufsize_t r, w;
 
 	for (r = 0, w = 0; r < buf->size; ++r) {
 		if (buf->ptr[r] == '\\' && cmark_ispunct(buf->ptr[r + 1]))
