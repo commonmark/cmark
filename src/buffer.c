@@ -15,7 +15,7 @@
 unsigned char cmark_strbuf__initbuf[1];
 
 #define ENSURE_SIZE(b, d)			\
-	if ((d) > b->asize)			\
+	if ((d) >= b->asize)			\
 		cmark_strbuf_grow(b, (d));	\
 
 #ifndef MIN
@@ -33,11 +33,16 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 		cmark_strbuf_grow(buf, initial_size);
 }
 
+void cmark_strbuf_overflow_err() {
+	fprintf(stderr, "String buffer overflow");
+	abort();
+}
+
 void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 {
 	unsigned char *new_ptr;
 
-	if (target_size <= buf->asize)
+	if (target_size < buf->asize)
 		return;
 
 	if (buf->asize == 0) {
@@ -50,12 +55,20 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 	 * complexity on append operations. */
 	size_t new_size = (size_t)target_size + (size_t)target_size / 2;
 
+	/* Account for terminating null byte. */
+	new_size += 1;
+
 	/* round allocation up to multiple of 8 */
 	new_size = (new_size + 7) & ~7;
 
 	if (new_size < (size_t)target_size  /* Integer overflow. */
 	    || new_size > BUFSIZE_MAX       /* Truncation overflow. */
 	) {
+		if (target_size >= BUFSIZE_MAX) {
+			/* No space for terminating null byte. */
+			cmark_strbuf_overflow_err();
+			return; /* unreachable */
+		}
 		/* Oversize by the maximum possible amount. */
 		new_size = BUFSIZE_MAX;
 	}
@@ -105,8 +118,7 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 		cmark_strbuf_clear(buf);
 	} else {
 		if (data != buf->ptr) {
-			// TODO: Check for overflow.
-			ENSURE_SIZE(buf, len + 1);
+			ENSURE_SIZE(buf, len);
 			memmove(buf->ptr, data, len);
 		}
 		buf->size = len;
@@ -123,7 +135,7 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
 void cmark_strbuf_putc(cmark_strbuf *buf, int c)
 {
 	// TODO: Check for overflow.
-	ENSURE_SIZE(buf, buf->size + 2);
+	ENSURE_SIZE(buf, buf->size + 1);
 	buf->ptr[buf->size++] = c;
 	buf->ptr[buf->size] = '\0';
 }
@@ -134,7 +146,7 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 		return;
 
 	// TODO: Check for overflow.
-	ENSURE_SIZE(buf, buf->size + len + 1);
+	ENSURE_SIZE(buf, buf->size + len);
 	memmove(buf->ptr + buf->size, data, len);
 	buf->size += len;
 	buf->ptr[buf->size] = '\0';
@@ -182,7 +194,7 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 		}
 
 		// TODO: Check for overflow.
-		ENSURE_SIZE(buf, buf->size + len + 1);
+		ENSURE_SIZE(buf, buf->size + len);
 	}
 }
 

@@ -72,6 +72,9 @@ void cmark_strbuf_trim(cmark_strbuf *buf);
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s);
 void cmark_strbuf_unescape(cmark_strbuf *s);
 
+/* Print error and abort. */
+void cmark_strbuf_overflow_err(void);
+
 #ifdef __cplusplus
 }
 #endif
