@@ -18,6 +18,7 @@
   * Factored out `S_find_first_nonspace` in `S_proces_line`.
     Added fields `offset`, `first_nonspace`, `indent`, and `blank`
     to `cmark_parser` struct.  This just removes some repetition.
+  * Fixed typo in `ENSURE_SIZE` macro (bryant).
   * Added Racket Racket (5.3+) wrapper (Eli Barzilay).
   * Removed -pg from Debug build flags (#47).
   * Added Ubsan build target, to check for undefined behavior.
