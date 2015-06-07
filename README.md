@@ -22,8 +22,8 @@ Advantages of this library:
   C99 and have no external dependencies.  It has been tested with
   MSVC, gcc, tcc, and clang.
 
-- **Fast.** Performance is on par with the fastest existing
-  Markdown parser, [sundown]:  see the [benchmarks].
+- **Fast.** Performance is very good, on par with the fastest
+  Markdown processors:  see the [benchmarks].
 
 - **Accurate.** The library passes all CommonMark conformance tests.
 
