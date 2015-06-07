@@ -36,7 +36,6 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 {
 	unsigned char *new_ptr;
-	bufsize_t new_size;
 
 	if (target_size <= buf->asize)
 		return;
@@ -49,12 +48,17 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 
 	/* Oversize the buffer by 50% to guarantee amortized linear time
 	 * complexity on append operations. */
-	// TODO: Check for overflow.
-	new_size = target_size + target_size / 2;
+	size_t new_size = (size_t)target_size + (size_t)target_size / 2;
 
 	/* round allocation up to multiple of 8 */
-	// TODO: Check for overflow.
 	new_size = (new_size + 7) & ~7;
+
+	if (new_size < (size_t)target_size  /* Integer overflow. */
+	    || new_size > BUFSIZE_MAX       /* Truncation overflow. */
+	) {
+		/* Oversize by the maximum possible amount. */
+		new_size = BUFSIZE_MAX;
+	}
 
 	new_ptr = (unsigned char *)realloc(new_ptr, new_size);
 
@@ -63,7 +67,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 		abort();
 	}
 
-	buf->asize = new_size;
+	buf->asize = (bufsize_t)new_size;
 	buf->ptr   = new_ptr;
 
 	/* truncate the existing buffer size if necessary */
