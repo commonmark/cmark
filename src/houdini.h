@@ -36,14 +36,7 @@ extern int houdini_escape_html(cmark_strbuf *ob, const uint8_t *src, bufsize_t s
 extern int houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src, bufsize_t size, int secure);
 extern int houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src, bufsize_t size);
 extern void houdini_unescape_html_f(cmark_strbuf *ob, const uint8_t *src, bufsize_t size);
-extern int houdini_escape_xml(cmark_strbuf *ob, const uint8_t *src, size_t size);
-extern int houdini_escape_uri(cmark_strbuf *ob, const uint8_t *src, size_t size);
-extern int houdini_escape_url(cmark_strbuf *ob, const uint8_t *src, size_t size);
 extern int houdini_escape_href(cmark_strbuf *ob, const uint8_t *src, bufsize_t size);
-extern int houdini_unescape_uri(cmark_strbuf *ob, const uint8_t *src, size_t size);
-extern int houdini_unescape_url(cmark_strbuf *ob, const uint8_t *src, size_t size);
-extern int houdini_escape_js(cmark_strbuf *ob, const uint8_t *src, size_t size);
-extern int houdini_unescape_js(cmark_strbuf *ob, const uint8_t *src, size_t size);
 
 #ifdef __cplusplus
 }
