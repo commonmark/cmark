@@ -237,30 +237,29 @@ shortest_unused_backtick_sequence(cmark_chunk *code)
 static bool
 is_autolink(cmark_node *node)
 {
-	const char *title;
-	const char *url;
+	cmark_chunk *title;
+	cmark_chunk *url;
 	cmark_node *link_text;
 
 	if (node->type != CMARK_NODE_LINK) {
 		return false;
 	}
 
-	url = cmark_node_get_url(node);
-	if (url == NULL ||
-	    _scan_scheme((unsigned char *)url) == 0) {
+	url = &node->as.link.url;
+	if (url->len == 0 || scan_scheme(url, 0) == 0) {
 		return false;
 	}
 
-	title = cmark_node_get_title(node);
+	title = &node->as.link.title;
 	// if it has a title, we can't treat it as an autolink:
-	if (title != NULL && strlen(title) > 0) {
+	if (title->len > 0) {
 		return false;
 	}
 
 	link_text = node->first_child;
 	cmark_consolidate_text_nodes(link_text);
-	return ((int)strlen(url) == link_text->as.literal.len &&
-	        strncmp(url,
+	return (url->len == link_text->as.literal.len &&
+	        strncmp((char*)url->data,
 	                (char*)link_text->as.literal.data,
 	                link_text->as.literal.len) == 0);
 }
@@ -289,8 +288,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	int numticks;
 	int i;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
-	const char *info;
-	const char *title;
+	cmark_chunk *info;
+	cmark_chunk *title;
 	cmark_strbuf listmarker = GH_BUF_INIT;
 	char *emph_delim;
 	bufsize_t marker_width;
@@ -396,12 +395,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_CODE_BLOCK:
 		blankline(state);
-		info = cmark_node_get_fence_info(node);
+		info = &node->as.code.info;
 		code = &node->as.code.literal;
 		// use indented form if no info, and code doesn't
 		// begin or end with a blank line, and code isn't
 		// first thing in a list item
-		if ((info == NULL || strlen(info) == 0) &&
+		if (info->len == 0 &&
 		    (code->len > 2 &&
 		     !isspace(code->data[0]) &&
 		     !(isspace(code->data[code->len - 1]) &&
@@ -422,7 +421,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				lit(state, "`", false);
 			}
 			lit(state, " ", false);
-			out(state, cmark_chunk_literal(info), false, LITERAL);
+			out(state, *info, false, LITERAL);
 			cr(state);
 			out(state, node->as.code.literal, false, LITERAL);
 			cr(state);
@@ -542,11 +541,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				out(state,
 				    cmark_chunk_literal(cmark_node_get_url(node)),
 				    false, URL);
-				title = cmark_node_get_title(node);
-				if (title && strlen(title) > 0) {
+				title = &node->as.link.title;
+				if (title->len > 0) {
 					lit(state, " \"", true);
-					out(state, cmark_chunk_literal(title),
-					    false, TITLE);
+					out(state, *title, false, TITLE);
 					lit(state, "\"", false);
 				}
 				lit(state, ")", false);
@@ -560,10 +558,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		} else {
 			lit(state, "](", false);
 			out(state, cmark_chunk_literal(cmark_node_get_url(node)), false, URL);
-			title = cmark_node_get_title(node);
-			if (title && strlen(title) > 0) {
+			title = &node->as.link.title;
+			if (title->len > 0) {
 				lit(state, " \"", true);
-				out(state, cmark_chunk_literal(title), false, TITLE);
+				out(state, *title, false, TITLE);
 				lit(state, "\"", false);
 			}
 			lit(state, ")", false);
