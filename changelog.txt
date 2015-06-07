@@ -3,7 +3,7 @@
   * Fixed bug in list item parsing when items indented >= 4 spaces (#52).
   * Don't allow link labels with no non-whitespace characters
     (jgm/CommonMark#322).
-  * Fixed multiple issues with numeric entities (#33).
+  * Fixed multiple issues with numeric entities (#33, Nick Wellnhofer).
   * Support CR and CRLF line endings (Ben Trask).
   * Added test for different line endings to `api_test`.
   * Allow NULL value in string setters (Nick Wellnhofer).  (NULL
@@ -15,12 +15,29 @@
   * Cope with broken `snprintf` on Windows (Nick Wellnhofer).  On Windows,
     `snprintf` returns -1 if the output was truncated. Fall back to
     Windows-specific `_scprintf`.
+  * Switched length parameter on `cmark_markdown_to_html`,
+    `cmark_parser_feed`, and `cmark_parse_document` from `int`
+    to `size_t` (#53, Nick Wellnhofer).
+  * Use a custom type `bufsize_t` for all string sizes and indices.
+    This allows to switch to 64-bit string buffers by changing a single
+    typedef and a macro definition (Nick Wellnhofer).
+  * Hardened the `strbuf` code, checking for integer overflows and
+    adding range checks (Nick Wellnhofer).
+  * Removed unused function `cmark_strbuf_attach` (Nick Wellnhofer).
+  * Fixed all implicit 64-bit to 32-bit conversions that
+    `-Wshorten-64-to-32` warns about (Nick Wellnhofer).
+  * Added helper function `cmark_strbuf_safe_strlen` that converts
+    from `size_t` to `bufsize_t` and throws an error in case of
+    an overflow (Nick Wellnhofer).
+  * Abort on `strbuf` out of memory errors (Nick Wellnhofer).
+    Previously such errors were not being trapped.  This involves
+    some internal changes to the `buffer` library that do not affect
+    the API.
   * Factored out `S_find_first_nonspace` in `S_proces_line`.
     Added fields `offset`, `first_nonspace`, `indent`, and `blank`
     to `cmark_parser` struct.  This just removes some repetition.
-  * Fixed typo in `ENSURE_SIZE` macro (bryant).
   * Added Racket Racket (5.3+) wrapper (Eli Barzilay).
-  * Removed -pg from Debug build flags (#47).
+  * Removed `-pg` from Debug build flags (#47).
   * Added Ubsan build target, to check for undefined behavior.
   * Improved `make leakcheck`.  We now return an error status if anything
     in the loop fails.  We now check `--smart` and `--normalize` options.
