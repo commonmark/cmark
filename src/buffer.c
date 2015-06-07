@@ -192,8 +192,7 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 			abort();
 		}
 
-		// TODO: Check for overflow.
-		if (len + 1 <= buf->asize - buf->size) {
+		if ((size_t)len < (size_t)(buf->asize - buf->size)) {
 			buf->size += len;
 			break;
 		}
