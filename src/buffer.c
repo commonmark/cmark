@@ -259,7 +259,11 @@ int cmark_strbuf_cmp(const cmark_strbuf *a, const cmark_strbuf *b)
 
 bufsize_t cmark_strbuf_strchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 {
-	// TODO: Bounds check.
+	if (pos >= buf->size)
+		return -1;
+	if (pos < 0)
+		pos = 0;
+
 	const unsigned char *p = (unsigned char *)memchr(buf->ptr + pos, c, buf->size - pos);
 	if (!p)
 		return -1;
@@ -269,10 +273,12 @@ bufsize_t cmark_strbuf_strchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 
 bufsize_t cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 {
-	bufsize_t i;
+	if (pos < 0 || buf->size == 0)
+		return -1;
+	if (pos >= buf->size)
+		pos = buf->size - 1;
 
-	// TODO: Bounds check.
-	for (i = pos; i >= 0; i--) {
+	for (bufsize_t i = pos; i >= 0; i--) {
 		if (buf->ptr[i] == (unsigned char) c)
 			return i;
 	}
@@ -294,7 +300,8 @@ void cmark_strbuf_truncate(cmark_strbuf *buf, bufsize_t len)
 void cmark_strbuf_drop(cmark_strbuf *buf, bufsize_t n)
 {
 	if (n > 0) {
-		// TODO: Bounds check.
+		if (n > buf->size)
+			n = buf->size;
 		buf->size = buf->size - n;
 		if (buf->size)
 			memmove(buf->ptr, buf->ptr + n, buf->size);
