@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "config.h"
 #include "cmark_ctype.h"
@@ -13,10 +14,6 @@
  * assume ptr is non-NULL and zero terminated even for new cmark_strbufs.
  */
 unsigned char cmark_strbuf__initbuf[1];
-
-#define ENSURE_SIZE(b, d)			\
-	if ((d) >= b->asize)			\
-		cmark_strbuf_grow(b, (d));	\
 
 #ifndef MIN
 #define MIN(x,y)  ((x<y) ? x : y)
@@ -36,6 +33,21 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 void cmark_strbuf_overflow_err() {
 	fprintf(stderr, "String buffer overflow");
 	abort();
+}
+
+static inline void
+S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
+	size_t target_size = (size_t)buf->size + add;
+
+	if (target_size < add             /* Integer overflow. */
+	    || target_size > BUFSIZE_MAX  /* Truncation overflow. */
+	) {
+		cmark_strbuf_overflow_err();
+		return; /* unreachable */
+	}
+
+	if ((bufsize_t)target_size >= buf->asize)
+		cmark_strbuf_grow(buf, (bufsize_t)target_size);
 }
 
 void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
@@ -113,7 +125,8 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 		cmark_strbuf_clear(buf);
 	} else {
 		if (data != buf->ptr) {
-			ENSURE_SIZE(buf, len);
+			if (len >= buf->asize)
+				cmark_strbuf_grow(buf, len);
 			memmove(buf->ptr, data, len);
 		}
 		buf->size = len;
@@ -129,8 +142,7 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c)
 {
-	// TODO: Check for overflow.
-	ENSURE_SIZE(buf, buf->size + 1);
+	S_strbuf_grow_by(buf, 1);
 	buf->ptr[buf->size++] = c;
 	buf->ptr[buf->size] = '\0';
 }
@@ -140,8 +152,7 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 	if (len <= 0)
 		return;
 
-	// TODO: Check for overflow.
-	ENSURE_SIZE(buf, buf->size + len);
+	S_strbuf_grow_by(buf, len);
 	memmove(buf->ptr + buf->size, data, len);
 	buf->size += len;
 	buf->ptr[buf->size] = '\0';
@@ -154,10 +165,10 @@ void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 
 void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 {
-	// TODO: Check for overflow.
-	const bufsize_t expected_size = buf->size + (strlen(format) * 2);
-
-	ENSURE_SIZE(buf, expected_size);
+	size_t expected_size = strlen(format);
+	if (expected_size <= SIZE_MAX / 2)
+		expected_size *= 2;
+	S_strbuf_grow_by(buf, expected_size);
 
 	while (1) {
 		va_list args;
@@ -188,8 +199,7 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 			break;
 		}
 
-		// TODO: Check for overflow.
-		ENSURE_SIZE(buf, buf->size + len);
+		S_strbuf_grow_by(buf, len);
 	}
 }
 
