@@ -1,3 +1,36 @@
+[0.20.0]
+
+  * Fixed bug in list item parsing when items indented >= 4 spaces (#52).
+  * Don't allow link labels with no non-whitespace characters
+    (jgm/CommonMark#322).
+  * Fixed multiple issues with numeric entities (#33).
+  * Support CR and CRLF line endings (Ben Trask).
+  * Added test for different line endings to `api_test`.
+  * Allow NULL value in string setters (Nick Wellnhofer).  (NULL
+    produces a 0-length string value.)  Internally, URL and
+    title are now stored as `cmark_chunk` rather than `char *`.
+  * Fixed memory leak in `cmark_consolidate_text_nodes` (#32).
+  * Fixed `is_autolink` in the CommonMark renderer (#50).  Previously *any*
+    link with an absolute URL was treated as an autolink.
+  * Cope with broken `snprintf` on Windows (Nick Wellnhofer).  On Windows,
+    `snprintf` returns -1 if the output was truncated. Fall back to
+    Windows-specific `_scprintf`.
+  * Factored out `S_find_first_nonspace` in `S_proces_line`.
+    Added fields `offset`, `first_nonspace`, `indent`, and `blank`
+    to `cmark_parser` struct.  This just removes some repetition.
+  * Added Racket Racket (5.3+) wrapper (Eli Barzilay).
+  * Removed -pg from Debug build flags (#47).
+  * Added Ubsan build target, to check for undefined behavior.
+  * Improved `make leakcheck`.  We now return an error status if anything
+    in the loop fails.  We now check `--smart` and `--normalize` options.
+  * Removed `wrapper3.py`, made `wrapper.py` work with python 2 and 3.
+    Also improved the wrapper to work with Windows, and to use smart
+    punctuation (as an example).
+  * In `wrapper.rb`, added argument for options.
+  * Revised luajit wrapper.
+  * Added build status badges to README.md.
+  * Added links to go, perl, ruby, R, and Haskell bindings to README.md.
+
 [0.19.0]
 
   * Fixed `_` emphasis parsing to conform to spec (jgm/CommonMark#317).
