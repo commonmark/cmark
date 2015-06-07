@@ -25,8 +25,7 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 	buf->size = 0;
 	buf->ptr = cmark_strbuf__initbuf;
 
-	// TODO: Check for negative initial_size.
-	if (initial_size)
+	if (initial_size > 0)
 		cmark_strbuf_grow(buf, initial_size);
 }
 
@@ -216,8 +215,9 @@ void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize, const cmark_strbuf *
 {
 	bufsize_t copylen;
 
-	// TODO: Check negative datasize.
-	assert(data && datasize && buf);
+	assert(buf);
+	if (!data || datasize <= 0)
+		return;
 
 	data[0] = '\0';
 
@@ -258,8 +258,7 @@ void cmark_strbuf_attach(cmark_strbuf *buf, unsigned char *ptr, bufsize_t asize)
 	if (ptr) {
 		buf->ptr = ptr;
 		buf->size = strlen((char *)ptr);
-		// TODO: Check for negative asize.
-		if (asize)
+		if (asize > 0)
 			// TODO: Check for overflow.
 			buf->asize = (asize < buf->size) ? buf->size + 1 : asize;
 		else /* pass 0 to fall back on strlen + 1 */
@@ -302,7 +301,9 @@ bufsize_t cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, bufsize_t pos)
 
 void cmark_strbuf_truncate(cmark_strbuf *buf, bufsize_t len)
 {
-	// TODO: Check for negative len.
+	if (len < 0)
+		len = 0;
+
 	if (len < buf->size) {
 		buf->size = len;
 		buf->ptr[buf->size] = '\0';
