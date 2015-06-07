@@ -136,7 +136,7 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 void cmark_strbuf_sets(cmark_strbuf *buf, const char *string)
 {
 	cmark_strbuf_set(buf, (const unsigned char *)string,
-	                 string ? strlen(string) : 0);
+	                 string ? cmark_strbuf_safe_strlen(string) : 0);
 }
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c)
@@ -159,7 +159,8 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 {
-	cmark_strbuf_put(buf, (const unsigned char *)string, strlen(string));
+	cmark_strbuf_put(buf, (const unsigned char *)string,
+			 cmark_strbuf_safe_strlen(string));
 }
 
 void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)

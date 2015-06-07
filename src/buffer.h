@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdarg.h>
+#include <string.h>
 #include <limits.h>
 #include "config.h"
 
@@ -80,6 +81,11 @@ cmark_strbuf_check_bufsize(size_t size) {
 		cmark_strbuf_overflow_err();
 	}
 	return (bufsize_t)size;
+}
+
+static inline bufsize_t
+cmark_strbuf_safe_strlen(const char *str) {
+	return cmark_strbuf_check_bufsize(strlen(str));
 }
 
 #ifdef __cplusplus
