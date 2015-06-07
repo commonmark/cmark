@@ -38,7 +38,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size);
 void cmark_strbuf_free(cmark_strbuf *buf);
 void cmark_strbuf_swap(cmark_strbuf *buf_a, cmark_strbuf *buf_b);
 
-size_t cmark_strbuf_len(const cmark_strbuf *buf);
+bufsize_t cmark_strbuf_len(const cmark_strbuf *buf);
 
 int cmark_strbuf_cmp(const cmark_strbuf *a, const cmark_strbuf *b);
 
