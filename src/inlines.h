@@ -10,7 +10,7 @@ cmark_chunk cmark_clean_title(cmark_chunk *title);
 
 void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap, int options);
 
-int cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refmap);
+bufsize_t cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refmap);
 
 #ifdef __cplusplus
 }

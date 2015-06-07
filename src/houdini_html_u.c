@@ -7,10 +7,10 @@
 #include "utf8.h"
 #include "html_unescape.h"
 
-size_t
-houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
+bufsize_t
+houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 {
-	size_t i = 0;
+	bufsize_t i = 0;
 
 	if (size >= 3 && src[0] == '#') {
 		int codepoint  = 0;
@@ -68,7 +68,7 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
 				const struct html_ent *entity = find_entity((char *)src, i);
 
 				if (entity != NULL) {
-					int len = 0;
+					bufsize_t len = 0;
 					while (len < 4 && entity->utf8[len] != '\0') {
 						++len;
 					}
@@ -85,9 +85,9 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, size_t size)
 }
 
 int
-houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src, size_t size)
+houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 {
-	size_t  i = 0, org, ent;
+	bufsize_t i = 0, org, ent;
 
 	while (i < size) {
 		org = i;
@@ -122,7 +122,7 @@ houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src, size_t size)
 	return 1;
 }
 
-void houdini_unescape_html_f(cmark_strbuf *ob, const uint8_t *src, size_t size)
+void houdini_unescape_html_f(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 {
 	if (!houdini_unescape_html(ob, src, size))
 		cmark_strbuf_put(ob, src, size);

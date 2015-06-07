@@ -11,20 +11,20 @@
 
 // Functions to convert cmark_nodes to HTML strings.
 
-static void escape_html(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_html(cmark_strbuf *dest, const unsigned char *source, bufsize_t length)
 {
 	if (length < 0)
 		length = strlen((char *)source);
 
-	houdini_escape_html0(dest, source, (size_t)length, 0);
+	houdini_escape_html0(dest, source, length, 0);
 }
 
-static void escape_href(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_href(cmark_strbuf *dest, const unsigned char *source, bufsize_t length)
 {
 	if (length < 0)
 		length = strlen((char *)source);
 
-	houdini_escape_href(dest, source, (size_t)length);
+	houdini_escape_href(dest, source, length);
 }
 
 static inline void cr(cmark_strbuf *html)
@@ -165,7 +165,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			S_render_sourcepos(node, html, options);
 			cmark_strbuf_puts(html, "><code>");
 		} else {
-			int first_tag = 0;
+			bufsize_t first_tag = 0;
 			while (first_tag < node->as.code.info.len &&
 			       node->as.code.info.data[first_tag] != ' ') {
 				first_tag += 1;

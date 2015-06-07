@@ -20,7 +20,7 @@ struct render_state {
 	int column;
 	int width;
 	int need_cr;
-	int last_breakable;
+	bufsize_t last_breakable;
 	bool begin_line;
 	bool no_wrap;
 	bool in_tight_list_item;
@@ -293,7 +293,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	const char *title;
 	cmark_strbuf listmarker = GH_BUF_INIT;
 	char *emph_delim;
-	int marker_width;
+	bufsize_t marker_width;
 
 	// Don't adjust tight list status til we've started the list.
 	// Otherwise we loose the blank line between a paragraph and

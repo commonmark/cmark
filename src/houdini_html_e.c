@@ -45,9 +45,9 @@ static const char *HTML_ESCAPES[] = {
 };
 
 int
-houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src, size_t size, int secure)
+houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src, bufsize_t size, int secure)
 {
-	size_t  i = 0, org, esc = 0;
+	bufsize_t i = 0, org, esc = 0;
 
 	while (i < size) {
 		org = i;
@@ -75,7 +75,7 @@ houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src, size_t size, int secu
 }
 
 int
-houdini_escape_html(cmark_strbuf *ob, const uint8_t *src, size_t size)
+houdini_escape_html(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 {
 	return houdini_escape_html0(ob, src, size, 1);
 }

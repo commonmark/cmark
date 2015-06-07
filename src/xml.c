@@ -11,13 +11,13 @@
 
 // Functions to convert cmark_nodes to XML strings.
 
-static void escape_xml(cmark_strbuf *dest, const unsigned char *source, int length)
+static void escape_xml(cmark_strbuf *dest, const unsigned char *source, bufsize_t length)
 {
 	if (source != NULL) {
 		if (length < 0)
 			length = strlen((char *)source);
 
-		houdini_escape_html0(dest, source, (size_t)length, 0);
+		houdini_escape_html0(dest, source, length, 0);
 	}
 }
 
