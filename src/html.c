@@ -13,18 +13,7 @@
 
 static void escape_html(cmark_strbuf *dest, const unsigned char *source, bufsize_t length)
 {
-	if (length < 0)
-		length = strlen((char *)source);
-
 	houdini_escape_html0(dest, source, length, 0);
-}
-
-static void escape_href(cmark_strbuf *dest, const unsigned char *source, bufsize_t length)
-{
-	if (length < 0)
-		length = strlen((char *)source);
-
-	houdini_escape_href(dest, source, length);
 }
 
 static inline void cr(cmark_strbuf *html)
@@ -261,8 +250,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_LINK:
 		if (entering) {
 			cmark_strbuf_puts(html, "<a href=\"");
-			escape_href(html, node->as.link.url.data,
-			            node->as.link.url.len);
+			houdini_escape_href(html, node->as.link.url.data,
+	                                    node->as.link.url.len);
 
 			if (node->as.link.title.len) {
 				cmark_strbuf_puts(html, "\" title=\"");
@@ -279,8 +268,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_IMAGE:
 		if (entering) {
 			cmark_strbuf_puts(html, "<img src=\"");
-			escape_href(html, node->as.link.url.data,
-			            node->as.link.url.len);
+			houdini_escape_href(html, node->as.link.url.data,
+		                            node->as.link.url.len);
 
 			cmark_strbuf_puts(html, "\" alt=\"");
 			state->plain = node;
