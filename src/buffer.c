@@ -250,24 +250,6 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf)
 	return data;
 }
 
-void cmark_strbuf_attach(cmark_strbuf *buf, unsigned char *ptr, bufsize_t asize)
-{
-	cmark_strbuf_free(buf);
-
-	if (ptr) {
-		buf->ptr = ptr;
-		buf->size = strlen((char *)ptr);
-		if (asize > 0)
-			// TODO: Check for overflow.
-			buf->asize = (asize < buf->size) ? buf->size + 1 : asize;
-		else /* pass 0 to fall back on strlen + 1 */
-			// TODO: Check for overflow.
-			buf->asize = buf->size + 1;
-	} else {
-		cmark_strbuf_grow(buf, asize);
-	}
-}
-
 int cmark_strbuf_cmp(const cmark_strbuf *a, const cmark_strbuf *b)
 {
 	int result = memcmp(a->ptr, b->ptr, MIN(a->size, b->size));

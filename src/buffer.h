@@ -42,7 +42,6 @@ size_t cmark_strbuf_len(const cmark_strbuf *buf);
 
 int cmark_strbuf_cmp(const cmark_strbuf *a, const cmark_strbuf *b);
 
-void cmark_strbuf_attach(cmark_strbuf *buf, unsigned char *ptr, bufsize_t asize);
 unsigned char *cmark_strbuf_detach(cmark_strbuf *buf);
 void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize, const cmark_strbuf *buf);
 
