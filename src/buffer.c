@@ -16,7 +16,7 @@ unsigned char cmark_strbuf__initbuf[1];
 unsigned char cmark_strbuf__oom[1];
 
 #define ENSURE_SIZE(b, d)					\
-	if ((d) > buf->asize && cmark_strbuf_grow(b, (d)) < 0)	\
+	if ((d) > b->asize && cmark_strbuf_grow(b, (d)) < 0)	\
 		return -1;
 
 #ifndef MIN
