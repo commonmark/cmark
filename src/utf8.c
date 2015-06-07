@@ -30,7 +30,7 @@ static void encode_unknown(cmark_strbuf *buf)
 	cmark_strbuf_put(buf, repl, 3);
 }
 
-static int utf8proc_charlen(const uint8_t *str, int str_len)
+static int utf8proc_charlen(const uint8_t *str, bufsize_t str_len)
 {
 	int length, i;
 
@@ -42,7 +42,7 @@ static int utf8proc_charlen(const uint8_t *str, int str_len)
 	if (!length)
 		return -1;
 
-	if (str_len >= 0 && length > str_len)
+	if (str_len >= 0 && (bufsize_t)length > str_len)
 		return -str_len;
 
 	for (i = 1; i < length; i++) {
@@ -54,7 +54,7 @@ static int utf8proc_charlen(const uint8_t *str, int str_len)
 }
 
 // Validate a single UTF-8 character according to RFC 3629.
-static int utf8proc_valid(const uint8_t *str, int str_len)
+static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 {
 	int length = utf8proc_charlen(str, str_len);
 
@@ -109,14 +109,14 @@ static int utf8proc_valid(const uint8_t *str, int str_len)
 	return length;
 }
 
-void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, size_t size)
+void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, bufsize_t size)
 {
 	static const uint8_t whitespace[] = "    ";
 
-	size_t i = 0, tab = 0;
+	bufsize_t i = 0, tab = 0;
 
 	while (i < size) {
-		size_t org = i;
+		bufsize_t org = i;
 
 		while (i < size && line[i] != '\t' && line[i] != '\0'
 		       && line[i] < 0x80) {
@@ -151,7 +151,7 @@ void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, size_t size)
 	}
 }
 
-int utf8proc_iterate(const uint8_t *str, int str_len, int32_t *dst)
+int utf8proc_iterate(const uint8_t *str, bufsize_t str_len, int32_t *dst)
 {
 	int length;
 	int32_t uc = -1;
@@ -191,7 +191,7 @@ int utf8proc_iterate(const uint8_t *str, int str_len, int32_t *dst)
 void utf8proc_encode_char(int32_t uc, cmark_strbuf *buf)
 {
 	uint8_t dst[4];
-	int len = 0;
+	bufsize_t len = 0;
 
 	assert(uc >= 0);
 
@@ -227,7 +227,7 @@ void utf8proc_encode_char(int32_t uc, cmark_strbuf *buf)
 	cmark_strbuf_put(buf, dst, len);
 }
 
-void utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, int len)
+void utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, bufsize_t len)
 {
 	int32_t c;
 
@@ -235,7 +235,7 @@ void utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, int len)
 	utf8proc_encode_char(x, dest)
 
 	while (len > 0) {
-		int char_len = utf8proc_iterate(str, len, &c);
+		bufsize_t char_len = utf8proc_iterate(str, len, &c);
 
 		if (char_len >= 0) {
 #include "case_fold_switch.inc"

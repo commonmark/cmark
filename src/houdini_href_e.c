@@ -49,10 +49,10 @@ static const char HREF_SAFE[] = {
 };
 
 int
-houdini_escape_href(cmark_strbuf *ob, const uint8_t *src, size_t size)
+houdini_escape_href(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 {
 	static const uint8_t hex_chars[] = "0123456789ABCDEF";
-	size_t  i = 0, org;
+	bufsize_t i = 0, org;
 	uint8_t hex_str[3];
 
 	hex_str[0] = '%';

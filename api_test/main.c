@@ -643,16 +643,16 @@ test_incomplete_char(test_batch_runner *runner, const char *utf8,
 static void
 test_continuation_byte(test_batch_runner *runner, const char *utf8)
 {
-	int len = strlen(utf8);
+	size_t len = strlen(utf8);
 
-	for (int pos = 1; pos < len; ++pos) {
+	for (size_t pos = 1; pos < len; ++pos) {
 		char buf[20];
 		sprintf(buf, "((((%s))))", utf8);
 		buf[4+pos] = '\x20';
 
 		char expected[50];
 		strcpy(expected, "<p>((((" UTF8_REPL "\x20");
-		for (int i = pos + 1; i < len; ++i) {
+		for (size_t i = pos + 1; i < len; ++i) {
 			strcat(expected, UTF8_REPL);
 		}
 		strcat(expected, "))))</p>\n");

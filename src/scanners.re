@@ -2,9 +2,9 @@
 #include "chunk.h"
 #include "scanners.h"
 
-int _scan_at(int (*scanner)(const unsigned char *), cmark_chunk *c, int offset)
+bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, bufsize_t offset)
 {
-	int res;
+	bufsize_t res;
 	unsigned char *ptr = (unsigned char *)c->data;
 	unsigned char lim = ptr[c->len];
 
@@ -70,29 +70,29 @@ int _scan_at(int (*scanner)(const unsigned char *), cmark_chunk *c, int offset)
 */
 
 // Try to match a scheme including colon.
-int _scan_scheme(const unsigned char *p)
+bufsize_t _scan_scheme(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  scheme [:] { return (p - start); }
+  scheme [:] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Try to match URI autolink after first <, returning number of chars matched.
-int _scan_autolink_uri(const unsigned char *p)
+bufsize_t _scan_autolink_uri(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  scheme [:][^\x00-\x20<>]*[>]  { return (p - start); }
+  scheme [:][^\x00-\x20<>]*[>]  { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Try to match email autolink after first <, returning num of chars matched.
-int _scan_autolink_email(const unsigned char *p)
+bufsize_t _scan_autolink_email(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
@@ -101,32 +101,32 @@ int _scan_autolink_email(const unsigned char *p)
     [@]
     [a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?
     ([.][a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*
-    [>] { return (p - start); }
+    [>] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Try to match an HTML tag after first <, returning num of chars matched.
-int _scan_html_tag(const unsigned char *p)
+bufsize_t _scan_html_tag(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  htmltag { return (p - start); }
+  htmltag { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Try to match an HTML block tag including first <,
 // returning num of chars matched.
-int _scan_html_block_tag(const unsigned char *p)
+bufsize_t _scan_html_block_tag(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [<] [/] blocktagname (spacechar | [>])  { return (p - start); }
-  [<] blocktagname (spacechar | [/>]) { return (p - start); }
-  [<] [!?] { return (p - start); }
+  [<] [/] blocktagname (spacechar | [>])  { return (bufsize_t)(p - start); }
+  [<] blocktagname (spacechar | [/>]) { return (bufsize_t)(p - start); }
+  [<] [!?] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
@@ -135,13 +135,13 @@ int _scan_html_block_tag(const unsigned char *p)
 // This may optionally be contained in <..>; otherwise
 // whitespace and unbalanced right parentheses aren't allowed.
 // Newlines aren't ever allowed.
-int _scan_link_url(const unsigned char *p)
+bufsize_t _scan_link_url(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (p - start); }
-  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp)* { return (p - start); }
+  [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
+  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp)* { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
@@ -149,42 +149,42 @@ int _scan_link_url(const unsigned char *p)
 // Try to match a link title (in single quotes, in double quotes, or
 // in parentheses), returning number of chars matched.  Allow one
 // level of internal nesting (quotes within quotes).
-int _scan_link_title(const unsigned char *p)
+bufsize_t _scan_link_title(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ["] (escaped_char|[^"\x00])* ["]   { return (p - start); }
-  ['] (escaped_char|[^'\x00])* ['] { return (p - start); }
-  [(] (escaped_char|[^)\x00])* [)]  { return (p - start); }
+  ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
+  ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
+  [(] (escaped_char|[^)\x00])* [)]  { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Match space characters, including newlines.
-int _scan_spacechars(const unsigned char *p)
+bufsize_t _scan_spacechars(const unsigned char *p)
 {
   const unsigned char *start = p; \
 /*!re2c
-  [ \t\v\f\r\n]* { return (p - start); }
+  [ \t\v\f\r\n]* { return (bufsize_t)(p - start); }
   . { return 0; }
 */
 }
 
 // Match ATX header start.
-int _scan_atx_header_start(const unsigned char *p)
+bufsize_t _scan_atx_header_start(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [#]{1,6} ([ ]+|[\r\n])  { return (p - start); }
+  [#]{1,6} ([ ]+|[\r\n])  { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Match setext header line.  Return 1 for level-1 header,
 // 2 for level-2, 0 for no match.
-int _scan_setext_header_line(const unsigned char *p)
+bufsize_t _scan_setext_header_line(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
@@ -197,51 +197,51 @@ int _scan_setext_header_line(const unsigned char *p)
 // Scan a horizontal rule line: "...three or more hyphens, asterisks,
 // or underscores on a line by themselves. If you wish, you may use
 // spaces between the hyphens or asterisks."
-int _scan_hrule(const unsigned char *p)
+bufsize_t _scan_hrule(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ([*][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
-  ([_][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
-  ([-][ ]*){3,} [ \t]* [\r\n] { return (p - start); }
+  ([*][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
+  ([_][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
+  ([-][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Scan an opening code fence.
-int _scan_open_code_fence(const unsigned char *p)
+bufsize_t _scan_open_code_fence(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [`]{3,} / [^`\r\n\x00]*[\r\n] { return (p - start); }
-  [~]{3,} / [^~\r\n\x00]*[\r\n] { return (p - start); }
+  [`]{3,} / [^`\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
+  [~]{3,} / [^~\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
   .?                        { return 0; }
 */
 }
 
 // Scan a closing code fence with length at least len.
-int _scan_close_code_fence(const unsigned char *p)
+bufsize_t _scan_close_code_fence(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [`]{3,} / [ \t]*[\r\n] { return (p - start); }
-  [~]{3,} / [ \t]*[\r\n] { return (p - start); }
+  [`]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
+  [~]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
 
 // Scans an entity.
 // Returns number of chars matched.
-int _scan_entity(const unsigned char *p)
+bufsize_t _scan_entity(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
   [&] ([#] ([Xx][A-Fa-f0-9]{1,8}|[0-9]{1,8}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
-     { return (p - start); }
+     { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }

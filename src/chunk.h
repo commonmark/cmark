@@ -11,8 +11,8 @@
 
 typedef struct {
 	unsigned char *data;
-	int len;
-	int alloc;  // also implies a NULL-terminated string
+	bufsize_t len;
+	bufsize_t alloc;  // also implies a NULL-terminated string
 } cmark_chunk;
 
 static inline void cmark_chunk_free(cmark_chunk *c)
@@ -51,10 +51,10 @@ static inline void cmark_chunk_trim(cmark_chunk *c)
 	cmark_chunk_rtrim(c);
 }
 
-static inline int cmark_chunk_strchr(cmark_chunk *ch, int c, int offset)
+static inline bufsize_t cmark_chunk_strchr(cmark_chunk *ch, int c, bufsize_t offset)
 {
 	const unsigned char *p = (unsigned char *)memchr(ch->data + offset, c, ch->len - offset);
-	return p ? (int)(p - ch->data) : ch->len;
+	return p ? (bufsize_t)(p - ch->data) : ch->len;
 }
 
 static inline const char *cmark_chunk_to_cstr(cmark_chunk *c)
@@ -87,7 +87,7 @@ static inline void cmark_chunk_set_cstr(cmark_chunk *c, const char *str)
 		c->data  = NULL;
 		c->alloc = 0;
 	} else {
-		c->len   = strlen(str);
+		c->len   = cmark_strbuf_safe_strlen(str);
 		c->data  = (unsigned char *)malloc(c->len + 1);
 		c->alloc = 1;
 		memcpy(c->data, str, c->len + 1);
@@ -96,11 +96,12 @@ static inline void cmark_chunk_set_cstr(cmark_chunk *c, const char *str)
 
 static inline cmark_chunk cmark_chunk_literal(const char *data)
 {
-	cmark_chunk c = {(unsigned char *)data, data ? strlen(data) : 0, 0};
+	bufsize_t len = data ? cmark_strbuf_safe_strlen(data) : 0;
+	cmark_chunk c = {(unsigned char *)data, len, 0};
 	return c;
 }
 
-static inline cmark_chunk cmark_chunk_dup(const cmark_chunk *ch, int pos, int len)
+static inline cmark_chunk cmark_chunk_dup(const cmark_chunk *ch, bufsize_t pos, bufsize_t len)
 {
 	cmark_chunk c = {ch->data + pos, len, 0};
 	return c;

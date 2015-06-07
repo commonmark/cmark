@@ -36,7 +36,7 @@ typedef struct delimiter {
 	struct delimiter *previous;
 	struct delimiter *next;
 	cmark_node *inl_text;
-	int position;
+	bufsize_t position;
 	unsigned char delim_char;
 	bool can_open;
 	bool can_close;
@@ -45,7 +45,7 @@ typedef struct delimiter {
 
 typedef struct {
 	cmark_chunk input;
-	int pos;
+	bufsize_t pos;
 	cmark_reference_map *refmap;
 	delimiter *last_delim;
 } subject;
@@ -57,7 +57,7 @@ static int parse_inline(subject* subj, cmark_node * parent, int options);
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap);
-static int subject_find_special_char(subject *subj, int options);
+static bufsize_t subject_find_special_char(subject *subj, int options);
 
 static cmark_chunk cmark_clean_autolink(cmark_chunk *url, int is_email)
 {
@@ -143,7 +143,7 @@ static inline cmark_node* make_simple(cmark_node_type t)
 static cmark_chunk chunk_clone(cmark_chunk *src)
 {
 	cmark_chunk c;
-	int len = src->len;
+	bufsize_t len = src->len;
 
 	c.len   = len;
 	c.data  = (unsigned char *)malloc(len + 1);
@@ -177,7 +177,7 @@ static inline unsigned char peek_char(subject *subj)
 	return (subj->pos < subj->input.len) ? subj->input.data[subj->pos] : 0;
 }
 
-static inline unsigned char peek_at(subject *subj, int pos)
+static inline unsigned char peek_at(subject *subj, bufsize_t pos)
 {
 	return subj->input.data[pos];
 }
@@ -195,8 +195,8 @@ static inline int is_eof(subject* subj)
 static inline cmark_chunk take_while(subject* subj, int (*f)(int))
 {
 	unsigned char c;
-	int startpos = subj->pos;
-	int len = 0;
+	bufsize_t startpos = subj->pos;
+	bufsize_t len = 0;
 
 	while ((c = peek_char(subj)) && (*f)(c)) {
 		advance(subj);
@@ -211,7 +211,7 @@ static inline cmark_chunk take_while(subject* subj, int (*f)(int))
 // parsed).  Return 0 if you don't find matching closing
 // backticks, otherwise return the position in the subject
 // after the closing backticks.
-static int scan_to_closing_backticks(subject* subj, int openticklength)
+static bufsize_t scan_to_closing_backticks(subject* subj, bufsize_t openticklength)
 {
 	// read non backticks
 	unsigned char c;
@@ -221,7 +221,7 @@ static int scan_to_closing_backticks(subject* subj, int openticklength)
 	if (is_eof(subj)) {
 		return 0;  // did not find closing ticks, return 0
 	}
-	int numticks = 0;
+	bufsize_t numticks = 0;
 	while (peek_char(subj) == '`') {
 		advance(subj);
 		numticks++;
@@ -237,8 +237,8 @@ static int scan_to_closing_backticks(subject* subj, int openticklength)
 static cmark_node* handle_backticks(subject *subj)
 {
 	cmark_chunk openticks = take_while(subj, isbacktick);
-	int startpos = subj->pos;
-	int endpos = scan_to_closing_backticks(subj, openticks.len);
+	bufsize_t startpos = subj->pos;
+	bufsize_t endpos = scan_to_closing_backticks(subj, openticks.len);
 
 	if (endpos == 0) { // not found
 		subj->pos = startpos; // rewind
@@ -260,7 +260,7 @@ static int
 scan_delims(subject* subj, unsigned char c, bool * can_open, bool * can_close)
 {
 	int numdelims = 0;
-	int before_char_pos;
+	bufsize_t before_char_pos;
 	int32_t after_char = 0;
 	int32_t before_char = 0;
 	int len;
@@ -376,7 +376,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
 // Assumes the subject has a c at the current position.
 static cmark_node* handle_delim(subject* subj, unsigned char c, bool smart)
 {
-	int numdelims;
+	bufsize_t numdelims;
 	cmark_node * inl_text;
 	bool can_open, can_close;
 	cmark_chunk contents;
@@ -500,11 +500,11 @@ static delimiter*
 S_insert_emph(subject *subj, delimiter *opener, delimiter *closer)
 {
 	delimiter *delim, *tmp_delim;
-	int use_delims;
+	bufsize_t use_delims;
 	cmark_node *opener_inl = opener->inl_text;
 	cmark_node *closer_inl = closer->inl_text;
-	int opener_num_chars = opener_inl->as.literal.len;
-	int closer_num_chars = closer_inl->as.literal.len;
+	bufsize_t opener_num_chars = opener_inl->as.literal.len;
+	bufsize_t closer_num_chars = closer_inl->as.literal.len;
 	cmark_node *tmp, *emph, *first_child, *last_child;
 
 	// calculate the actual number of characters used from this closer
@@ -596,7 +596,7 @@ static cmark_node* handle_backslash(subject *subj)
 static cmark_node* handle_entity(subject* subj)
 {
 	cmark_strbuf ent = GH_BUF_INIT;
-	size_t len;
+	bufsize_t len;
 
 	advance(subj);
 
@@ -618,7 +618,7 @@ static cmark_node *make_str_with_entities(cmark_chunk *content)
 {
 	cmark_strbuf unescaped = GH_BUF_INIT;
 
-	if (houdini_unescape_html(&unescaped, content->data, (size_t)content->len)) {
+	if (houdini_unescape_html(&unescaped, content->data, content->len)) {
 		return make_str(cmark_chunk_buf_detach(&unescaped));
 	} else {
 		return make_str(*content);
@@ -678,7 +678,7 @@ cmark_chunk cmark_clean_title(cmark_chunk *title)
 // Assumes the subject has a '<' character at the current position.
 static cmark_node* handle_pointy_brace(subject* subj)
 {
-	int matchlen = 0;
+	bufsize_t matchlen = 0;
 	cmark_chunk contents;
 
 	advance(subj);  // advance past first <
@@ -725,7 +725,7 @@ static cmark_node* handle_pointy_brace(subject* subj)
 // encountered.  Backticks in labels do not start code spans.
 static int link_label(subject* subj, cmark_chunk *raw_label)
 {
-	int startpos = subj->pos;
+	bufsize_t startpos = subj->pos;
 	int length = 0;
 	unsigned char c;
 
@@ -769,10 +769,10 @@ noMatch:
 // Return a link, an image, or a literal close bracket.
 static cmark_node* handle_close_bracket(subject* subj, cmark_node *parent)
 {
-	int initial_pos;
-	int starturl, endurl, starttitle, endtitle, endall;
-	int n;
-	int sps;
+	bufsize_t initial_pos;
+	bufsize_t starturl, endurl, starttitle, endtitle, endall;
+	bufsize_t n;
+	bufsize_t sps;
 	cmark_reference *ref;
 	bool is_image = false;
 	cmark_chunk url_chunk, title_chunk;
@@ -922,7 +922,7 @@ match:
 // Assumes the subject has a newline at the current position.
 static cmark_node* handle_newline(subject *subj)
 {
-	int nlpos = subj->pos;
+	bufsize_t nlpos = subj->pos;
 	// skip over newline
 	advance(subj);
 	// skip spaces at beginning of line
@@ -938,7 +938,7 @@ static cmark_node* handle_newline(subject *subj)
 	}
 }
 
-static int subject_find_special_char(subject *subj, int options)
+static bufsize_t subject_find_special_char(subject *subj, int options)
 {
 	// "\r\n\\`&_*[]<!"
 	static const int8_t SPECIAL_CHARS[256] = {
@@ -980,7 +980,7 @@ static int subject_find_special_char(subject *subj, int options)
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	};
 
-	int n = subj->pos + 1;
+	bufsize_t n = subj->pos + 1;
 
 	while (n < subj->input.len) {
 		if (SPECIAL_CHARS[subj->input.data[n]])
@@ -1001,7 +1001,7 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 	cmark_node* new_inl = NULL;
 	cmark_chunk contents;
 	unsigned char c;
-	int endpos;
+	bufsize_t endpos;
 	c = peek_char(subj);
 	if (c == 0) {
 		return 0;
@@ -1098,7 +1098,7 @@ static void spnl(subject* subj)
 // Modify refmap if a reference is encountered.
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
-int cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refmap)
+bufsize_t cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refmap)
 {
 	subject subj;
 
@@ -1106,8 +1106,8 @@ int cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map *refma
 	cmark_chunk url;
 	cmark_chunk title;
 
-	int matchlen = 0;
-	int beforetitle;
+	bufsize_t matchlen = 0;
+	bufsize_t beforetitle;
 
 	subject_from_buf(&subj, input, NULL);
 
