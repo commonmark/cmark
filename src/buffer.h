@@ -74,6 +74,14 @@ void cmark_strbuf_unescape(cmark_strbuf *s);
 /* Print error and abort. */
 void cmark_strbuf_overflow_err(void);
 
+static inline bufsize_t
+cmark_strbuf_check_bufsize(size_t size) {
+	if (size > BUFSIZE_MAX) {
+		cmark_strbuf_overflow_err();
+	}
+	return (bufsize_t)size;
+}
+
 #ifdef __cplusplus
 }
 #endif

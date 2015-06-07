@@ -497,6 +497,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 	while (buffer < end) {
 		const unsigned char *eol;
 		size_t line_len;
+		bufsize_t bufsize;
 
 		for (eol = buffer; eol < end; ++eol) {
 			if (S_is_line_end_char(*eol))
@@ -514,17 +515,19 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 		} else if (eof) {
 			line_len = end - buffer;
 		} else {
-			cmark_strbuf_put(parser->linebuf, buffer, end - buffer);
+			bufsize = cmark_strbuf_check_bufsize(end - buffer);
+			cmark_strbuf_put(parser->linebuf, buffer, bufsize);
 			break;
 		}
 
+		bufsize = cmark_strbuf_check_bufsize(line_len);
 		if (parser->linebuf->size > 0) {
-			cmark_strbuf_put(parser->linebuf, buffer, line_len);
+			cmark_strbuf_put(parser->linebuf, buffer, bufsize);
 			S_process_line(parser, parser->linebuf->ptr,
 			               parser->linebuf->size);
 			cmark_strbuf_clear(parser->linebuf);
 		} else {
-			S_process_line(parser, buffer, line_len);
+			S_process_line(parser, buffer, bufsize);
 		}
 
 		buffer += line_len;
