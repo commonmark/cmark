@@ -82,11 +82,6 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 
 	buf->asize = (bufsize_t)new_size;
 	buf->ptr   = new_ptr;
-
-	/* truncate the existing buffer size if necessary */
-	if (buf->size >= buf->asize)
-		buf->size = buf->asize - 1;
-	buf->ptr[buf->size] = '\0';
 }
 
 size_t cmark_strbuf_len(const cmark_strbuf *buf)
