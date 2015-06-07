@@ -24,7 +24,7 @@ extern "C" {
  * UTF-8-encoded string.
  */
 CMARK_EXPORT
-char *cmark_markdown_to_html(const char *text, int len, int options);
+char *cmark_markdown_to_html(const char *text, size_t len, int options);
 
 /** ## Node Structure
  */
