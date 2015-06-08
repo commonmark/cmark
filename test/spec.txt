@@ -1,8 +1,8 @@
 ---
 title: CommonMark Spec
 author: John MacFarlane
-version: 0.19
-date: 2015-04-27
+version: 0.20
+date: 2015-06-08
 license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 ...
 
@@ -235,7 +235,10 @@ carriage return (`U+000D`), newline (`U+000A`), or form feed
 [Unicode whitespace](@unicode-whitespace) is a sequence of one
 or more [unicode whitespace character]s.
 
-A [non-space character](@non-space-character) is anything but `U+0020`.
+A [space](@space) is `U+0020`.
+
+A [non-space character](@non-space-character) is any character
+that is not a [whitespace character].
 
 An [ASCII punctuation character](@ascii-punctuation-character)
 is `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`,
@@ -246,9 +249,10 @@ A [punctuation character](@punctuation-character) is an [ASCII
 punctuation character] or anything in
 the unicode classes `Pc`, `Pd`, `Pe`, `Pf`, `Pi`, `Po`, or `Ps`.
 
-## Tab expansion
+## Preprocessing
 
-Tabs in lines are expanded to spaces, with a tab stop of 4 characters:
+Tabs in lines are immediately expanded to [spaces][space], with a tab
+stop of 4 characters:
 
 .
 →foo→baz→→bim
@@ -274,11 +278,11 @@ with the replacement character (`U+FFFD`).
 # Blocks and inlines
 
 We can think of a document as a sequence of
-[blocks](@block)---structural
-elements like paragraphs, block quotations,
-lists, headers, rules, and code blocks.  Blocks can contain other
-blocks, or they can contain [inline](@inline) content:
-words, spaces, links, emphasized text, images, and inline code.
+[blocks](@block)---structural elements like paragraphs, block
+quotations, lists, headers, rules, and code blocks.  Some blocks (like
+block quotes and list items) contain other blocks; others (like
+headers and paragraphs) contain [inline](@inline) content---text,
+links, emphasized text, images, code, and so on.
 
 ## Precedence
 
@@ -529,12 +533,12 @@ consists of a string of characters, parsed as inline content, between an
 opening sequence of 1--6 unescaped `#` characters and an optional
 closing sequence of any number of `#` characters.  The opening sequence
 of `#` characters cannot be followed directly by a
-[non-space character].
-The optional closing sequence of `#`s must be preceded by a space and may be
-followed by spaces only.  The opening `#` character may be indented 0-3
-spaces.  The raw contents of the header are stripped of leading and
-trailing spaces before being parsed as inline content.  The header level
-is equal to the number of `#` characters in the opening sequence.
+[non-space character]. The optional closing sequence of `#`s must be
+preceded by a [space] and may be followed by spaces only.  The opening
+`#` character may be indented 0-3 spaces.  The raw contents of the
+header are stripped of leading and trailing spaces before being parsed
+as inline content.  The header level is equal to the number of `#`
+characters in the opening sequence.
 
 Simple headers:
 
@@ -562,11 +566,13 @@ More than six `#` characters is not a header:
 <p>####### foo</p>
 .
 
-A space is required between the `#` characters and the header's
-contents.  Note that many implementations currently do not require
-the space.  However, the space was required by the [original ATX
-implementation](http://www.aaronsw.com/2002/atx/atx.py), and it helps
-prevent things like the following from being parsed as headers:
+At least one space is required between the `#` characters and the
+header's contents, unless the header is empty.  Note that many
+implementations currently do not require the space.  However, the
+space was required by the
+[original ATX implementation](http://www.aaronsw.com/2002/atx/atx.py),
+and it helps prevent things like the following from being parsed as
+headers:
 
 .
 #5 bolt
@@ -1028,7 +1034,41 @@ paragraph.)
 </code></pre>
 .
 
-The contents are literal text, and do not get parsed as Markdown:
+If there is any ambiguity between an interpretation of indentation
+as a code block and as indicating that material belongs to a [list
+item][list items], the list item interpretation takes precedence:
+
+.
+  - foo
+
+    bar
+.
+<ul>
+<li>
+<p>foo</p>
+<p>bar</p>
+</li>
+</ul>
+.
+
+.
+1.  foo
+
+    - bar
+.
+<ol>
+<li>
+<p>foo</p>
+<ul>
+<li>bar</li>
+</ul>
+</li>
+</ol>
+.
+
+
+The contents of a code block are literal text, and do not get parsed
+as Markdown:
 
 .
     <a/>
@@ -2329,9 +2369,16 @@ foo</p>
 </blockquote>
 .
 
-Laziness only applies to lines that are continuations of
-paragraphs. Lines containing characters or indentation that indicate
-block structure cannot be lazy.
+Laziness only applies to lines that would have been continuations of
+paragraphs had they been prepended with `>`.  For example, the
+`>` cannot be omitted in the second line of
+
+``` markdown
+> foo
+> ---
+```
+
+without changing the meaning:
 
 .
 > foo
@@ -2342,6 +2389,15 @@ block structure cannot be lazy.
 </blockquote>
 <hr />
 .
+
+Similarly, if we omit the `>` in the second line of
+
+``` markdown
+> - foo
+> - bar
+```
+
+then the block quote ends after the first line:
 
 .
 > - foo
@@ -2356,6 +2412,9 @@ block structure cannot be lazy.
 <li>bar</li>
 </ul>
 .
+
+For the same reason, we can't omit the `>` in front of
+subsequent lines of an indented or fenced code block:
 
 .
 >     foo
