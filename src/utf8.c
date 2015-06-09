@@ -56,13 +56,18 @@ static int utf8proc_charlen(const uint8_t *str, bufsize_t str_len)
 // Validate a single UTF-8 character according to RFC 3629.
 static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 {
-	int length = utf8proc_charlen(str, str_len);
+	int length = utf8proc_utf8class[str[0]];
 
-	if (length <= 0)
-		return length;
+	if (!length)
+		return -1;
+
+	if ((bufsize_t)length > str_len)
+		return -str_len;
 
 	switch (length) {
 	case 2:
+		if ((str[1] & 0xC0) != 0x80)
+			return -1;
 		if (str[0] < 0xC2) {
 			// Overlong
 			return -length;
@@ -70,6 +75,10 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 		break;
 
 	case 3:
+		if ((str[1] & 0xC0) != 0x80)
+			return -1;
+		if ((str[2] & 0xC0) != 0x80)
+			return -2;
 		if (str[0] == 0xE0) {
 			if (str[1] < 0xA0) {
 				// Overlong
@@ -84,6 +93,12 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 		break;
 
 	case 4:
+		if ((str[1] & 0xC0) != 0x80)
+			return -1;
+		if ((str[2] & 0xC0) != 0x80)
+			return -2;
+		if ((str[3] & 0xC0) != 0x80)
+			return -3;
 		if (str[0] == 0xF0) {
 			if (str[1] < 0x90) {
 				// Overlong
