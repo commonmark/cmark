@@ -62,14 +62,6 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 		return length;
 
 	switch (length) {
-	case 1:
-		if (str[0] == 0x00) {
-			// ASCII NUL is technically valid but rejected
-			// for security reasons.
-			return -length;
-		}
-		break;
-
 	case 2:
 		if (str[0] < 0xC2) {
 			// Overlong
@@ -117,10 +109,27 @@ void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, bufsize_t size)
 
 	while (i < size) {
 		bufsize_t org = i;
+		int charlen = 0;
 
-		while (i < size && line[i] != '\t' && line[i] != '\0'
-		       && line[i] < 0x80) {
-			i++;
+		while (i < size && line[i] != '\t') {
+			if (line[i] >= 0x80) {
+				charlen = utf8proc_valid(line + i, size - i);
+				if (charlen < 0) {
+					charlen = -charlen;
+					break;
+				}
+				i += charlen;
+			}
+			else if (line[i] == '\0') {
+				// ASCII NUL is technically valid but rejected
+				// for security reasons.
+				charlen = 1;
+				break;
+			}
+			else {
+				i++;
+			}
+
 			tab++;
 		}
 
@@ -136,14 +145,8 @@ void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, bufsize_t size)
 			i += 1;
 			tab += numspaces;
 		} else {
-			int charlen = utf8proc_valid(line + i, size - i);
-
-			if (charlen >= 0) {
-				cmark_strbuf_put(ob, line + i, charlen);
-			} else {
-				encode_unknown(ob);
-				charlen = -charlen;
-			}
+			// Invalid UTF-8
+			encode_unknown(ob);
 
 			i += charlen;
 			tab += 1;
