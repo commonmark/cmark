@@ -54,9 +54,11 @@ static int utf8proc_charlen(const uint8_t *str, bufsize_t str_len)
 }
 
 // Validate a single UTF-8 character according to RFC 3629.
+// Assumes a multi-byte UTF-8 sequence.
 static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 {
 	int length = utf8proc_utf8class[str[0]];
+	assert(length != 1);
 
 	if (!length)
 		return -1;
@@ -64,53 +66,48 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len)
 	if ((bufsize_t)length > str_len)
 		return -str_len;
 
-	switch (length) {
-	case 2:
-		if ((str[1] & 0xC0) != 0x80)
-			return -1;
+	if ((str[1] & 0xC0) != 0x80)
+		return -1;
+
+	if (length == 2) {
 		if (str[0] < 0xC2) {
 			// Overlong
 			return -length;
 		}
-		break;
-
-	case 3:
-		if ((str[1] & 0xC0) != 0x80)
-			return -1;
+	}
+	else {
 		if ((str[2] & 0xC0) != 0x80)
 			return -2;
-		if (str[0] == 0xE0) {
-			if (str[1] < 0xA0) {
-				// Overlong
-				return -length;
-			}
-		} else if (str[0] == 0xED) {
-			if (str[1] >= 0xA0) {
-				// Surrogate
-				return -length;
-			}
-		}
-		break;
 
-	case 4:
-		if ((str[1] & 0xC0) != 0x80)
-			return -1;
-		if ((str[2] & 0xC0) != 0x80)
-			return -2;
-		if ((str[3] & 0xC0) != 0x80)
-			return -3;
-		if (str[0] == 0xF0) {
-			if (str[1] < 0x90) {
-				// Overlong
-				return -length;
-			}
-		} else if (str[0] >= 0xF4) {
-			if (str[0] > 0xF4 || str[1] >= 0x90) {
-				// Above 0x10FFFF
-				return -length;
+		if (length == 3) {
+			if (str[0] == 0xE0) {
+				if (str[1] < 0xA0) {
+					// Overlong
+					return -length;
+				}
+			} else if (str[0] == 0xED) {
+				if (str[1] >= 0xA0) {
+					// Surrogate
+					return -length;
+				}
 			}
 		}
-		break;
+		else {
+			if ((str[3] & 0xC0) != 0x80)
+				return -3;
+
+			if (str[0] == 0xF0) {
+				if (str[1] < 0x90) {
+					// Overlong
+					return -length;
+				}
+			} else if (str[0] >= 0xF4) {
+				if (str[0] > 0xF4 || str[1] >= 0x90) {
+					// Above 0x10FFFF
+					return -length;
+				}
+			}
+		}
 	}
 
 	return length;
