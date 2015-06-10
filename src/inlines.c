@@ -439,6 +439,8 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 {
 	delimiter *closer = subj->last_delim;
 	delimiter *opener;
+	delimiter *old_closer;
+	bool opener_not_found;
 
 	// move back to first relevant delim.
 	while (closer != NULL && closer->previous != start_delim) {
@@ -459,6 +461,9 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				}
 				opener = opener->previous;
 			}
+			opener_not_found = opener == NULL ||
+				opener == start_delim;
+			old_closer = closer;
 			if (closer->delim_char == '*' || closer->delim_char == '_') {
 				if (opener != NULL && opener != start_delim) {
 					closer = S_insert_emph(subj, opener, closer);
@@ -485,6 +490,12 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 					    cmark_chunk_literal(LEFTDOUBLEQUOTE);
 				}
 				closer = closer->next;
+			}
+			if (opener_not_found && !old_closer->can_open) {
+				// we can remove a closer that can't be an
+				// opener, once we've seen there's no
+				// matching opener:
+				remove_delimiter(subj, old_closer);
 			}
 		} else {
 			closer = closer->next;
