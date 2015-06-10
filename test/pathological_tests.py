@@ -26,6 +26,15 @@ pathological = {
     "many emph closers with no openers":
                  (("a_ " * 65000),
                   re.compile("(a[_] ){64999}a_")),
+    "many emph openers with no closers":
+                 (("_a " * 65000),
+                  re.compile("(_a ){64999}_a")),
+    "many link closers with no openers":
+                 (("a]" * 65000),
+                  re.compile("(a\]){65000}")),
+    "many link openers with no closers":
+                 (("[a" * 65000),
+                  re.compile("(\[a){65000}")),
     "nested brackets":
                  (("[" * 50000) + "a" + ("]" * 50000),
                   re.compile("\[{50000}a\]{50000}")),
