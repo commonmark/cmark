@@ -23,6 +23,9 @@ pathological = {
     "nested strong emph":
                 (("*a **a " * 65000) + "b" + (" a** a*" * 65000),
                  re.compile("(<em>a <strong>a ){65000}b( a</strong> a</em>){65000}")),
+    "many emph closers with no openers":
+                 (("a_ " * 65000),
+                  re.compile("(a[_] ){64999}a_")),
     "nested brackets":
                  (("[" * 50000) + "a" + ("]" * 50000),
                   re.compile("\[{50000}a\]{50000}")),
