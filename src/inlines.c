@@ -441,6 +441,13 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 	delimiter *opener;
 	delimiter *old_closer;
 	bool opener_found;
+	delimiter *potential_openers[128];
+
+	// initialize potential_openers:
+	potential_openers['*'] = start_delim;
+	potential_openers['_'] = start_delim;
+	potential_openers['\''] = start_delim;
+	potential_openers['"'] = start_delim;
 
 	// move back to first relevant delim.
 	while (closer != NULL && closer->previous != start_delim) {
@@ -455,7 +462,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			// Now look backwards for first matching opener:
 			opener = closer->previous;
 			opener_found = false;
-			while (opener != NULL && opener != start_delim) {
+			while (opener != NULL && opener != potential_openers[closer->delim_char]) {
 				if (opener->delim_char == closer->delim_char &&
 				    opener->can_open) {
 					opener_found = true;
@@ -464,7 +471,13 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				opener = opener->previous;
 			}
 			old_closer = closer;
-			if (closer->delim_char == '*' || closer->delim_char == '_') {
+			if (closer->delim_char == '*') {
+				if (opener_found) {
+					closer = S_insert_emph(subj, opener, closer);
+				} else {
+					closer = closer->next;
+				}
+			} else if (closer->delim_char == '_') {
 				if (opener_found) {
 					closer = S_insert_emph(subj, opener, closer);
 				} else {
@@ -492,6 +505,8 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				closer = closer->next;
 			}
 			if (!opener_found && !old_closer->can_open) {
+				// set lower bound for future searches for openers:
+				potential_openers[old_closer->delim_char] = closer;
 				// we can remove a closer that can't be an
 				// opener, once we've seen there's no
 				// matching opener:
