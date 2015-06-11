@@ -6,8 +6,6 @@ import argparse
 import sys
 import platform
 from cmark import CMark
-from multiprocessing import Process, Value
-import time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run cmark tests.')
@@ -55,38 +53,28 @@ pathological = {
     }
 
 whitespace_re = re.compile('/s+/')
-passed = Value('i', 0)
-errored = Value('i', 0)
-failed = Value('i', 0)
-
-def do_cmark_test(inp, regex, passed, errored, failed):
-    [rc, actual, err] = cmark.to_html(inp)
-    if rc != 0:
-        errored.value += 1
-        print(description, '[ERRORED (return code %d)]' %rc)
-        print(err)
-    elif regex.search(actual):
-        print(description, '[PASSED]')
-        passed.value += 1
-    else:
-        print(description, '[FAILED]')
-        print(repr(actual))
-        failed.value += 1
+passed = 0
+errored = 0
+failed = 0
 
 print("Testing pathological cases:")
 for description in pathological:
     (inp, regex) = pathological[description]
-    p = Process(target=do_cmark_test, args=(inp, regex, passed, errored, failed))
-    p.start()
-    p.join(1)
-    if p.is_alive():
-        print(description, '[FAILED (timed out)]')
-        p.terminate()
-        p.join()
-        failed.value += 1
+    [rc, actual, err] = cmark.to_html(inp)
+    if rc != 0:
+        errored += 1
+        print(description, '[ERRORED (return code %d)]' %rc)
+        print(err)
+    elif regex.search(actual):
+        print(description, '[PASSED]')
+        passed += 1
+    else:
+        print(description, '[FAILED]')
+        print(repr(actual))
+        failed += 1
 
-print("%d passed, %d failed, %d errored" % (passed.value, failed.value, errored.value))
-if (failed.value == 0 and errored.value == 0):
+print("%d passed, %d failed, %d errored" % (passed, failed, errored))
+if (failed == 0 and errored == 0):
     exit(0)
 else:
     exit(1)
