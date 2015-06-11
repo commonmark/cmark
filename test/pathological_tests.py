@@ -40,6 +40,9 @@ pathological = {
     "mismatched openers and closers":
                  (("*a_ " * 50000),
                   re.compile("([*]a[_] ){49999}[*]a_")),
+    "link openers and emph closers":
+                 (("[ a_" * 50000),
+                  re.compile("(\[ a_){50000}")),
     "nested brackets":
                  (("[" * 50000) + "a" + ("]" * 50000),
                   re.compile("\[{50000}a\]{50000}")),
