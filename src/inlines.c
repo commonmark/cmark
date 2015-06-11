@@ -440,7 +440,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 	delimiter *closer = subj->last_delim;
 	delimiter *opener;
 	delimiter *old_closer;
-	bool opener_not_found;
+	bool opener_found;
 
 	// move back to first relevant delim.
 	while (closer != NULL && closer->previous != start_delim) {
@@ -454,15 +454,15 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 		     closer->delim_char == '"' || closer->delim_char == '\'')) {
 			// Now look backwards for first matching opener:
 			opener = closer->previous;
+			opener_found = false;
 			while (opener != NULL && opener != start_delim) {
 				if (opener->delim_char == closer->delim_char &&
 				    opener->can_open) {
+					opener_found = true;
 					break;
 				}
 				opener = opener->previous;
 			}
-			opener_not_found = opener == NULL ||
-				opener == start_delim;
 			old_closer = closer;
 			if (closer->delim_char == '*' || closer->delim_char == '_') {
 				if (opener != NULL && opener != start_delim) {
@@ -491,7 +491,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				}
 				closer = closer->next;
 			}
-			if (opener_not_found && !old_closer->can_open) {
+			if (!opener_found && !old_closer->can_open) {
 				// we can remove a closer that can't be an
 				// opener, once we've seen there's no
 				// matching opener:
