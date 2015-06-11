@@ -582,13 +582,6 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 	parser->offset = 0;
 	parser->blank = false;
 
-	// Add a newline to the end if not present:
-	// TODO this breaks abstraction:
-	if (parser->curline->size > 0 &&
-	    !S_is_line_end_char(parser->curline->ptr[parser->curline->size - 1])) {
-		cmark_strbuf_putc(parser->curline, '\n');
-	}
-
 	input.data = parser->curline->ptr;
 	input.len = parser->curline->size;
 
