@@ -465,7 +465,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			}
 			old_closer = closer;
 			if (closer->delim_char == '*' || closer->delim_char == '_') {
-				if (opener != NULL && opener != start_delim) {
+				if (opener_found) {
 					closer = S_insert_emph(subj, opener, closer);
 				} else {
 					closer = closer->next;
@@ -474,7 +474,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
 				    cmark_chunk_literal(RIGHTSINGLEQUOTE);
-				if (opener != NULL && opener != start_delim) {
+				if (opener_found) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
 					    cmark_chunk_literal(LEFTSINGLEQUOTE);
@@ -484,7 +484,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				cmark_chunk_free(&closer->inl_text->as.literal);
 				closer->inl_text->as.literal =
 				    cmark_chunk_literal(RIGHTDOUBLEQUOTE);
-				if (opener != NULL && opener != start_delim) {
+				if (opener_found) {
 					cmark_chunk_free(&opener->inl_text->as.literal);
 					opener->inl_text->as.literal =
 					    cmark_chunk_literal(LEFTDOUBLEQUOTE);
