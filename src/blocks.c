@@ -619,7 +619,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 	cmark_chunk input;
 	bool maybe_lazy;
 
-	cmark_strbuf_put(parser->curline, buffer, bytes);
+	utf8proc_check(parser->curline, buffer, bytes);
 	parser->offset = 0;
 	parser->column = 0;
 	parser->blank = false;
