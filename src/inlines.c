@@ -471,13 +471,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				opener = opener->previous;
 			}
 			old_closer = closer;
-			if (closer->delim_char == '*') {
-				if (opener_found) {
-					closer = S_insert_emph(subj, opener, closer);
-				} else {
-					closer = closer->next;
-				}
-			} else if (closer->delim_char == '_') {
+			if (closer->delim_char == '*' || closer->delim_char == '_') {
 				if (opener_found) {
 					closer = S_insert_emph(subj, opener, closer);
 				} else {
@@ -504,13 +498,15 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 				}
 				closer = closer->next;
 			}
-			if (!opener_found && !old_closer->can_open) {
+			if (!opener_found) {
 				// set lower bound for future searches for openers:
 				potential_openers[old_closer->delim_char] = closer;
-				// we can remove a closer that can't be an
-				// opener, once we've seen there's no
-				// matching opener:
-				remove_delimiter(subj, old_closer);
+				if (!old_closer->can_open) {
+					// we can remove a closer that can't be an
+					// opener, once we've seen there's no
+					// matching opener:
+					remove_delimiter(subj, old_closer);
+				}
 			}
 		} else {
 			closer = closer->next;
