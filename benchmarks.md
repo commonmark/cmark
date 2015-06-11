@@ -14,8 +14,7 @@ Some benchmarks, run on an ancient Thinkpad running Intel Core 2 Duo at 2GHz.
 | marked            |    1.94    |
 | **commonmark.js** |    1.93    |
 | discount          |    1.86    |
-| **cmark**         |    0.35    |
-| sundown           |    0.34    |
+| **cmark**         |    0.32    |
 | hoedown           |    0.21    |
 
 To run these benchmarks, use `make bench PROG=/path/to/program`.
