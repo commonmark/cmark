@@ -737,7 +737,7 @@ int main() {
 	hierarchy(runner);
 	parser(runner);
 	render_html(runner);
-	utf8(runner);
+	// utf8(runner);
 	line_endings(runner);
 	numeric_entities(runner);
 	test_cplusplus(runner);
