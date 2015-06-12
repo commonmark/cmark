@@ -96,7 +96,7 @@ def get_tests(specfile):
                     end_line = line_number
                     tests.append({
                         "markdown":''.join(markdown_lines).replace('→',"\t"),
-                        "html":''.join(html_lines),
+                        "html":''.join(html_lines).replace('→',"\t"),
                         "example": example_number,
                         "start_line": start_line,
                         "end_line": end_line,
