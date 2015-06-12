@@ -497,44 +497,53 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
               bool eof)
 {
 	const unsigned char *end = buffer + len;
+	static const uint8_t repl[] = {239, 191, 189};
 
 	while (buffer < end) {
 		const unsigned char *eol;
-		size_t line_len;
-		bufsize_t bufsize;
+		bufsize_t chunk_len;
+		bool process = false;
 
 		for (eol = buffer; eol < end; ++eol) {
-			if (S_is_line_end_char(*eol))
+			if (S_is_line_end_char(*eol)) {
+				if (eol < end && *eol == '\r')
+					eol++;
+				if (eol < end && *eol == '\n')
+					eol++;
+				process = true;
 				break;
+			}
+			if (*eol == '\0' && eol < end - 1) {
+				break;
+			}
 		}
-		if (eol >= end)
-			eol = NULL;
+		if (eol >= end && eof) {
+			process = true;
+		}
 
-		if (eol) {
-			if (eol < end && *eol == '\r')
-				eol++;
-			if (eol < end && *eol == '\n')
-				eol++;
-			line_len = eol - buffer;
-		} else if (eof) {
-			line_len = end - buffer;
+		chunk_len = cmark_strbuf_check_bufsize(eol - buffer);
+		if (process) {
+			if (parser->linebuf->size > 0) {
+				cmark_strbuf_put(parser->linebuf, buffer, chunk_len);
+				S_process_line(parser, parser->linebuf->ptr,
+					       parser->linebuf->size);
+				cmark_strbuf_clear(parser->linebuf);
+			} else {
+				S_process_line(parser, buffer, chunk_len);
+			}
 		} else {
-			bufsize = cmark_strbuf_check_bufsize(end - buffer);
-			cmark_strbuf_put(parser->linebuf, buffer, bufsize);
-			break;
+			if (eol < end && *eol == '\0') {
+				// omit NULL byte
+				cmark_strbuf_put(parser->linebuf, buffer, chunk_len);
+				// add replacement character
+				cmark_strbuf_put(parser->linebuf, repl, 3);
+				chunk_len += 1; // so we advance the buffer past NULL
+			} else {
+				cmark_strbuf_put(parser->linebuf, buffer, chunk_len);
+			}
 		}
 
-		bufsize = cmark_strbuf_check_bufsize(line_len);
-		if (parser->linebuf->size > 0) {
-			cmark_strbuf_put(parser->linebuf, buffer, bufsize);
-			S_process_line(parser, parser->linebuf->ptr,
-			               parser->linebuf->size);
-			cmark_strbuf_clear(parser->linebuf);
-		} else {
-			S_process_line(parser, buffer, bufsize);
-		}
-
-		buffer += line_len;
+		buffer += chunk_len;
 	}
 }
 
@@ -619,7 +628,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 	cmark_chunk input;
 	bool maybe_lazy;
 
-	utf8proc_check(parser->curline, buffer, bytes);
+	cmark_strbuf_put(parser->curline, buffer, bytes);
 	parser->offset = 0;
 	parser->column = 0;
 	parser->blank = false;
