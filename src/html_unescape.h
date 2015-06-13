@@ -1,5 +1,5 @@
 /* ANSI-C code produced by gperf version 3.0.3 */
-/* Command-line: /Library/Developer/CommandLineTools/usr/bin/gperf -L ANSI-C -I -t -N find_entity -H hash_entity -K entity -C -l -F ',{0}' --null-strings -m5 -P -Q entity_pool src/html_unescape.gperf  */
+/* Command-line: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf -L ANSI-C -I -t -N find_entity -H hash_entity -K entity -C -l -F ',{0}' --null-strings -m5 -P -Q entity_pool src/html_unescape.gperf  */
 /* Computed positions: -k'1-7,10,12,$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -32,7 +32,7 @@
 #line 1 "src/html_unescape.gperf"
 struct html_ent {
 	int entity;
-	unsigned char utf8[4];
+	unsigned char utf8[8];
 };
 #include <string.h>
 #include <stddef.h>
@@ -5537,14 +5537,14 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1501 "src/html_unescape.gperf"
+#line 1497 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str39), {226, 134, 146, 0}},
       {-1,{0}},
-#line 833 "src/html_unescape.gperf"
+#line 831 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str41), {226, 134, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 844 "src/html_unescape.gperf"
+#line 842 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str49), {226, 170, 171, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1903 "src/html_unescape.gperf"
@@ -5554,7 +5554,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str55), {226, 138, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1510 "src/html_unescape.gperf"
+#line 1509 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str62), {226, 134, 163, 0}},
       {-1,{0}},
 #line 841 "src/html_unescape.gperf"
@@ -5564,7 +5564,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 963 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str67), {226, 135, 189, 0}},
-#line 1168 "src/html_unescape.gperf"
+#line 1167 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str68), {194, 172, 0}},
 #line 1609 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str69), {41, 0}},
@@ -5576,7 +5576,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1715 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str73), {226, 136, 165, 0}},
       {-1,{0}},
-#line 945 "src/html_unescape.gperf"
+#line 944 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str75), {226, 137, 170, 0}},
 #line 1926 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str76), {226, 134, 190, 0}},
@@ -5591,13 +5591,13 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 981 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str85), {226, 168, 180, 0}},
-#line 1388 "src/html_unescape.gperf"
+#line 1386 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str86), {226, 136, 165, 0}},
       {-1,{0}},
 #line 1132 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str88), {226, 134, 174, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1231 "src/html_unescape.gperf"
+#line 1230 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str94), {226, 136, 166, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1872 "src/html_unescape.gperf"
@@ -5625,15 +5625,15 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str117), {226, 150, 147, 0}},
       {-1,{0}},
 #line 1232 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str119), {226, 171, 189, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str119), {226, 171, 189, 226, 131, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1143 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str123), {226, 128, 165, 0}},
 #line 1594 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str124), {226, 135, 132, 0}},
 #line 1233 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str125), {226, 136, 130, 0}},
-#line 944 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str125), {226, 136, 130, 204, 184, 0}},
+#line 946 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str126), {226, 135, 135, 0}},
 #line 1158 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str127), {226, 137, 174, 0}},
@@ -5641,7 +5641,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str128), {226, 134, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1230 "src/html_unescape.gperf"
+#line 1231 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str138), {226, 136, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1825 "src/html_unescape.gperf"
@@ -5649,7 +5649,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1991 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str144), {226, 134, 149, 0}},
       {-1,{0}},
-#line 1738 "src/html_unescape.gperf"
+#line 1729 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str146), {226, 150, 161, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1141 "src/html_unescape.gperf"
@@ -5660,7 +5660,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 957 "src/html_unescape.gperf"
+#line 958 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str165), {226, 170, 135, 0}},
 #line 1612 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str166), {226, 135, 137, 0}},
@@ -5678,7 +5678,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 525 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str174), {226, 165, 177, 0}},
       {-1,{0}},
-#line 1433 "src/html_unescape.gperf"
+#line 1431 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str176), {226, 137, 186, 0}},
 #line 1555 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str177), {226, 135, 128, 0}},
@@ -5690,17 +5690,17 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str184), {226, 134, 159, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1128 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str188), {226, 137, 171, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str188), {226, 137, 171, 226, 131, 146, 0}},
       {-1,{0}},
 #line 140 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str190), {61, 0}},
-#line 1241 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str190), {61, 226, 131, 165, 0}},
+#line 1240 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str191), {226, 134, 155, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1818 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str194), {226, 134, 153, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1497 "src/html_unescape.gperf"
+#line 1500 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str198), {226, 165, 181, 0}},
       {-1,{0}},
 #line 1966 "src/html_unescape.gperf"
@@ -5723,7 +5723,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1703 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str217), {226, 170, 170, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 496 "src/html_unescape.gperf"
+#line 497 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str222), {226, 128, 133, 0}},
 #line 1507 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str223), {226, 165, 133, 0}},
@@ -5734,13 +5734,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 1405 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str230), {226, 132, 179, 0}},
       {-1,{0}},
-#line 495 "src/html_unescape.gperf"
+#line 496 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str232), {226, 128, 132, 0}},
       {-1,{0}},
-#line 1013 "src/html_unescape.gperf"
+#line 1011 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str234), {60, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 834 "src/html_unescape.gperf"
+#line 832 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str238), {226, 134, 158, 0}},
 #line 1524 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str239), {226, 166, 144, 0}},
@@ -5771,19 +5771,19 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str265), {194, 160, 0}},
 #line 1924 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str266), {226, 165, 163, 0}},
-#line 1867 "src/html_unescape.gperf"
+#line 1865 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str267), {226, 138, 164, 0}},
       {-1,{0}},
 #line 2003 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str269), {226, 171, 171, 0}},
       {-1,{0}}, {-1,{0}},
-#line 946 "src/html_unescape.gperf"
+#line 945 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str272), {226, 139, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1431 "src/html_unescape.gperf"
+#line 1433 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str276), {226, 170, 183, 0}},
       {-1,{0}},
-#line 497 "src/html_unescape.gperf"
+#line 495 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str278), {226, 128, 131, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1078 "src/html_unescape.gperf"
@@ -5804,27 +5804,27 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str302), {226, 133, 135, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 913 "src/html_unescape.gperf"
+#line 912 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str310), {226, 169, 189, 0}},
-#line 744 "src/html_unescape.gperf"
+#line 743 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str311), {226, 136, 136, 0}},
 #line 1460 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str312), {226, 136, 157, 0}},
       {-1,{0}},
-#line 1865 "src/html_unescape.gperf"
+#line 1866 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str314), {226, 140, 182, 0}},
       {-1,{0}}, {-1,{0}},
-#line 749 "src/html_unescape.gperf"
+#line 748 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str317), {226, 136, 171, 0}},
       {-1,{0}},
-#line 1104 "src/html_unescape.gperf"
+#line 1100 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str319), {226, 137, 160, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1236 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str329), {226, 139, 160, 0}},
       {-1,{0}},
-#line 1446 "src/html_unescape.gperf"
+#line 1435 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str331), {226, 170, 175, 0}},
 #line 508 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str332), {206, 181, 0}},
@@ -5850,18 +5850,18 @@ find_entity (register const char *str, register unsigned int len)
 #line 960 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str352), {226, 137, 168, 0}},
       {-1,{0}},
-#line 1417 "src/html_unescape.gperf"
+#line 1414 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str354), {43, 0}},
 #line 1153 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str355), {226, 169, 189, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str355), {226, 169, 189, 204, 184, 0}},
 #line 1105 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str356), {226, 137, 144, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str356), {226, 137, 144, 204, 184, 0}},
 #line 133 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str357), {226, 151, 130, 0}},
 #line 134 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str358), {226, 150, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1101 "src/html_unescape.gperf"
+#line 1102 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str364), {226, 134, 151, 0}},
       {-1,{0}}, {-1,{0}},
 #line 132 "src/html_unescape.gperf"
@@ -5880,12 +5880,12 @@ find_entity (register const char *str, register unsigned int len)
 #line 1700 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str383), {226, 167, 164, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1032 "src/html_unescape.gperf"
+#line 1033 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str387), {226, 164, 133, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1419 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str390), {226, 168, 165, 0}},
-#line 1167 "src/html_unescape.gperf"
+#line 1168 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str391), {226, 171, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -5909,7 +5909,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str435), {226, 137, 176, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1151 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str438), {226, 137, 166, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str438), {226, 137, 166, 204, 184, 0}},
       {-1,{0}},
 #line 578 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str440), {194, 190, 0}},
@@ -5962,7 +5962,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1406 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str471), {226, 152, 142, 0}},
       {-1,{0}}, {-1,{0}},
-#line 218 "src/html_unescape.gperf"
+#line 215 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str474), {226, 139, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 130 "src/html_unescape.gperf"
@@ -5973,7 +5973,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 910 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str483), {226, 137, 166, 0}},
       {-1,{0}}, {-1,{0}},
-#line 748 "src/html_unescape.gperf"
+#line 750 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str486), {226, 138, 186, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 371 "src/html_unescape.gperf"
@@ -5991,10 +5991,10 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1932 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str511), {197, 170, 0}},
-#line 2014 "src/html_unescape.gperf"
+#line 2013 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str512), {226, 139, 129, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1502 "src/html_unescape.gperf"
+#line 1498 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str515), {226, 134, 160, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -6009,16 +6009,16 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str531), {91, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1509 "src/html_unescape.gperf"
+#line 1510 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str538), {226, 164, 150, 0}},
       {-1,{0}}, {-1,{0}},
 #line 529 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str541), {226, 137, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 2013 "src/html_unescape.gperf"
+#line 2012 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str546), {226, 136, 168, 0}},
 #line 1088 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str547), {226, 137, 143, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str547), {226, 137, 143, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 947 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str553), {226, 140, 158, 0}},
@@ -6042,23 +6042,23 @@ find_entity (register const char *str, register unsigned int len)
 #line 988 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str571), {226, 167, 171, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 298 "src/html_unescape.gperf"
+#line 297 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str575), {194, 169, 0}},
       {-1,{0}},
 #line 1928 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str577), {226, 140, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 2012 "src/html_unescape.gperf"
+#line 2014 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str582), {226, 138, 187, 0}},
       {-1,{0}},
 #line 1391 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str584), {226, 136, 130, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1729 "src/html_unescape.gperf"
+#line 1731 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str589), {226, 150, 161, 0}},
       {-1,{0}},
 #line 1087 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str591), {226, 137, 142, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str591), {226, 137, 142, 204, 184, 0}},
 #line 107 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str592), {226, 132, 172, 0}},
 #line 2055 "src/html_unescape.gperf"
@@ -6070,7 +6070,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 848 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str596), {226, 164, 142, 0}},
       {-1,{0}}, {-1,{0}},
-#line 143 "src/html_unescape.gperf"
+#line 142 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str599), {226, 140, 144, 0}},
       {-1,{0}},
 #line 1661 "src/html_unescape.gperf"
@@ -6080,58 +6080,58 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str606), {226, 140, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1217 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str612), {226, 138, 130, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str612), {226, 138, 130, 226, 131, 146, 0}},
       {-1,{0}},
-#line 1604 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str614), {240, 157, 149, 163}},
-#line 1475 "src/html_unescape.gperf"
+#line 1605 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str614), {240, 157, 149, 163, 0}},
+#line 1474 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str615), {226, 132, 154, 0}},
 #line 979 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str616), {240, 157, 149, 157}},
+      {offsetof(struct entity_pool_t, entity_pool_str616), {240, 157, 149, 157, 0}},
       {-1,{0}},
 #line 1712 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str618), {240, 157, 149, 164}},
+      {offsetof(struct entity_pool_t, entity_pool_str618), {240, 157, 149, 164, 0}},
 #line 1967 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str619), {226, 140, 157, 0}},
 #line 1868 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str620), {240, 157, 149, 139}},
-#line 2126 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str620), {240, 157, 149, 139, 0}},
+#line 2125 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str621), {226, 132, 164, 0}},
 #line 504 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str622), {240, 157, 149, 150}},
+      {offsetof(struct entity_pool_t, entity_pool_str622), {240, 157, 149, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1603 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str626), {226, 166, 134, 0}},
 #line 1944 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str627), {240, 157, 149, 166}},
+      {offsetof(struct entity_pool_t, entity_pool_str627), {240, 157, 149, 166, 0}},
 #line 977 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str628), {226, 166, 133, 0}},
 #line 1869 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str629), {240, 157, 149, 165}},
+      {offsetof(struct entity_pool_t, entity_pool_str629), {240, 157, 149, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2074 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str635), {240, 157, 149, 143}},
+      {offsetof(struct entity_pool_t, entity_pool_str635), {240, 157, 149, 143, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1165 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str639), {240, 157, 149, 159}},
+#line 1166 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str639), {240, 157, 149, 159, 0}},
       {-1,{0}},
 #line 145 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str641), {240, 157, 149, 147}},
+      {offsetof(struct entity_pool_t, entity_pool_str641), {240, 157, 149, 147, 0}},
 #line 511 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str642), {207, 181, 0}},
 #line 561 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str643), {198, 146, 0}},
-#line 733 "src/html_unescape.gperf"
+#line 734 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str644), {196, 171, 0}},
       {-1,{0}}, {-1,{0}},
 #line 791 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str647), {240, 157, 149, 129}},
+      {offsetof(struct entity_pool_t, entity_pool_str647), {240, 157, 149, 129, 0}},
       {-1,{0}},
 #line 1134 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str649), {226, 171, 178, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2052 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str653), {240, 157, 149, 142}},
+      {offsetof(struct entity_pool_t, entity_pool_str653), {240, 157, 149, 142, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1720 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str658), {226, 136, 154, 0}},
@@ -6139,38 +6139,38 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str659), {226, 138, 132, 0}},
       {-1,{0}},
 #line 1080 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str661), {226, 137, 139, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str661), {226, 137, 139, 204, 184, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1223 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str664), {226, 138, 131, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str664), {226, 138, 131, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}},
 #line 196 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str667), {194, 166, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1710 "src/html_unescape.gperf"
+#line 1708 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str670), {47, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 460 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str675), {226, 169, 174, 0}},
       {-1,{0}},
-#line 1428 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str677), {240, 157, 149, 161}},
+#line 1429 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str677), {240, 157, 149, 161, 0}},
       {-1,{0}}, {-1,{0}},
 #line 369 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str680), {226, 165, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2031 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str685), {240, 157, 149, 141}},
+      {offsetof(struct entity_pool_t, entity_pool_str685), {240, 157, 149, 141, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1273 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str690), {226, 138, 131, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str690), {226, 138, 131, 226, 131, 146, 0}},
 #line 1270 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str691), {226, 138, 133, 0}},
 #line 2002 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str692), {226, 171, 168, 0}},
       {-1,{0}},
 #line 1265 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str694), {226, 138, 130, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str694), {226, 138, 130, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1850 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str700), {226, 137, 136, 0}},
@@ -6185,14 +6185,14 @@ find_entity (register const char *str, register unsigned int len)
 #line 961 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str710), {226, 139, 166, 0}},
       {-1,{0}},
-#line 1708 "src/html_unescape.gperf"
+#line 1710 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str712), {226, 140, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1730 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str717), {226, 150, 161, 0}},
       {-1,{0}},
 #line 2032 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str719), {240, 157, 149, 167}},
+      {offsetof(struct entity_pool_t, entity_pool_str719), {240, 157, 149, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1925 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str723), {226, 134, 191, 0}},
@@ -6213,7 +6213,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str735), {226, 136, 147, 0}},
       {-1,{0}}, {-1,{0}},
 #line 813 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str738), {240, 157, 149, 130}},
+      {offsetof(struct entity_pool_t, entity_pool_str738), {240, 157, 149, 130, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1695 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str741), {226, 165, 178, 0}},
@@ -6222,9 +6222,9 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str743), {226, 153, 173, 0}},
       {-1,{0}},
 #line 1064 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str745), {240, 157, 149, 132}},
+      {offsetof(struct entity_pool_t, entity_pool_str745), {240, 157, 149, 132, 0}},
 #line 1711 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str746), {240, 157, 149, 138}},
+      {offsetof(struct entity_pool_t, entity_pool_str746), {240, 157, 149, 138, 0}},
 #line 1061 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str747), {226, 128, 166, 0}},
 #line 1596 "src/html_unescape.gperf"
@@ -6237,28 +6237,28 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str756), {226, 166, 147, 0}},
       {-1,{0}},
 #line 563 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str758), {240, 157, 149, 151}},
+      {offsetof(struct entity_pool_t, entity_pool_str758), {240, 157, 149, 151, 0}},
 #line 1943 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str759), {240, 157, 149, 140}},
+      {offsetof(struct entity_pool_t, entity_pool_str759), {240, 157, 149, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1995 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str763), {226, 138, 138, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str763), {226, 138, 138, 239, 184, 128, 0}},
 #line 1996 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str764), {226, 171, 139, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str764), {226, 171, 139, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1969 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str767), {226, 140, 142, 0}},
 #line 927 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str768), {226, 170, 161, 0}},
       {-1,{0}},
-#line 1542 "src/html_unescape.gperf"
+#line 1538 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str770), {226, 132, 156, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1201 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str773), {226, 170, 161, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str773), {226, 170, 161, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 395 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str777), {240, 157, 148, 187}},
+      {offsetof(struct entity_pool_t, entity_pool_str777), {240, 157, 148, 187, 0}},
       {-1,{0}},
 #line 567 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str779), {226, 171, 153, 0}},
@@ -6266,13 +6266,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 1260 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str781), {226, 139, 162, 0}},
       {-1,{0}},
-#line 1272 "src/html_unescape.gperf"
+#line 1271 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str783), {226, 138, 137, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1264 "src/html_unescape.gperf"
+#line 1263 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str787), {226, 138, 136, 0}},
-#line 1474 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str788), {240, 157, 149, 162}},
+#line 1475 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str788), {240, 157, 149, 162, 0}},
 #line 1595 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str789), {226, 135, 140, 0}},
       {-1,{0}}, {-1,{0}},
@@ -6285,16 +6285,16 @@ find_entity (register const char *str, register unsigned int len)
 #line 1430 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str798), {194, 163, 0}},
 #line 1997 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str799), {226, 138, 139, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str799), {226, 138, 139, 239, 184, 128, 0}},
 #line 1998 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str800), {226, 171, 140, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str800), {226, 171, 140, 239, 184, 128, 0}},
       {-1,{0}},
 #line 141 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str802), {226, 137, 161, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str802), {226, 137, 161, 226, 131, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 978 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str813), {240, 157, 149, 131}},
+      {offsetof(struct entity_pool_t, entity_pool_str813), {240, 157, 149, 131, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1261 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str817), {226, 139, 163, 0}},
@@ -6307,12 +6307,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str822), {226, 134, 171, 0}},
       {-1,{0}},
 #line 2100 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str824), {240, 157, 149, 144}},
+      {offsetof(struct entity_pool_t, entity_pool_str824), {240, 157, 149, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1209 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str829), {226, 136, 140, 0}},
       {-1,{0}}, {-1,{0}},
-#line 294 "src/html_unescape.gperf"
+#line 293 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str832), {226, 132, 130, 0}},
 #line 993 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str833), {226, 135, 139, 0}},
@@ -6331,32 +6331,32 @@ find_entity (register const char *str, register unsigned int len)
 #line 1266 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str855), {226, 138, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1737 "src/html_unescape.gperf"
+#line 1738 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str861), {226, 150, 170, 0}},
 #line 2020 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str862), {226, 128, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1735 "src/html_unescape.gperf"
+#line 1736 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str874), {226, 138, 146, 0}},
       {-1,{0}},
 #line 1464 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str876), {226, 137, 190, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1733 "src/html_unescape.gperf"
+#line 1734 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str879), {226, 138, 145, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1734 "src/html_unescape.gperf"
+#line 1735 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str882), {226, 138, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1732 "src/html_unescape.gperf"
+#line 1733 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str887), {226, 138, 143, 0}},
 #line 1289 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str888), {226, 137, 141, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str888), {226, 137, 141, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 764 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str892), {240, 157, 149, 154}},
+      {offsetof(struct entity_pool_t, entity_pool_str892), {240, 157, 149, 154, 0}},
       {-1,{0}},
 #line 1425 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str894), {194, 177, 0}},
@@ -6370,7 +6370,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 986 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str901), {226, 151, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1033 "src/html_unescape.gperf"
+#line 1032 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str905), {226, 134, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -6380,28 +6380,28 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1615 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str934), {240, 157, 147, 135}},
+#line 1616 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str934), {240, 157, 147, 135, 0}},
 #line 1477 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str935), {240, 157, 146, 172}},
-#line 998 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str936), {240, 157, 147, 129}},
+      {offsetof(struct entity_pool_t, entity_pool_str935), {240, 157, 146, 172, 0}},
+#line 999 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str936), {240, 157, 147, 129, 0}},
       {-1,{0}},
 #line 1742 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str938), {240, 157, 147, 136}},
+      {offsetof(struct entity_pool_t, entity_pool_str938), {240, 157, 147, 136, 0}},
       {-1,{0}},
 #line 1890 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str940), {240, 157, 146, 175}},
+      {offsetof(struct entity_pool_t, entity_pool_str940), {240, 157, 146, 175, 0}},
 #line 2127 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str941), {240, 157, 146, 181}},
+      {offsetof(struct entity_pool_t, entity_pool_str941), {240, 157, 146, 181, 0}},
 #line 527 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str942), {226, 132, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1974 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str947), {240, 157, 147, 138}},
+      {offsetof(struct entity_pool_t, entity_pool_str947), {240, 157, 147, 138, 0}},
       {-1,{0}},
 #line 1891 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str949), {240, 157, 147, 137}},
+      {offsetof(struct entity_pool_t, entity_pool_str949), {240, 157, 147, 137, 0}},
       {-1,{0}},
 #line 740 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str951), {226, 138, 183, 0}},
@@ -6409,22 +6409,22 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str952), {226, 136, 144, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2080 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str955), {240, 157, 146, 179}},
+      {offsetof(struct entity_pool_t, entity_pool_str955), {240, 157, 146, 179, 0}},
 #line 2067 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str956), {206, 158, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1252 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str959), {240, 157, 147, 131}},
+      {offsetof(struct entity_pool_t, entity_pool_str959), {240, 157, 147, 131, 0}},
 #line 1135 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str960), {226, 136, 139, 0}},
-#line 197 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str961), {240, 157, 146, 183}},
-#line 1166 "src/html_unescape.gperf"
+#line 198 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str961), {240, 157, 146, 183, 0}},
+#line 1165 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str962), {226, 132, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 793 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str967), {240, 157, 146, 165}},
-#line 1442 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str967), {240, 157, 146, 165, 0}},
+#line 1444 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str968), {226, 170, 175, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1302 "src/html_unescape.gperf"
@@ -6432,7 +6432,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 87 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str972), {226, 128, 181, 0}},
 #line 2057 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str973), {240, 157, 146, 178}},
+      {offsetof(struct entity_pool_t, entity_pool_str973), {240, 157, 146, 178, 0}},
       {-1,{0}},
 #line 1988 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str975), {207, 149, 0}},
@@ -6446,16 +6446,16 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str991), {226, 140, 158, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1467 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str997), {240, 157, 147, 133}},
+      {offsetof(struct entity_pool_t, entity_pool_str997), {240, 157, 147, 133, 0}},
 #line 1408 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str998), {207, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 2035 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1005), {240, 157, 146, 177}},
+      {offsetof(struct entity_pool_t, entity_pool_str1005), {240, 157, 146, 177, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1112 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1011), {226, 137, 130, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1011), {226, 137, 130, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1693 "src/html_unescape.gperf"
@@ -6463,21 +6463,21 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1275 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1028), {226, 171, 134, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1028), {226, 171, 134, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1267 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1032), {226, 171, 133, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1032), {226, 171, 133, 204, 184, 0}},
 #line 440 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1033), {226, 140, 159, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1520 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1038), {125, 0}},
 #line 2036 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1039), {240, 157, 147, 139}},
+      {offsetof(struct entity_pool_t, entity_pool_str1039), {240, 157, 147, 139, 0}},
 #line 850 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1040), {123, 0}},
 #line 396 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1041), {240, 157, 149, 149}},
+      {offsetof(struct entity_pool_t, entity_pool_str1041), {240, 157, 149, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 585 "src/html_unescape.gperf"
@@ -6487,14 +6487,14 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1055), {226, 137, 178, 0}},
       {-1,{0}}, {-1,{0}},
 #line 815 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1058), {240, 157, 146, 166}},
+      {offsetof(struct entity_pool_t, entity_pool_str1058), {240, 157, 146, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1416 "src/html_unescape.gperf"
+#line 1417 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1064), {226, 168, 162, 0}},
-#line 1068 "src/html_unescape.gperf"
+#line 1067 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1065), {226, 132, 179, 0}},
 #line 1741 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1066), {240, 157, 146, 174}},
+      {offsetof(struct entity_pool_t, entity_pool_str1066), {240, 157, 146, 174, 0}},
 #line 1523 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1067), {226, 166, 142, 0}},
       {-1,{0}},
@@ -6504,31 +6504,31 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1070), {226, 164, 144, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1717 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1073), {226, 138, 147, 0}},
-#line 1503 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1073), {226, 138, 147, 239, 184, 128, 0}},
+#line 1499 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1074), {226, 135, 146, 0}},
-#line 142 "src/html_unescape.gperf"
+#line 143 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1075), {226, 171, 173, 0}},
-#line 835 "src/html_unescape.gperf"
+#line 833 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1076), {226, 135, 144, 0}},
       {-1,{0}},
-#line 587 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1078), {240, 157, 146, 187}},
+#line 588 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1078), {240, 157, 146, 187, 0}},
 #line 1973 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1079), {240, 157, 146, 176}},
+      {offsetof(struct entity_pool_t, entity_pool_str1079), {240, 157, 146, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 1905 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1087), {226, 135, 145, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1605 "src/html_unescape.gperf"
+#line 1604 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1090), {226, 132, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2053 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1094), {240, 157, 149, 168}},
+      {offsetof(struct entity_pool_t, entity_pool_str1094), {240, 157, 149, 168, 0}},
       {-1,{0}}, {-1,{0}},
 #line 442 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1097), {240, 157, 146, 159}},
+      {offsetof(struct entity_pool_t, entity_pool_str1097), {240, 157, 146, 159, 0}},
 #line 1351 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1098), {226, 166, 183, 0}},
 #line 1662 "src/html_unescape.gperf"
@@ -6542,10 +6542,10 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1105), {207, 129, 0}},
 #line 817 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1106), {226, 135, 154, 0}},
-#line 1437 "src/html_unescape.gperf"
+#line 1439 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1107), {226, 137, 188, 0}},
 #line 1478 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1108), {240, 157, 147, 134}},
+      {offsetof(struct entity_pool_t, entity_pool_str1108), {240, 157, 147, 134, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1028 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1111), {194, 175, 0}},
@@ -6566,7 +6566,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1131), {226, 167, 128, 0}},
 #line 1514 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1132), {226, 136, 182, 0}},
-#line 999 "src/html_unescape.gperf"
+#line 998 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1133), {226, 132, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 370 "src/html_unescape.gperf"
@@ -6578,24 +6578,24 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1140), {194, 168, 0}},
 #line 404 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1141), {226, 136, 148, 0}},
-#line 1358 "src/html_unescape.gperf"
+#line 1356 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1142), {226, 136, 168, 0}},
       {-1,{0}},
 #line 2102 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1144), {240, 157, 146, 180}},
+      {offsetof(struct entity_pool_t, entity_pool_str1144), {240, 157, 146, 180, 0}},
       {-1,{0}}, {-1,{0}},
 #line 562 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1147), {240, 157, 148, 189}},
+      {offsetof(struct entity_pool_t, entity_pool_str1147), {240, 157, 148, 189, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 304 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1152), {240, 157, 146, 158}},
+      {offsetof(struct entity_pool_t, entity_pool_str1152), {240, 157, 146, 158, 0}},
 #line 1336 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1153), {226, 134, 186, 0}},
 #line 1243 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1154), {226, 134, 157, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1154), {226, 134, 157, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1026 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1159), {226, 137, 168, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1159), {226, 137, 168, 239, 184, 128, 0}},
 #line 515 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1160), {226, 170, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -6605,7 +6605,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 516 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1169), {226, 170, 149, 0}},
       {-1,{0}}, {-1,{0}},
-#line 743 "src/html_unescape.gperf"
+#line 744 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1172), {226, 132, 133, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -6616,11 +6616,11 @@ find_entity (register const char *str, register unsigned int len)
 #line 441 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1181), {226, 140, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1387 "src/html_unescape.gperf"
+#line 1388 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1187), {226, 136, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1356 "src/html_unescape.gperf"
+#line 1358 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1195), {226, 134, 187, 0}},
 #line 1744 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1196), {226, 140, 163, 0}},
@@ -6637,8 +6637,8 @@ find_entity (register const char *str, register unsigned int len)
 #line 1368 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1208), {226, 147, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 769 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1212), {240, 157, 146, 190}},
+#line 770 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1212), {240, 157, 146, 190, 0}},
 #line 725 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1213), {226, 133, 136, 0}},
 #line 1543 "src/html_unescape.gperf"
@@ -6676,7 +6676,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 564 "src/html_unescape.gperf"
+#line 565 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1252), {226, 136, 128, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1189 "src/html_unescape.gperf"
@@ -6684,7 +6684,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 1065 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1263), {240, 157, 149, 158}},
+      {offsetof(struct entity_pool_t, entity_pool_str1263), {240, 157, 149, 158, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1138 "src/html_unescape.gperf"
@@ -6695,7 +6695,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1280), {226, 171, 169, 0}},
       {-1,{0}},
 #line 1251 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1282), {240, 157, 146, 169}},
+      {offsetof(struct entity_pool_t, entity_pool_str1282), {240, 157, 146, 169, 0}},
       {-1,{0}},
 #line 1396 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1284), {46, 0}},
@@ -6706,11 +6706,11 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 112 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1298), {226, 137, 172, 0}},
-#line 750 "src/html_unescape.gperf"
+#line 749 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1299), {226, 136, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 103 "src/html_unescape.gperf"
+#line 104 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1307), {226, 136, 181, 0}},
 #line 1410 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1308), {207, 150, 0}},
@@ -6718,64 +6718,64 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1551 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1326), {240, 157, 148, 175}},
+#line 1552 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1326), {240, 157, 148, 175, 0}},
 #line 1471 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1327), {240, 157, 148, 148}},
+      {offsetof(struct entity_pool_t, entity_pool_str1327), {240, 157, 148, 148, 0}},
 #line 934 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1328), {240, 157, 148, 169}},
+      {offsetof(struct entity_pool_t, entity_pool_str1328), {240, 157, 148, 169, 0}},
       {-1,{0}},
 #line 1667 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1330), {240, 157, 148, 176}},
+      {offsetof(struct entity_pool_t, entity_pool_str1330), {240, 157, 148, 176, 0}},
 #line 1148 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1331), {226, 134, 174, 0}},
 #line 1836 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1332), {240, 157, 148, 151}},
-#line 2121 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1332), {240, 157, 148, 151, 0}},
+#line 2120 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1333), {226, 132, 168, 0}},
 #line 476 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1334), {240, 157, 148, 162}},
+      {offsetof(struct entity_pool_t, entity_pool_str1334), {240, 157, 148, 162, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1685 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1338), {226, 136, 188, 0}},
 #line 1921 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1339), {240, 157, 148, 178}},
+      {offsetof(struct entity_pool_t, entity_pool_str1339), {240, 157, 148, 178, 0}},
 #line 1606 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1340), {226, 168, 174, 0}},
 #line 1837 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1341), {240, 157, 148, 177}},
+      {offsetof(struct entity_pool_t, entity_pool_str1341), {240, 157, 148, 177, 0}},
 #line 980 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1342), {226, 168, 173, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2063 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1347), {240, 157, 148, 155}},
+      {offsetof(struct entity_pool_t, entity_pool_str1347), {240, 157, 148, 155, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1538 "src/html_unescape.gperf"
+#line 1539 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1350), {226, 132, 156, 0}},
 #line 1119 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1351), {240, 157, 148, 171}},
+      {offsetof(struct entity_pool_t, entity_pool_str1351), {240, 157, 148, 171, 0}},
       {-1,{0}},
 #line 114 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1353), {240, 157, 148, 159}},
+      {offsetof(struct entity_pool_t, entity_pool_str1353), {240, 157, 148, 159, 0}},
       {-1,{0}},
 #line 1184 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1355), {226, 137, 143, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1355), {226, 137, 143, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 788 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1359), {240, 157, 148, 141}},
+      {offsetof(struct entity_pool_t, entity_pool_str1359), {240, 157, 148, 141, 0}},
       {-1,{0}},
 #line 443 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1361), {240, 157, 146, 185}},
+      {offsetof(struct entity_pool_t, entity_pool_str1361), {240, 157, 146, 185, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2050 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1365), {240, 157, 148, 154}},
+      {offsetof(struct entity_pool_t, entity_pool_str1365), {240, 157, 148, 154, 0}},
       {-1,{0}},
 #line 129 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1367), {226, 167, 171, 0}},
       {-1,{0}},
-#line 2125 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1369), {240, 157, 149, 171}},
-#line 1541 "src/html_unescape.gperf"
+#line 2126 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1369), {240, 157, 149, 171, 0}},
+#line 1542 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1370), {226, 132, 157, 0}},
       {-1,{0}},
 #line 1170 "src/html_unescape.gperf"
@@ -6784,29 +6784,29 @@ find_entity (register const char *str, register unsigned int len)
 #line 1694 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1375), {226, 168, 164, 0}},
       {-1,{0}},
-#line 565 "src/html_unescape.gperf"
+#line 564 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1377), {226, 136, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1401 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1389), {240, 157, 148, 173}},
+      {offsetof(struct entity_pool_t, entity_pool_str1389), {240, 157, 148, 173, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1342 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1395), {197, 141, 0}},
       {-1,{0}},
 #line 2026 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1397), {240, 157, 148, 153}},
+      {offsetof(struct entity_pool_t, entity_pool_str1397), {240, 157, 148, 153, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 488 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1409), {196, 146, 0}},
-#line 1616 "src/html_unescape.gperf"
+#line 1615 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1410), {226, 132, 155, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2058 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1414), {240, 157, 147, 140}},
+      {offsetof(struct entity_pool_t, entity_pool_str1414), {240, 157, 147, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1679 "src/html_unescape.gperf"
@@ -6816,32 +6816,32 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1429), {226, 136, 150, 0}},
       {-1,{0}},
 #line 2027 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1431), {240, 157, 148, 179}},
+      {offsetof(struct entity_pool_t, entity_pool_str1431), {240, 157, 148, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 806 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1450), {240, 157, 148, 142}},
+      {offsetof(struct entity_pool_t, entity_pool_str1450), {240, 157, 148, 142, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1354 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1455), {226, 166, 185, 0}},
       {-1,{0}},
 #line 1047 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1457), {240, 157, 148, 144}},
+      {offsetof(struct entity_pool_t, entity_pool_str1457), {240, 157, 148, 144, 0}},
 #line 1666 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1458), {240, 157, 148, 150}},
+      {offsetof(struct entity_pool_t, entity_pool_str1458), {240, 157, 148, 150, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1160 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1461), {226, 139, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 588 "src/html_unescape.gperf"
+#line 587 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1467), {226, 132, 177, 0}},
       {-1,{0}}, {-1,{0}},
 #line 553 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1470), {240, 157, 148, 163}},
+      {offsetof(struct entity_pool_t, entity_pool_str1470), {240, 157, 148, 163, 0}},
 #line 1920 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1471), {240, 157, 148, 152}},
+      {offsetof(struct entity_pool_t, entity_pool_str1471), {240, 157, 148, 152, 0}},
       {-1,{0}},
 #line 1676 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1473), {226, 136, 163, 0}},
@@ -6849,9 +6849,9 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1304 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1488), {226, 136, 188, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1488), {226, 136, 188, 226, 131, 146, 0}},
 #line 367 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1489), {240, 157, 148, 135}},
+      {offsetof(struct entity_pool_t, entity_pool_str1489), {240, 157, 148, 135, 0}},
 #line 920 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1490), {226, 139, 150, 0}},
       {-1,{0}}, {-1,{0}},
@@ -6860,7 +6860,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1472 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1500), {240, 157, 148, 174}},
+      {offsetof(struct entity_pool_t, entity_pool_str1500), {240, 157, 148, 174, 0}},
 #line 345 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1501), {226, 135, 147, 0}},
       {-1,{0}},
@@ -6871,16 +6871,16 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1507), {226, 134, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1840 "src/html_unescape.gperf"
+#line 1839 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1515), {226, 136, 180, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 357 "src/html_unescape.gperf"
+#line 355 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1519), {226, 133, 133, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1839 "src/html_unescape.gperf"
+#line 1840 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1524), {226, 136, 180, 0}},
 #line 933 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1525), {240, 157, 148, 143}},
+      {offsetof(struct entity_pool_t, entity_pool_str1525), {240, 157, 148, 143, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1824 "src/html_unescape.gperf"
@@ -6889,14 +6889,14 @@ find_entity (register const char *str, register unsigned int len)
 #line 483 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1535), {226, 136, 136, 0}},
 #line 2096 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1536), {240, 157, 148, 156}},
+      {offsetof(struct entity_pool_t, entity_pool_str1536), {240, 157, 148, 156, 0}},
 #line 271 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1537), {226, 136, 178, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1337 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1542), {226, 166, 190, 0}},
       {-1,{0}},
-#line 245 "src/html_unescape.gperf"
+#line 244 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1544), {226, 132, 173, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -6904,7 +6904,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 548 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1559), {226, 153, 128, 0}},
 #line 1269 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1560), {226, 170, 176, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1560), {226, 170, 176, 204, 184, 0}},
 #line 1312 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1561), {226, 138, 155, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -6921,13 +6921,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 1557 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1581), {206, 161, 0}},
       {-1,{0}},
-#line 1067 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1583), {240, 157, 147, 130}},
+#line 1068 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1583), {240, 157, 147, 130, 0}},
       {-1,{0}},
 #line 1303 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1585), {226, 138, 181, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1585), {226, 138, 181, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 958 "src/html_unescape.gperf"
+#line 957 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1589), {226, 137, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -6939,19 +6939,19 @@ find_entity (register const char *str, register unsigned int len)
 #line 387 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1602), {195, 183, 0}},
       {-1,{0}},
-#line 721 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1604), {240, 157, 148, 166}},
+#line 722 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1604), {240, 157, 148, 166, 0}},
 #line 484 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1605), {226, 143, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 203 "src/html_unescape.gperf"
+#line 202 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1615), {92, 0}},
 #line 1298 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1616), {226, 164, 130, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 732 "src/html_unescape.gperf"
+#line 733 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1626), {196, 170, 0}},
       {-1,{0}},
 #line 89 "src/html_unescape.gperf"
@@ -6971,7 +6971,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 491 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1642), {226, 136, 133, 0}},
 #line 1350 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1643), {240, 157, 149, 160}},
+      {offsetof(struct entity_pool_t, entity_pool_str1643), {240, 157, 149, 160, 0}},
       {-1,{0}},
 #line 540 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1645), {226, 136, 131, 0}},
@@ -6983,11 +6983,11 @@ find_entity (register const char *str, register unsigned int len)
 #line 539 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1656), {33, 0}},
 #line 503 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1657), {240, 157, 148, 188}},
+      {offsetof(struct entity_pool_t, entity_pool_str1657), {240, 157, 148, 188, 0}},
 #line 1142 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1658), {226, 135, 141, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1849 "src/html_unescape.gperf"
+#line 1848 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1663), {226, 128, 137, 0}},
 #line 1218 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1664), {226, 138, 136, 0}},
@@ -6996,21 +6996,21 @@ find_entity (register const char *str, register unsigned int len)
 #line 410 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1666), {226, 135, 144, 0}},
       {-1,{0}},
-#line 1866 "src/html_unescape.gperf"
+#line 1867 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1668), {226, 171, 177, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 386 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1672), {195, 183, 0}},
       {-1,{0}},
 #line 1118 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1674), {240, 157, 148, 145}},
+      {offsetof(struct entity_pool_t, entity_pool_str1674), {240, 157, 148, 145, 0}},
 #line 1144 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1675), {226, 137, 166, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1675), {226, 137, 166, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2128 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1689), {240, 157, 147, 143}},
+      {offsetof(struct entity_pool_t, entity_pool_str1689), {240, 157, 147, 143, 0}},
 #line 994 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1690), {226, 165, 173, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7018,7 +7018,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 950 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1697), {226, 151, 186, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1242 "src/html_unescape.gperf"
+#line 1241 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1700), {226, 135, 143, 0}},
 #line 1224 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1701), {226, 138, 137, 0}},
@@ -7026,7 +7026,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1819 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1703), {226, 135, 153, 0}},
 #line 1847 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1704), {226, 129, 159, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1704), {226, 129, 159, 226, 128, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1931 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1708), {226, 151, 184, 0}},
@@ -7042,7 +7042,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1334 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1716), {206, 169, 0}},
       {-1,{0}}, {-1,{0}},
-#line 264 "src/html_unescape.gperf"
+#line 265 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1719), {226, 138, 151, 0}},
 #line 1159 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1720), {226, 139, 170, 0}},
@@ -7066,26 +7066,26 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1397 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1743), {226, 128, 176, 0}},
-#line 1053 "src/html_unescape.gperf"
+#line 1051 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1744), {226, 136, 163, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1972 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1750), {226, 151, 185, 0}},
       {-1,{0}}, {-1,{0}},
 #line 368 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1753), {240, 157, 148, 161}},
+      {offsetof(struct entity_pool_t, entity_pool_str1753), {240, 157, 148, 161, 0}},
 #line 1049 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1754), {226, 132, 167, 0}},
-#line 1447 "src/html_unescape.gperf"
+#line 1436 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1755), {226, 170, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 2040 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1759), {226, 138, 139, 0}},
+#line 2039 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1759), {226, 138, 139, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1246 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1762), {226, 139, 171, 0}},
-#line 2038 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1763), {226, 138, 138, 0}},
+#line 2037 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1763), {226, 138, 138, 239, 184, 128, 0}},
       {-1,{0}},
 #line 472 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1765), {226, 137, 145, 0}},
@@ -7101,7 +7101,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1512 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1783), {226, 164, 154, 0}},
       {-1,{0}},
-#line 842 "src/html_unescape.gperf"
+#line 843 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1785), {226, 164, 153, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1953 "src/html_unescape.gperf"
@@ -7113,20 +7113,20 @@ find_entity (register const char *str, register unsigned int len)
 #line 1963 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1796), {207, 133, 0}},
       {-1,{0}},
-#line 1051 "src/html_unescape.gperf"
+#line 1052 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1798), {42, 0}},
-#line 697 "src/html_unescape.gperf"
+#line 696 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1799), {226, 132, 141, 0}},
 #line 2028 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1800), {226, 138, 178, 0}},
       {-1,{0}},
-#line 1552 "src/html_unescape.gperf"
+#line 1551 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1802), {226, 132, 156, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2047 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1805), {226, 139, 128, 0}},
 #line 2051 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1806), {240, 157, 148, 180}},
+      {offsetof(struct entity_pool_t, entity_pool_str1806), {240, 157, 148, 180, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 93 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1812), {226, 140, 133, 0}},
@@ -7153,7 +7153,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1842), {226, 138, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 262 "src/html_unescape.gperf"
+#line 263 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1849), {226, 138, 150, 0}},
       {-1,{0}},
 #line 1341 "src/html_unescape.gperf"
@@ -7163,21 +7163,21 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 552 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1859), {240, 157, 148, 137}},
+      {offsetof(struct entity_pool_t, entity_pool_str1859), {240, 157, 148, 137, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1444 "src/html_unescape.gperf"
+#line 1446 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1865), {226, 170, 181, 0}},
       {-1,{0}},
-#line 379 "src/html_unescape.gperf"
+#line 378 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1867), {226, 139, 132, 0}},
 #line 1363 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1868), {194, 186, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1102 "src/html_unescape.gperf"
+#line 1103 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1873), {226, 135, 151, 0}},
 #line 763 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1874), {240, 157, 149, 128}},
-#line 259 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str1874), {240, 157, 149, 128, 0}},
+#line 260 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1875), {226, 138, 153, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1452 "src/html_unescape.gperf"
@@ -7199,26 +7199,26 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1907), {226, 168, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1736 "src/html_unescape.gperf"
+#line 1737 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1917), {226, 138, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 792 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1925), {240, 157, 149, 155}},
+      {offsetof(struct entity_pool_t, entity_pool_str1925), {240, 157, 149, 155, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1962 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1928), {206, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 278 "src/html_unescape.gperf"
+#line 279 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1936), {226, 169, 180, 0}},
       {-1,{0}},
 #line 1300 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1938), {60, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str1938), {60, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1114 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1941), {226, 137, 170, 0}},
-#line 277 "src/html_unescape.gperf"
+#line 276 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1942), {226, 136, 183, 0}},
       {-1,{0}}, {-1,{0}},
 #line 204 "src/html_unescape.gperf"
@@ -7230,12 +7230,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1950), {226, 168, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 734 "src/html_unescape.gperf"
+#line 735 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1959), {226, 132, 145, 0}},
 #line 480 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1960), {226, 170, 150, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1370 "src/html_unescape.gperf"
+#line 1369 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1963), {226, 132, 180, 0}},
 #line 1821 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1964), {226, 164, 170, 0}},
@@ -7247,7 +7247,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1973), {226, 156, 160, 0}},
       {-1,{0}},
 #line 1048 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str1975), {240, 157, 148, 170}},
+      {offsetof(struct entity_pool_t, entity_pool_str1975), {240, 157, 148, 170, 0}},
 #line 1504 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1976), {226, 164, 158, 0}},
 #line 528 "src/html_unescape.gperf"
@@ -7264,13 +7264,13 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str1987), {226, 137, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 627 "src/html_unescape.gperf"
+#line 626 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str1996), {226, 137, 183, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 380 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2003), {226, 153, 166, 0}},
-#line 655 "src/html_unescape.gperf"
+#line 653 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2004), {62, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7282,13 +7282,13 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}},
 #line 1954 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2023), {226, 134, 191, 0}},
-#line 1731 "src/html_unescape.gperf"
+#line 1732 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2024), {226, 138, 147, 0}},
 #line 1003 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2025), {226, 170, 141, 0}},
       {-1,{0}},
 #line 1157 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2027), {226, 137, 170, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2027), {226, 137, 170, 226, 131, 146, 0}},
       {-1,{0}},
 #line 1194 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2029), {226, 137, 174, 0}},
@@ -7296,13 +7296,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 630 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2031), {226, 170, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1634 "src/html_unescape.gperf"
+#line 1636 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2035), {226, 170, 184, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1036 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2038), {226, 134, 164, 0}},
 #line 1197 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2039), {226, 137, 170, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2039), {226, 137, 170, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1550 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2043), {226, 140, 139, 0}},
@@ -7342,18 +7342,18 @@ find_entity (register const char *str, register unsigned int len)
 #line 860 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2079), {123, 0}},
       {-1,{0}},
-#line 2120 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2081), {240, 157, 148, 183}},
+#line 2121 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2081), {240, 157, 148, 183, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1946 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2084), {226, 134, 145, 0}},
       {-1,{0}},
-#line 632 "src/html_unescape.gperf"
+#line 633 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2086), {226, 170, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1640 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2090), {226, 170, 176, 0}},
-#line 739 "src/html_unescape.gperf"
+#line 732 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2091), {226, 132, 145, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1526 "src/html_unescape.gperf"
@@ -7362,8 +7362,8 @@ find_entity (register const char *str, register unsigned int len)
 #line 856 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2098), {196, 190, 0}},
 #line 1349 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2099), {240, 157, 149, 134}},
-#line 1636 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2099), {240, 157, 149, 134, 0}},
+#line 1638 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2100), {197, 161, 0}},
 #line 88 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2101), {226, 136, 189, 0}},
@@ -7385,7 +7385,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 566 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2113), {226, 139, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 701 "src/html_unescape.gperf"
+#line 700 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2119), {226, 132, 139, 0}},
       {-1,{0}},
 #line 1091 "src/html_unescape.gperf"
@@ -7399,7 +7399,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1886 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2128), {226, 168, 185, 0}},
       {-1,{0}}, {-1,{0}},
-#line 378 "src/html_unescape.gperf"
+#line 379 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2131), {226, 139, 132, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1096 "src/html_unescape.gperf"
@@ -7421,7 +7421,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 144 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2150), {240, 157, 148, 185}},
+      {offsetof(struct entity_pool_t, entity_pool_str2150), {240, 157, 148, 185, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 394 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2156), {36, 0}},
@@ -7450,7 +7450,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 106 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2190), {207, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 770 "src/html_unescape.gperf"
+#line 769 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2194), {226, 132, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1227 "src/html_unescape.gperf"
@@ -7464,18 +7464,18 @@ find_entity (register const char *str, register unsigned int len)
 #line 756 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2205), {226, 168, 188, 0}},
       {-1,{0}},
-#line 1271 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2207), {226, 171, 134, 0}},
+#line 1272 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2207), {226, 171, 134, 204, 184, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1308 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2210), {226, 134, 150, 0}},
-#line 1263 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2211), {226, 171, 133, 0}},
+#line 1264 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2211), {226, 171, 133, 204, 184, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1125 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2214), {226, 169, 190, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2214), {226, 169, 190, 204, 184, 0}},
       {-1,{0}},
-#line 1948 "src/html_unescape.gperf"
+#line 1947 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2216), {226, 135, 145, 0}},
 #line 604 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2217), {226, 137, 165, 0}},
@@ -7485,25 +7485,25 @@ find_entity (register const char *str, register unsigned int len)
 #line 1698 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2223), {226, 136, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1635 "src/html_unescape.gperf"
+#line 1637 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2228), {197, 160, 0}},
       {-1,{0}},
 #line 1301 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2230), {226, 138, 180, 0}},
-#line 612 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2230), {226, 138, 180, 226, 131, 146, 0}},
+#line 611 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2231), {226, 169, 190, 0}},
 #line 135 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2232), {226, 144, 163, 0}},
-#line 1484 "src/html_unescape.gperf"
+#line 1483 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2233), {34, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 139 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2238), {226, 150, 136, 0}},
-#line 1873 "src/html_unescape.gperf"
+#line 1874 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2239), {226, 132, 162, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 794 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2245), {240, 157, 146, 191}},
+      {offsetof(struct entity_pool_t, entity_pool_str2245), {240, 157, 146, 191, 0}},
 #line 2046 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2246), {226, 136, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7528,7 +7528,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 635 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2273), {226, 137, 169, 0}},
-#line 1461 "src/html_unescape.gperf"
+#line 1462 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2274), {226, 136, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 774 "src/html_unescape.gperf"
@@ -7544,7 +7544,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 568 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2290), {226, 132, 177, 0}},
-#line 1462 "src/html_unescape.gperf"
+#line 1461 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2291), {226, 136, 183, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1122 "src/html_unescape.gperf"
@@ -7553,7 +7553,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2295), {196, 189, 0}},
       {-1,{0}},
 #line 1123 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2297), {226, 137, 167, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2297), {226, 137, 167, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7581,37 +7581,37 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1366 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2343), {226, 169, 151, 0}},
-#line 676 "src/html_unescape.gperf"
+#line 675 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2344), {226, 134, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 845 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2350), {226, 170, 173, 0}},
       {-1,{0}},
-#line 243 "src/html_unescape.gperf"
+#line 242 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2352), {194, 183, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1328 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2355), {240, 157, 148, 172}},
+      {offsetof(struct entity_pool_t, entity_pool_str2355), {240, 157, 148, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1103 "src/html_unescape.gperf"
+#line 1104 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2359), {226, 134, 151, 0}},
       {-1,{0}},
 #line 1473 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2361), {226, 168, 140, 0}},
       {-1,{0}}, {-1,{0}},
 #line 846 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2364), {226, 170, 173, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2364), {226, 170, 173, 239, 184, 128, 0}},
 #line 801 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2365), {207, 176, 0}},
       {-1,{0}}, {-1,{0}},
 #line 698 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2368), {226, 128, 149, 0}},
 #line 475 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2369), {240, 157, 148, 136}},
+      {offsetof(struct entity_pool_t, entity_pool_str2369), {240, 157, 148, 136, 0}},
 #line 692 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2370), {226, 135, 191, 0}},
-#line 1239 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2371), {226, 170, 175, 0}},
+#line 1237 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2371), {226, 170, 175, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 747 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2377), {196, 177, 0}},
@@ -7638,8 +7638,8 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2410), {226, 166, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1369 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2419), {240, 157, 146, 170}},
+#line 1370 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2419), {240, 157, 146, 170, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1418 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2422), {226, 136, 148, 0}},
@@ -7651,14 +7651,14 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2429), {226, 136, 188, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1445 "src/html_unescape.gperf"
+#line 1447 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2440), {226, 139, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1090 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2444), {197, 135, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1079 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2449), {226, 169, 176, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2449), {226, 169, 176, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 727 "src/html_unescape.gperf"
@@ -7666,7 +7666,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 198 "src/html_unescape.gperf"
+#line 197 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2470), {226, 132, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7683,26 +7683,26 @@ find_entity (register const char *str, register unsigned int len)
 #line 1296 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2491), {226, 164, 132, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1191 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2494), {226, 167, 143, 0}},
+#line 1192 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2494), {226, 167, 143, 204, 184, 0}},
       {-1,{0}},
 #line 520 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2496), {226, 137, 159, 0}},
       {-1,{0}},
 #line 1193 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2498), {226, 139, 172, 0}},
-#line 1192 "src/html_unescape.gperf"
+#line 1191 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2499), {226, 139, 170, 0}},
       {-1,{0}}, {-1,{0}},
 #line 60 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2502), {240, 157, 148, 184}},
+      {offsetof(struct entity_pool_t, entity_pool_str2502), {240, 157, 148, 184, 0}},
 #line 680 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2503), {226, 132, 143, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1984 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2507), {226, 166, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 688 "src/html_unescape.gperf"
+#line 687 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2511), {226, 132, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1494 "src/html_unescape.gperf"
@@ -7718,19 +7718,19 @@ find_entity (register const char *str, register unsigned int len)
 #line 352 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2523), {196, 143, 0}},
       {-1,{0}},
-#line 531 "src/html_unescape.gperf"
+#line 530 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2525), {226, 137, 130, 0}},
       {-1,{0}},
 #line 1939 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2527), {226, 139, 131, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1705 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2532), {226, 170, 172, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2532), {226, 170, 172, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 814 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2536), {240, 157, 149, 156}},
+      {offsetof(struct entity_pool_t, entity_pool_str2536), {240, 157, 149, 156, 0}},
 #line 638 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2537), {240, 157, 149, 152}},
+      {offsetof(struct entity_pool_t, entity_pool_str2537), {240, 157, 149, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1255 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2542), {226, 137, 129, 0}},
@@ -7744,7 +7744,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1171 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2548), {226, 136, 166, 0}},
 #line 1200 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2549), {226, 170, 162, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2549), {226, 170, 162, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -7752,18 +7752,18 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2565), {226, 137, 130, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1186 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2568), {226, 139, 181, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2568), {226, 139, 181, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1525 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2572), {197, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1429 "src/html_unescape.gperf"
+#line 1428 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2577), {226, 132, 153, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 637 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2583), {240, 157, 148, 190}},
+      {offsetof(struct entity_pool_t, entity_pool_str2583), {240, 157, 148, 190, 0}},
       {-1,{0}}, {-1,{0}},
-#line 722 "src/html_unescape.gperf"
+#line 721 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2586), {226, 132, 145, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2048 "src/html_unescape.gperf"
@@ -7793,14 +7793,14 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2635), {226, 137, 191, 0}},
       {-1,{0}},
 #line 789 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2637), {240, 157, 148, 167}},
+      {offsetof(struct entity_pool_t, entity_pool_str2637), {240, 157, 148, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 1961 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2645), {207, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1155 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2650), {226, 139, 152, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2650), {226, 139, 152, 204, 184, 0}},
       {-1,{0}}, {-1,{0}},
 #line 419 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2653), {226, 135, 149, 0}},
@@ -7844,9 +7844,9 @@ find_entity (register const char *str, register unsigned int len)
 #line 997 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2707), {226, 128, 185, 0}},
       {-1,{0}},
-#line 1539 "src/html_unescape.gperf"
+#line 1540 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2709), {226, 132, 155, 0}},
-#line 347 "src/html_unescape.gperf"
+#line 348 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2710), {226, 171, 164, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1686 "src/html_unescape.gperf"
@@ -7885,26 +7885,26 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1486 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2762), {226, 136, 189, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str2762), {226, 136, 189, 204, 177, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 768 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2766), {194, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 736 "src/html_unescape.gperf"
+#line 737 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2774), {226, 132, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1965 "src/html_unescape.gperf"
+#line 1964 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2779), {226, 138, 165, 0}},
       {-1,{0}},
-#line 1052 "src/html_unescape.gperf"
+#line 1053 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2781), {226, 171, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1326 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2790), {226, 166, 191, 0}},
       {-1,{0}}, {-1,{0}},
-#line 356 "src/html_unescape.gperf"
+#line 358 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2793), {226, 135, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -7921,20 +7921,20 @@ find_entity (register const char *str, register unsigned int len)
 #line 2011 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2810), {226, 171, 166, 0}},
 #line 1327 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2811), {240, 157, 148, 146}},
+      {offsetof(struct entity_pool_t, entity_pool_str2811), {240, 157, 148, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 104 "src/html_unescape.gperf"
+#line 103 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2816), {226, 136, 181, 0}},
       {-1,{0}},
 #line 1513 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2818), {226, 164, 156, 0}},
       {-1,{0}},
-#line 843 "src/html_unescape.gperf"
+#line 844 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2820), {226, 164, 155, 0}},
 #line 1348 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2821), {226, 138, 150, 0}},
 #line 73 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2822), {240, 157, 146, 156}},
+      {offsetof(struct entity_pool_t, entity_pool_str2822), {240, 157, 146, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 509 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2826), {206, 149, 0}},
@@ -7954,13 +7954,13 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2851), {197, 190, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 816 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2856), {240, 157, 147, 128}},
-#line 648 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2856), {240, 157, 147, 128, 0}},
+#line 647 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2857), {226, 132, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 113 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2862), {240, 157, 148, 133}},
-#line 607 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2862), {240, 157, 148, 133, 0}},
+#line 606 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2863), {226, 139, 155, 0}},
 #line 686 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2864), {226, 138, 185, 0}},
@@ -7972,7 +7972,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 479 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2877), {195, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1654 "src/html_unescape.gperf"
+#line 1653 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2881), {226, 139, 133, 0}},
 #line 1923 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2882), {195, 185, 0}},
@@ -7989,12 +7989,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2892), {226, 131, 155, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1466 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2897), {240, 157, 146, 171}},
+      {offsetof(struct entity_pool_t, entity_pool_str2897), {240, 157, 146, 171, 0}},
 #line 1407 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2898), {206, 160, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 647 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2903), {240, 157, 146, 162}},
+#line 648 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2903), {240, 157, 146, 162, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1424 "src/html_unescape.gperf"
@@ -8006,8 +8006,8 @@ find_entity (register const char *str, register unsigned int len)
 #line 1421 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2916), {194, 177, 0}},
       {-1,{0}}, {-1,{0}},
-#line 696 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str2919), {240, 157, 149, 153}},
+#line 697 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str2919), {240, 157, 149, 153, 0}},
 #line 593 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2920), {207, 157, 0}},
       {-1,{0}},
@@ -8028,14 +8028,14 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2956), {207, 181, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1438 "src/html_unescape.gperf"
+#line 1440 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2963), {226, 137, 186, 0}},
       {-1,{0}}, {-1,{0}},
 #line 592 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2966), {207, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 348 "src/html_unescape.gperf"
+#line 347 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str2974), {226, 138, 163, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1169 "src/html_unescape.gperf"
@@ -8052,7 +8052,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str2994), {226, 165, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1440 "src/html_unescape.gperf"
+#line 1442 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3002), {226, 137, 188, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1687 "src/html_unescape.gperf"
@@ -8074,7 +8074,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1034 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3027), {226, 134, 166, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1861 "src/html_unescape.gperf"
+#line 1859 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3030), {195, 151, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1495 "src/html_unescape.gperf"
@@ -8100,7 +8100,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 931 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3057), {226, 165, 188, 0}},
-#line 675 "src/html_unescape.gperf"
+#line 677 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3058), {226, 165, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -8110,19 +8110,19 @@ find_entity (register const char *str, register unsigned int len)
 #line 1919 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3068), {226, 165, 190, 0}},
 #line 1183 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3069), {226, 137, 142, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3069), {226, 137, 142, 204, 184, 0}},
       {-1,{0}}, {-1,{0}},
-#line 895 "src/html_unescape.gperf"
+#line 894 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3072), {226, 138, 163, 0}},
       {-1,{0}},
-#line 1617 "src/html_unescape.gperf"
+#line 1618 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3074), {226, 134, 177, 0}},
       {-1,{0}},
-#line 1000 "src/html_unescape.gperf"
+#line 1001 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3076), {226, 134, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 667 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3080), {226, 137, 169, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3080), {226, 137, 169, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1860 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3083), {226, 138, 160, 0}},
@@ -8145,10 +8145,10 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 904 "src/html_unescape.gperf"
+#line 903 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3132), {226, 134, 191, 0}},
       {-1,{0}}, {-1,{0}},
-#line 903 "src/html_unescape.gperf"
+#line 904 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3135), {226, 165, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 461 "src/html_unescape.gperf"
@@ -8161,13 +8161,13 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3147), {195, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1238 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3155), {226, 170, 175, 0}},
+#line 1239 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3155), {226, 170, 175, 204, 184, 0}},
 #line 466 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3156), {226, 137, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 358 "src/html_unescape.gperf"
+#line 356 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3167), {226, 133, 134, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -8175,7 +8175,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3174), {226, 137, 131, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1187 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3179), {226, 139, 185, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3179), {226, 139, 185, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -8186,7 +8186,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 21 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3214), {240, 157, 148, 132}},
+      {offsetof(struct entity_pool_t, entity_pool_str3214), {240, 157, 148, 132, 0}},
 #line 873 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3215), {226, 134, 144, 0}},
 #line 1335 "src/html_unescape.gperf"
@@ -8204,33 +8204,33 @@ find_entity (register const char *str, register unsigned int len)
 #line 1149 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3231), {226, 135, 142, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1498 "src/html_unescape.gperf"
+#line 1501 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3235), {226, 135, 165, 0}},
       {-1,{0}},
-#line 831 "src/html_unescape.gperf"
+#line 834 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3237), {226, 135, 164, 0}},
       {-1,{0}},
-#line 700 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3239), {240, 157, 146, 189}},
+#line 701 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3239), {240, 157, 146, 189, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 901 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3246), {226, 165, 145, 0}},
       {-1,{0}},
 #line 807 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3248), {240, 157, 148, 168}},
+      {offsetof(struct entity_pool_t, entity_pool_str3248), {240, 157, 148, 168, 0}},
 #line 619 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3249), {240, 157, 148, 164}},
-#line 1945 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3249), {240, 157, 148, 164, 0}},
+#line 1948 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3250), {226, 164, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1250 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3259), {226, 170, 176, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3259), {226, 170, 176, 204, 184, 0}},
 #line 1015 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3260), {226, 139, 150, 0}},
 #line 616 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3261), {226, 139, 155, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3261), {226, 139, 155, 239, 184, 128, 0}},
 #line 2073 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3262), {226, 168, 128, 0}},
 #line 1747 "src/html_unescape.gperf"
@@ -8241,14 +8241,14 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 2065 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3268), {226, 159, 183, 0}},
-#line 465 "src/html_unescape.gperf"
+#line 463 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3269), {226, 137, 150, 0}},
       {-1,{0}},
 #line 1975 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3271), {226, 139, 176, 0}},
-#line 1085 "src/html_unescape.gperf"
+#line 1083 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3272), {226, 153, 174, 0}},
-#line 1001 "src/html_unescape.gperf"
+#line 1000 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3273), {226, 134, 176, 0}},
 #line 745 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3274), {226, 136, 158, 0}},
@@ -8264,10 +8264,10 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3285), {226, 168, 130, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1400 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3289), {240, 157, 148, 147}},
+      {offsetof(struct entity_pool_t, entity_pool_str3289), {240, 157, 148, 147, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 618 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3295), {240, 157, 148, 138}},
+      {offsetof(struct entity_pool_t, entity_pool_str3295), {240, 157, 148, 138, 0}},
       {-1,{0}}, {-1,{0}},
 #line 115 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3298), {226, 139, 130, 0}},
@@ -8312,10 +8312,10 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3356), {207, 130, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1499 "src/html_unescape.gperf"
+#line 1502 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3366), {226, 164, 160, 0}},
       {-1,{0}},
-#line 832 "src/html_unescape.gperf"
+#line 835 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3368), {226, 164, 159, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2078 "src/html_unescape.gperf"
@@ -8326,7 +8326,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 274 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3378), {226, 153, 163, 0}},
-#line 677 "src/html_unescape.gperf"
+#line 676 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3379), {226, 135, 148, 0}},
 #line 1625 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3380), {226, 138, 181, 0}},
@@ -8359,18 +8359,18 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3405), {203, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 875 "src/html_unescape.gperf"
+#line 874 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3412), {226, 135, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 617 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3417), {226, 170, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 217 "src/html_unescape.gperf"
+#line 214 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3422), {226, 136, 169, 0}},
 #line 1751 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3423), {194, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1014 "src/html_unescape.gperf"
+#line 1010 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3427), {226, 137, 170, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -8393,7 +8393,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3468), {226, 132, 180, 0}},
       {-1,{0}}, {-1,{0}},
 #line 222 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3471), {226, 136, 169, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3471), {226, 136, 169, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 302 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3475), {226, 156, 151, 0}},
@@ -8417,12 +8417,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3505), {226, 151, 131, 0}},
 #line 777 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3506), {226, 129, 162, 0}},
-#line 1598 "src/html_unescape.gperf"
+#line 1597 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3507), {226, 142, 177, 0}},
       {-1,{0}},
-#line 954 "src/html_unescape.gperf"
+#line 953 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3509), {226, 142, 176, 0}},
-#line 633 "src/html_unescape.gperf"
+#line 632 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3510), {226, 137, 169, 0}},
 #line 936 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3511), {226, 170, 145, 0}},
@@ -8449,18 +8449,18 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 1120 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3534), {226, 137, 167, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3534), {226, 137, 167, 204, 184, 0}},
 #line 1309 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3535), {226, 164, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 917 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3543), {226, 139, 154, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3543), {226, 139, 154, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1415 "src/html_unescape.gperf"
+#line 1416 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3546), {226, 138, 158, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1618 "src/html_unescape.gperf"
+#line 1617 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3550), {226, 134, 177, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 299 "src/html_unescape.gperf"
@@ -8469,9 +8469,9 @@ find_entity (register const char *str, register unsigned int len)
 #line 746 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3557), {226, 167, 157, 0}},
       {-1,{0}},
-#line 738 "src/html_unescape.gperf"
+#line 739 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3559), {196, 177, 0}},
-#line 530 "src/html_unescape.gperf"
+#line 531 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3560), {226, 169, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1402 "src/html_unescape.gperf"
@@ -8482,7 +8482,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3573), {226, 170, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2030 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3579), {226, 138, 131, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3579), {226, 138, 131, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1690 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3582), {226, 170, 160, 0}},
@@ -8494,7 +8494,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3591), {226, 159, 186, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1295 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3594), {62, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3594), {62, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -8516,16 +8516,16 @@ find_entity (register const char *str, register unsigned int len)
 #line 1489 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3628), {226, 136, 154, 0}},
       {-1,{0}}, {-1,{0}},
-#line 687 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3631), {240, 157, 148, 165}},
+#line 688 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3631), {240, 157, 148, 165, 0}},
 #line 2115 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3632), {197, 188, 0}},
 #line 1029 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3633), {226, 153, 130, 0}},
       {-1,{0}},
-#line 1500 "src/html_unescape.gperf"
+#line 1503 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3635), {226, 164, 179, 0}},
-#line 1436 "src/html_unescape.gperf"
+#line 1437 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3636), {226, 137, 186, 0}},
 #line 1646 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3637), {226, 170, 186, 0}},
@@ -8538,13 +8538,13 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1011 "src/html_unescape.gperf"
+#line 1014 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3657), {226, 169, 185, 0}},
 #line 762 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3658), {196, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 216 "src/html_unescape.gperf"
+#line 218 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3665), {226, 169, 139, 0}},
       {-1,{0}},
 #line 720 "src/html_unescape.gperf"
@@ -8553,7 +8553,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 360 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3669), {226, 169, 183, 0}},
       {-1,{0}},
-#line 263 "src/html_unescape.gperf"
+#line 264 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3671), {226, 138, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1622 "src/html_unescape.gperf"
@@ -8562,7 +8562,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1016 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3678), {226, 139, 139, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1441 "src/html_unescape.gperf"
+#line 1443 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3681), {226, 137, 190, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 449 "src/html_unescape.gperf"
@@ -8606,14 +8606,14 @@ find_entity (register const char *str, register unsigned int len)
 #line 951 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3720), {196, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1947 "src/html_unescape.gperf"
+#line 1945 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3725), {226, 134, 145, 0}},
       {-1,{0}},
 #line 1511 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3727), {226, 134, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 438 "src/html_unescape.gperf"
+#line 437 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3738), {226, 138, 164, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 555 "src/html_unescape.gperf"
@@ -8626,7 +8626,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1299 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3756), {226, 137, 164, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3756), {226, 137, 164, 226, 131, 146, 0}},
       {-1,{0}},
 #line 1883 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3758), {226, 137, 156, 0}},
@@ -8648,8 +8648,8 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3772), {226, 135, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 293 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3780), {240, 157, 149, 148}},
+#line 294 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3780), {240, 157, 149, 148, 0}},
       {-1,{0}},
 #line 292 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3782), {226, 136, 174, 0}},
@@ -8674,22 +8674,22 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3817), {226, 134, 147, 0}},
       {-1,{0}},
 #line 2075 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3819), {240, 157, 149, 169}},
+      {offsetof(struct entity_pool_t, entity_pool_str3819), {240, 157, 149, 169, 0}},
       {-1,{0}},
 #line 1631 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3821), {197, 154, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 2039 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3829), {226, 171, 140, 0}},
-#line 265 "src/html_unescape.gperf"
+#line 2040 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3829), {226, 171, 140, 239, 184, 128, 0}},
+#line 252 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3830), {226, 151, 139, 0}},
-#line 1414 "src/html_unescape.gperf"
+#line 1415 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3831), {226, 168, 163, 0}},
 #line 308 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3832), {226, 171, 144, 0}},
-#line 2037 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3833), {226, 171, 139, 0}},
+#line 2038 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str3833), {226, 171, 139, 239, 184, 128, 0}},
 #line 1901 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3834), {195, 154, 0}},
       {-1,{0}},
@@ -8697,11 +8697,11 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str3836), {226, 139, 185, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 606 "src/html_unescape.gperf"
+#line 607 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3845), {226, 170, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1719 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str3851), {226, 138, 148, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str3851), {226, 138, 148, 239, 184, 128, 0}},
       {-1,{0}},
 #line 1701 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3853), {226, 136, 163, 0}},
@@ -8717,7 +8717,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 477 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3861), {226, 170, 154, 0}},
       {-1,{0}}, {-1,{0}},
-#line 33 "src/html_unescape.gperf"
+#line 32 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3864), {38, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -8728,13 +8728,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 1862 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3883), {226, 168, 176, 0}},
       {-1,{0}}, {-1,{0}},
-#line 433 "src/html_unescape.gperf"
+#line 432 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3886), {226, 134, 189, 0}},
 #line 2130 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3887), {226, 128, 140, 0}},
 #line 818 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3888), {196, 185, 0}},
-#line 432 "src/html_unescape.gperf"
+#line 433 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str3889), {226, 165, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -8837,9 +8837,9 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4022), {226, 138, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1027 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4028), {226, 137, 168, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4028), {226, 137, 168, 239, 184, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 894 "src/html_unescape.gperf"
+#line 895 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4033), {226, 134, 164, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1075 "src/html_unescape.gperf"
@@ -8853,24 +8853,24 @@ find_entity (register const char *str, register unsigned int len)
 #line 1559 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4047), {207, 177, 0}},
       {-1,{0}},
-#line 912 "src/html_unescape.gperf"
+#line 913 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4049), {226, 170, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1789 "src/html_unescape.gperf"
+#line 1791 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4055), {194, 185, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1790 "src/html_unescape.gperf"
+#line 1792 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4058), {194, 178, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1791 "src/html_unescape.gperf"
+#line 1793 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4066), {194, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 118 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4071), {226, 168, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 424 "src/html_unescape.gperf"
+#line 423 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4078), {226, 135, 147, 0}},
       {-1,{0}},
 #line 2082 "src/html_unescape.gperf"
@@ -8881,19 +8881,19 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1106 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4087), {226, 128, 139, 0}},
-#line 209 "src/html_unescape.gperf"
+#line 208 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4088), {226, 137, 143, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 305 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4100), {240, 157, 146, 184}},
+      {offsetof(struct entity_pool_t, entity_pool_str4100), {240, 157, 146, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1248 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4109), {226, 138, 129, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1792 "src/html_unescape.gperf"
+#line 1789 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4115), {226, 138, 131, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -8915,12 +8915,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4137), {196, 176, 0}},
       {-1,{0}},
 #line 2081 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4139), {240, 157, 147, 141}},
+      {offsetof(struct entity_pool_t, entity_pool_str4139), {240, 157, 147, 141, 0}},
 #line 2068 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4140), {206, 190, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1131 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4144), {226, 137, 171, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4144), {226, 137, 171, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 165 "src/html_unescape.gperf"
@@ -8971,10 +8971,10 @@ find_entity (register const char *str, register unsigned int len)
 #line 605 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4234), {226, 137, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 63 "src/html_unescape.gperf"
+#line 62 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4238), {226, 137, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1793 "src/html_unescape.gperf"
+#line 1790 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4243), {226, 139, 145, 0}},
 #line 401 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4244), {226, 137, 145, 0}},
@@ -9013,7 +9013,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 824 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4287), {226, 159, 168, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1315 "src/html_unescape.gperf"
+#line 1313 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4290), {226, 138, 154, 0}},
       {-1,{0}},
 #line 1515 "src/html_unescape.gperf"
@@ -9026,11 +9026,11 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}},
 #line 1018 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4307), {226, 165, 182, 0}},
-#line 194 "src/html_unescape.gperf"
+#line 195 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4308), {203, 152, 0}},
       {-1,{0}},
 #line 1077 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4310), {226, 136, 160, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4310), {226, 136, 160, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1817 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4315), {226, 164, 166, 0}},
@@ -9044,9 +9044,9 @@ find_entity (register const char *str, register unsigned int len)
 #line 1815 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4325), {226, 171, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 321 "src/html_unescape.gperf"
+#line 318 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4329), {226, 139, 147, 0}},
-#line 65 "src/html_unescape.gperf"
+#line 64 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4330), {226, 137, 138, 0}},
 #line 1481 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4331), {63, 0}},
@@ -9075,7 +9075,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1268 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4364), {226, 138, 129, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 966 "src/html_unescape.gperf"
+#line 965 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4368), {226, 159, 181, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9083,11 +9083,11 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4377), {226, 170, 129, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1806 "src/html_unescape.gperf"
+#line 1805 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4384), {226, 138, 139, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1126 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4388), {226, 139, 153, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4388), {226, 139, 153, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 1490 "src/html_unescape.gperf"
@@ -9139,7 +9139,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4452), {226, 159, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1152 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4456), {226, 169, 189, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4456), {226, 169, 189, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1633 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4462), {226, 128, 154, 0}},
@@ -9157,24 +9157,24 @@ find_entity (register const char *str, register unsigned int len)
 #line 1986 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4471), {207, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 253 "src/html_unescape.gperf"
+#line 254 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4475), {226, 137, 151, 0}},
       {-1,{0}},
 #line 2101 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4477), {240, 157, 149, 170}},
+      {offsetof(struct entity_pool_t, entity_pool_str4477), {240, 157, 149, 170, 0}},
       {-1,{0}},
 #line 1940 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4479), {226, 138, 142, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 825 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4484), {226, 159, 170, 0}},
-#line 1100 "src/html_unescape.gperf"
+#line 1101 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4485), {226, 164, 164, 0}},
 #line 1673 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4486), {209, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 244 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4492), {240, 157, 148, 160}},
+#line 245 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str4492), {240, 157, 148, 160, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9190,11 +9190,11 @@ find_entity (register const char *str, register unsigned int len)
 #line 1811 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4512), {226, 171, 134, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1544 "src/html_unescape.gperf"
+#line 1545 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4517), {194, 174, 0}},
 #line 30 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4518), {196, 129, 0}},
-#line 908 "src/html_unescape.gperf"
+#line 907 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4519), {226, 139, 154, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2049 "src/html_unescape.gperf"
@@ -9207,7 +9207,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1140 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4530), {209, 154, 0}},
 #line 2064 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4531), {240, 157, 148, 181}},
+      {offsetof(struct entity_pool_t, entity_pool_str4531), {240, 157, 148, 181, 0}},
       {-1,{0}},
 #line 1071 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4533), {206, 188, 0}},
@@ -9222,7 +9222,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 886 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4551), {226, 135, 135, 0}},
-#line 1786 "src/html_unescape.gperf"
+#line 1787 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4552), {226, 136, 145, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -9235,7 +9235,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1286 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4573), {35, 0}},
-#line 32 "src/html_unescape.gperf"
+#line 33 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4574), {38, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9256,23 +9256,23 @@ find_entity (register const char *str, register unsigned int len)
 #line 447 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4596), {196, 144, 0}},
       {-1,{0}},
-#line 36 "src/html_unescape.gperf"
+#line 34 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4598), {226, 136, 167, 0}},
 #line 1179 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4599), {226, 137, 171, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4599), {226, 137, 171, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1181 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4606), {226, 169, 190, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4606), {226, 169, 190, 204, 184, 0}},
       {-1,{0}},
 #line 1180 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4608), {226, 137, 185, 0}},
-#line 1483 "src/html_unescape.gperf"
+#line 1484 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4609), {34, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1178 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4616), {226, 137, 167, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4616), {226, 137, 167, 204, 184, 0}},
 #line 708 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4617), {226, 128, 144, 0}},
 #line 1411 "src/html_unescape.gperf"
@@ -9311,7 +9311,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1386 "src/html_unescape.gperf"
+#line 1387 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4668), {194, 182, 0}},
       {-1,{0}}, {-1,{0}},
 #line 76 "src/html_unescape.gperf"
@@ -9321,7 +9321,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1482 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4678), {226, 137, 159, 0}},
       {-1,{0}},
-#line 1787 "src/html_unescape.gperf"
+#line 1786 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4680), {226, 136, 145, 0}},
       {-1,{0}},
 #line 444 "src/html_unescape.gperf"
@@ -9333,14 +9333,14 @@ find_entity (register const char *str, register unsigned int len)
 #line 2122 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4686), {208, 150, 0}},
       {-1,{0}}, {-1,{0}},
-#line 965 "src/html_unescape.gperf"
+#line 966 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4689), {226, 159, 181, 0}},
       {-1,{0}},
 #line 346 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4691), {226, 128, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 437 "src/html_unescape.gperf"
+#line 438 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4699), {226, 134, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -9394,10 +9394,10 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4762), {209, 145, 0}},
       {-1,{0}},
 #line 1207 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4764), {226, 170, 175, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4764), {226, 170, 175, 204, 184, 0}},
       {-1,{0}},
 #line 61 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4766), {240, 157, 149, 146}},
+      {offsetof(struct entity_pool_t, entity_pool_str4766), {240, 157, 149, 146, 0}},
       {-1,{0}},
 #line 251 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4768), {207, 135, 0}},
@@ -9423,7 +9423,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1006 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4796), {226, 128, 152, 0}},
 #line 2103 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4797), {240, 157, 147, 142}},
+      {offsetof(struct entity_pool_t, entity_pool_str4797), {240, 157, 147, 142, 0}},
       {-1,{0}}, {-1,{0}},
 #line 603 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4800), {196, 161, 0}},
@@ -9433,10 +9433,10 @@ find_entity (register const char *str, register unsigned int len)
 #line 809 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4803), {208, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 202 "src/html_unescape.gperf"
+#line 203 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4809), {226, 167, 133, 0}},
 #line 1213 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4810), {226, 138, 143, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4810), {226, 138, 143, 204, 184, 0}},
 #line 1672 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4811), {208, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9468,7 +9468,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4846), {196, 160, 0}},
       {-1,{0}},
 #line 1215 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str4848), {226, 138, 144, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str4848), {226, 138, 144, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 8 "src/html_unescape.gperf"
@@ -9498,7 +9498,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4882), {226, 151, 131, 0}},
 #line 1182 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4883), {226, 137, 181, 0}},
-#line 279 "src/html_unescape.gperf"
+#line 278 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4884), {226, 137, 148, 0}},
       {-1,{0}},
 #line 967 "src/html_unescape.gperf"
@@ -9507,7 +9507,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 766 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4888), {206, 185, 0}},
       {-1,{0}},
-#line 276 "src/html_unescape.gperf"
+#line 277 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4890), {58, 0}},
 #line 2118 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4891), {206, 150, 0}},
@@ -9519,7 +9519,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}},
 #line 2104 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4900), {208, 174, 0}},
-#line 1545 "src/html_unescape.gperf"
+#line 1544 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4901), {194, 174, 0}},
 #line 1822 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4902), {195, 159, 0}},
@@ -9535,7 +9535,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 538 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4918), {226, 130, 172, 0}},
       {-1,{0}}, {-1,{0}},
-#line 874 "src/html_unescape.gperf"
+#line 872 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4921), {226, 134, 144, 0}},
       {-1,{0}}, {-1,{0}},
 #line 221 "src/html_unescape.gperf"
@@ -9577,7 +9577,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str4952), {208, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 319 "src/html_unescape.gperf"
+#line 320 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str4961), {226, 137, 141, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9633,7 +9633,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str5063), {226, 139, 136, 0}},
       {-1,{0}},
 #line 557 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5065), {102, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str5065), {102, 106, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 1907 "src/html_unescape.gperf"
@@ -9650,7 +9650,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 2000 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5085), {226, 138, 178, 0}},
 #line 74 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5086), {240, 157, 146, 182}},
+      {offsetof(struct entity_pool_t, entity_pool_str5086), {240, 157, 146, 182, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1775 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5089), {226, 137, 189, 0}},
@@ -9659,13 +9659,13 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str5093), {226, 136, 178, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1638 "src/html_unescape.gperf"
+#line 1634 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5101), {226, 137, 187, 0}},
       {-1,{0}},
 #line 559 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5103), {239, 172, 130, 0}},
       {-1,{0}},
-#line 256 "src/html_unescape.gperf"
+#line 257 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5105), {226, 138, 155, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2009 "src/html_unescape.gperf"
@@ -9705,7 +9705,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str5173), {226, 137, 187, 0}},
 #line 1310 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5174), {195, 147, 0}},
-#line 1874 "src/html_unescape.gperf"
+#line 1873 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5175), {226, 132, 162, 0}},
 #line 1139 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5176), {208, 138, 0}},
@@ -9715,19 +9715,19 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 2097 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5189), {240, 157, 148, 182}},
+      {offsetof(struct entity_pool_t, entity_pool_str5189), {240, 157, 148, 182, 0}},
       {-1,{0}}, {-1,{0}},
 #line 284 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5192), {226, 136, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 656 "src/html_unescape.gperf"
+#line 652 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5197), {226, 137, 171, 0}},
 #line 1647 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5198), {226, 170, 182, 0}},
 #line 731 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5199), {196, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 261 "src/html_unescape.gperf"
+#line 262 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5203), {226, 147, 136, 0}},
       {-1,{0}}, {-1,{0}},
 #line 2095 "src/html_unescape.gperf"
@@ -9752,7 +9752,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 280 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5227), {226, 137, 148, 0}},
       {-1,{0}},
-#line 1637 "src/html_unescape.gperf"
+#line 1635 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5229), {226, 170, 188, 0}},
 #line 629 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5230), {226, 170, 164, 0}},
@@ -9794,14 +9794,14 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 58 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5268), {196, 132, 0}},
-#line 898 "src/html_unescape.gperf"
+#line 899 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5269), {226, 167, 143, 0}},
       {-1,{0}}, {-1,{0}},
 #line 615 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5272), {226, 170, 132, 0}},
 #line 900 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5273), {226, 138, 180, 0}},
-#line 899 "src/html_unescape.gperf"
+#line 898 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5274), {226, 138, 178, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 290 "src/html_unescape.gperf"
@@ -9886,10 +9886,10 @@ find_entity (register const char *str, register unsigned int len)
 #line 1280 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5405), {226, 139, 170, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1580 "src/html_unescape.gperf"
+#line 1579 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5411), {226, 138, 162, 0}},
 #line 1294 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5412), {226, 137, 165, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str5412), {226, 137, 165, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -9900,7 +9900,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 987 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5431), {226, 151, 138, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1583 "src/html_unescape.gperf"
+#line 1584 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5434), {226, 167, 144, 0}},
       {-1,{0}},
 #line 1581 "src/html_unescape.gperf"
@@ -9908,7 +9908,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 1585 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5438), {226, 138, 181, 0}},
-#line 1584 "src/html_unescape.gperf"
+#line 1583 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5439), {226, 138, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9928,27 +9928,27 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 22 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5478), {240, 157, 148, 158}},
+      {offsetof(struct entity_pool_t, entity_pool_str5478), {240, 157, 148, 158, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 376 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5482), {203, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 882 "src/html_unescape.gperf"
+#line 881 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5489), {226, 135, 131, 0}},
       {-1,{0}}, {-1,{0}},
-#line 881 "src/html_unescape.gperf"
+#line 882 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5492), {226, 165, 153, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 907 "src/html_unescape.gperf"
+#line 908 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5501), {226, 170, 139, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
 #line 68 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5509), {226, 129, 161, 0}},
       {-1,{0}}, {-1,{0}},
-#line 208 "src/html_unescape.gperf"
+#line 209 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5512), {226, 170, 174, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -9967,7 +9967,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 229 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5543), {195, 135, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 260 "src/html_unescape.gperf"
+#line 261 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5547), {194, 174, 0}},
 #line 880 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5548), {226, 165, 161, 0}},
@@ -9979,13 +9979,13 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str5556), {226, 137, 144, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 242 "src/html_unescape.gperf"
+#line 243 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5564), {194, 183, 0}},
       {-1,{0}},
 #line 1281 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5566), {226, 139, 172, 0}},
       {-1,{0}},
-#line 1056 "src/html_unescape.gperf"
+#line 1055 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5568), {226, 136, 146, 0}},
       {-1,{0}},
 #line 623 "src/html_unescape.gperf"
@@ -9994,7 +9994,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 6 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5577), {195, 129, 0}},
-#line 653 "src/html_unescape.gperf"
+#line 656 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5578), {226, 169, 186, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 661 "src/html_unescape.gperf"
@@ -10002,7 +10002,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 205 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5584), {226, 128, 162, 0}},
       {-1,{0}}, {-1,{0}},
-#line 423 "src/html_unescape.gperf"
+#line 421 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5587), {226, 134, 147, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1536 "src/html_unescape.gperf"
@@ -10029,15 +10029,15 @@ find_entity (register const char *str, register unsigned int len)
 #line 703 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5618), {196, 166, 0}},
       {-1,{0}},
-#line 543 "src/html_unescape.gperf"
+#line 544 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5620), {226, 133, 135, 0}},
-#line 1055 "src/html_unescape.gperf"
+#line 1056 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5621), {226, 138, 159, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1587 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5625), {226, 165, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1964 "src/html_unescape.gperf"
+#line 1965 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5630), {226, 134, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10060,13 +10060,13 @@ find_entity (register const char *str, register unsigned int len)
 #line 729 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5666), {226, 132, 169, 0}},
       {-1,{0}}, {-1,{0}},
-#line 62 "src/html_unescape.gperf"
+#line 63 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5669), {226, 169, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1092 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5673), {197, 133, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 214 "src/html_unescape.gperf"
+#line 216 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5678), {226, 169, 132, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -10079,7 +10079,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str5690), {226, 139, 169, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1540 "src/html_unescape.gperf"
+#line 1541 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5699), {226, 132, 156, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 897 "src/html_unescape.gperf"
@@ -10110,11 +10110,11 @@ find_entity (register const char *str, register unsigned int len)
 #line 1173 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5741), {226, 137, 160, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1848 "src/html_unescape.gperf"
+#line 1849 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5747), {226, 128, 137, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 64 "src/html_unescape.gperf"
+#line 65 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5754), {226, 169, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -10130,7 +10130,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 620 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5776), {226, 137, 171, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1378 "src/html_unescape.gperf"
+#line 1376 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5780), {226, 138, 151, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10144,13 +10144,13 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 535 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5807), {195, 176, 0}},
-#line 1805 "src/html_unescape.gperf"
+#line 1806 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5808), {226, 171, 140, 0}},
       {-1,{0}}, {-1,{0}},
 #line 84 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5811), {226, 168, 145, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 195 "src/html_unescape.gperf"
+#line 194 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5817), {203, 152, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 621 "src/html_unescape.gperf"
@@ -10211,7 +10211,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1876 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5923), {226, 150, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 969 "src/html_unescape.gperf"
+#line 968 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5927), {226, 159, 183, 0}},
 #line 1572 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5928), {226, 140, 139, 0}},
@@ -10230,7 +10230,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 668 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5949), {226, 137, 169, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str5949), {226, 137, 169, 239, 184, 128, 0}},
       {-1,{0}},
 #line 164 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5951), {226, 148, 180, 0}},
@@ -10238,14 +10238,14 @@ find_entity (register const char *str, register unsigned int len)
 #line 658 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5956), {226, 166, 149, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1237 "src/html_unescape.gperf"
+#line 1238 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5959), {226, 138, 128, 0}},
       {-1,{0}}, {-1,{0}},
 #line 1380 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5962), {195, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 611 "src/html_unescape.gperf"
+#line 612 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5970), {226, 170, 169, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 536 "src/html_unescape.gperf"
@@ -10257,11 +10257,11 @@ find_entity (register const char *str, register unsigned int len)
 #line 1937 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5982), {226, 142, 181, 0}},
 #line 1161 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5983), {226, 137, 170, 0}},
-#line 872 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str5983), {226, 137, 170, 204, 184, 0}},
+#line 875 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str5984), {226, 135, 164, 0}},
 #line 1095 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str5985), {226, 169, 173, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str5985), {226, 169, 173, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10297,9 +10297,9 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str6052), {226, 137, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 266 "src/html_unescape.gperf"
+#line 267 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6061), {226, 167, 131, 0}},
-#line 1653 "src/html_unescape.gperf"
+#line 1654 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6062), {226, 138, 161, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1318 "src/html_unescape.gperf"
@@ -10334,7 +10334,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 906 "src/html_unescape.gperf"
+#line 905 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6121), {226, 134, 188, 0}},
 #line 416 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6122), {226, 135, 146, 0}},
@@ -10347,7 +10347,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 941 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6140), {226, 150, 132, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 267 "src/html_unescape.gperf"
+#line 266 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6146), {226, 137, 151, 0}},
 #line 1293 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6147), {226, 138, 175, 0}},
@@ -10355,7 +10355,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1927 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6151), {226, 150, 128, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 737 "src/html_unescape.gperf"
+#line 738 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6155), {226, 132, 145, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1586 "src/html_unescape.gperf"
@@ -10366,7 +10366,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 626 "src/html_unescape.gperf"
+#line 627 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6176), {226, 170, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10380,7 +10380,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str6203), {197, 147, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1198 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str6208), {226, 169, 189, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str6208), {226, 169, 189, 204, 184, 0}},
       {-1,{0}},
 #line 153 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6210), {226, 149, 151, 0}},
@@ -10396,7 +10396,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 968 "src/html_unescape.gperf"
+#line 969 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6248), {226, 159, 183, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10411,7 +10411,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1796 "src/html_unescape.gperf"
+#line 1797 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6283), {226, 171, 134, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10426,7 +10426,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1124 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str6315), {226, 169, 190, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str6315), {226, 169, 190, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10445,7 +10445,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 808 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6367), {196, 184, 0}},
-#line 1797 "src/html_unescape.gperf"
+#line 1796 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6368), {226, 138, 135, 0}},
       {-1,{0}},
 #line 170 "src/html_unescape.gperf"
@@ -10466,7 +10466,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 810 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6404), {209, 133, 0}},
       {-1,{0}},
-#line 355 "src/html_unescape.gperf"
+#line 357 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6406), {226, 128, 161, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10519,7 +10519,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str6456), {226, 136, 164, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1174 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str6461), {226, 137, 130, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str6461), {226, 137, 130, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10531,12 +10531,12 @@ find_entity (register const char *str, register unsigned int len)
 #line 157 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6488), {226, 149, 148, 0}},
       {-1,{0}},
-#line 34 "src/html_unescape.gperf"
+#line 36 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6490), {226, 169, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1591 "src/html_unescape.gperf"
+#line 1590 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6502), {226, 135, 128, 0}},
       {-1,{0}},
 #line 730 "src/html_unescape.gperf"
@@ -10556,8 +10556,8 @@ find_entity (register const char *str, register unsigned int len)
 #line 37 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6524), {226, 169, 156, 0}},
       {-1,{0}},
-#line 1240 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str6526), {226, 164, 179, 0}},
+#line 1242 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str6526), {226, 164, 179, 204, 184, 0}},
 #line 2025 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6527), {226, 128, 138, 0}},
       {-1,{0}},
@@ -10568,7 +10568,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str6531), {226, 149, 150, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 2029 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str6535), {226, 138, 130, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str6535), {226, 138, 130, 226, 131, 146, 0}},
       {-1,{0}}, {-1,{0}},
 #line 235 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6538), {226, 169, 144, 0}},
@@ -10648,7 +10648,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 2005 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6623), {208, 146, 0}},
       {-1,{0}}, {-1,{0}},
-#line 215 "src/html_unescape.gperf"
+#line 217 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6626), {226, 169, 137, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10657,7 +10657,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 101 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6646), {226, 128, 158, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 421 "src/html_unescape.gperf"
+#line 424 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6650), {226, 164, 147, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
@@ -10764,7 +10764,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1645 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6861), {197, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 464 "src/html_unescape.gperf"
+#line 465 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6865), {195, 170, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1912 "src/html_unescape.gperf"
@@ -10790,7 +10790,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1579 "src/html_unescape.gperf"
+#line 1580 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6921), {226, 134, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10801,7 +10801,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1010 "src/html_unescape.gperf"
+#line 1013 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str6958), {226, 170, 166, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 26 "src/html_unescape.gperf"
@@ -10851,7 +10851,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str7039), {226, 149, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1435 "src/html_unescape.gperf"
+#line 1438 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7047), {226, 170, 183, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10901,7 +10901,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}},
 #line 2062 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7142), {226, 150, 189, 0}},
-#line 252 "src/html_unescape.gperf"
+#line 253 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7143), {203, 134, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10930,7 +10930,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str7201), {208, 188, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1859 "src/html_unescape.gperf"
+#line 1861 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7212), {226, 168, 177, 0}},
       {-1,{0}},
 #line 690 "src/html_unescape.gperf"
@@ -10972,9 +10972,9 @@ find_entity (register const char *str, register unsigned int len)
 #line 122 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7274), {226, 152, 133, 0}},
       {-1,{0}}, {-1,{0}},
-#line 320 "src/html_unescape.gperf"
+#line 317 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7277), {226, 136, 170, 0}},
-#line 973 "src/html_unescape.gperf"
+#line 972 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7278), {226, 159, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -10982,7 +10982,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 597 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7294), {196, 162, 0}},
       {-1,{0}},
-#line 1439 "src/html_unescape.gperf"
+#line 1441 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7296), {226, 170, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11002,7 +11002,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1533 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7325), {226, 164, 183, 0}},
 #line 325 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str7326), {226, 136, 170, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str7326), {226, 136, 170, 239, 184, 128, 0}},
 #line 863 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7327), {226, 164, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11024,7 +11024,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str7345), {206, 163, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1222 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str7350), {226, 137, 191, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str7350), {226, 137, 191, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11033,39 +11033,39 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1760 "src/html_unescape.gperf"
+#line 1759 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7376), {226, 138, 138, 0}},
       {-1,{0}},
 #line 1456 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7378), {226, 136, 143, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 258 "src/html_unescape.gperf"
+#line 259 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7385), {226, 138, 157, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1772 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7389), {226, 171, 147, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 297 "src/html_unescape.gperf"
+#line 298 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7397), {194, 169, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 533 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7403), {206, 183, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 51 "src/html_unescape.gperf"
+#line 43 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7409), {226, 136, 161, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1083 "src/html_unescape.gperf"
+#line 1084 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7434), {226, 153, 174, 0}},
       {-1,{0}},
 #line 1798 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7436), {226, 171, 132, 0}},
-#line 1084 "src/html_unescape.gperf"
+#line 1085 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7437), {226, 132, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1880 "src/html_unescape.gperf"
@@ -11117,7 +11117,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 318 "src/html_unescape.gperf"
+#line 321 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7520), {226, 169, 134, 0}},
 #line 1768 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7521), {226, 138, 138, 0}},
@@ -11160,10 +11160,10 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str7604), {226, 138, 181, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 888 "src/html_unescape.gperf"
+#line 887 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7615), {226, 134, 148, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1774 "src/html_unescape.gperf"
+#line 1773 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7618), {226, 137, 187, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11186,12 +11186,12 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
 #line 12 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str7662), {226, 136, 190, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str7662), {226, 136, 190, 204, 179, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1597 "src/html_unescape.gperf"
+#line 1598 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7668), {226, 142, 177, 0}},
       {-1,{0}},
-#line 953 "src/html_unescape.gperf"
+#line 954 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7670), {226, 142, 176, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1109 "src/html_unescape.gperf"
@@ -11264,7 +11264,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1951 "src/html_unescape.gperf"
+#line 1950 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7859), {226, 134, 149, 0}},
       {-1,{0}},
 #line 1113 "src/html_unescape.gperf"
@@ -11281,12 +11281,12 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str7876), {226, 148, 130, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1314 "src/html_unescape.gperf"
+#line 1315 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7886), {195, 180, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 463 "src/html_unescape.gperf"
+#line 464 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str7900), {195, 138, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11327,7 +11327,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 681 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8042), {196, 164, 0}},
-#line 1590 "src/html_unescape.gperf"
+#line 1591 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8043), {226, 165, 147, 0}},
 #line 18 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8044), {195, 134, 0}},
@@ -11401,9 +11401,9 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1563 "src/html_unescape.gperf"
+#line 1561 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8241), {226, 134, 146, 0}},
-#line 257 "src/html_unescape.gperf"
+#line 258 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8242), {226, 138, 154, 0}},
 #line 27 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8243), {206, 145, 0}},
@@ -11445,7 +11445,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 542 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8340), {226, 132, 176, 0}},
       {-1,{0}},
-#line 1313 "src/html_unescape.gperf"
+#line 1314 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8342), {195, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11460,7 +11460,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str8375), {206, 187, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1220 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str8381), {226, 170, 176, 0}},
+      {offsetof(struct entity_pool_t, entity_pool_str8381), {226, 170, 176, 204, 184, 0}},
 #line 190 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8382), {226, 149, 158, 0}},
       {-1,{0}},
@@ -11584,7 +11584,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 544 "src/html_unescape.gperf"
+#line 543 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8725), {226, 133, 135, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11617,7 +11617,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 2106 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8796), {195, 191, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1759 "src/html_unescape.gperf"
+#line 1760 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8800), {226, 171, 139, 0}},
       {-1,{0}}, {-1,{0}},
 #line 359 "src/html_unescape.gperf"
@@ -11644,7 +11644,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 652 "src/html_unescape.gperf"
+#line 655 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8879), {226, 170, 167, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11664,7 +11664,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1950 "src/html_unescape.gperf"
+#line 1951 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str8956), {226, 134, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 330 "src/html_unescape.gperf"
@@ -11726,10 +11726,10 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 436 "src/html_unescape.gperf"
+#line 435 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9151), {226, 135, 129, 0}},
       {-1,{0}}, {-1,{0}},
-#line 435 "src/html_unescape.gperf"
+#line 436 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9154), {226, 165, 151, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -11748,7 +11748,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 972 "src/html_unescape.gperf"
+#line 973 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9217), {226, 159, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11771,7 +11771,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1107 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9271), {226, 128, 139, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1755 "src/html_unescape.gperf"
+#line 1756 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9275), {226, 171, 133, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11806,7 +11806,7 @@ find_entity (register const char *str, register unsigned int len)
       {offsetof(struct entity_pool_t, entity_pool_str9351), {226, 129, 131, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1756 "src/html_unescape.gperf"
+#line 1755 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9360), {226, 138, 134, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11855,7 +11855,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 887 "src/html_unescape.gperf"
+#line 888 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9554), {226, 134, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11921,20 +11921,20 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1589 "src/html_unescape.gperf"
+#line 1588 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9801), {226, 134, 190, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1588 "src/html_unescape.gperf"
+#line 1589 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9804), {226, 165, 148, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1571 "src/html_unescape.gperf"
+#line 1570 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9829), {226, 135, 130, 0}},
       {-1,{0}}, {-1,{0}},
-#line 1570 "src/html_unescape.gperf"
+#line 1571 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9832), {226, 165, 149, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 25 "src/html_unescape.gperf"
@@ -11942,9 +11942,9 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 255 "src/html_unescape.gperf"
+#line 256 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9852), {226, 134, 187, 0}},
-#line 254 "src/html_unescape.gperf"
+#line 255 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9853), {226, 134, 186, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -11965,7 +11965,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 1376 "src/html_unescape.gperf"
+#line 1378 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9936), {226, 168, 182, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
@@ -11982,7 +11982,7 @@ find_entity (register const char *str, register unsigned int len)
 #line 1203 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9959), {226, 136, 140, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1443 "src/html_unescape.gperf"
+#line 1445 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str9963), {226, 170, 185, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12060,12 +12060,12 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1210 "src/html_unescape.gperf"
-      {offsetof(struct entity_pool_t, entity_pool_str10240), {226, 167, 144, 0}},
+#line 1211 "src/html_unescape.gperf"
+      {offsetof(struct entity_pool_t, entity_pool_str10240), {226, 167, 144, 204, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
 #line 1212 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str10244), {226, 139, 173, 0}},
-#line 1211 "src/html_unescape.gperf"
+#line 1210 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str10245), {226, 139, 171, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12074,7 +12074,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 905 "src/html_unescape.gperf"
+#line 906 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str10278), {226, 165, 146, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12133,7 +12133,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1564 "src/html_unescape.gperf"
+#line 1563 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str10505), {226, 135, 146, 0}},
       {-1,{0}},
 #line 28 "src/html_unescape.gperf"
@@ -12208,7 +12208,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 735 "src/html_unescape.gperf"
+#line 736 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str10808), {226, 133, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12268,7 +12268,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 1773 "src/html_unescape.gperf"
+#line 1774 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11029), {226, 170, 184, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12296,13 +12296,13 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 47 "src/html_unescape.gperf"
+#line 48 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11146), {226, 166, 172, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 44 "src/html_unescape.gperf"
+#line 45 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11165), {226, 166, 169, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12328,7 +12328,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 48 "src/html_unescape.gperf"
+#line 49 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11282), {226, 166, 173, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12391,7 +12391,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 46 "src/html_unescape.gperf"
+#line 47 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11565), {226, 166, 171, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12472,7 +12472,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}},
-#line 1561 "src/html_unescape.gperf"
+#line 1564 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str11918), {226, 135, 165, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12739,7 +12739,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 49 "src/html_unescape.gperf"
+#line 50 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str13061), {226, 166, 174, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -12818,7 +12818,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}},
-#line 50 "src/html_unescape.gperf"
+#line 51 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str13443), {226, 166, 175, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -13003,7 +13003,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 45 "src/html_unescape.gperf"
+#line 46 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str14304), {226, 166, 170, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -13070,7 +13070,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 317 "src/html_unescape.gperf"
+#line 319 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str14620), {226, 169, 136, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
@@ -13206,7 +13206,7 @@ find_entity (register const char *str, register unsigned int len)
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
-#line 43 "src/html_unescape.gperf"
+#line 44 "src/html_unescape.gperf"
       {offsetof(struct entity_pool_t, entity_pool_str15290), {226, 166, 168, 0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},
       {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}}, {-1,{0}},

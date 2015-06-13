@@ -69,7 +69,7 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 
 				if (entity != NULL) {
 					bufsize_t len = 0;
-					while (len < 4 && entity->utf8[len] != '\0') {
+					while (len < 8 && entity->utf8[len] != '\0') {
 						++len;
 					}
 					cmark_strbuf_put(ob, entity->utf8, len);
