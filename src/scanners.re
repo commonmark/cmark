@@ -60,7 +60,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   htmltag = opentag | closetag | htmlcomment | processinginstruction |
             declaration | cdata;
 
-  in_parens_nosp   = [(] (reg_char|escaped_char)* [)];
+  in_parens_nosp   = [(] (reg_char|escaped_char|[\\])* [)];
 
   in_double_quotes = ["] (escaped_char|[^"\x00])* ["];
   in_single_quotes = ['] (escaped_char|[^'\x00])* ['];
@@ -141,7 +141,7 @@ bufsize_t _scan_link_url(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
-  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp)* { return (bufsize_t)(p - start); }
+  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp | [\\])* { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
