@@ -50,6 +50,12 @@ typedef struct {
 	delimiter *last_delim;
 } subject;
 
+static inline bool
+S_is_line_end_char(char c)
+{
+	return (c == '\n' || c == '\r');
+}
+
 static delimiter*
 S_insert_emph(subject *subj, delimiter *opener, delimiter *closer);
 
@@ -190,6 +196,32 @@ static inline int is_eof(subject* subj)
 
 // Advance the subject.  Doesn't check for eof.
 #define advance(subj) (subj)->pos += 1
+
+static inline bool
+skip_spaces(subject *subj)
+{
+	bool skipped = false;
+	while (peek_char(subj) == ' ') {
+		advance(subj);
+		skipped = true;
+	}
+	return skipped;
+}
+
+static inline bool
+skip_line_end(subject *subj)
+{
+	bool seen_line_end_char = false;
+	if (peek_char(subj) == '\r') {
+		advance(subj);
+		seen_line_end_char = true;
+	}
+	if (peek_char(subj) == '\n') {
+		advance(subj);
+		seen_line_end_char = true;
+	}
+	return seen_line_end_char || is_eof(subj);
+}
 
 // Take characters while a predicate holds, and return a string.
 static inline cmark_chunk take_while(subject* subj, int (*f)(int))
@@ -605,8 +637,7 @@ static cmark_node* handle_backslash(subject *subj)
 	if (cmark_ispunct(nextchar)) {  // only ascii symbols and newline can be escaped
 		advance(subj);
 		return make_str(cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
-	} else if (nextchar == '\r' || nextchar == '\n') {
-		advance(subj);
+	} else if (!is_eof(subj) && skip_line_end(subj)) {
 		return make_linebreak();
 	} else {
 		return make_str(cmark_chunk_literal("\\"));
@@ -948,9 +979,7 @@ static cmark_node* handle_newline(subject *subj)
 	// skip over newline
 	advance(subj);
 	// skip spaces at beginning of line
-	while (peek_char(subj) == ' ') {
-		advance(subj);
-	}
+	skip_spaces(subj);
 	if (nlpos > 1 &&
 	    peek_at(subj, nlpos - 1) == ' ' &&
 	    peek_at(subj, nlpos - 2) == ' ') {
@@ -1081,7 +1110,8 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 		subj->pos = endpos;
 
 		// if we're at a newline, strip trailing spaces.
-		if (peek_char(subj) == '\r' || peek_char(subj) == '\n') {
+		if (peek_char(subj) == '\r' ||
+		    peek_char(subj) == '\n') {
 			cmark_chunk_rtrim(&contents);
 		}
 
@@ -1108,11 +1138,9 @@ extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap,
 // Parse zero or more space characters, including at most one newline.
 static void spnl(subject* subj)
 {
-	bool seen_newline = false;
-	while (peek_char(subj) == ' ' ||
-	       (!seen_newline &&
-	        (seen_newline = peek_char(subj) == '\r' || peek_char(subj) == '\n'))) {
-		advance(subj);
+	skip_spaces(subj);
+	if (skip_line_end(subj)) {
+		skip_spaces(subj);
 	}
 }
 
@@ -1166,12 +1194,8 @@ bufsize_t cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map 
 		title = cmark_chunk_literal("");
 	}
 	// parse final spaces and newline:
-	while (peek_char(&subj) == ' ') {
-		advance(&subj);
-	}
-	if (peek_char(&subj) == '\r' || peek_char(&subj) == '\n') {
-		advance(&subj);
-	} else if (peek_char(&subj) != 0) {
+	skip_spaces(&subj);
+	if (!skip_line_end(&subj)) {
 		return 0;
 	}
 	// insert reference into refmap
