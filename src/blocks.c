@@ -109,6 +109,9 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset)
 		case ' ':
 			offset++;
 			break;
+		case '\t':
+			offset++;
+			break;
 		default:
 			return false;
 		}
