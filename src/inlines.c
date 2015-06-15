@@ -169,8 +169,6 @@ static void subject_from_buf(subject *e, cmark_strbuf *buffer,
 	e->pos = 0;
 	e->refmap = refmap;
 	e->last_delim = NULL;
-
-	cmark_chunk_rtrim(&e->input);
 }
 
 static inline int isbacktick(int c)
@@ -1129,6 +1127,7 @@ extern void cmark_parse_inlines(cmark_node* parent, cmark_reference_map *refmap,
 {
 	subject subj;
 	subject_from_buf(&subj, &parent->string_content, refmap);
+	cmark_chunk_rtrim(&subj.input);
 
 	while (!is_eof(&subj) && parse_inline(&subj, parent, options)) ;
 
