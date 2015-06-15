@@ -1196,7 +1196,15 @@ bufsize_t cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map 
 	// parse final spaces and newline:
 	skip_spaces(&subj);
 	if (!skip_line_end(&subj)) {
-		return 0;
+		if (matchlen) { // try rewinding before title
+			subj.pos = beforetitle;
+			skip_spaces(&subj);
+			if (!skip_line_end(&subj)) {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
 	}
 	// insert reference into refmap
 	cmark_reference_create(refmap, &lab, &url, &title);
