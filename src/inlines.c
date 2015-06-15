@@ -199,7 +199,7 @@ static inline bool
 skip_spaces(subject *subj)
 {
 	bool skipped = false;
-	while (peek_char(subj) == ' ') {
+	while (peek_char(subj) == ' ' || peek_char(subj) == '\t') {
 		advance(subj);
 		skipped = true;
 	}
@@ -1192,6 +1192,7 @@ bufsize_t cmark_parse_reference_inline(cmark_strbuf *input, cmark_reference_map 
 		subj.pos = beforetitle;
 		title = cmark_chunk_literal("");
 	}
+
 	// parse final spaces and newline:
 	skip_spaces(&subj);
 	if (!skip_line_end(&subj)) {
