@@ -15,11 +15,19 @@ def djb2(s):
 
 entities5 = html.entities.html5
 
+# remove keys without semicolons.  For some reason the list
+# has duplicates of a few things, like auml, one with and one
+# without a semicolon.
+entities = [(k[:-1], entities5[k]) for k in entities5.keys() if k[-1] == ';']
+
 # Note that most entries in the entity table end with ';', but in a few
 # cases we have both a version with ';' and one without, so we strip out
 # the latter to avoid duplicates:
-hashed_data = sorted([[int(djb2(s[:-1])), entities5[s].encode('utf-8'), s]
-                      for s in entities5.keys() if s[-1] == ';'])
+hashed_data = sorted([[int(djb2(k)), v.encode('utf-8'), k] for (k,v) in entities])
+
+# Confirm no hash collisions
+hashes = [x for [x,_,_] in hashed_data]
+assert(len(hashes) == len(set(hashes)))
 
 # indices is a dictionary - given a hash it spits out the ordering
 # of this entity in the list (the array index)
@@ -60,7 +68,7 @@ def to_binary_array(xs, mid):
     mg = indices[greaters[midgreaters][0]]
   lines[indices[x[0]]] = ("{" + str(x[0]) + ", (unsigned char*)\"" +
                           ''.join(map(toesc, x[1])) + "\", " + str(ml) +
-                          ", " + str(mg) + "}, /* &" + x[2] + " */")
+                          ", " + str(mg) + "}, /* &" + x[2] + "; */")
   if len(lesses) > 0:
     to_binary_array(lesses, midlesses)
   if len(greaters) > 0:
