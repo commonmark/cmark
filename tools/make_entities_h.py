@@ -89,14 +89,14 @@ struct cmark_entity_node {
 #define CMARK_ENTITY_MAX_LENGTH 31
 """)
 
-print("static struct cmark_entity_node cmark_entities[] = {");
+print("static const struct cmark_entity_node cmark_entities[] = {");
 
 for line in lines:
   print(line);
 
 print("};\n");
 
-print("static int cmark_entities_root = " + str(mid) + ";");
+print("static const int cmark_entities_root = " + str(mid) + ";");
 
 print("""
 #ifdef __cplusplus

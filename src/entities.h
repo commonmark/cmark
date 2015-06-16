@@ -15,7 +15,7 @@ struct cmark_entity_node {
 #define CMARK_ENTITY_MIN_LENGTH 2
 #define CMARK_ENTITY_MAX_LENGTH 31
 
-static struct cmark_entity_node cmark_entities[] = {
+static const struct cmark_entity_node cmark_entities[] = {
 {132476, (unsigned char*)"\342\203\233", -1, -1}, /* &TripleDot; */
 {5862221, (unsigned char*)"\342\205\205", 0, -1}, /* &DD; */
 {5862336, (unsigned char*)"\76", 1, 3}, /* &GT; */
@@ -2143,7 +2143,7 @@ static struct cmark_entity_node cmark_entities[] = {
 {4287033576, (unsigned char*)"\342\252\224", -1, -1}, /* &gesles; */
 };
 
-static int cmark_entities_root = 1062;
+static const int cmark_entities_root = 1062;
 
 #ifdef __cplusplus
 }
