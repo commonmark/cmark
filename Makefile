@@ -111,6 +111,8 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	esac
 	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
 
+# We include entities.h in the repository, so normally this
+# doesn't need to be regenerated:
 $(SRCDIR)/entities.h: tools/make_entities_h.py
 	python3 $< > $@
 
