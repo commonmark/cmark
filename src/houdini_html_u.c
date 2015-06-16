@@ -30,7 +30,7 @@ S_lookup(int i, unsigned long key)
 	} else {
 		int next = key < cmark_entities[i].value ?
 		           cmark_entities[i].less : cmark_entities[i].greater;
-		if (next == 0) {
+		if (next == -1) { // leaf node
 			return NULL;
 		} else {
 			return S_lookup(next, key);

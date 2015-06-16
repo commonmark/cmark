@@ -42,7 +42,7 @@ lines = [""] * len(hashed_data)
 # in this list.  Adds to lines a line for the midpoint, then calls
 # itself recursively for the earlier and later elements.  Each node
 # contains indices for elements with a lesser hash and elements with
-# a greater hash.  An index of 0 means we're at a leaf node.
+# a greater hash.  An index of -1 means we're at a leaf node.
 def to_binary_array(xs, mid):
   # divide in half, and form binary array from each half
   x = xs[mid]
@@ -51,11 +51,11 @@ def to_binary_array(xs, mid):
   midlesses = len(lesses) // 2
   midgreaters = len(greaters) // 2
   if len(lesses) == 0:
-    ml = 0
+    ml = -1
   else:
     ml = indices[lesses[midlesses][0]]
   if len(greaters) == 0:
-    mg = 0
+    mg = -1
   else:
     mg = indices[greaters[midgreaters][0]]
   lines[indices[x[0]]] = ("{" + str(x[0]) + ", (unsigned char*)\"" +
