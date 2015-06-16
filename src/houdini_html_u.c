@@ -5,7 +5,44 @@
 #include "buffer.h"
 #include "houdini.h"
 #include "utf8.h"
-#include "html_unescape.h"
+#include "entities.h"
+
+/* Binary tree lookup code for entities added by JGM */
+
+static unsigned long
+S_hash(const unsigned char *str, int len)
+{
+	unsigned long hash = 5381;
+	int i;
+
+	for (i = 0; i < len; i++) {
+		hash = (((hash << 5) + hash) + str[i]) & 0xFFFFFFFF; /* hash * 33 + c */
+	}
+
+	return hash;
+}
+
+static unsigned char *
+S_lookup(int i, unsigned long key)
+{
+	if (cmark_entities[i].value == key) {
+		return cmark_entities[i].bytes;
+	} else {
+		int next = key < cmark_entities[i].value ?
+			cmark_entities[i].less : cmark_entities[i].greater;
+		if (next == 0) {
+			return NULL;
+		} else {
+			return S_lookup(next, key);
+		}
+	}
+}
+
+static unsigned char *
+S_lookup_entity(const unsigned char *s, int len)
+{
+	return S_lookup(cmark_entities_root, S_hash(s, len));
+}
 
 bufsize_t
 houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
@@ -57,22 +94,18 @@ houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src, bufsize_t size)
 	}
 
 	else {
-		if (size > MAX_WORD_LENGTH)
-			size = MAX_WORD_LENGTH;
+		if (size > CMARK_ENTITY_MAX_LENGTH)
+			size = CMARK_ENTITY_MAX_LENGTH;
 
-		for (i = MIN_WORD_LENGTH; i < size; ++i) {
+		for (i = CMARK_ENTITY_MIN_LENGTH; i < size; ++i) {
 			if (src[i] == ' ')
 				break;
 
 			if (src[i] == ';') {
-				const struct html_ent *entity = find_entity((char *)src, i);
+				const unsigned char *entity = S_lookup_entity(src, i);
 
 				if (entity != NULL) {
-					bufsize_t len = 0;
-					while (len < 8 && entity->utf8[len] != '\0') {
-						++len;
-					}
-					cmark_strbuf_put(ob, entity->utf8, len);
+					cmark_strbuf_puts(ob, (const char *)entity);
 					return i + 1;
 				}
 

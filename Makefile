@@ -94,12 +94,6 @@ archive:
 clean:
 	rm -rf $(BUILDDIR) $(MINGW_BUILDDIR) $(MINGW_INSTALLDIR)
 
-# We include html_unescape.h in the repository, so this shouldn't
-# normally need to be generated.
-$(SRCDIR)/html_unescape.h: $(SRCDIR)/html_unescape.gperf
-	gperf -L ANSI-C -I -t -N find_entity -H hash_entity -K entity -C -l \
-		-F ',{0}' --null-strings -m5 -P -Q entity_pool $< > $@
-
 # We include case_fold_switch.inc in the repository, so this shouldn't
 # normally need to be generated.
 $(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding-3.2.0.txt
@@ -116,6 +110,9 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 		;; \
 	esac
 	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
+
+$(SRCDIR)/entities.h: tools/make_entities_h.py
+	python3 $< > $@
 
 update-spec:
 	curl 'https://raw.githubusercontent.com/jgm/CommonMark/master/spec.txt'\

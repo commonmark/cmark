@@ -14,9 +14,9 @@ set(HEADERS
   utf8.h
   scanners.h
   inlines.h
-  html_unescape.h
   houdini.h
   cmark_ctype.h
+  entities.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -33,7 +33,6 @@ set(LIBRARY_SOURCES
   xml.c
   html.c
   commonmark.c
-  html_unescape.gperf
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
