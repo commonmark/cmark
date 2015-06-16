@@ -613,7 +613,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			if (parser->indent >= container->as.list.marker_offset +
 			    container->as.list.padding) {
 				parser->offset += container->as.list.marker_offset +
-				          container->as.list.padding;
+				                  container->as.list.padding;
 			} else if (parser->blank) {
 				parser->offset = parser->first_nonspace;
 			} else {

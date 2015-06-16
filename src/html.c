@@ -251,7 +251,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			cmark_strbuf_puts(html, "<a href=\"");
 			houdini_escape_href(html, node->as.link.url.data,
-	                                    node->as.link.url.len);
+			                    node->as.link.url.len);
 
 			if (node->as.link.title.len) {
 				cmark_strbuf_puts(html, "\" title=\"");
@@ -269,7 +269,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			cmark_strbuf_puts(html, "<img src=\"");
 			houdini_escape_href(html, node->as.link.url.data,
-		                            node->as.link.url.len);
+			                    node->as.link.url.len);
 
 			cmark_strbuf_puts(html, "\" alt=\"");
 			state->plain = node;

@@ -29,7 +29,7 @@ S_lookup(int i, unsigned long key)
 		return cmark_entities[i].bytes;
 	} else {
 		int next = key < cmark_entities[i].value ?
-			cmark_entities[i].less : cmark_entities[i].greater;
+		           cmark_entities[i].less : cmark_entities[i].greater;
 		if (next == 0) {
 			return NULL;
 		} else {

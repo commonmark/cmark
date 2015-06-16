@@ -29,18 +29,20 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size)
 		cmark_strbuf_grow(buf, initial_size);
 }
 
-void cmark_strbuf_overflow_err() {
+void cmark_strbuf_overflow_err()
+{
 	fprintf(stderr, "String buffer overflow");
 	abort();
 }
 
 static inline void
-S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
+S_strbuf_grow_by(cmark_strbuf *buf, size_t add)
+{
 	size_t target_size = (size_t)buf->size + add;
 
 	if (target_size < add             /* Integer overflow. */
 	    || target_size > BUFSIZE_MAX  /* Truncation overflow. */
-	) {
+	   ) {
 		cmark_strbuf_overflow_err();
 		return; /* unreachable */
 	}
@@ -74,7 +76,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size)
 
 	if (new_size < (size_t)target_size  /* Integer overflow. */
 	    || new_size > BUFSIZE_MAX       /* Truncation overflow. */
-	) {
+	   ) {
 		if (target_size >= BUFSIZE_MAX) {
 			/* No space for terminating null byte. */
 			cmark_strbuf_overflow_err();
@@ -160,7 +162,7 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t le
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 {
 	cmark_strbuf_put(buf, (const unsigned char *)string,
-			 cmark_strbuf_safe_strlen(string));
+	                 cmark_strbuf_safe_strlen(string));
 }
 
 void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
@@ -175,10 +177,10 @@ void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
 		va_copy(args, ap);
 
 		int len = vsnprintf(
-		          (char *)buf->ptr + buf->size,
-		          buf->asize - buf->size,
-		          format, args
-		      );
+		              (char *)buf->ptr + buf->size,
+		              buf->asize - buf->size,
+		              format, args
+		          );
 #ifndef HAVE_C99_SNPRINTF
 		// Assume we're on Windows.
 		if (len < 0) {

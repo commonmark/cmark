@@ -134,14 +134,12 @@ void utf8proc_detab(cmark_strbuf *ob, const uint8_t *line, bufsize_t size)
 					break;
 				}
 				i += charlen;
-			}
-			else if (line[i] == '\0') {
+			} else if (line[i] == '\0') {
 				// ASCII NUL is technically valid but rejected
 				// for security reasons.
 				charlen = 1;
 				break;
-			}
-			else {
+			} else {
 				i++;
 			}
 
