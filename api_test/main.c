@@ -658,7 +658,7 @@ test_continuation_byte(test_batch_runner *runner, const char *utf8)
 		strcat(expected, "))))</p>\n");
 
 		char *html = cmark_markdown_to_html(buf, strlen(buf),
-						    CMARK_OPT_DEFAULT);
+						    CMARK_OPT_VALIDATE_UTF8);
 		STR_EQ(runner, html, expected,
 		       "invalid utf8 continuation byte %d/%d", pos, len);
 		free(html);
@@ -718,7 +718,7 @@ test_md_to_html(test_batch_runner *runner, const char *markdown,
 		const char *expected_html, const char *msg)
 {
 	char *html = cmark_markdown_to_html(markdown, strlen(markdown),
-					    CMARK_OPT_DEFAULT);
+					    CMARK_OPT_VALIDATE_UTF8);
 	STR_EQ(runner, html, expected_html, msg);
 	free(html);
 }
@@ -737,7 +737,7 @@ int main() {
 	hierarchy(runner);
 	parser(runner);
 	render_html(runner);
-	// utf8(runner);
+	utf8(runner);
 	line_endings(runner);
 	numeric_entities(runner);
 	test_cplusplus(runner);

@@ -92,6 +92,8 @@ int main(int argc, char *argv[])
 			options |= CMARK_OPT_SMART;
 		} else if (strcmp(argv[i], "--normalize") == 0) {
 			options |= CMARK_OPT_NORMALIZE;
+		} else if (strcmp(argv[i], "--validate-utf8") == 0) {
+			options |= CMARK_OPT_VALIDATE_UTF8;
 		} else if ((strcmp(argv[i], "--help") == 0) ||
 		           (strcmp(argv[i], "-h") == 0)) {
 			print_usage();

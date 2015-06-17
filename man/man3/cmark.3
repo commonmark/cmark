@@ -1,4 +1,4 @@
-.TH cmark 3 "June 07, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "June 16, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -403,10 +403,10 @@ Streaming interface:
 cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
 FILE *fp = fopen("myfile.md", "r");
 while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
-       cmark_parser_feed(parser, buffer, bytes);
-       if (bytes < sizeof(buffer)) {
-           break;
-       }
+	   cmark_parser_feed(parser, buffer, bytes);
+	   if (bytes < sizeof(buffer)) {
+	       break;
+	   }
 }
 document = cmark_parser_finish(parser);
 cmark_parser_free(parser);
@@ -538,6 +538,19 @@ Normalize tree by consolidating adjacent text nodes.
 
 .PP
 Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en dashes.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_VALIDATE_UTF8 16
+.RE
+\f[]
+.fi
+
+.PP
+Validate UTF\-8 in the input before parsing, replacing illegal
+sequences with the replacement character U+FFFD.
 
 .SS
 Version information

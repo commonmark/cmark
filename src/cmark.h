@@ -506,6 +506,11 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width);
  */
 #define CMARK_OPT_SMART 8
 
+/** Validate UTF-8 in the input before parsing, replacing illegal
+ * sequences with the replacement character U+FFFD.
+ */
+#define CMARK_OPT_VALIDATE_UTF8 16
+
 /**
  * ## Version information
  */
