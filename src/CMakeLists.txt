@@ -16,7 +16,6 @@ set(HEADERS
   inlines.h
   houdini.h
   cmark_ctype.h
-  entities.h
   )
 set(LIBRARY_SOURCES
   cmark.c

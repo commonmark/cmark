@@ -111,9 +111,9 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	esac
 	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
 
-# We include entities.h in the repository, so normally this
+# We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:
-$(SRCDIR)/entities.h: tools/make_entities_h.py
+$(SRCDIR)/entities.inc: tools/make_entities_inc.py
 	python3 $< > $@
 
 update-spec:
