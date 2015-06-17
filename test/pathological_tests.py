@@ -41,6 +41,9 @@ pathological = {
     "link openers and emph closers":
                  (("[ a_" * 50000),
                   re.compile("(\[ a_){50000}")),
+    "hard link/emph case":
+                 ("**x [a*b**c*](d)",
+                  re.compile("\\*\\*x <a href=\"d\">a<em>b</em><em>c</em></a>")),
     "nested brackets":
                  (("[" * 50000) + "a" + ("]" * 50000),
                   re.compile("\[{50000}a\]{50000}")),
