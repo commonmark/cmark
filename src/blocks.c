@@ -506,7 +506,6 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 		const unsigned char *eol;
 		bufsize_t chunk_len;
 		bool process = false;
-
 		for (eol = buffer; eol < end; ++eol) {
 			if (S_is_line_end_char(*eol)) {
 				if (eol < end && *eol == '\r')
@@ -516,7 +515,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 				process = true;
 				break;
 			}
-			if (*eol == '\0' && eol < end - 1) {
+			if (*eol == '\0' && eol < end) {
 				break;
 			}
 		}
