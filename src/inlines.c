@@ -178,6 +178,9 @@ static inline int isbacktick(int c)
 
 static inline unsigned char peek_char(subject *subj)
 {
+	// NULL bytes should have been stripped out by now.  If they're
+	// present, it's a programming error:
+	assert(!(subj->pos < subj->input.len && subj->input.data[subj->pos] == 0));
 	return (subj->pos < subj->input.len) ? subj->input.data[subj->pos] : 0;
 }
 
