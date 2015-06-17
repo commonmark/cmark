@@ -9,39 +9,30 @@
 
 /* Binary tree lookup code for entities added by JGM */
 
-static unsigned long
-S_hash(const unsigned char *str, int len)
-{
-	unsigned long hash = 5381;
-	int i;
-
-	for (i = 0; i < len; i++) {
-		hash = (((hash << 5) + hash) + str[i]) & 0xFFFFFFFF; /* hash * 33 + c */
-	}
-
-	return hash;
-}
-
 static unsigned char *
-S_lookup(int i, unsigned long key)
+S_lookup(int i, int low, int hi, const unsigned char *s, int len)
 {
-	if (cmark_entities[i].value == key) {
-		return cmark_entities[i].bytes;
+	int j;
+	int cmp = strncmp((char *)s, (char *)cmark_entities[i].entity, len);
+	if (cmp == 0 && cmark_entities[i].entity[len] == 0) {
+		return (unsigned char *)cmark_entities[i].bytes;
+	} else if (cmp < 0 && i > low) {
+		j = i - ((i - low) / 2);
+		if (j == i) j -= 1;
+		return S_lookup(j, low, i - 1, s, len);
+	} else if (cmp > 0 && i < hi) {
+		j = i + ((hi - i) / 2);
+		if (j == i) j += 1;
+		return S_lookup(j, i + 1, hi, s, len);
 	} else {
-		int next = key < cmark_entities[i].value ?
-		           cmark_entities[i].less : cmark_entities[i].greater;
-		if (next == -1) { // leaf node
-			return NULL;
-		} else {
-			return S_lookup(next, key);
-		}
+		return NULL;
 	}
 }
 
 static unsigned char *
 S_lookup_entity(const unsigned char *s, int len)
 {
-	return S_lookup(cmark_entities_root, S_hash(s, len));
+	return S_lookup(CMARK_NUM_ENTITIES / 2, 0, CMARK_NUM_ENTITIES - 1, s, len);
 }
 
 bufsize_t
