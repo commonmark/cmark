@@ -1,6 +1,11 @@
 # Benchmarks
 
-Some benchmarks, run on an ancient Thinkpad running Intel Core 2 Duo at 2GHz.
+Here are some benchmarks, run on an ancient Thinkpad running Intel
+Core 2 Duo at 2GHz.  The input text is a 11MB Markdown file built by
+concatenating the Markdown sources of all the localizations of the
+first edition of
+[*Pro Git*](https://github.com/progit/progit/tree/master/en) by Scott
+Chacon.
 
 |Implementation     |  Time (sec)|
 |-------------------|-----------:|
@@ -18,10 +23,6 @@ Some benchmarks, run on an ancient Thinkpad running Intel Core 2 Duo at 2GHz.
 | hoedown           |    0.23    |
 
 To run these benchmarks, use `make bench PROG=/path/to/program`.
-
-The input text is a 11MB Markdown file built by concatenating the
-Markdown sources of all the localizations of the first edition of
-[*Pro Git*](https://github.com/progit/progit/tree/master/en) by Scott Chacon.
 
 `time` is used to measure execution speed.  The reported
 time is the *difference* between the time to run the program

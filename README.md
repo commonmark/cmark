@@ -19,11 +19,14 @@ documents.
 Advantages of this library:
 
 - **Portable.**  The library and program are written in standard
-  C99 and have no external dependencies.  It has been tested with
+  C99 and have no external dependencies.  They have been tested with
   MSVC, gcc, tcc, and clang.
 
-- **Fast.** Performance is very good, on par with the fastest
-  Markdown processors:  see the [benchmarks].
+- **Fast.** cmark can render a Markdown version of *War and Peace* in
+  the blink of an eye (127 milliseconds on a ten year old laptop,
+  vs. 100-400 milliseconds for an eye blink).  In our [benchmarks],
+  cmark is 10,000 times faster than the original `Markdown.pl`, and
+  on par with the very fastest available Markdown processors.
 
 - **Accurate.** The library passes all CommonMark conformance tests.
 
