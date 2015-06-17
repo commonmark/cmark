@@ -36,7 +36,7 @@ Advantages of this library:
   will be rendered on the server using `cmark`.
 
 - **Robust.** The library has been extensively fuzz-tested using
-  american fuzzy lop.  The test suite includes pathological cases
+  [american fuzzy lop].  The test suite includes pathological cases
   that bring many other Markdown parsers to a crawl (for example,
   thousands-deep nested bracketed text or block quotes).
 
@@ -99,10 +99,6 @@ To run a benchmark:
 
     make bench
 
-To run a "fuzz test" against ten long randomly generated inputs:
-
-    make fuzztest
-
 To run a test for memory leaks using `valgrind`:
 
     make leakcheck
@@ -110,6 +106,14 @@ To run a test for memory leaks using `valgrind`:
 To reformat source code using `astyle`:
 
     make astyle
+
+To run a "fuzz test" against ten long randomly generated inputs:
+
+    make fuzztest
+
+To do a more systematic fuzz test with [american fuzzy lop]:
+
+    AFL_PATH=/path/to/afl_directory make afl
 
 To make a release tarball and zip archive:
 
@@ -172,3 +176,4 @@ most of the C library's API and its test harness.
 [commonmark.js]: https://github.com/jgm/commonmark.js
 [Build Status]: https://img.shields.io/travis/jgm/cmark/master.svg?style=flat
 [Windows Build Status]: https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true
+[american fuzzy lop]: http://lcamtuf.coredump.cx/afl/
