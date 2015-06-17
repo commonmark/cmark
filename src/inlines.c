@@ -359,10 +359,10 @@ static void print_delimiters(subject *subj)
 	delimiter *delim;
 	delim = subj->last_delim;
 	while (delim != NULL) {
-		printf("Item at %p: %d %d %d next(%p) prev(%p)\n",
-		       delim, delim->delim_char,
+		printf("Item at stack pos %p, text pos %d: %d %d %d next(%p) prev(%p)\n",
+		       (void*)delim, delim->position, delim->delim_char,
 		       delim->can_open, delim->can_close,
-		       delim->next, delim->previous);
+		       (void*)delim->next, (void*)delim->previous);
 		delim = delim->previous;
 	}
 }
@@ -495,7 +495,8 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			// Now look backwards for first matching opener:
 			opener = closer->previous;
 			opener_found = false;
-			while (opener != NULL && opener != potential_openers[closer->delim_char]) {
+			while (opener != NULL && opener != start_delim &&
+			       opener != potential_openers[closer->delim_char]) {
 				if (opener->delim_char == closer->delim_char &&
 				    opener->can_open) {
 					opener_found = true;
@@ -936,7 +937,7 @@ match:
 	inl->type = is_image ? NODE_IMAGE : NODE_LINK;
 	cmark_chunk_free(&inl->as.literal);
 	inl->first_child = link_text;
-	process_emphasis(subj, opener->previous);
+	process_emphasis(subj, opener);
 	inl->as.link.url   = url;
 	inl->as.link.title = title;
 	inl->next = NULL;
@@ -951,10 +952,10 @@ match:
 	}
 	parent->last_child = inl;
 
-	// process_emphasis will remove this delimiter and all later ones.
 	// Now, if we have a link, we also want to deactivate earlier link
 	// delimiters. (This code can be removed if we decide to allow links
 	// inside links.)
+	remove_delimiter(subj, opener);
 	if (!is_image) {
 		opener = subj->last_delim;
 		while (opener != NULL) {
