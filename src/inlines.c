@@ -1108,8 +1108,7 @@ static int parse_inline(subject* subj, cmark_node * parent, int options)
 		subj->pos = endpos;
 
 		// if we're at a newline, strip trailing spaces.
-		if (peek_char(subj) == '\r' ||
-		    peek_char(subj) == '\n') {
+		if (S_is_line_end_char(peek_char(subj))) {
 			cmark_chunk_rtrim(&contents);
 		}
 
