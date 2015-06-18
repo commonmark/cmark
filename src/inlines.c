@@ -534,7 +534,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom)
 			}
 			if (!opener_found) {
 				// set lower bound for future searches for openers:
-				openers_bottom[old_closer->delim_char] = closer;
+				openers_bottom[old_closer->delim_char] = old_closer->previous;
 				if (!old_closer->can_open) {
 					// we can remove a closer that can't be an
 					// opener, once we've seen there's no
