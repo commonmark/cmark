@@ -468,7 +468,7 @@ static cmark_node* handle_period(subject* subj, bool smart)
 	}
 }
 
-static void process_emphasis(subject *subj, delimiter *start_delim)
+static void process_emphasis(subject *subj, delimiter *stack_bottom)
 {
 	delimiter *closer = subj->last_delim;
 	delimiter *opener;
@@ -477,13 +477,13 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 	delimiter *potential_openers[128];
 
 	// initialize potential_openers:
-	potential_openers['*'] = start_delim;
-	potential_openers['_'] = start_delim;
-	potential_openers['\''] = start_delim;
-	potential_openers['"'] = start_delim;
+	potential_openers['*'] = stack_bottom;
+	potential_openers['_'] = stack_bottom;
+	potential_openers['\''] = stack_bottom;
+	potential_openers['"'] = stack_bottom;
 
 	// move back to first relevant delim.
-	while (closer != NULL && closer->previous != start_delim) {
+	while (closer != NULL && closer->previous != stack_bottom) {
 		closer = closer->previous;
 	}
 
@@ -495,7 +495,7 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			// Now look backwards for first matching opener:
 			opener = closer->previous;
 			opener_found = false;
-			while (opener != NULL && opener != start_delim &&
+			while (opener != NULL && opener != stack_bottom &&
 			       opener != potential_openers[closer->delim_char]) {
 				if (opener->delim_char == closer->delim_char &&
 				    opener->can_open) {
@@ -546,8 +546,8 @@ static void process_emphasis(subject *subj, delimiter *start_delim)
 			closer = closer->next;
 		}
 	}
-	// free all delimiters in list until start_delim:
-	while (subj->last_delim != start_delim) {
+	// free all delimiters in list until stack_bottom:
+	while (subj->last_delim != stack_bottom) {
 		remove_delimiter(subj, subj->last_delim);
 	}
 }
