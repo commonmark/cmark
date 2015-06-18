@@ -474,13 +474,13 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom)
 	delimiter *opener;
 	delimiter *old_closer;
 	bool opener_found;
-	delimiter *potential_openers[128];
+	delimiter *openers_bottom[128];
 
-	// initialize potential_openers:
-	potential_openers['*'] = stack_bottom;
-	potential_openers['_'] = stack_bottom;
-	potential_openers['\''] = stack_bottom;
-	potential_openers['"'] = stack_bottom;
+	// initialize openers_bottom:
+	openers_bottom['*'] = stack_bottom;
+	openers_bottom['_'] = stack_bottom;
+	openers_bottom['\''] = stack_bottom;
+	openers_bottom['"'] = stack_bottom;
 
 	// move back to first relevant delim.
 	while (closer != NULL && closer->previous != stack_bottom) {
@@ -496,7 +496,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom)
 			opener = closer->previous;
 			opener_found = false;
 			while (opener != NULL && opener != stack_bottom &&
-			       opener != potential_openers[closer->delim_char]) {
+			       opener != openers_bottom[closer->delim_char]) {
 				if (opener->delim_char == closer->delim_char &&
 				    opener->can_open) {
 					opener_found = true;
@@ -534,7 +534,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom)
 			}
 			if (!opener_found) {
 				// set lower bound for future searches for openers:
-				potential_openers[old_closer->delim_char] = closer;
+				openers_bottom[old_closer->delim_char] = closer;
 				if (!old_closer->can_open) {
 					// we can remove a closer that can't be an
 					// opener, once we've seen there's no
