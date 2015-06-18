@@ -528,7 +528,7 @@ S_parser_feed(cmark_parser *parser, const unsigned char *buffer, size_t len,
 			if (parser->linebuf->size > 0) {
 				cmark_strbuf_put(parser->linebuf, buffer, chunk_len);
 				S_process_line(parser, parser->linebuf->ptr,
-					       parser->linebuf->size);
+				               parser->linebuf->size);
 				cmark_strbuf_clear(parser->linebuf);
 			} else {
 				S_process_line(parser, buffer, chunk_len);
@@ -669,11 +669,11 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			if (parser->indent >= container->as.list.marker_offset +
 			    container->as.list.padding) {
 				S_advance_offset(parser, &input,
-						 container->as.list.marker_offset +
-						 container->as.list.padding, true);
+				                 container->as.list.marker_offset +
+				                 container->as.list.padding, true);
 			} else if (parser->blank) {
 				S_advance_offset(parser, &input,
-						 parser->first_nonspace - parser->offset, false);
+				                 parser->first_nonspace - parser->offset, false);
 			} else {
 				all_matched = false;
 			}
@@ -685,8 +685,8 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 					S_advance_offset(parser, &input, CODE_INDENT, true);
 				} else if (parser->blank) {
 					S_advance_offset(parser, &input,
-							 parser->first_nonspace - parser->offset,
-							 false);
+					                 parser->first_nonspace - parser->offset,
+					                 false);
 				} else {
 					all_matched = false;
 				}
@@ -766,7 +766,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 		} else if (!indented && (matched = scan_atx_header_start(&input, parser->first_nonspace))) {
 
 			S_advance_offset(parser, &input,
-					 parser->first_nonspace + matched - parser->offset, false);
+			                 parser->first_nonspace + matched - parser->offset, false);
 			container = add_child(parser, container, NODE_HEADER, parser->offset + 1);
 
 			bufsize_t hashpos = cmark_chunk_strchr(&input, '#', parser->first_nonspace);
@@ -814,7 +814,7 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			// it's only now that we know the line is not part of a setext header:
 			container = add_child(parser, container, NODE_HRULE, parser->first_nonspace + 1);
 			container = finalize(parser, container);
-		        S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
+			S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
 
 		} else if ((matched = parse_list_marker(&input, parser->first_nonspace, &data)) &&
 		           (!indented || container->type == NODE_LIST)) {
