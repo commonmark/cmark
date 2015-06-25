@@ -1,4 +1,4 @@
-.TH cmark 3 "June 16, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "June 25, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -556,13 +556,7 @@ sequences with the replacement character U+FFFD.
 Version information
 
 .PP
-.nf
-\fC
-.RS 0n
-extern const int cmark_version;
-.RE
-\f[]
-.fi
+\fIint\f[] \fBcmark_version\f[](\fI\f[])
 
 .PP
 The library version as integer for runtime checks. Also available as
@@ -577,13 +571,7 @@ Bits 0\-7 contain the patchlevel.
 In hexadecimal format, the number 0x010203 represents version 1.2.3.
 
 .PP
-.nf
-\fC
-.RS 0n
-extern const char cmark_version_string[];
-.RE
-\f[]
-.fi
+\fIconst char *\f[] \fBcmark_version_string\f[](\fI\f[])
 
 .PP
 The library version string for runtime checks. Also available as

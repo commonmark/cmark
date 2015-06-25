@@ -525,13 +525,13 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width);
  * In hexadecimal format, the number 0x010203 represents version 1.2.3.
  */
 CMARK_EXPORT
-extern const int cmark_version;
+int cmark_version();
 
 /** The library version string for runtime checks. Also available as
  * macro CMARK_VERSION_STRING for compile time checks.
  */
 CMARK_EXPORT
-extern const char cmark_version_string[];
+const char *cmark_version_string();
 
 /** # AUTHORS
  *
