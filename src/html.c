@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
+#include "cmark_ctype.h"
 #include "config.h"
 #include "cmark.h"
 #include "node.h"
@@ -156,7 +156,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		} else {
 			bufsize_t first_tag = 0;
 			while (first_tag < node->as.code.info.len &&
-			       node->as.code.info.data[first_tag] != ' ') {
+			       !cmark_isspace(node->as.code.info.data[first_tag])) {
 				first_tag += 1;
 			}
 
