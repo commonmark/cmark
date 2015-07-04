@@ -109,7 +109,8 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 		false; \
 		;; \
 	esac
-	re2c --case-insensitive -b -i --no-generation-date -o $@ $<
+	re2c --case-insensitive -b -i --no-generation-date -8 \
+		--encoding-policy substitute -o $@ $<
 
 # We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:

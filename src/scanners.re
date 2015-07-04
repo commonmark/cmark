@@ -164,6 +164,7 @@ bufsize_t _scan_link_title(const unsigned char *p)
 // Match space characters, including newlines.
 bufsize_t _scan_spacechars(const unsigned char *p)
 {
+  const unsigned char *marker = NULL;
   const unsigned char *start = p; \
 /*!re2c
   [ \t\v\f\r\n]* { return (bufsize_t)(p - start); }
