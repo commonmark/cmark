@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run cmark tests.')
     parser.add_argument('-p', '--program', dest='program', nargs='?', default=None,
             help='program to test')
-    parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='test/spec.txt',
+    parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='spec.txt',
             help='path to spec')
     parser.add_argument('-P', '--pattern', dest='pattern', nargs='?',
             default=None, help='limit to sections matching regex pattern')
