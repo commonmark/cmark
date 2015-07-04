@@ -486,6 +486,11 @@ char *cmark_render_man(cmark_node *root, int options);
 CMARK_EXPORT
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 
+/** Render a 'node' tree as a LaTeX document.
+ */
+CMARK_EXPORT
+char *cmark_render_latex(cmark_node *root, int options, int width);
+
 /** Default writer options.
  */
 #define CMARK_OPT_DEFAULT 0

@@ -11,7 +11,7 @@ rationalized version of Markdown syntax with a [spec][the spec].
 
 It provides a shared library (`libcmark`) with functions for parsing
 CommonMark documents to an abstract syntax tree (AST), manipulating
-the AST, and rendering the document to HTML, groff man,
+the AST, and rendering the document to HTML, groff man, LaTeX,
 CommonMark, or an XML representation of the AST.  It also provides a
 command-line program (`cmark`) for parsing and rendering CommonMark
 documents.
@@ -43,7 +43,7 @@ Advantages of this library:
 - **Flexible.** CommonMark input is parsed to an AST which can be
   manipulated programatically prior to rendering.
 
-- **Multiple renderers.**  Output in HTML, groff man, CommonMark,
+- **Multiple renderers.**  Output in HTML, groff man, LaTeX, CommonMark,
   and a custom XML format is supported. And it is easy to write new
   renderers to support other formats.
 

@@ -32,6 +32,7 @@ set(LIBRARY_SOURCES
   xml.c
   html.c
   commonmark.c
+  latex.c
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
