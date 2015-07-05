@@ -117,8 +117,8 @@ static inline void out(struct render_state *state,
 			state->begin_line = true;
 			state->last_breakable = 0;
 		} else if (escape == LITERAL) {
-				utf8proc_encode_char(c, state->buffer);
-				state->column += 2;
+			utf8proc_encode_char(c, state->buffer);
+			state->column += 2;
 		} else {
 			switch(c) {
 			case 123: // '{'
@@ -146,14 +146,14 @@ static inline void out(struct render_state *state,
 			case 126: // '~'
 				if (escape == NORMAL) {
 					cmark_strbuf_puts(state->buffer,
-					  "\\textasciitilde{}");
+					                  "\\textasciitilde{}");
 				} else {
 					utf8proc_encode_char(c, state->buffer);
 				}
 				break;
 			case 94: // '^'
 				cmark_strbuf_puts(state->buffer,
-						  "\\^{}");
+				                  "\\^{}");
 				break;
 			case 92: // '\\'
 				if (escape == URL) {
@@ -161,20 +161,20 @@ static inline void out(struct render_state *state,
 					cmark_strbuf_puts(state->buffer, "/");
 				} else {
 					cmark_strbuf_puts(state->buffer,
-							  "\\textbackslash{}");
+					                  "\\textbackslash{}");
 				}
 				break;
 			case 124: // '|'
 				cmark_strbuf_puts(state->buffer,
-						  "\\textbar{}");
+				                  "\\textbar{}");
 				break;
 			case 60: // '<'
 				cmark_strbuf_puts(state->buffer,
-						  "\\textless{}");
+				                  "\\textless{}");
 				break;
 			case 62: // '>'
 				cmark_strbuf_puts(state->buffer,
-						  "\\textgreater{}");
+				                  "\\textgreater{}");
 				break;
 			case 91: // '['
 			case 93: // ']'
@@ -184,7 +184,7 @@ static inline void out(struct render_state *state,
 				break;
 			case 39: // '\''
 				cmark_strbuf_puts(state->buffer,
-						  "\\textquotesingle{}");
+				                  "\\textquotesingle{}");
 				break;
 			case 160: // nbsp
 				cmark_strbuf_putc(state->buffer, '~');
@@ -307,7 +307,7 @@ get_link_type(cmark_node *node)
 
 	link_text = node->first_child;
 	cmark_consolidate_text_nodes(link_text);
-        realurl = (char*)url->data;
+	realurl = (char*)url->data;
 	realurllen = url->len;
 	if (strncmp(realurl, "mailto:", 7) == 0) {
 		realurl += 7;
@@ -315,9 +315,9 @@ get_link_type(cmark_node *node)
 		isemail = true;
 	}
 	if (realurllen == link_text->as.literal.len &&
-	        strncmp(realurl,
-	                (char*)link_text->as.literal.data,
-	                link_text->as.literal.len) == 0) {
+	    strncmp(realurl,
+	            (char*)link_text->as.literal.data,
+	            link_text->as.literal.len) == 0) {
 		if (isemail) {
 			return EMAIL_AUTOLINK;
 		} else {
@@ -354,7 +354,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	cmark_chunk list_name;
 	cmark_chunk url;
 	const char* roman_numerals[] = { "", "i", "ii", "iii", "iv", "v",
-					"vi", "vii", "viii", "ix", "x" };
+	                                 "vi", "vii", "viii", "ix", "x"
+	                               };
 
 	// Don't adjust tight list status til we've started the list.
 	// Otherwise we loose the blank line between a paragraph and
@@ -391,8 +392,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_LIST:
 		list_type = cmark_node_get_list_type(node);
 		list_name = cmark_chunk_literal(
-			list_type == CMARK_ORDERED_LIST ?
-			"enumerate" : "itemize");
+		                list_type == CMARK_ORDERED_LIST ?
+		                "enumerate" : "itemize");
 		if (entering) {
 			if (list_type == CMARK_ORDERED_LIST) {
 				state->enumlevel++;
@@ -404,7 +405,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
 				snprintf(list_number_string, 19,
-					 "%d", list_number);
+				         "%d", list_number);
 				lit(state, "\\setcounter{enum", false);
 				lit(state, (char *)roman_numerals[state->enumlevel],
 				    false);
