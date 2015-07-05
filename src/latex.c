@@ -182,9 +182,15 @@ static inline void out(struct render_state *state,
 				utf8proc_encode_char(c, state->buffer);
 				cmark_strbuf_putc(state->buffer, '}');
 				break;
+			case 34: // '"'
+				cmark_strbuf_puts(state->buffer,
+				                  "\\textquotedbl{}");
+				// requires \usepackage[T1]{fontenc}
+				break;
 			case 39: // '\''
 				cmark_strbuf_puts(state->buffer,
 				                  "\\textquotesingle{}");
+				// requires \usepackage{textcomp}
 				break;
 			case 160: // nbsp
 				cmark_strbuf_putc(state->buffer, '~');
@@ -533,6 +539,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_LINK:
 		if (entering) {
 			url = cmark_chunk_literal(cmark_node_get_url(node));
+			// requires \usepackage{hyperref}
 			switch(get_link_type(node)) {
 			case URL_AUTOLINK:
 				lit(state, "\\url{", false);
@@ -561,6 +568,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			url = cmark_chunk_literal(cmark_node_get_url(node));
 			lit(state, "\\protect\\includegraphics{", false);
+			// requires \include{graphicx}
 			out(state, url, false, URL);
 			lit(state, "}", false);
 			state->silence = true; // don't print the alt text
