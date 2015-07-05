@@ -516,7 +516,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_STRONG:
 		if (entering) {
-			lit(state, "\\strong{", false);
+			lit(state, "\\textbf{", false);
 		} else {
 			lit(state, "}", false);
 		}
