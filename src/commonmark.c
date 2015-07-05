@@ -240,6 +240,8 @@ is_autolink(cmark_node *node)
 	cmark_chunk *title;
 	cmark_chunk *url;
 	cmark_node *link_text;
+	char *realurl;
+	int realurllen;
 
 	if (node->type != CMARK_NODE_LINK) {
 		return false;
@@ -258,8 +260,14 @@ is_autolink(cmark_node *node)
 
 	link_text = node->first_child;
 	cmark_consolidate_text_nodes(link_text);
-	return (url->len == link_text->as.literal.len &&
-	        strncmp((char*)url->data,
+        realurl = (char*)url->data;
+	realurllen = url->len;
+	if (strncmp(realurl, "mailto:", 7) == 0) {
+		realurl += 7;
+		realurllen -= 7;
+	}
+	return (realurllen == link_text->as.literal.len &&
+	        strncmp(realurl,
 	                (char*)link_text->as.literal.data,
 	                link_text->as.literal.len) == 0);
 }
