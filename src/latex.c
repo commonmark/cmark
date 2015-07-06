@@ -354,10 +354,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	cmark_node *tmp;
 	cmark_chunk *code;
 	int list_number;
+	int len;
 	char list_number_string[20];
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	cmark_list_type list_type;
-	cmark_chunk list_name;
 	cmark_chunk url;
 	const char* roman_numerals[] = { "", "i", "ii", "iii", "iv", "v",
 	                                 "vi", "vii", "viii", "ix", "x"
@@ -397,21 +397,26 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_LIST:
 		list_type = cmark_node_get_list_type(node);
-		list_name = cmark_chunk_literal(
-		                list_type == CMARK_ORDERED_LIST ?
-		                "enumerate" : "itemize");
 		if (entering) {
 			if (list_type == CMARK_ORDERED_LIST) {
 				state->enumlevel++;
 			}
 			lit(state, "\\begin{", false);
-			out(state, list_name, false, false);
+			lit(state,
+			    list_type == CMARK_ORDERED_LIST ?
+			    "enumerate" : "itemize", false);
 			lit(state, "}", false);
 			cr(state);
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
-				snprintf(list_number_string, 19,
+				len = snprintf(list_number_string, 19,
 				         "%d", list_number);
+#ifndef HAVE_C99_SNPRINTF
+				// Assume we're on Windows.
+				if (len < 0) {
+					len = _vscprintf("%d", list_number);
+				}
+#endif
 				lit(state, "\\setcounter{enum", false);
 				lit(state, (char *)roman_numerals[state->enumlevel],
 				    false);
@@ -427,11 +432,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				state->enumlevel--;
 			}
 			lit(state, "\\end{", false);
-			out(state, list_name, false, false);
+			lit(state,
+			    list_type == CMARK_ORDERED_LIST ?
+			    "enumerate" : "itemize", false);
 			lit(state, "}", false);
 			blankline(state);
 		}
-		cmark_chunk_free(&list_name);
 		break;
 
 	case CMARK_NODE_ITEM:
