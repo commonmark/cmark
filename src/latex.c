@@ -414,7 +414,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 #ifndef HAVE_C99_SNPRINTF
 				// Assume we're on Windows.
 				if (len < 0) {
-					len = _vscprintf("%d", list_number);
+					len = _snprintf("%d", list_number);
 				}
 #endif
 				lit(state, "\\setcounter{enum", false);
