@@ -409,14 +409,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cr(state);
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
-#ifdef HAVE_C99_SNPRINTF
-				len = snprintf(list_number_string, 19,
+				len = sprintf(list_number_string,
 				         "%d", list_number);
-#else
-				// Assume we're on Windows.
-				len = _snprintf("%d", 19,
-						"%d", list_number);
-#endif
 				lit(state, "\\setcounter{enum", false);
 				lit(state, (char *)roman_numerals[state->enumlevel],
 				    false);
