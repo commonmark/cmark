@@ -352,9 +352,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
               struct render_state *state)
 {
 	cmark_node *tmp;
-	cmark_chunk *code;
 	int list_number;
-	int len;
 	char list_number_string[20];
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	cmark_list_type list_type;
@@ -409,7 +407,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cr(state);
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
-				len = sprintf(list_number_string,
+				sprintf(list_number_string,
 				         "%d", list_number);
 				lit(state, "\\setcounter{enum", false);
 				lit(state, (char *)roman_numerals[state->enumlevel],
@@ -472,7 +470,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		cr(state);
 		lit(state, "\\begin{verbatim}", false);
 		cr(state);
-		code = &node->as.code.literal;
 		out(state, node->as.code.literal, false, LITERAL);
 		cr(state);
 		lit(state, "\\end{verbatim}", false);
