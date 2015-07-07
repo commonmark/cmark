@@ -52,7 +52,7 @@ def do_test(test, normalize, result_counts):
             result_counts['pass'] += 1
         else:
             print_test_header(test['section'], test['example'], test['start_line'], test['end_line'])
-            sys.stdout.write(test['markdown'])
+            sys.stdout.buffer.write(test['markdown'].encode('utf-8'))
             if unicode_error:
                 print("Unicode error: " + str(unicode_error))
                 print("Expected: " + repr(expected_html))
@@ -62,7 +62,7 @@ def do_test(test, normalize, result_counts):
                 actual_html_lines = actual_html.splitlines(True)
                 for diffline in unified_diff(expected_html_lines, actual_html_lines,
                                 "expected HTML", "actual HTML"):
-                    sys.stdout.write(diffline)
+                    sys.stdout.buffer.write(diffline.encode('utf-8'))
             sys.stdout.write('\n')
             result_counts['fail'] += 1
     else:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         pattern_re = re.compile('.')
     tests = [ test for test in all_tests if re.search(pattern_re, test['section']) and (not args.number or test['example'] == args.number) ]
     if args.dump_tests:
-        print(json.dumps(tests, ensure_ascii=False, indent=2))
+        sys.stdout.buffer.write(json.dumps(tests, ensure_ascii=False, indent=2).encode('utf-8'))
         exit(0)
     else:
         skipped = len(all_tests) - len(tests)
