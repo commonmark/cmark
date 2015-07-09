@@ -69,6 +69,7 @@ struct cmark_node {
 		cmark_code        code;
 		cmark_header      header;
 		cmark_link        link;
+		int               html_block_type;
 	} as;
 };
 

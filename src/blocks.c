@@ -722,8 +722,23 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 
 		} else if (container->type == NODE_HTML) {
 
-			if (parser->blank) {
-				all_matched = false;
+			switch (container->as.html_block_type) {
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+				// these types of blocks can accept blanks
+				break;
+			case 6:
+			case 7:
+				if (parser->blank) {
+					all_matched = false;
+				}
+				break;
+			default:
+				log_err("Unknown HTML block type %d", container->as.html_block_type);
+				exit(1);
 			}
 
 		} else if (container->type == NODE_PARAGRAPH) {
@@ -789,9 +804,13 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			container->as.code.info = cmark_chunk_literal("");
 			S_advance_offset(parser, &input, parser->first_nonspace + matched - parser->offset, false);
 
-		} else if (!indented && (matched = scan_html_block_tag(&input, parser->first_nonspace))) {
+		} else if (!indented &&
+			   ((matched = scan_html_block_start(&input, parser->first_nonspace)) ||
+			    (container->type != NODE_PARAGRAPH &&
+			     (matched = scan_html_block_start_7(&input, parser->first_nonspace))))) {
 
 			container = add_child(parser, container, NODE_HTML, parser->first_nonspace + 1);
+			container->as.html_block_type = matched;
 			// note, we don't adjust parser->offset because the tag is part of the text
 
 		} else if (!indented &&
@@ -923,10 +942,50 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			assert(parser->current != NULL);
 		}
 
-		if (container->type == NODE_CODE_BLOCK ||
-		    container->type == NODE_HTML) {
+		if (container->type == NODE_CODE_BLOCK) {
 
 			add_line(container, &input, parser->offset);
+
+		} else if (container->type == NODE_HTML) {
+
+			add_line(container, &input, parser->offset);
+
+			int matches_end_condition;
+			switch (container->as.html_block_type) {
+			case 1:
+				// </script>, </style>, </pre>
+				matches_end_condition =
+					scan_html_block_end_1(&input, parser->first_nonspace);
+				break;
+			case 2:
+				// -->
+				matches_end_condition =
+					scan_html_block_end_2(&input, parser->first_nonspace);
+				break;
+			case 3:
+				// ?>
+				matches_end_condition =
+					scan_html_block_end_3(&input, parser->first_nonspace);
+				break;
+			case 4:
+				// >
+				matches_end_condition =
+					scan_html_block_end_4(&input, parser->first_nonspace);
+				break;
+			case 5:
+				// ]]>
+				matches_end_condition =
+					scan_html_block_end_5(&input, parser->first_nonspace);
+				break;
+			default:
+				matches_end_condition = 0;
+				break;
+			}
+
+			if (matches_end_condition) {
+				container = finalize(parser, container);
+				assert(parser->current != NULL);
+			}
 
 		} else if (parser->blank) {
 
