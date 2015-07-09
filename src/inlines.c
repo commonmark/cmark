@@ -437,18 +437,47 @@ static cmark_node* handle_delim(subject* subj, unsigned char c, bool smart)
 // Assumes we have a hyphen at the current position.
 static cmark_node* handle_hyphen(subject* subj, bool smart)
 {
+	int startpos = subj->pos;
+
 	advance(subj);
-	if (smart && peek_char(subj) == '-') {
-		advance(subj);
-		if (peek_char(subj) == '-') {
-			advance(subj);
-			return make_str(cmark_chunk_literal(EMDASH));
-		} else {
-			return make_str(cmark_chunk_literal(ENDASH));
-		}
-	} else {
+
+	if (!smart || peek_char(subj) != '-') {
 		return make_str(cmark_chunk_literal("-"));
 	}
+
+	while (smart && peek_char(subj) == '-') {
+		advance(subj);
+	}
+
+	int numhyphens = subj->pos - startpos;
+	int en_count = 0;
+	int em_count = 0;
+	int i;
+	cmark_strbuf buf = GH_BUF_INIT;
+
+	assert(numyphens > 1);
+
+	if (numhyphens % 3 == 0) { // if divisible by 3, use all em dashes
+		em_count = numhyphens / 3;
+	} else if (numhyphens % 2 == 0) { // if divisible by 2, use all en dashes
+		en_count = numhyphens / 2;
+	} else if (numhyphens % 3 == 2) { // use one en dash at end
+		en_count = 1;
+		em_count = (numhyphens - 2) / 3;
+	} else { // use two en dashes at the end
+		en_count = 2;
+		em_count = (numhyphens - 4) / 3;
+	}
+
+	for (i = em_count; i > 0; i--) {
+		cmark_strbuf_puts(&buf, EMDASH);
+	}
+
+	for (i = en_count; i > 0; i--) {
+		cmark_strbuf_puts(&buf, ENDASH);
+	}
+
+	return make_str(cmark_chunk_buf_detach(&buf));
 }
 
 // Assumes we have a period at the current position.
