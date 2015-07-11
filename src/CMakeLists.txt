@@ -9,7 +9,6 @@ set(HEADERS
   iterator.h
   chunk.h
   references.h
-  debug.h
   bench.h
   utf8.h
   scanners.h

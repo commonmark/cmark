@@ -4,7 +4,6 @@
 #include <errno.h>
 #include "config.h"
 #include "cmark.h"
-#include "debug.h"
 #include "bench.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)

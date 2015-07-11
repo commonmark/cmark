@@ -13,7 +13,6 @@
 #include "inlines.h"
 #include "houdini.h"
 #include "buffer.h"
-#include "debug.h"
 
 #define CODE_INDENT 4
 #define TAB_STOP 4
@@ -737,7 +736,10 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 				}
 				break;
 			default:
-				log_err("Unknown HTML block type %d", container->as.html_block_type);
+				fprintf(stderr,
+					"Error (%s:%d): Unknown HTML block type %d\n",
+					__FILE__, __LINE__,
+					container->as.html_block_type);
 				exit(1);
 			}
 
