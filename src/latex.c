@@ -10,273 +10,172 @@
 #include "buffer.h"
 #include "utf8.h"
 #include "scanners.h"
+#include "render.h"
 
-// Functions to convert cmark_nodes to commonmark strings.
-
-struct render_state {
-	int options;
-	cmark_strbuf* buffer;
-	cmark_strbuf* prefix;
-	int column;
-	int width;
-	int need_cr;
-	int enumlevel;
-	bufsize_t last_breakable;
-	bool begin_line;
-	bool no_wrap;
-	bool in_tight_list_item;
-	bool silence;
-};
-
-static inline void cr(struct render_state *state)
+static inline void outc(cmark_render_state *state,
+			cmark_escaping escape,
+			int32_t c,
+			unsigned char nextc)
 {
-	if (state->need_cr < 1) {
-		state->need_cr = 1;
-	}
-}
-
-static inline void blankline(struct render_state *state)
-{
-	if (state->need_cr < 2) {
-		state->need_cr = 2;
-	}
-}
-
-typedef enum  {
-	LITERAL,
-	NORMAL,
-	URL
-} escaping;
-
-static inline void out(struct render_state *state,
-                       cmark_chunk str,
-                       bool wrap,
-                       escaping escape)
-{
-	unsigned char* source = str.data;
-	int length = str.len;
-	unsigned char nextc;
-	int32_t c;
-	int i = 0;
-	int len;
-	cmark_chunk remainder = cmark_chunk_literal("");
-	int k = state->buffer->size - 1;
-
-	if (state->silence)
-		return;
-
-	wrap = wrap && !state->no_wrap;
-
-	if (state->in_tight_list_item && state->need_cr > 1) {
-		state->need_cr = 1;
-	}
-	while (state->need_cr) {
-		if (k < 0 || state->buffer->ptr[k] == '\n') {
-			k -= 1;
-		} else {
-			cmark_strbuf_putc(state->buffer, '\n');
-			if (state->need_cr > 1) {
-				cmark_strbuf_put(state->buffer, state->prefix->ptr,
-				                 state->prefix->size);
-			}
-		}
-		state->column = 0;
-		state->begin_line = true;
-		state->need_cr -= 1;
-	}
-
-	while (i < length) {
-		if (state->begin_line) {
-			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-			                 state->prefix->size);
-			// note: this assumes prefix is ascii:
-			state->column = state->prefix->size;
-		}
-
-		len = utf8proc_iterate(source + i, length - i, &c);
-		if (len == -1) { // error condition
-			return;  // return without rendering rest of string
-		}
-		nextc = source[i + len];
-		if (c == 32 && wrap) {
-			if (!state->begin_line) {
-				cmark_strbuf_putc(state->buffer, ' ');
-				state->column += 1;
-				state->begin_line = false;
-				state->last_breakable = state->buffer->size -
-				                        1;
-				// skip following spaces
-				while (source[i + 1] == ' ') {
-					i++;
-				}
-			}
-
-		} else if (c == 10) {
-			cmark_strbuf_putc(state->buffer, '\n');
-			state->column = 0;
-			state->begin_line = true;
-			state->last_breakable = 0;
-		} else if (escape == LITERAL) {
+	if (escape == LITERAL) {
+		utf8proc_encode_char(c, state->buffer);
+		state->column += 1;
+	} else {
+		switch(c) {
+		case 123: // '{'
+		case 125: // '}'
+		case 35: // '#'
+		case 37: // '%'
+		case 38: // '&'
+			cmark_strbuf_putc(state->buffer, '\\');
 			utf8proc_encode_char(c, state->buffer);
 			state->column += 2;
-		} else {
-			switch(c) {
-			case 123: // '{'
-			case 125: // '}'
-			case 35: // '#'
-			case 37: // '%'
-			case 38: // '&'
+			break;
+		case 36: // '$'
+		case 95: // '_'
+			if (escape == NORMAL) {
 				cmark_strbuf_putc(state->buffer, '\\');
-				utf8proc_encode_char(c, state->buffer);
-				state->column += 2;
-				break;
-			case 36: // '$'
-			case 95: // '_'
-				if (escape == NORMAL) {
-					cmark_strbuf_putc(state->buffer, '\\');
-				}
-				utf8proc_encode_char(c, state->buffer);
-				break;
-			case 45 : // '-'
-				if (nextc == 45) { // prevent ligature
-					cmark_strbuf_putc(state->buffer, '\\');
-				}
-				utf8proc_encode_char(c, state->buffer);
-				break;
-			case 126: // '~'
-				if (escape == NORMAL) {
-					cmark_strbuf_puts(state->buffer,
-					                  "\\textasciitilde{}");
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 94: // '^'
+				state->column += 1;
+			}
+			utf8proc_encode_char(c, state->buffer);
+			state->column += 1;
+			break;
+		case 45 : // '-'
+			if (nextc == 45) { // prevent ligature
+				cmark_strbuf_putc(state->buffer, '\\');
+				state->column += 1;
+			}
+			utf8proc_encode_char(c, state->buffer);
+			state->column += 1;
+			break;
+		case 126: // '~'
+			if (escape == NORMAL) {
 				cmark_strbuf_puts(state->buffer,
-				                  "\\^{}");
-				break;
-			case 92: // '\\'
-				if (escape == URL) {
-					// / acts as path sep even on windows:
-					cmark_strbuf_puts(state->buffer, "/");
-				} else {
-					cmark_strbuf_puts(state->buffer,
-					                  "\\textbackslash{}");
-				}
-				break;
-			case 124: // '|'
-				cmark_strbuf_puts(state->buffer,
-				                  "\\textbar{}");
-				break;
-			case 60: // '<'
-				cmark_strbuf_puts(state->buffer,
-				                  "\\textless{}");
-				break;
-			case 62: // '>'
-				cmark_strbuf_puts(state->buffer,
-				                  "\\textgreater{}");
-				break;
-			case 91: // '['
-			case 93: // ']'
-				cmark_strbuf_putc(state->buffer, '{');
-				utf8proc_encode_char(c, state->buffer);
-				cmark_strbuf_putc(state->buffer, '}');
-				break;
-			case 34: // '"'
-				cmark_strbuf_puts(state->buffer,
-				                  "\\textquotedbl{}");
-				// requires \usepackage[T1]{fontenc}
-				break;
-			case 39: // '\''
-				cmark_strbuf_puts(state->buffer,
-				                  "\\textquotesingle{}");
-				// requires \usepackage{textcomp}
-				break;
-			case 160: // nbsp
-				cmark_strbuf_putc(state->buffer, '~');
-				break;
-			case 8230: // hellip
-				cmark_strbuf_puts(state->buffer, "\\ldots{}");
-				break;
-			case 8216: // lsquo
-				if (escape == NORMAL) {
-					cmark_strbuf_putc(state->buffer, '`');
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 8217: // rsquo
-				if (escape == NORMAL) {
-					cmark_strbuf_putc(state->buffer, '\'');
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 8220: // ldquo
-				if (escape == NORMAL) {
-					cmark_strbuf_puts(state->buffer, "``");
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 8221: // rdquo
-				if (escape == NORMAL) {
-					cmark_strbuf_puts(state->buffer, "''");
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 8212: // emdash
-				if (escape == NORMAL) {
-					cmark_strbuf_puts(state->buffer, "---");
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			case 8211: // endash
-				if (escape == NORMAL) {
-					cmark_strbuf_puts(state->buffer, "--");
-				} else {
-					utf8proc_encode_char(c, state->buffer);
-				}
-				break;
-			default:
+						  "\\textasciitilde{}");
+				state->column += 17;
+			} else {
 				utf8proc_encode_char(c, state->buffer);
 				state->column += 1;
-				state->begin_line = false;
 			}
-		}
-
-		// If adding the character went beyond width, look for an
-		// earlier place where the line could be broken:
-		if (state->width > 0 &&
-		    state->column > state->width &&
-		    !state->begin_line &&
-		    state->last_breakable > 0) {
-
-			// copy from last_breakable to remainder
-			cmark_chunk_set_cstr(&remainder, (char *) state->buffer->ptr + state->last_breakable + 1);
-			// truncate at last_breakable
-			cmark_strbuf_truncate(state->buffer, state->last_breakable);
-			// add newline, prefix, and remainder
-			cmark_strbuf_putc(state->buffer, '\n');
-			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-			                 state->prefix->size);
-			cmark_strbuf_put(state->buffer, remainder.data, remainder.len);
-			state->column = state->prefix->size + remainder.len;
-			cmark_chunk_free(&remainder);
-			state->last_breakable = 0;
+			break;
+		case 94: // '^'
+			cmark_strbuf_puts(state->buffer,
+					  "\\^{}");
+			state->column += 4;
+			break;
+		case 92: // '\\'
+			if (escape == URL) {
+				// / acts as path sep even on windows:
+				cmark_strbuf_puts(state->buffer, "/");
+				state->column += 1;
+			} else {
+				cmark_strbuf_puts(state->buffer,
+						  "\\textbackslash{}");
+				state->column += 16;
+			}
+			break;
+		case 124: // '|'
+			cmark_strbuf_puts(state->buffer,
+					  "\\textbar{}");
+			state->column += 10;
+			break;
+		case 60: // '<'
+			cmark_strbuf_puts(state->buffer,
+					  "\\textless{}");
+			state->column += 11;
+			break;
+		case 62: // '>'
+			cmark_strbuf_puts(state->buffer,
+					  "\\textgreater{}");
+			state->column += 14;
+			break;
+		case 91: // '['
+		case 93: // ']'
+			cmark_strbuf_putc(state->buffer, '{');
+			utf8proc_encode_char(c, state->buffer);
+			cmark_strbuf_putc(state->buffer, '}');
+			state->column += 3;
+			break;
+		case 34: // '"'
+			cmark_strbuf_puts(state->buffer,
+					  "\\textquotedbl{}");
+			// requires \usepackage[T1]{fontenc}
+			state->column += 15;
+			break;
+		case 39: // '\''
+			cmark_strbuf_puts(state->buffer,
+					  "\\textquotesingle{}");
+			state->column += 18;
+			// requires \usepackage{textcomp}
+			break;
+		case 160: // nbsp
+			cmark_strbuf_putc(state->buffer, '~');
+			state->column += 1;
+			break;
+		case 8230: // hellip
+			cmark_strbuf_puts(state->buffer, "\\ldots{}");
+			state->column += 8;
+			break;
+		case 8216: // lsquo
+			if (escape == NORMAL) {
+				cmark_strbuf_putc(state->buffer, '`');
+				state->column += 1;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		case 8217: // rsquo
+			if (escape == NORMAL) {
+				cmark_strbuf_putc(state->buffer, '\'');
+				state->column += 1;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		case 8220: // ldquo
+			if (escape == NORMAL) {
+				cmark_strbuf_puts(state->buffer, "``");
+				state->column += 2;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		case 8221: // rdquo
+			if (escape == NORMAL) {
+				cmark_strbuf_puts(state->buffer, "''");
+				state->column += 2;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		case 8212: // emdash
+			if (escape == NORMAL) {
+				cmark_strbuf_puts(state->buffer, "---");
+				state->column += 3;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		case 8211: // endash
+			if (escape == NORMAL) {
+				cmark_strbuf_puts(state->buffer, "--");
+				state->column += 2;
+			} else {
+				utf8proc_encode_char(c, state->buffer);
+				state->column += 1;
+			}
+			break;
+		default:
+			utf8proc_encode_char(c, state->buffer);
+			state->column += 1;
 			state->begin_line = false;
 		}
-
-		i += len;
 	}
-}
-
-static void lit(struct render_state *state, char *s, bool wrap)
-{
-	cmark_chunk str = cmark_chunk_literal(s);
-	out(state, str, wrap, LITERAL);
 }
 
 typedef enum  {
@@ -349,7 +248,7 @@ get_containing_block(cmark_node *node)
 
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
-              struct render_state *state)
+              cmark_render_state *state)
 {
 	cmark_node *tmp;
 	int list_number;
@@ -568,9 +467,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// requires \include{graphicx}
 			out(state, url, false, URL);
 			lit(state, "}", false);
-			state->silence = true; // don't print the alt text
-		} else {
-			state->silence = false;
+			return 0;
 		}
 		break;
 
@@ -584,32 +481,5 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 char *cmark_render_latex(cmark_node *root, int options, int width)
 {
-	char *result;
-	cmark_strbuf commonmark = GH_BUF_INIT;
-	cmark_strbuf prefix = GH_BUF_INIT;
-	if (CMARK_OPT_HARDBREAKS & options) {
-		width = 0;
-	}
-	struct render_state state = {
-		options, &commonmark, &prefix, 0, width,
-		0, 0, 0, true, false, false, false
-	};
-	cmark_node *cur;
-	cmark_event_type ev_type;
-	cmark_iter *iter = cmark_iter_new(root);
-
-	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
-		cur = cmark_iter_get_node(iter);
-		if (!S_render_node(cur, ev_type, &state)) {
-			// a false value causes us to skip processing
-			// the node's contents.  this is used for
-			// autolinks.
-			cmark_iter_reset(iter, cur, CMARK_EVENT_EXIT);
-		}
-	}
-	result = (char *)cmark_strbuf_detach(&commonmark);
-
-	cmark_strbuf_free(&prefix);
-	cmark_iter_free(iter);
-	return result;
+	return cmark_render(root, options, width, outc, S_render_node);
 }

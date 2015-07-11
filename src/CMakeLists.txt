@@ -15,6 +15,7 @@ set(HEADERS
   inlines.h
   houdini.h
   cmark_ctype.h
+  render.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -27,6 +28,7 @@ set(LIBRARY_SOURCES
   utf8.c
   buffer.c
   references.c
+  render.c
   man.c
   xml.c
   html.c
