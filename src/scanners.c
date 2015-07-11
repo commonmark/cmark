@@ -11116,7 +11116,7 @@ bufsize_t _scan_html_tag(const unsigned char *p)
 		230, 230, 230, 230, 230, 230, 230, 230, 
 		230, 230, 230, 230, 230, 230, 230, 230, 
 		199, 230,  70, 230, 230, 230, 230, 134, 
-		230, 230, 230, 230, 230, 246, 246, 230, 
+		230, 230, 230, 230, 230, 254, 246, 230, 
 		254, 254, 254, 254, 254, 254, 254, 254, 
 		254, 254, 246, 230, 198, 198, 196, 230, 
 		230, 254, 254, 254, 254, 254, 254, 254, 
@@ -11222,19 +11222,20 @@ yy1261:
 	{ return 0; }
 yy1262:
 	yych = *(marker = ++p);
-	if (yych <= '9') {
-		if (yych <= 0x1F) {
+	if (yych <= '/') {
+		if (yych <= ' ') {
 			if (yych <= 0x08) goto yy1261;
 			if (yych <= '\r') goto yy1366;
-			goto yy1261;
+			if (yych <= 0x1F) goto yy1261;
+			goto yy1366;
 		} else {
-			if (yych <= ' ') goto yy1366;
+			if (yych == '-') goto yy1364;
 			if (yych <= '.') goto yy1261;
-			if (yych <= '/') goto yy1368;
-			goto yy1364;
+			goto yy1368;
 		}
 	} else {
 		if (yych <= '@') {
+			if (yych <= '9') goto yy1364;
 			if (yych == '>') goto yy1285;
 			goto yy1261;
 		} else {
@@ -11993,18 +11994,19 @@ yy1362:
 yy1364:
 	++p;
 	yych = *p;
-	if (yych <= '9') {
-		if (yych <= 0x1F) {
+	if (yych <= '/') {
+		if (yych <= ' ') {
 			if (yych <= 0x08) goto yy1268;
-			if (yych >= 0x0E) goto yy1268;
+			if (yych <= '\r') goto yy1366;
+			if (yych <= 0x1F) goto yy1268;
 		} else {
-			if (yych <= ' ') goto yy1366;
+			if (yych == '-') goto yy1364;
 			if (yych <= '.') goto yy1268;
-			if (yych <= '/') goto yy1368;
-			goto yy1364;
+			goto yy1368;
 		}
 	} else {
 		if (yych <= '@') {
+			if (yych <= '9') goto yy1364;
 			if (yych == '>') goto yy1285;
 			goto yy1268;
 		} else {
@@ -14084,7 +14086,7 @@ bufsize_t _scan_html_block_start_7(const unsigned char *p)
 		224, 224, 224, 224, 224, 224, 224, 224, 
 		224, 224, 224, 224, 224, 224, 224, 224, 
 		198, 224,  64, 224, 224, 224, 224, 128, 
-		224, 224, 224, 224, 224, 240, 240, 224, 
+		224, 224, 224, 224, 224, 241, 240, 224, 
 		241, 241, 241, 241, 241, 241, 241, 241, 
 		241, 241, 240, 224, 192, 192, 192, 224, 
 		224, 241, 241, 241, 241, 241, 241, 241, 
@@ -14222,13 +14224,18 @@ yy1641:
 	if (yybm[0+yych] & 2) {
 		goto yy1643;
 	}
-	if (yych <= '>') {
-		if (yych <= '/') goto yy1631;
-		if (yych <= '9') goto yy1641;
-		if (yych <= '=') goto yy1631;
-		goto yy1645;
+	if (yych <= '=') {
+		if (yych <= '-') {
+			if (yych <= ',') goto yy1631;
+			goto yy1641;
+		} else {
+			if (yych <= '/') goto yy1631;
+			if (yych <= '9') goto yy1641;
+			goto yy1631;
+		}
 	} else {
 		if (yych <= 'Z') {
+			if (yych <= '>') goto yy1645;
 			if (yych <= '@') goto yy1631;
 			goto yy1641;
 		} else {
