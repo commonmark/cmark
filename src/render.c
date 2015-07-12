@@ -5,36 +5,6 @@
 #include "utf8.h"
 #include "render.h"
 
-static inline
-cmark_render_state
-cmark_initialize_render_state(int options, int width,
-			      void (*outc)(cmark_render_state*,
-				           cmark_escaping,
-					   int32_t,
-					   unsigned char))
-{
-	cmark_strbuf *pref = (cmark_strbuf*)malloc(sizeof(cmark_strbuf));
-	cmark_strbuf *buf  = (cmark_strbuf*)malloc(sizeof(cmark_strbuf));
-	cmark_strbuf_init(pref, 16);
-	cmark_strbuf_init(buf, 1024);
-	cmark_render_state state = { options, buf, pref, 0, width,
-				     0, 0, 0, true, false, false, outc };
-	return state;
-}
-
-static inline
-char *
-cmark_finalize_render_state(cmark_render_state *state)
-{
-	char * result;
-	result = (char *)cmark_strbuf_detach(state->buffer);
-	cmark_strbuf_free(state->prefix);
-	cmark_strbuf_free(state->buffer);
-	free(state->prefix);
-	free(state->buffer);
-	return result;
-}
-
 void cr(cmark_render_state *state)
 {
 	if (state->need_cr < 1) {
@@ -162,13 +132,20 @@ cmark_render(cmark_node *root,
 				 cmark_event_type ev_type,
 				 cmark_render_state *state))
 {
+	cmark_strbuf pref = GH_BUF_INIT;
+	cmark_strbuf buf = GH_BUF_INIT;
+	cmark_node *cur;
+	cmark_event_type ev_type;
+	char *result;
+	cmark_iter *iter = cmark_iter_new(root);
+
+
 	if (CMARK_OPT_HARDBREAKS & options) {
 		width = 0;
 	}
-	cmark_render_state state = cmark_initialize_render_state(options, width, outc);
-	cmark_node *cur;
-	cmark_event_type ev_type;
-	cmark_iter *iter = cmark_iter_new(root);
+
+	cmark_render_state state = { options, &buf, &pref, 0, width,
+				     0, 0, 0, true, false, false, outc };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
@@ -180,7 +157,11 @@ cmark_render(cmark_node *root,
 		}
 	}
 
-	cmark_iter_free(iter);
+	result = (char *)cmark_strbuf_detach(state.buffer);
 
-	return cmark_finalize_render_state(&state);
+	cmark_iter_free(iter);
+	cmark_strbuf_free(state.prefix);
+	cmark_strbuf_free(state.buffer);
+
+	return result;
 }
