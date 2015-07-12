@@ -31,17 +31,17 @@ parse_document.argtypes = [c_char_p, c_long]
 
 render_man = cmark.cmark_render_man
 render_man.restype = c_char_p
-render_man.argtypes = [c_void_p]
+render_man.argtypes = [c_void_p, c_long, c_long]
 
 def md2man(text):
     if sys.version_info >= (3,0):
         textbytes = text.encode('utf-8')
         textlen = len(textbytes)
-        return render_man(parse_document(textbytes, textlen)).decode('utf-8')
+        return render_man(parse_document(textbytes, textlen), 0, 65).decode('utf-8')
     else:
         textbytes = text
         textlen = len(text)
-        return render_man(parse_document(textbytes, textlen))
+        return render_man(parse_document(textbytes, textlen), 0, 72)
 
 comment_start_re = re.compile('^\/\*\* ?')
 comment_delim_re = re.compile('^[/ ]\** ?')
