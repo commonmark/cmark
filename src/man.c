@@ -34,7 +34,7 @@ void S_outc(cmark_renderer *renderer,
 	switch(c) {
 	case 46:
 		if (renderer->begin_line) {
-			LIT("\\&.");
+			ASCII("\\&.");
 		} else {
 			utf8proc_encode_char(c, renderer->buffer);
 			renderer->column += 1;
@@ -42,35 +42,35 @@ void S_outc(cmark_renderer *renderer,
 		break;
 	case 39:
 		if (renderer->begin_line) {
-			LIT("\\&'");
+			ASCII("\\&'");
 		} else {
 			utf8proc_encode_char(c, renderer->buffer);
 			renderer->column += 1;
 		}
 		break;
 	case 45:
-		LIT("\\-");
+		ASCII("\\-");
 		break;
 	case 92:
-		LIT("\\e");
+		ASCII("\\e");
 		break;
 	case 8216: // left single quote
-		LIT("\\[oq]");
+		ASCII("\\[oq]");
 		break;
 	case 8217: // right single quote
-		LIT("\\[cq]");
+		ASCII("\\[cq]");
 		break;
 	case 8220: // left double quote
-		LIT("\\[lq]");
+		ASCII("\\[lq]");
 		break;
 	case 8221: // right double quote
-		LIT("\\[rq]");
+		ASCII("\\[rq]");
 		break;
 	case 8212: // em dash
-		LIT("\\[em]");
+		ASCII("\\[em]");
 		break;
 	case 8211: // en dash
-		LIT("\\[en]");
+		ASCII("\\[en]");
 		break;
 	default:
 		utf8proc_encode_char(c, renderer->buffer);
