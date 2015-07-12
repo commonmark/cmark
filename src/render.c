@@ -5,21 +5,21 @@
 #include "utf8.h"
 #include "render.h"
 
-void cr(cmark_render_state *state)
+void cr(cmark_renderer *renderer)
 {
-	if (state->need_cr < 1) {
-		state->need_cr = 1;
+	if (renderer->need_cr < 1) {
+		renderer->need_cr = 1;
 	}
 }
 
-void blankline(cmark_render_state *state)
+void blankline(cmark_renderer *renderer)
 {
-	if (state->need_cr < 2) {
-		state->need_cr = 2;
+	if (renderer->need_cr < 2) {
+		renderer->need_cr = 2;
 	}
 }
 
-void out(cmark_render_state *state,
+void out(cmark_renderer *renderer,
 	 cmark_chunk str,
 	 bool wrap,
 	 cmark_escaping escape)
@@ -31,34 +31,34 @@ void out(cmark_render_state *state,
 	int i = 0;
 	int len;
 	cmark_chunk remainder = cmark_chunk_literal("");
-	int k = state->buffer->size - 1;
+	int k = renderer->buffer->size - 1;
 
-	wrap = wrap && !state->no_wrap;
+	wrap = wrap && !renderer->no_wrap;
 
-	if (state->in_tight_list_item && state->need_cr > 1) {
-		state->need_cr = 1;
+	if (renderer->in_tight_list_item && renderer->need_cr > 1) {
+		renderer->need_cr = 1;
 	}
-	while (state->need_cr) {
-		if (k < 0 || state->buffer->ptr[k] == '\n') {
+	while (renderer->need_cr) {
+		if (k < 0 || renderer->buffer->ptr[k] == '\n') {
 			k -= 1;
 		} else {
-			cmark_strbuf_putc(state->buffer, '\n');
-			if (state->need_cr > 1) {
-				cmark_strbuf_put(state->buffer, state->prefix->ptr,
-				                 state->prefix->size);
+			cmark_strbuf_putc(renderer->buffer, '\n');
+			if (renderer->need_cr > 1) {
+				cmark_strbuf_put(renderer->buffer, renderer->prefix->ptr,
+				                 renderer->prefix->size);
 			}
 		}
-		state->column = 0;
-		state->begin_line = true;
-		state->need_cr -= 1;
+		renderer->column = 0;
+		renderer->begin_line = true;
+		renderer->need_cr -= 1;
 	}
 
 	while (i < length) {
-		if (state->begin_line) {
-			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-			                 state->prefix->size);
+		if (renderer->begin_line) {
+			cmark_strbuf_put(renderer->buffer, renderer->prefix->ptr,
+			                 renderer->prefix->size);
 			// note: this assumes prefix is ascii:
-			state->column = state->prefix->size;
+			renderer->column = renderer->prefix->size;
 		}
 
 		len = utf8proc_iterate(source + i, length - i, &c);
@@ -67,11 +67,11 @@ void out(cmark_render_state *state,
 		}
 		nextc = source[i + len];
 		if (c == 32 && wrap) {
-			if (!state->begin_line) {
-				cmark_strbuf_putc(state->buffer, ' ');
-				state->column += 1;
-				state->begin_line = false;
-				state->last_breakable = state->buffer->size -
+			if (!renderer->begin_line) {
+				cmark_strbuf_putc(renderer->buffer, ' ');
+				renderer->column += 1;
+				renderer->begin_line = false;
+				renderer->last_breakable = renderer->buffer->size -
 				                        1;
 				// skip following spaces
 				while (source[i + 1] == ' ') {
@@ -80,57 +80,57 @@ void out(cmark_render_state *state,
 			}
 
 		} else if (c == 10) {
-			cmark_strbuf_putc(state->buffer, '\n');
-			state->column = 0;
-			state->begin_line = true;
-			state->last_breakable = 0;
+			cmark_strbuf_putc(renderer->buffer, '\n');
+			renderer->column = 0;
+			renderer->begin_line = true;
+			renderer->last_breakable = 0;
 		} else {
-			(state->outc)(state, escape, c, nextc);
+			(renderer->outc)(renderer, escape, c, nextc);
 		}
 
 		// If adding the character went beyond width, look for an
 		// earlier place where the line could be broken:
-		if (state->width > 0 &&
-		    state->column > state->width &&
-		    !state->begin_line &&
-		    state->last_breakable > 0) {
+		if (renderer->width > 0 &&
+		    renderer->column > renderer->width &&
+		    !renderer->begin_line &&
+		    renderer->last_breakable > 0) {
 
 			// copy from last_breakable to remainder
-			cmark_chunk_set_cstr(&remainder, (char *) state->buffer->ptr + state->last_breakable + 1);
+			cmark_chunk_set_cstr(&remainder, (char *) renderer->buffer->ptr + renderer->last_breakable + 1);
 			// truncate at last_breakable
-			cmark_strbuf_truncate(state->buffer, state->last_breakable);
+			cmark_strbuf_truncate(renderer->buffer, renderer->last_breakable);
 			// add newline, prefix, and remainder
-			cmark_strbuf_putc(state->buffer, '\n');
-			cmark_strbuf_put(state->buffer, state->prefix->ptr,
-			                 state->prefix->size);
-			cmark_strbuf_put(state->buffer, remainder.data, remainder.len);
-			state->column = state->prefix->size + remainder.len;
+			cmark_strbuf_putc(renderer->buffer, '\n');
+			cmark_strbuf_put(renderer->buffer, renderer->prefix->ptr,
+			                 renderer->prefix->size);
+			cmark_strbuf_put(renderer->buffer, remainder.data, remainder.len);
+			renderer->column = renderer->prefix->size + remainder.len;
 			cmark_chunk_free(&remainder);
-			state->last_breakable = 0;
-			state->begin_line = false;
+			renderer->last_breakable = 0;
+			renderer->begin_line = false;
 		}
 
 		i += len;
 	}
 }
 
-void lit(cmark_render_state *state, char *s, bool wrap)
+void lit(cmark_renderer *renderer, char *s, bool wrap)
 {
 	cmark_chunk str = cmark_chunk_literal(s);
-	out(state, str, wrap, LITERAL);
+	out(renderer, str, wrap, LITERAL);
 }
 
 char*
 cmark_render(cmark_node *root,
 	     int options,
 	     int width,
-	     void (*outc)(cmark_render_state*,
+	     void (*outc)(cmark_renderer*,
 			  cmark_escaping,
 			  int32_t,
 			  unsigned char),
 	     int (*render_node)(cmark_node *node,
 				 cmark_event_type ev_type,
-				 cmark_render_state *state))
+				 cmark_renderer *renderer))
 {
 	cmark_strbuf pref = GH_BUF_INIT;
 	cmark_strbuf buf = GH_BUF_INIT;
@@ -144,12 +144,12 @@ cmark_render(cmark_node *root,
 		width = 0;
 	}
 
-	cmark_render_state state = { options, &buf, &pref, 0, width,
+	cmark_renderer renderer = { options, &buf, &pref, 0, width,
 				     0, 0, 0, true, false, false, outc };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
-		if (!render_node(cur, ev_type, &state)) {
+		if (!render_node(cur, ev_type, &renderer)) {
 			// a false value causes us to skip processing
 			// the node's contents.  this is used for
 			// autolinks.
@@ -157,11 +157,11 @@ cmark_render(cmark_node *root,
 		}
 	}
 
-	result = (char *)cmark_strbuf_detach(state.buffer);
+	result = (char *)cmark_strbuf_detach(renderer.buffer);
 
 	cmark_iter_free(iter);
-	cmark_strbuf_free(state.prefix);
-	cmark_strbuf_free(state.buffer);
+	cmark_strbuf_free(renderer.prefix);
+	cmark_strbuf_free(renderer.buffer);
 
 	return result;
 }

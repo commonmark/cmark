@@ -16,7 +16,7 @@ typedef enum  {
 	URL
 } cmark_escaping;
 
-struct cmark_render_state {
+struct cmark_renderer {
 	int options;
 	cmark_strbuf* buffer;
 	cmark_strbuf* prefix;
@@ -28,36 +28,36 @@ struct cmark_render_state {
 	bool begin_line;
 	bool no_wrap;
 	bool in_tight_list_item;
-	void (*outc)(struct cmark_render_state*,
+	void (*outc)(struct cmark_renderer*,
 		     cmark_escaping,
 		     int32_t,
 		     unsigned char);
 };
 
-typedef struct cmark_render_state cmark_render_state;
+typedef struct cmark_renderer cmark_renderer;
 
-void cr(cmark_render_state *state);
+void cr(cmark_renderer *renderer);
 
-void blankline(cmark_render_state *state);
+void blankline(cmark_renderer *renderer);
 
-void out(cmark_render_state *state,
+void out(cmark_renderer *renderer,
 	 cmark_chunk str,
 	 bool wrap,
 	 cmark_escaping escape);
 
-void lit(cmark_render_state *state, char *s, bool wrap);
+void lit(cmark_renderer *renderer, char *s, bool wrap);
 
 char*
 cmark_render(cmark_node *root,
 	     int options,
 	     int width,
-	     void (*outc)(cmark_render_state*,
+	     void (*outc)(cmark_renderer*,
 			  cmark_escaping,
 			  int32_t,
 			  unsigned char),
 	     int (*render_node)(cmark_node *node,
 				cmark_event_type ev_type,
-				cmark_render_state *state));
+				cmark_renderer *renderer));
 
 
 #ifdef __cplusplus
