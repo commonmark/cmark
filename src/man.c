@@ -14,6 +14,7 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
+#define ASCII(s) cmark_render_ascii(renderer, s)
 
 // Functions to convert cmark_nodes to groff man strings.
 static
@@ -22,14 +23,18 @@ void S_outc(cmark_renderer *renderer,
 	    int32_t c,
 	    unsigned char nextc)
 {
-	(void)(escape); // avoid unused parameter warning
 	(void)(nextc);
+
+	if (escape == LITERAL) {
+		utf8proc_encode_char(c, renderer->buffer);
+		renderer->column += 1;
+		return;
+	}
 
 	switch(c) {
 	case 46:
 		if (renderer->begin_line) {
-			cmark_strbuf_puts(renderer->buffer, "\\&.");
-			renderer->column += 3;
+			LIT("\\&.");
 		} else {
 			utf8proc_encode_char(c, renderer->buffer);
 			renderer->column += 1;
@@ -37,44 +42,35 @@ void S_outc(cmark_renderer *renderer,
 		break;
 	case 39:
 		if (renderer->begin_line) {
-			cmark_strbuf_puts(renderer->buffer, "\\&'");
-			renderer->column += 3;
+			LIT("\\&'");
 		} else {
 			utf8proc_encode_char(c, renderer->buffer);
 			renderer->column += 1;
 		}
 		break;
 	case 45:
-		cmark_strbuf_puts(renderer->buffer, "\\-");
-		renderer->column += 2;
+		LIT("\\-");
 		break;
 	case 92:
-		cmark_strbuf_puts(renderer->buffer, "\\e");
-		renderer->column += 2;
+		LIT("\\e");
 		break;
 	case 8216: // left single quote
-		cmark_strbuf_puts(renderer->buffer, "\\[oq]");
-		renderer->column += 5;
+		LIT("\\[oq]");
 		break;
 	case 8217: // right single quote
-		cmark_strbuf_puts(renderer->buffer, "\\[cq]");
-		renderer->column += 5;
+		LIT("\\[cq]");
 		break;
 	case 8220: // left double quote
-		cmark_strbuf_puts(renderer->buffer, "\\[lq]");
-		renderer->column += 5;
+		LIT("\\[lq]");
 		break;
 	case 8221: // right double quote
-		cmark_strbuf_puts(renderer->buffer, "\\[rq]");
-		renderer->column += 5;
+		LIT("\\[rq]");
 		break;
 	case 8212: // em dash
-		cmark_strbuf_puts(renderer->buffer, "\\[em]");
-		renderer->column += 5;
+		LIT("\\[em]");
 		break;
 	case 8211: // en dash
-		cmark_strbuf_puts(renderer->buffer, "\\[en]");
-		renderer->column += 5;
+		LIT("\\[en]");
 		break;
 	default:
 		utf8proc_encode_char(c, renderer->buffer);
