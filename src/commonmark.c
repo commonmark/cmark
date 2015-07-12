@@ -218,7 +218,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			// this ensures 2 blank lines after list,
 			// if before code block or list:
 			LIT("\n");
-			renderer->need_cr = 0;
 		}
 		break;
 
