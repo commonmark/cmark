@@ -116,6 +116,15 @@ void S_out(cmark_renderer *renderer,
 	}
 }
 
+// Assumes no newlines, assumes ascii content:
+void
+cmark_render_ascii(cmark_renderer* renderer, const char* s)
+{
+	int origsize = renderer->buffer->size;
+	cmark_strbuf_puts(renderer->buffer, s);
+	renderer->column += renderer->buffer->size - origsize;
+}
+
 char*
 cmark_render(cmark_node *root,
 	     int options,

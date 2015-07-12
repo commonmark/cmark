@@ -40,6 +40,9 @@ struct cmark_renderer {
 
 typedef struct cmark_renderer cmark_renderer;
 
+void
+cmark_render_ascii(cmark_renderer *renderer, const char* s);
+
 char*
 cmark_render(cmark_node *root,
 	     int options,
