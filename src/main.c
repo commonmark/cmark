@@ -47,7 +47,7 @@ static void print_document(cmark_node *document, writer_format writer,
 		result = cmark_render_xml(document, options);
 		break;
 	case FORMAT_MAN:
-		result = cmark_render_man(document, options);
+		result = cmark_render_man(document, options, width);
 		break;
 	case FORMAT_COMMONMARK:
 		result = cmark_render_commonmark(document, options, width);

@@ -8,110 +8,93 @@
 #include "node.h"
 #include "buffer.h"
 #include "utf8.h"
+#include "render.h"
+
+#define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
+#define LIT(s) renderer->out(renderer, s, false, LITERAL)
+#define CR() renderer->cr(renderer)
+#define BLANKLINE() renderer->blankline(renderer)
 
 // Functions to convert cmark_nodes to groff man strings.
-
-static void escape_man(cmark_strbuf *dest, const unsigned char *source, int length)
+static
+void S_outc(cmark_renderer *renderer,
+	    cmark_escaping escape,
+	    int32_t c,
+	    unsigned char nextc)
 {
-	int32_t c;
-	int i = 0;
-	int len;
-	bool beginLine = true;
+	(void)(escape); // avoid unused parameter warning
+	(void)(nextc);
 
-	while (i < length) {
-		len = utf8proc_iterate(source + i, length - i, &c);
-		if (len == -1) { // error condition
-			return;  // return without rendering anything
+	switch(c) {
+	case 46:
+		if (renderer->begin_line) {
+			cmark_strbuf_puts(renderer->buffer, "\\&.");
+			renderer->column += 3;
+		} else {
+			utf8proc_encode_char(c, renderer->buffer);
+			renderer->column += 1;
 		}
-		switch(c) {
-		case 46:
-			if (beginLine) {
-				cmark_strbuf_puts(dest, "\\&.");
-			} else {
-				utf8proc_encode_char(c, dest);
-			}
-			break;
-		case 39:
-			if (beginLine) {
-				cmark_strbuf_puts(dest, "\\&'");
-			} else {
-				utf8proc_encode_char(c, dest);
-			}
-			break;
-		case 45:
-			cmark_strbuf_puts(dest, "\\-");
-			break;
-		case 92:
-			cmark_strbuf_puts(dest, "\\e");
-			break;
-		case 8216: // left single quote
-			cmark_strbuf_puts(dest, "\\[oq]");
-			break;
-		case 8217: // right single quote
-			cmark_strbuf_puts(dest, "\\[cq]");
-			break;
-		case 8220: // left double quote
-			cmark_strbuf_puts(dest, "\\[lq]");
-			break;
-		case 8221: // right double quote
-			cmark_strbuf_puts(dest, "\\[rq]");
-			break;
-		case 8212: // em dash
-			cmark_strbuf_puts(dest, "\\[em]");
-			break;
-		case 8211: // en dash
-			cmark_strbuf_puts(dest, "\\[en]");
-			break;
-		default:
-			utf8proc_encode_char(c, dest);
+		break;
+	case 39:
+		if (renderer->begin_line) {
+			cmark_strbuf_puts(renderer->buffer, "\\&'");
+			renderer->column += 3;
+		} else {
+			utf8proc_encode_char(c, renderer->buffer);
+			renderer->column += 1;
 		}
-		beginLine = (c == 10);
-		i += len;
+		break;
+	case 45:
+		cmark_strbuf_puts(renderer->buffer, "\\-");
+		renderer->column += 2;
+		break;
+	case 92:
+		cmark_strbuf_puts(renderer->buffer, "\\e");
+		renderer->column += 2;
+		break;
+	case 8216: // left single quote
+		cmark_strbuf_puts(renderer->buffer, "\\[oq]");
+		renderer->column += 5;
+		break;
+	case 8217: // right single quote
+		cmark_strbuf_puts(renderer->buffer, "\\[cq]");
+		renderer->column += 5;
+		break;
+	case 8220: // left double quote
+		cmark_strbuf_puts(renderer->buffer, "\\[lq]");
+		renderer->column += 5;
+		break;
+	case 8221: // right double quote
+		cmark_strbuf_puts(renderer->buffer, "\\[rq]");
+		renderer->column += 5;
+		break;
+	case 8212: // em dash
+		cmark_strbuf_puts(renderer->buffer, "\\[em]");
+		renderer->column += 5;
+		break;
+	case 8211: // en dash
+		cmark_strbuf_puts(renderer->buffer, "\\[en]");
+		renderer->column += 5;
+		break;
+	default:
+		utf8proc_encode_char(c, renderer->buffer);
+		renderer->column += 1;
 	}
+	renderer->begin_line = (c == 10);
 }
-
-static inline void cr(cmark_strbuf *man)
-{
-	if (man->size && man->ptr[man->size - 1] != '\n')
-		cmark_strbuf_putc(man, '\n');
-}
-
-struct render_state {
-	cmark_strbuf* man;
-	cmark_node *plain;
-};
 
 static int
-S_render_node(cmark_node *node, cmark_event_type ev_type,
-              struct render_state *state)
+S_render_node(cmark_renderer *renderer,
+	      cmark_node *node,
+	      cmark_event_type ev_type,
+              int options)
 {
 	cmark_node *tmp;
-	cmark_strbuf *man = state->man;
 	int list_number;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 
-	if (state->plain == node) { // back at original node
-		state->plain = NULL;
-	}
-
-	if (state->plain != NULL) {
-		switch(node->type) {
-		case CMARK_NODE_TEXT:
-		case CMARK_NODE_CODE:
-			escape_man(man, node->as.literal.data,
-			           node->as.literal.len);
-			break;
-
-		case CMARK_NODE_LINEBREAK:
-		case CMARK_NODE_SOFTBREAK:
-			cmark_strbuf_putc(man, ' ');
-			break;
-
-		default:
-			break;
-		}
-		return 1;
-	}
+	// avoid unused parameter error:
+	(void)(options);
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
@@ -119,13 +102,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_BLOCK_QUOTE:
 		if (entering) {
-			cr(man);
-			cmark_strbuf_puts(man, ".RS");
-			cr(man);
+			CR();
+			LIT(".RS");
+			CR();
 		} else {
-			cr(man);
-			cmark_strbuf_puts(man, ".RE");
-			cr(man);
+			CR();
+			LIT(".RE");
+			CR();
 		}
 		break;
 
@@ -134,11 +117,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_ITEM:
 		if (entering) {
-			cr(man);
-			cmark_strbuf_puts(man, ".IP ");
+			CR();
+			LIT(".IP ");
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
-				cmark_strbuf_puts(man, "\\[bu] 2");
+				LIT("\\[bu] 2");
 			} else {
 				list_number = cmark_node_get_list_start(node->parent);
 				tmp = node;
@@ -146,43 +129,45 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 					tmp = tmp->prev;
 					list_number += 1;
 				}
-				cmark_strbuf_printf(man, "\"%d.\" 4", list_number);
+				char list_number_s[20];
+				sprintf(list_number_s, "\"%d.\" 4", list_number);
+				LIT(list_number_s);
 			}
-			cr(man);
+			CR();
 		} else {
-			cr(man);
+			CR();
 		}
 		break;
 
 	case CMARK_NODE_HEADER:
 		if (entering) {
-			cr(man);
-			cmark_strbuf_puts(man,
-			                  cmark_node_get_header_level(node) == 1 ?
+			CR();
+			LIT(cmark_node_get_header_level(node) == 1 ?
 			                  ".SH" : ".SS");
-			cr(man);
+			CR();
 		} else {
-			cr(man);
+			CR();
 		}
 		break;
 
 	case CMARK_NODE_CODE_BLOCK:
-		cr(man);
-		cmark_strbuf_puts(man, ".IP\n.nf\n\\f[C]\n");
-		escape_man(man, node->as.code.literal.data,
-		           node->as.code.literal.len);
-		cr(man);
-		cmark_strbuf_puts(man, "\\f[]\n.fi");
-		cr(man);
+		CR();
+		LIT(".IP\n.nf\n\\f[C]\n");
+		OUT(cmark_node_get_literal(node),
+		    false,
+		    NORMAL);
+		CR();
+		LIT("\\f[]\n.fi");
+		CR();
 		break;
 
 	case CMARK_NODE_HTML:
 		break;
 
 	case CMARK_NODE_HRULE:
-		cr(man);
-		cmark_strbuf_puts(man, ".PP\n  *  *  *  *  *");
-		cr(man);
+		CR();
+		LIT(".PP\n  *  *  *  *  *");
+		CR();
 		break;
 
 	case CMARK_NODE_PARAGRAPH:
@@ -193,32 +178,36 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			    node->prev == NULL) {
 				// no blank line or .PP
 			} else {
-				cr(man);
-				cmark_strbuf_puts(man, ".PP\n");
+				CR();
+				LIT(".PP");
+				CR();
 			}
 		} else {
-			cr(man);
+			CR();
 		}
 		break;
 
 	case CMARK_NODE_TEXT:
-		escape_man(man, node->as.literal.data,
-		           node->as.literal.len);
+		OUT(cmark_node_get_literal(node), true, NORMAL);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
-		cmark_strbuf_puts(man, ".PD 0\n.P\n.PD");
-		cr(man);
+		LIT(".PD 0\n.P\n.PD");
+		CR();
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
-		cmark_strbuf_putc(man, '\n');
+		if (renderer->width == 0) {
+			CR();
+		} else {
+			OUT(" ", true, LITERAL);
+		}
 		break;
 
 	case CMARK_NODE_CODE:
-		cmark_strbuf_puts(man, "\\f[C]");
-		escape_man(man, node->as.literal.data, node->as.literal.len);
-		cmark_strbuf_puts(man, "\\f[]");
+		LIT("\\f[C]");
+		OUT(cmark_node_get_literal(node), true, NORMAL);
+		LIT("\\f[]");
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
@@ -226,33 +215,33 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_STRONG:
 		if (entering) {
-			cmark_strbuf_puts(man, "\\f[B]");
+			LIT("\\f[B]");
 		} else {
-			cmark_strbuf_puts(man, "\\f[]");
+			LIT("\\f[]");
 		}
 		break;
 
 	case CMARK_NODE_EMPH:
 		if (entering) {
-			cmark_strbuf_puts(man, "\\f[I]");
+			LIT("\\f[I]");
 		} else {
-			cmark_strbuf_puts(man, "\\f[]");
+			LIT("\\f[]");
 		}
 		break;
 
 	case CMARK_NODE_LINK:
 		if (!entering) {
-			cmark_strbuf_printf(man, " (%s)",
-			                    cmark_node_get_url(node));
+			LIT(" (");
+			OUT(cmark_node_get_url(node), true, URL);
+			LIT(")");
 		}
 		break;
 
 	case CMARK_NODE_IMAGE:
 		if (entering) {
-			cmark_strbuf_puts(man, "[IMAGE: ");
-			state->plain = node;
+			LIT("[IMAGE: ");
 		} else {
-			cmark_strbuf_puts(man, "]");
+			LIT("]");
 		}
 		break;
 
@@ -261,27 +250,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 	}
 
-	// cmark_strbuf_putc(man, 'x');
 	return 1;
 }
 
-char *cmark_render_man(cmark_node *root, int options)
+char *cmark_render_man(cmark_node *root, int options, int width)
 {
-	char *result;
-	cmark_strbuf man = GH_BUF_INIT;
-	struct render_state state = { &man, NULL };
-	cmark_node *cur;
-	cmark_event_type ev_type;
-	cmark_iter *iter = cmark_iter_new(root);
-
-	if (options == 0) options = 0; // avoid warning about unused parameters
-
-	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
-		cur = cmark_iter_get_node(iter);
-		S_render_node(cur, ev_type, &state);
-	}
-	result = (char *)cmark_strbuf_detach(&man);
-
-	cmark_iter_free(iter);
-	return result;
+	return cmark_render(root, options, width, S_outc, S_render_node);
 }

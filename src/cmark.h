@@ -479,7 +479,7 @@ char *cmark_render_html(cmark_node *root, int options);
 /** Render a 'node' tree as a groff man page, without the header.
  */
 CMARK_EXPORT
-char *cmark_render_man(cmark_node *root, int options);
+char *cmark_render_man(cmark_node *root, int options, int width);
 
 /** Render a 'node' tree as a commonmark document.
  */
