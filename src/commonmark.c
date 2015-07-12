@@ -172,8 +172,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	int numticks;
 	int i;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
-	size_t info_len;
-	size_t code_len;
+	const char *info, *code, *title;
+	size_t info_len, code_len;
 	cmark_strbuf listmarker = GH_BUF_INIT;
 	char *emph_delim;
 	bufsize_t marker_width;
@@ -279,9 +279,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_CODE_BLOCK:
 		BLANKLINE();
-		const char* info = cmark_node_get_fence_info(node);
+		info = cmark_node_get_fence_info(node);
 		info_len = safe_strlen(info);
-		const char* code = cmark_node_get_literal(node);
+		code = cmark_node_get_literal(node);
 		code_len = safe_strlen(code);
 		// use indented form if no info, and code doesn't
 		// begin or end with a blank line, and code isn't
@@ -422,7 +422,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			} else {
 				LIT("](");
 				OUT(cmark_node_get_url(node), false, URL);
-				const char* title = cmark_node_get_title(node);
+				title = cmark_node_get_title(node);
 				if (safe_strlen(title) > 0) {
 					LIT(" \"");
 					OUT(title, false, TITLE);
@@ -439,7 +439,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		} else {
 			LIT("](");
 			OUT(cmark_node_get_url(node), false, URL);
-			const char* title = cmark_node_get_title(node);
+			title = cmark_node_get_title(node);
 			if (safe_strlen(title) > 0) {
 				OUT(" \"", true, LITERAL);
 				OUT(title, false, TITLE);
