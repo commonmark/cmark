@@ -17,6 +17,7 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
+#define ASCII(s) cmark_render_ascii(renderer, s)
 
 static inline void outc(cmark_renderer *renderer,
 			cmark_escaping escape,
@@ -33,99 +34,78 @@ static inline void outc(cmark_renderer *renderer,
 		case 35: // '#'
 		case 37: // '%'
 		case 38: // '&'
-			cmark_strbuf_putc(renderer->buffer, '\\');
+			ASCII("\\");
 			utf8proc_encode_char(c, renderer->buffer);
-			renderer->column += 2;
+			renderer->column += 1;
 			break;
 		case 36: // '$'
 		case 95: // '_'
 			if (escape == NORMAL) {
-				cmark_strbuf_putc(renderer->buffer, '\\');
-				renderer->column += 1;
+				ASCII("\\");
 			}
 			utf8proc_encode_char(c, renderer->buffer);
 			renderer->column += 1;
 			break;
 		case 45 : // '-'
 			if (nextc == 45) { // prevent ligature
-				cmark_strbuf_putc(renderer->buffer, '\\');
-				renderer->column += 1;
+				ASCII("\\-");
+                        } else {
+				ASCII("-");
 			}
-			utf8proc_encode_char(c, renderer->buffer);
-			renderer->column += 1;
-			break;
+                        break;
 		case 126: // '~'
 			if (escape == NORMAL) {
-				cmark_strbuf_puts(renderer->buffer,
-						  "\\textasciitilde{}");
-				renderer->column += 17;
+				ASCII("\\textasciitilde{}");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
 			}
 			break;
 		case 94: // '^'
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\^{}");
-			renderer->column += 4;
+			ASCII("\\^{}");
 			break;
 		case 92: // '\\'
 			if (escape == URL) {
 				// / acts as path sep even on windows:
-				cmark_strbuf_puts(renderer->buffer, "/");
-				renderer->column += 1;
+				ASCII("/");
 			} else {
-				cmark_strbuf_puts(renderer->buffer,
-						  "\\textbackslash{}");
-				renderer->column += 16;
+				ASCII("\\textbackslash{}");
 			}
 			break;
 		case 124: // '|'
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\textbar{}");
-			renderer->column += 10;
+			ASCII("\\textbar{}");
 			break;
 		case 60: // '<'
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\textless{}");
-			renderer->column += 11;
+			ASCII("\\textless{}");
 			break;
 		case 62: // '>'
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\textgreater{}");
-			renderer->column += 14;
+			ASCII("\\textgreater{}");
 			break;
 		case 91: // '['
 		case 93: // ']'
-			cmark_strbuf_putc(renderer->buffer, '{');
+			ASCII("{");
 			utf8proc_encode_char(c, renderer->buffer);
-			cmark_strbuf_putc(renderer->buffer, '}');
-			renderer->column += 3;
+			renderer->column += 1;
+			ASCII("}");
 			break;
 		case 34: // '"'
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\textquotedbl{}");
+			ASCII("\\textquotedbl{}");
 			// requires \usepackage[T1]{fontenc}
-			renderer->column += 15;
 			break;
 		case 39: // '\''
-			cmark_strbuf_puts(renderer->buffer,
-					  "\\textquotesingle{}");
-			renderer->column += 18;
+			ASCII("\\textquotesingle{}");
 			// requires \usepackage{textcomp}
 			break;
 		case 160: // nbsp
-			cmark_strbuf_putc(renderer->buffer, '~');
+			ASCII("~");
 			renderer->column += 1;
 			break;
 		case 8230: // hellip
-			cmark_strbuf_puts(renderer->buffer, "\\ldots{}");
-			renderer->column += 8;
+			ASCII("\\ldots{}");
 			break;
 		case 8216: // lsquo
 			if (escape == NORMAL) {
-				cmark_strbuf_putc(renderer->buffer, '`');
-				renderer->column += 1;
+				ASCII("`");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
@@ -133,8 +113,7 @@ static inline void outc(cmark_renderer *renderer,
 			break;
 		case 8217: // rsquo
 			if (escape == NORMAL) {
-				cmark_strbuf_putc(renderer->buffer, '\'');
-				renderer->column += 1;
+				ASCII("\'");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
@@ -142,8 +121,7 @@ static inline void outc(cmark_renderer *renderer,
 			break;
 		case 8220: // ldquo
 			if (escape == NORMAL) {
-				cmark_strbuf_puts(renderer->buffer, "``");
-				renderer->column += 2;
+				ASCII("``");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
@@ -151,8 +129,7 @@ static inline void outc(cmark_renderer *renderer,
 			break;
 		case 8221: // rdquo
 			if (escape == NORMAL) {
-				cmark_strbuf_puts(renderer->buffer, "''");
-				renderer->column += 2;
+				ASCII("''");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
@@ -160,8 +137,7 @@ static inline void outc(cmark_renderer *renderer,
 			break;
 		case 8212: // emdash
 			if (escape == NORMAL) {
-				cmark_strbuf_puts(renderer->buffer, "---");
-				renderer->column += 3;
+				ASCII("---");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
@@ -169,8 +145,7 @@ static inline void outc(cmark_renderer *renderer,
 			break;
 		case 8211: // endash
 			if (escape == NORMAL) {
-				cmark_strbuf_puts(renderer->buffer, "--");
-				renderer->column += 2;
+				ASCII("--");
 			} else {
 				utf8proc_encode_char(c, renderer->buffer);
 				renderer->column += 1;
