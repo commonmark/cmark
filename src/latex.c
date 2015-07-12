@@ -242,24 +242,10 @@ get_link_type(cmark_node *node)
 	}
 }
 
-// if node is a block node, returns node.
-// otherwise returns first block-level node that is an ancestor of node.
-static cmark_node*
-get_containing_block(cmark_node *node)
-{
-	while (node &&
-	       (node->type < CMARK_NODE_FIRST_BLOCK ||
-	        node->type > CMARK_NODE_LAST_BLOCK)) {
-		node = node->parent;
-	}
-	return node;
-}
-
 static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
               cmark_renderer *renderer)
 {
-	cmark_node *tmp;
 	int list_number;
 	char list_number_string[20];
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
@@ -267,21 +253,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	const char* roman_numerals[] = { "", "i", "ii", "iii", "iv", "v",
 	                                 "vi", "vii", "viii", "ix", "x"
 	                               };
-
-	// Don't adjust tight list status til we've started the list.
-	// Otherwise we loose the blank line between a paragraph and
-	// a following list.
-	if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL &&
-	      entering)) {
-		tmp = get_containing_block(node);
-		renderer->in_tight_list_item =
-		    (tmp->type == CMARK_NODE_ITEM &&
-		     cmark_node_get_list_tight(tmp->parent)) ||
-		    (tmp &&
-		     tmp->parent &&
-		     tmp->parent->type == CMARK_NODE_ITEM &&
-		     cmark_node_get_list_tight(tmp->parent->parent));
-	}
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
