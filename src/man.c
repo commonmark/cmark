@@ -14,7 +14,6 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
-#define ASCII(s) cmark_render_ascii(renderer, s)
 
 // Functions to convert cmark_nodes to groff man strings.
 static
@@ -26,55 +25,51 @@ void S_outc(cmark_renderer *renderer,
 	(void)(nextc);
 
 	if (escape == LITERAL) {
-		utf8proc_encode_char(c, renderer->buffer);
-		renderer->column += 1;
+		cmark_render_code_point(renderer, c);
 		return;
 	}
 
 	switch(c) {
 	case 46:
 		if (renderer->begin_line) {
-			ASCII("\\&.");
+			cmark_render_ascii(renderer, "\\&.");
 		} else {
-			utf8proc_encode_char(c, renderer->buffer);
-			renderer->column += 1;
+			cmark_render_code_point(renderer, c);
 		}
 		break;
 	case 39:
 		if (renderer->begin_line) {
-			ASCII("\\&'");
+			cmark_render_ascii(renderer, "\\&'");
 		} else {
-			utf8proc_encode_char(c, renderer->buffer);
-			renderer->column += 1;
+			cmark_render_code_point(renderer, c);
 		}
 		break;
 	case 45:
-		ASCII("\\-");
+		cmark_render_ascii(renderer, "\\-");
 		break;
 	case 92:
-		ASCII("\\e");
+		cmark_render_ascii(renderer, "\\e");
 		break;
 	case 8216: // left single quote
-		ASCII("\\[oq]");
+		cmark_render_ascii(renderer, "\\[oq]");
 		break;
 	case 8217: // right single quote
-		ASCII("\\[cq]");
+		cmark_render_ascii(renderer, "\\[cq]");
 		break;
 	case 8220: // left double quote
-		ASCII("\\[lq]");
+		cmark_render_ascii(renderer, "\\[lq]");
 		break;
 	case 8221: // right double quote
-		ASCII("\\[rq]");
+		cmark_render_ascii(renderer, "\\[rq]");
 		break;
 	case 8212: // em dash
-		ASCII("\\[em]");
+		cmark_render_ascii(renderer, "\\[em]");
 		break;
 	case 8211: // en dash
-		ASCII("\\[en]");
+		cmark_render_ascii(renderer, "\\[en]");
 		break;
 	default:
-		utf8proc_encode_char(c, renderer->buffer);
-		renderer->column += 1;
+		cmark_render_code_point(renderer, c);
 	}
 	renderer->begin_line = (c == 10);
 }
