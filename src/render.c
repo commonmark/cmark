@@ -141,7 +141,7 @@ cmark_render(cmark_node *root,
 	}
 
 	cmark_renderer renderer = { options, &buf, &pref, 0, width,
-				    0, 0, 0, true, false, false,
+				    0, 0, true, false, false,
 	                            outc, S_cr, S_blankline, S_out };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {

@@ -243,6 +243,21 @@ get_link_type(cmark_node *node)
 }
 
 static int
+S_get_enumlevel(cmark_node *node)
+{
+	int enumlevel = 0;
+	cmark_node *tmp = node;
+	while (tmp) {
+		if (tmp->type == CMARK_NODE_LIST &&
+		    cmark_node_get_list_type(node) == CMARK_ORDERED_LIST) {
+			enumlevel++;
+		}
+		tmp = tmp->parent;
+	}
+	return enumlevel;
+}
+
+static int
 S_render_node(cmark_node *node, cmark_event_type ev_type,
               cmark_renderer *renderer)
 {
@@ -271,9 +286,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_LIST:
 		list_type = cmark_node_get_list_type(node);
 		if (entering) {
-			if (list_type == CMARK_ORDERED_LIST) {
-				renderer->enumlevel++;
-			}
 			LIT("\\begin{");
 			LIT(list_type == CMARK_ORDERED_LIST ?
 			    "enumerate" : "itemize");
@@ -284,16 +296,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				sprintf(list_number_string,
 				         "%d", list_number);
 				LIT("\\setcounter{enum");
-				LIT((char *)roman_numerals[renderer->enumlevel]);
+				LIT((char *)roman_numerals[S_get_enumlevel(node)]);
 				LIT("}{");
 				OUT(list_number_string, false, NORMAL);
 				LIT("}");
 				CR();
 			}
 		} else {
-			if (list_type == CMARK_ORDERED_LIST) {
-				renderer->enumlevel--;
-			}
 			LIT("\\end{");
 			LIT(list_type == CMARK_ORDERED_LIST ?
 			    "enumerate" : "itemize");

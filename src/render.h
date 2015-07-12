@@ -24,7 +24,6 @@ struct cmark_renderer {
 	int width;
 	int need_cr;
 	bufsize_t last_breakable;
-	int enumlevel;
 	bool begin_line;
 	bool no_wrap;
 	bool in_tight_list_item;
