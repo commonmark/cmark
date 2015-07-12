@@ -17,7 +17,6 @@ typedef enum  {
 } cmark_escaping;
 
 struct cmark_renderer {
-	int options;
 	cmark_strbuf* buffer;
 	cmark_strbuf* prefix;
 	int column;
@@ -49,10 +48,10 @@ cmark_render(cmark_node *root,
 			  cmark_escaping,
 			  int32_t,
 			  unsigned char),
-	     int (*render_node)(cmark_node *node,
+	     int (*render_node)(cmark_renderer *renderer,
+				cmark_node *node,
 				cmark_event_type ev_type,
-				cmark_renderer *renderer));
-
+				int options));
 
 #ifdef __cplusplus
 }

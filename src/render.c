@@ -124,9 +124,10 @@ cmark_render(cmark_node *root,
 			  cmark_escaping,
 			  int32_t,
 			  unsigned char),
-	     int (*render_node)(cmark_node *node,
-				 cmark_event_type ev_type,
-				 cmark_renderer *renderer))
+	     int (*render_node)(cmark_renderer *renderer,
+				cmark_node *node,
+				cmark_event_type ev_type,
+				int options))
 {
 	cmark_strbuf pref = GH_BUF_INIT;
 	cmark_strbuf buf = GH_BUF_INIT;
@@ -135,18 +136,13 @@ cmark_render(cmark_node *root,
 	char *result;
 	cmark_iter *iter = cmark_iter_new(root);
 
-
-	if (CMARK_OPT_HARDBREAKS & options) {
-		width = 0;
-	}
-
-	cmark_renderer renderer = { options, &buf, &pref, 0, width,
+	cmark_renderer renderer = { &buf, &pref, 0, width,
 				    0, 0, true, false, false,
 	                            outc, S_cr, S_blankline, S_out };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
-		if (!render_node(cur, ev_type, &renderer)) {
+		if (!render_node(&renderer, cur, ev_type, options)) {
 			// a false value causes us to skip processing
 			// the node's contents.  this is used for
 			// autolinks.

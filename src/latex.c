@@ -258,8 +258,10 @@ S_get_enumlevel(cmark_node *node)
 }
 
 static int
-S_render_node(cmark_node *node, cmark_event_type ev_type,
-              cmark_renderer *renderer)
+S_render_node(cmark_renderer *renderer,
+	      cmark_node *node,
+	      cmark_event_type ev_type,
+	      int options)
 {
 	int list_number;
 	char list_number_string[20];
@@ -268,6 +270,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	const char* roman_numerals[] = { "", "i", "ii", "iii", "iv", "v",
 	                                 "vi", "vii", "viii", "ix", "x"
 	                               };
+
+	// avoid warning about unused parameter:
+	(void)(options);
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:

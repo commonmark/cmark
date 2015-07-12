@@ -163,8 +163,10 @@ get_containing_block(cmark_node *node)
 }
 
 static int
-S_render_node(cmark_node *node, cmark_event_type ev_type,
-              cmark_renderer *renderer)
+S_render_node(cmark_renderer *renderer,
+	      cmark_node *node,
+	      cmark_event_type ev_type,
+	      int options)
 {
 	cmark_node *tmp;
 	int list_number;
@@ -337,14 +339,14 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		break;
 
 	case CMARK_NODE_LINEBREAK:
-		if (!(CMARK_OPT_HARDBREAKS & renderer->options)) {
+		if (!(CMARK_OPT_HARDBREAKS & options)) {
 			LIT("\\");
 		}
 		CR();
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
-		if (renderer->width == 0) {
+		if (CMARK_OPT_HARDBREAKS & options) {
 			CR();
 		} else {
 			OUT(" ", true, LITERAL);
@@ -455,5 +457,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width)
 {
+	if (options & CMARK_OPT_HARDBREAKS) {
+		// disable breaking on width, since it has
+		// a different meaning with OPT_HARDBREAKS
+		width = 0;
+	}
 	return cmark_render(root, options, width, outc, S_render_node);
 }
