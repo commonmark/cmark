@@ -12,6 +12,12 @@
 #include "scanners.h"
 #include "render.h"
 
+#define safe_strlen(s) cmark_strbuf_safe_strlen(s)
+#define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
+#define LIT(s) renderer->out(renderer, s, false, LITERAL)
+#define CR() renderer->cr(renderer)
+#define BLANKLINE() renderer->blankline(renderer)
+
 static inline void outc(cmark_renderer *renderer,
 			cmark_escaping escape,
 			int32_t c,
@@ -188,8 +194,7 @@ typedef enum  {
 static link_type
 get_link_type(cmark_node *node)
 {
-	cmark_chunk *title;
-	cmark_chunk *url;
+	size_t title_len, url_len;
 	cmark_node *link_text;
 	char *realurl;
 	int realurllen;
@@ -199,21 +204,25 @@ get_link_type(cmark_node *node)
 		return NO_LINK;
 	}
 
-	url = &node->as.link.url;
-	if (url->len == 0 || scan_scheme(url, 0) == 0) {
+	const char* url = cmark_node_get_url(node);
+	cmark_chunk url_chunk = cmark_chunk_literal(url);
+
+	url_len = safe_strlen(url);
+	if (url_len == 0 || scan_scheme(&url_chunk, 0) == 0) {
 		return NO_LINK;
 	}
 
-	title = &node->as.link.title;
+	const char* title = cmark_node_get_title(node);
+	title_len = safe_strlen(title);
 	// if it has a title, we can't treat it as an autolink:
-	if (title->len > 0) {
+	if (title_len > 0) {
 		return NORMAL_LINK;
 	}
 
 	link_text = node->first_child;
 	cmark_consolidate_text_nodes(link_text);
-	realurl = (char*)url->data;
-	realurllen = url->len;
+	realurl = (char*)url;
+	realurllen = url_len;
 	if (strncmp(realurl, "mailto:", 7) == 0) {
 		realurl += 7;
 		realurllen -= 7;
@@ -255,7 +264,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char list_number_string[20];
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	cmark_list_type list_type;
-	cmark_chunk url;
 	const char* roman_numerals[] = { "", "i", "ii", "iii", "iv", "v",
 	                                 "vi", "vii", "viii", "ix", "x"
 	                               };
@@ -284,11 +292,11 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_BLOCK_QUOTE:
 		if (entering) {
-			lit(renderer, "\\begin{quote}", false);
-			cr(renderer);
+			LIT("\\begin{quote}");
+			CR();
 		} else {
-			lit(renderer, "\\end{quote}", false);
-			blankline(renderer);
+			LIT("\\end{quote}");
+			BLANKLINE();
 		}
 		break;
 
@@ -298,44 +306,39 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			if (list_type == CMARK_ORDERED_LIST) {
 				renderer->enumlevel++;
 			}
-			lit(renderer, "\\begin{", false);
-			lit(renderer,
-			    list_type == CMARK_ORDERED_LIST ?
-			    "enumerate" : "itemize", false);
-			lit(renderer, "}", false);
-			cr(renderer);
+			LIT("\\begin{");
+			LIT(list_type == CMARK_ORDERED_LIST ?
+			    "enumerate" : "itemize");
+			LIT("}");
+			CR();
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
 				sprintf(list_number_string,
 				         "%d", list_number);
-				lit(renderer, "\\setcounter{enum", false);
-				lit(renderer, (char *)roman_numerals[renderer->enumlevel],
-				    false);
-				lit(renderer, "}{", false);
-				out(renderer,
-				    cmark_chunk_literal(list_number_string),
-				    false, NORMAL);
-				lit(renderer, "}", false);
-				cr(renderer);
+				LIT("\\setcounter{enum");
+				LIT((char *)roman_numerals[renderer->enumlevel]);
+				LIT("}{");
+				OUT(list_number_string, false, NORMAL);
+				LIT("}");
+				CR();
 			}
 		} else {
 			if (list_type == CMARK_ORDERED_LIST) {
 				renderer->enumlevel--;
 			}
-			lit(renderer, "\\end{", false);
-			lit(renderer,
-			    list_type == CMARK_ORDERED_LIST ?
-			    "enumerate" : "itemize", false);
-			lit(renderer, "}", false);
-			blankline(renderer);
+			LIT("\\end{");
+			LIT(list_type == CMARK_ORDERED_LIST ?
+			    "enumerate" : "itemize");
+			LIT("}");
+			BLANKLINE();
 		}
 		break;
 
 	case CMARK_NODE_ITEM:
 		if (entering) {
-			lit(renderer, "\\item ", false);
+			LIT("\\item ");
 		} else {
-			cr(renderer);
+			CR();
 		}
 		break;
 
@@ -343,74 +346,74 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			switch (cmark_node_get_header_level(node)) {
 			case 1:
-				lit(renderer, "\\section", false);
+				LIT("\\section");
 				break;
 			case 2:
-				lit(renderer, "\\subsection", false);
+				LIT("\\subsection");
 				break;
 			case 3:
-				lit(renderer, "\\subsubsection", false);
+				LIT("\\subsubsection");
 				break;
 			case 4:
-				lit(renderer, "\\paragraph", false);
+				LIT("\\paragraph");
 				break;
 			case 5:
-				lit(renderer, "\\subparagraph", false);
+				LIT("\\subparagraph");
 				break;
 			}
-			lit(renderer, "{", false);
+			LIT("{");
 		} else {
-			lit(renderer, "}", false);
-			blankline(renderer);
+			LIT("}");
+			BLANKLINE();
 		}
 		break;
 
 	case CMARK_NODE_CODE_BLOCK:
-		cr(renderer);
-		lit(renderer, "\\begin{verbatim}", false);
-		cr(renderer);
-		out(renderer, node->as.code.literal, false, LITERAL);
-		cr(renderer);
-		lit(renderer, "\\end{verbatim}", false);
-		blankline(renderer);
+		CR();
+		LIT("\\begin{verbatim}");
+		CR();
+		OUT(cmark_node_get_literal(node), false, LITERAL);
+		CR();
+		LIT("\\end{verbatim}");
+		BLANKLINE();
 		break;
 
 	case CMARK_NODE_HTML:
 		break;
 
 	case CMARK_NODE_HRULE:
-		blankline(renderer);
-		lit(renderer, "\\begin{center}\\rule{0.5\\linewidth}{\\linethickness}\\end{center}", false);
-		blankline(renderer);
+		BLANKLINE();
+		LIT("\\begin{center}\\rule{0.5\\linewidth}{\\linethickness}\\end{center}");
+		BLANKLINE();
 		break;
 
 	case CMARK_NODE_PARAGRAPH:
 		if (!entering) {
-			blankline(renderer);
+			BLANKLINE();
 		}
 		break;
 
 	case CMARK_NODE_TEXT:
-		out(renderer, node->as.literal, true, NORMAL);
+		OUT(cmark_node_get_literal(node), true, NORMAL);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
-		lit(renderer, "\\\\", false);
-		cr(renderer);
+		LIT("\\\\");
+		CR();
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
 		if (renderer->width == 0) {
-			cr(renderer);
+			CR();
 		} else {
-			lit(renderer, " ", true);
+			OUT(" ", true, NORMAL);
 		}
 		break;
 
 	case CMARK_NODE_CODE:
-		lit(renderer, "\\texttt{", false);
-		out(renderer, node->as.literal, false, NORMAL);
-		lit(renderer, "}", false);
+		LIT("\\texttt{");
+		OUT(cmark_node_get_literal(node), false, NORMAL);
+		LIT("}");
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
@@ -418,55 +421,54 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_STRONG:
 		if (entering) {
-			lit(renderer, "\\textbf{", false);
+			LIT("\\textbf{");
 		} else {
-			lit(renderer, "}", false);
+			LIT("}");
 		}
 		break;
 
 	case CMARK_NODE_EMPH:
 		if (entering) {
-			lit(renderer, "\\emph{", false);
+			LIT("\\emph{");
 		} else {
-			lit(renderer, "}", false);
+			LIT("}");
 		}
 		break;
 
 	case CMARK_NODE_LINK:
 		if (entering) {
-			url = cmark_chunk_literal(cmark_node_get_url(node));
+			const char* url = cmark_node_get_url(node);
 			// requires \usepackage{hyperref}
 			switch(get_link_type(node)) {
 			case URL_AUTOLINK:
-				lit(renderer, "\\url{", false);
-				out(renderer, url, false, URL);
+				LIT("\\url{");
+				OUT(url, false, URL);
 				break;
 			case EMAIL_AUTOLINK:
-				lit(renderer, "\\href{", false);
-				out(renderer, url, false, URL);
-				lit(renderer, "}\\nolinkurl{", false);
+				LIT("\\href{");
+				OUT(url, false, URL);
+				LIT("}\\nolinkurl{");
 				break;
 			case NORMAL_LINK:
-				lit(renderer, "\\href{", false);
-				out(renderer, url, false, URL);
-				lit(renderer, "}{", false);
+				LIT("\\href{");
+				OUT(url, false, URL);
+				LIT("}{");
 				break;
 			case NO_LINK:
-				lit(renderer, "{", false);  // error?
+				LIT("{");  // error?
 			}
 		} else {
-			lit(renderer, "}", false);
+			LIT("}");
 		}
 
 		break;
 
 	case CMARK_NODE_IMAGE:
 		if (entering) {
-			url = cmark_chunk_literal(cmark_node_get_url(node));
-			lit(renderer, "\\protect\\includegraphics{", false);
+			LIT("\\protect\\includegraphics{");
 			// requires \include{graphicx}
-			out(renderer, url, false, URL);
-			lit(renderer, "}", false);
+			OUT(cmark_node_get_url(node), false, URL);
+			LIT("}");
 			return 0;
 		}
 		break;

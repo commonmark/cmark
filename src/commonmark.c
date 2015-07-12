@@ -12,6 +12,12 @@
 #include "scanners.h"
 #include "render.h"
 
+#define safe_strlen(s) cmark_strbuf_safe_strlen(s)
+#define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
+#define LIT(s) renderer->out(renderer, s, false, LITERAL)
+#define CR() renderer->cr(renderer)
+#define BLANKLINE() renderer->blankline(renderer)
+
 // Functions to convert cmark_nodes to commonmark strings.
 
 static inline void outc(cmark_renderer *renderer,
@@ -58,13 +64,14 @@ static inline void outc(cmark_renderer *renderer,
 }
 
 static int
-longest_backtick_sequence(cmark_chunk *code)
+longest_backtick_sequence(const char *code)
 {
 	int longest = 0;
 	int current = 0;
-	int i = 0;
-	while (i <= code->len) {
-		if (code->data[i] == '`') {
+	size_t i = 0;
+	size_t code_len = safe_strlen(code);
+	while (i <= code_len) {
+		if (code[i] == '`') {
 			current++;
 		} else {
 			if (current > longest) {
@@ -78,13 +85,14 @@ longest_backtick_sequence(cmark_chunk *code)
 }
 
 static int
-shortest_unused_backtick_sequence(cmark_chunk *code)
+shortest_unused_backtick_sequence(const char *code)
 {
 	int32_t used = 1;
 	int current = 0;
-	int i = 0;
-	while (i <= code->len) {
-		if (code->data[i] == '`') {
+	size_t i = 0;
+	size_t code_len = safe_strlen(code);
+	while (i <= code_len) {
+		if (code[i] == '`') {
 			current++;
 		} else {
 			if (current) {
@@ -159,14 +167,13 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
               cmark_renderer *renderer)
 {
 	cmark_node *tmp;
-	cmark_chunk *code;
 	int list_number;
 	cmark_delim_type list_delim;
 	int numticks;
 	int i;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
-	cmark_chunk *info;
-	cmark_chunk *title;
+	size_t info_len;
+	size_t code_len;
 	cmark_strbuf listmarker = GH_BUF_INIT;
 	char *emph_delim;
 	bufsize_t marker_width;
@@ -195,12 +202,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	case CMARK_NODE_BLOCK_QUOTE:
 		if (entering) {
-			lit(renderer, "> ", false);
+			LIT("> ");
 			cmark_strbuf_puts(renderer->prefix, "> ");
 		} else {
 			cmark_strbuf_truncate(renderer->prefix,
 			                      renderer->prefix->size - 2);
-			blankline(renderer);
+			BLANKLINE();
 		}
 		break;
 
@@ -210,7 +217,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		     node->next->type == CMARK_NODE_LIST)) {
 			// this ensures 2 blank lines after list,
 			// if before code block or list:
-			lit(renderer, "\n", false);
+			LIT("\n");
 			renderer->need_cr = 0;
 		}
 		break;
@@ -240,10 +247,10 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
 			    CMARK_BULLET_LIST) {
-				lit(renderer, "* ", false);
+				LIT("* ");
 				cmark_strbuf_puts(renderer->prefix, "  ");
 			} else {
-				lit(renderer, (char *)listmarker.ptr, false);
+				LIT((char *)listmarker.ptr);
 				for (i = marker_width; i--;) {
 					cmark_strbuf_putc(renderer->prefix, ' ');
 				}
@@ -252,7 +259,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_truncate(renderer->prefix,
 			                      renderer->prefix->size -
 			                      marker_width);
-			cr(renderer);
+			CR();
 		}
 		cmark_strbuf_free(&listmarker);
 		break;
@@ -260,33 +267,35 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	case CMARK_NODE_HEADER:
 		if (entering) {
 			for (int i = cmark_node_get_header_level(node); i > 0; i--) {
-				lit(renderer, "#", false);
+				LIT("#");
 			}
-			lit(renderer, " ", false);
+			LIT(" ");
 			renderer->no_wrap = true;
 		} else {
 			renderer->no_wrap = false;
-			blankline(renderer);
+			BLANKLINE();
 		}
 		break;
 
 	case CMARK_NODE_CODE_BLOCK:
-		blankline(renderer);
-		info = &node->as.code.info;
-		code = &node->as.code.literal;
+		BLANKLINE();
+		const char* info = cmark_node_get_fence_info(node);
+		info_len = safe_strlen(info);
+		const char* code = cmark_node_get_literal(node);
+		code_len = safe_strlen(code);
 		// use indented form if no info, and code doesn't
 		// begin or end with a blank line, and code isn't
 		// first thing in a list item
-		if (info->len == 0 &&
-		    (code->len > 2 &&
-		     !isspace(code->data[0]) &&
-		     !(isspace(code->data[code->len - 1]) &&
-		       isspace(code->data[code->len - 2]))) &&
+		if (info_len == 0 &&
+		    (code_len > 2 &&
+		     !isspace(code[0]) &&
+		     !(isspace(code[code_len - 1]) &&
+		       isspace(code[code_len - 2]))) &&
 		    !(node->prev == NULL && node->parent &&
 		      node->parent->type == CMARK_NODE_ITEM)) {
-			lit(renderer, "    ", false);
+			LIT("    ");
 			cmark_strbuf_puts(renderer->prefix, "    ");
-			out(renderer, node->as.code.literal, false, LITERAL);
+			OUT(cmark_node_get_literal(node), false, LITERAL);
 			cmark_strbuf_truncate(renderer->prefix,
 			                      renderer->prefix->size - 4);
 		} else {
@@ -295,84 +304,85 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				numticks = 3;
 			}
 			for (i = 0; i < numticks; i++) {
-				lit(renderer, "`", false);
+				LIT("`");
 			}
-			lit(renderer, " ", false);
-			out(renderer, *info, false, LITERAL);
-			cr(renderer);
-			out(renderer, node->as.code.literal, false, LITERAL);
-			cr(renderer);
+			LIT(" ");
+			OUT(info, false, LITERAL);
+			CR();
+			OUT(cmark_node_get_literal(node), false, LITERAL);
+			CR();
 			for (i = 0; i < numticks; i++) {
-				lit(renderer, "`", false);
+				LIT("`");
 			}
 		}
-		blankline(renderer);
+		BLANKLINE();
 		break;
 
 	case CMARK_NODE_HTML:
-		blankline(renderer);
-		out(renderer, node->as.literal, false, LITERAL);
-		blankline(renderer);
+		BLANKLINE();
+		OUT(cmark_node_get_literal(node), false, LITERAL);
+		BLANKLINE();
 		break;
 
 	case CMARK_NODE_HRULE:
-		blankline(renderer);
-		lit(renderer, "-----", false);
-		blankline(renderer);
+		BLANKLINE();
+		LIT("-----");
+		BLANKLINE();
 		break;
 
 	case CMARK_NODE_PARAGRAPH:
 		if (!entering) {
-			blankline(renderer);
+			BLANKLINE();
 		}
 		break;
 
 	case CMARK_NODE_TEXT:
-		out(renderer, node->as.literal, true, NORMAL);
+		OUT(cmark_node_get_literal(node), true, NORMAL);
 		break;
 
 	case CMARK_NODE_LINEBREAK:
 		if (!(CMARK_OPT_HARDBREAKS & renderer->options)) {
-			lit(renderer, "\\", false);
+			LIT("\\");
 		}
-		cr(renderer);
+		CR();
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
 		if (renderer->width == 0) {
-			cr(renderer);
+			CR();
 		} else {
-			lit(renderer, " ", true);
+			OUT(" ", true, LITERAL);
 		}
 		break;
 
 	case CMARK_NODE_CODE:
-		code = &node->as.literal;
+		code = cmark_node_get_literal(node);
+		code_len = safe_strlen(code);
 		numticks = shortest_unused_backtick_sequence(code);
 		for (i = 0; i < numticks; i++) {
-			lit(renderer, "`", false);
+			LIT("`");
 		}
-		if (code->len == 0 || code->data[0] == '`') {
-			lit(renderer, " ", false);
+		if (code_len == 0 || code[0] == '`') {
+			LIT(" ");
 		}
-		out(renderer, node->as.literal, true, LITERAL);
-		if (code->len == 0 || code->data[code->len - 1] == '`') {
-			lit(renderer, " ", false);
+		OUT(cmark_node_get_literal(node), true, LITERAL);
+		if (code_len == 0 || code[code_len - 1] == '`') {
+			LIT(" ");
 		}
 		for (i = 0; i < numticks; i++) {
-			lit(renderer, "`", false);
+			LIT("`");
 		}
 		break;
 
 	case CMARK_NODE_INLINE_HTML:
-		out(renderer, node->as.literal, false, LITERAL);
+		OUT(cmark_node_get_literal(node), false, LITERAL);
 		break;
 
 	case CMARK_NODE_STRONG:
 		if (entering) {
-			lit(renderer, "**", false);
+			LIT("**");
 		} else {
-			lit(renderer, "**", false);
+			LIT("**");
 		}
 		break;
 
@@ -386,62 +396,56 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			emph_delim = "*";
 		}
 		if (entering) {
-			lit(renderer, emph_delim, false);
+			LIT(emph_delim);
 		} else {
-			lit(renderer, emph_delim, false);
+			LIT(emph_delim);
 		}
 		break;
 
 	case CMARK_NODE_LINK:
 		if (is_autolink(node)) {
 			if (entering) {
-				lit(renderer, "<", false);
+				LIT("<");
 				if (strncmp(cmark_node_get_url(node),
 				            "mailto:", 7) == 0) {
-					lit(renderer,
-					    (char *)cmark_node_get_url(node) + 7,
-					    false);
+					LIT((char *)cmark_node_get_url(node) + 7);
 				} else {
-					lit(renderer,
-					    (char *)cmark_node_get_url(node),
-					    false);
+					LIT((char *)cmark_node_get_url(node));
 				}
-				lit(renderer, ">", false);
+				LIT(">");
 				// return signal to skip contents of node...
 				return 0;
 			}
 		} else {
 			if (entering) {
-				lit(renderer, "[", false);
+				LIT("[");
 			} else {
-				lit(renderer, "](", false);
-				out(renderer,
-				    cmark_chunk_literal(cmark_node_get_url(node)),
-				    false, URL);
-				title = &node->as.link.title;
-				if (title->len > 0) {
-					lit(renderer, " \"", true);
-					out(renderer, *title, false, TITLE);
-					lit(renderer, "\"", false);
+				LIT("](");
+				OUT(cmark_node_get_url(node), false, URL);
+				const char* title = cmark_node_get_title(node);
+				if (safe_strlen(title) > 0) {
+					LIT(" \"");
+					OUT(title, false, TITLE);
+					LIT("\"");
 				}
-				lit(renderer, ")", false);
+				LIT(")");
 			}
 		}
 		break;
 
 	case CMARK_NODE_IMAGE:
 		if (entering) {
-			lit(renderer, "![", false);
+			LIT("![");
 		} else {
-			lit(renderer, "](", false);
-			out(renderer, cmark_chunk_literal(cmark_node_get_url(node)), false, URL);
-			title = &node->as.link.title;
-			if (title->len > 0) {
-				lit(renderer, " \"", true);
-				out(renderer, *title, false, TITLE);
-				lit(renderer, "\"", false);
+			LIT("](");
+			OUT(cmark_node_get_url(node), false, URL);
+			const char* title = cmark_node_get_title(node);
+			if (safe_strlen(title) > 0) {
+				OUT(" \"", true, LITERAL);
+				OUT(title, false, TITLE);
+				LIT("\"");
 			}
-			lit(renderer, ")", false);
+			LIT(")");
 		}
 		break;
 

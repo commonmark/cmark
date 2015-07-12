@@ -32,20 +32,15 @@ struct cmark_renderer {
 		     cmark_escaping,
 		     int32_t,
 		     unsigned char);
+	void (*cr)(struct cmark_renderer*);
+	void (*blankline)(struct cmark_renderer*);
+	void (*out)(struct cmark_renderer*,
+		    const char *,
+		    bool,
+		    cmark_escaping);
 };
 
 typedef struct cmark_renderer cmark_renderer;
-
-void cr(cmark_renderer *renderer);
-
-void blankline(cmark_renderer *renderer);
-
-void out(cmark_renderer *renderer,
-	 cmark_chunk str,
-	 bool wrap,
-	 cmark_escaping escape);
-
-void lit(cmark_renderer *renderer, char *s, bool wrap);
 
 char*
 cmark_render(cmark_node *root,

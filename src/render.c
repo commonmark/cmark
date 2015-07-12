@@ -5,27 +5,29 @@
 #include "utf8.h"
 #include "render.h"
 
-void cr(cmark_renderer *renderer)
+static inline
+void S_cr(cmark_renderer *renderer)
 {
 	if (renderer->need_cr < 1) {
 		renderer->need_cr = 1;
 	}
 }
 
-void blankline(cmark_renderer *renderer)
+static inline
+void S_blankline(cmark_renderer *renderer)
 {
 	if (renderer->need_cr < 2) {
 		renderer->need_cr = 2;
 	}
 }
 
-void out(cmark_renderer *renderer,
-	 cmark_chunk str,
-	 bool wrap,
-	 cmark_escaping escape)
+static
+void S_out(cmark_renderer *renderer,
+	   const char *source,
+	   bool wrap,
+	   cmark_escaping escape)
 {
-	unsigned char* source = str.data;
-	int length = str.len;
+	int length = cmark_strbuf_safe_strlen(source);
 	unsigned char nextc;
 	int32_t c;
 	int i = 0;
@@ -61,7 +63,7 @@ void out(cmark_renderer *renderer,
 			renderer->column = renderer->prefix->size;
 		}
 
-		len = utf8proc_iterate(source + i, length - i, &c);
+		len = utf8proc_iterate((const uint8_t *)source + i, length - i, &c);
 		if (len == -1) { // error condition
 			return;  // return without rendering rest of string
 		}
@@ -114,12 +116,6 @@ void out(cmark_renderer *renderer,
 	}
 }
 
-void lit(cmark_renderer *renderer, char *s, bool wrap)
-{
-	cmark_chunk str = cmark_chunk_literal(s);
-	out(renderer, str, wrap, LITERAL);
-}
-
 char*
 cmark_render(cmark_node *root,
 	     int options,
@@ -145,7 +141,8 @@ cmark_render(cmark_node *root,
 	}
 
 	cmark_renderer renderer = { options, &buf, &pref, 0, width,
-				     0, 0, 0, true, false, false, outc };
+				    0, 0, 0, true, false, false,
+	                            outc, S_cr, S_blankline, S_out };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);
