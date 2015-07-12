@@ -154,6 +154,11 @@ cmark_render(cmark_node *root,
 		}
 	}
 
+	// ensure final newline
+	if (renderer.buffer->ptr[renderer.buffer->size - 1] != '\n') {
+		cmark_strbuf_putc(renderer.buffer, '\n');
+	}
+
 	result = (char *)cmark_strbuf_detach(renderer.buffer);
 
 	cmark_iter_free(iter);

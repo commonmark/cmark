@@ -195,9 +195,6 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	switch (node->type) {
 	case CMARK_NODE_DOCUMENT:
-		if (!entering) {
-			cmark_strbuf_putc(renderer->buffer, '\n');
-		}
 		break;
 
 	case CMARK_NODE_BLOCK_QUOTE:
