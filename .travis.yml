@@ -1,3 +1,6 @@
+# Ensures that sudo is disabled, so that containerized builds are allowed
+sudo: false
+
 os:
  - linux
  - osx
@@ -5,15 +8,18 @@ language: c
 compiler:
  - clang
  - gcc
+addons:
+  apt:
+    # we need a more recent cmake than travis/linux provides (at least 2.8.9):
+    sources:
+    - ppa:kalakris/cmake
+    packages:
+    - cmake
+    - python3
+    - valgrind
 before_install:
- # we need a more recent cmake than travis/linux provides (at least 2.8.9):
  - |
-     if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]
-     then
-         echo 'yes' | sudo add-apt-repository ppa:kalakris/cmake
-         sudo apt-get update -qq
-         sudo apt-get install -qq cmake python3 valgrind
-     elif [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]
+     if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]
      then
          echo "Building without python3, to make sure that works."
      fi
