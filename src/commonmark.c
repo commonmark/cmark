@@ -50,16 +50,13 @@ static inline void outc(cmark_renderer *renderer,
 			cmark_strbuf_printf(renderer->buffer, "%%%2x", c);
 			renderer->column += 3;
 		} else {
-			cmark_strbuf_putc(renderer->buffer, '\\');
-			utf8proc_encode_char(c, renderer->buffer);
-			renderer->column += 2;
+			cmark_render_ascii(renderer, "\\");
+			cmark_render_code_point(renderer, c);
 		}
-		renderer->begin_line = false;
 	} else {
-		utf8proc_encode_char(c, renderer->buffer);
-		renderer->column += 1;
-		renderer->begin_line = false;
+		cmark_render_code_point(renderer, c);
 	}
+	renderer->begin_line = (c == 10);
 
 }
 
