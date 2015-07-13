@@ -341,7 +341,8 @@ S_render_node(cmark_renderer *renderer,
 		break;
 
 	case CMARK_NODE_SOFTBREAK:
-		if (CMARK_OPT_HARDBREAKS & options) {
+		if (renderer->width == 0 &&
+		    !(CMARK_OPT_HARDBREAKS & options)) {
 			CR();
 		} else {
 			OUT(" ", true, LITERAL);
