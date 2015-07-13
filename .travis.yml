@@ -12,7 +12,7 @@ addons:
   apt:
     # we need a more recent cmake than travis/linux provides (at least 2.8.9):
     sources:
-    - ppa:kubuntu-ppa/backports
+    - kubuntu-backports
     packages:
     - cmake
     - python3
