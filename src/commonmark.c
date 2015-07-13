@@ -29,12 +29,12 @@ static inline void outc(cmark_renderer *renderer,
 	needs_escaping =
 		escape != LITERAL &&
 		((escape == NORMAL &&
-		  (c == '*' || c == '_' || c == '[' || c == ']' ||
+		  (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' ||
 		   c == '<' || c == '>' || c == '\\' || c == '`' ||
 		   (c == '&' && isalpha(nextc)) ||
 		   (c == '!' && nextc == '[') ||
 		   (renderer->begin_line &&
-		    (c == '-' || c == '+' || c == '#' || c == '=')) ||
+		    (c == '-' || c == '+' || c == '=')) ||
 		   ((c == '.' || c == ')') &&
 		    isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
 		 (escape == URL &&
