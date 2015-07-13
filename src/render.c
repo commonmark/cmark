@@ -86,8 +86,12 @@ void S_out(cmark_renderer *renderer,
 			renderer->column = 0;
 			renderer->begin_line = true;
 			renderer->last_breakable = 0;
+		} else if (escape == LITERAL) {
+			cmark_render_code_point(renderer, c);
+			renderer->begin_line = false;
 		} else {
 			(renderer->outc)(renderer, escape, c, nextc);
+			renderer->begin_line = false;
 		}
 
 		// If adding the character went beyond width, look for an

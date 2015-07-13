@@ -71,7 +71,6 @@ void S_outc(cmark_renderer *renderer,
 	default:
 		cmark_render_code_point(renderer, c);
 	}
-	renderer->begin_line = (c == 10);
 }
 
 static int

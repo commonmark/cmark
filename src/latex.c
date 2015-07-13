@@ -25,124 +25,124 @@ static inline void outc(cmark_renderer *renderer,
 {
 	if (escape == LITERAL) {
 		cmark_render_code_point(renderer, c);
-	} else {
-		switch(c) {
-		case 123: // '{'
-		case 125: // '}'
-		case 35: // '#'
-		case 37: // '%'
-		case 38: // '&'
+		return;
+	}
+
+	switch(c) {
+	case 123: // '{'
+	case 125: // '}'
+	case 35: // '#'
+	case 37: // '%'
+	case 38: // '&'
+		cmark_render_ascii(renderer, "\\");
+		cmark_render_code_point(renderer, c);
+		break;
+	case 36: // '$'
+	case 95: // '_'
+		if (escape == NORMAL) {
 			cmark_render_ascii(renderer, "\\");
-			cmark_render_code_point(renderer, c);
-			break;
-		case 36: // '$'
-		case 95: // '_'
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "\\");
-			}
-			cmark_render_code_point(renderer, c);
-			break;
-		case 45 : // '-'
-			if (nextc == 45) { // prevent ligature
-				cmark_render_ascii(renderer, "\\-");
-                        } else {
-				cmark_render_ascii(renderer, "-");
-			}
-                        break;
-		case 126: // '~'
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "\\textasciitilde{}");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 94: // '^'
-			cmark_render_ascii(renderer, "\\^{}");
-			break;
-		case 92: // '\\'
-			if (escape == URL) {
-				// / acts as path sep even on windows:
-				cmark_render_ascii(renderer, "/");
-			} else {
-				cmark_render_ascii(renderer, "\\textbackslash{}");
-			}
-			break;
-		case 124: // '|'
-			cmark_render_ascii(renderer, "\\textbar{}");
-			break;
-		case 60: // '<'
-			cmark_render_ascii(renderer, "\\textless{}");
-			break;
-		case 62: // '>'
-			cmark_render_ascii(renderer, "\\textgreater{}");
-			break;
-		case 91: // '['
-		case 93: // ']'
-			cmark_render_ascii(renderer, "{");
-			cmark_render_code_point(renderer, c);
-			cmark_render_ascii(renderer, "}");
-			break;
-		case 34: // '"'
-			cmark_render_ascii(renderer, "\\textquotedbl{}");
-			// requires \usepackage[T1]{fontenc}
-			break;
-		case 39: // '\''
-			cmark_render_ascii(renderer, "\\textquotesingle{}");
-			// requires \usepackage{textcomp}
-			break;
-		case 160: // nbsp
-			cmark_render_ascii(renderer, "~");
-			break;
-		case 8230: // hellip
-			cmark_render_ascii(renderer, "\\ldots{}");
-			break;
-		case 8216: // lsquo
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "`");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 8217: // rsquo
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "\'");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 8220: // ldquo
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "``");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 8221: // rdquo
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "''");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 8212: // emdash
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "---");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		case 8211: // endash
-			if (escape == NORMAL) {
-				cmark_render_ascii(renderer, "--");
-			} else {
-				cmark_render_code_point(renderer, c);
-			}
-			break;
-		default:
+		}
+		cmark_render_code_point(renderer, c);
+		break;
+	case 45 : // '-'
+		if (nextc == 45) { // prevent ligature
+			cmark_render_ascii(renderer, "\\-");
+		} else {
+			cmark_render_ascii(renderer, "-");
+		}
+		break;
+	case 126: // '~'
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "\\textasciitilde{}");
+		} else {
 			cmark_render_code_point(renderer, c);
 		}
+		break;
+	case 94: // '^'
+		cmark_render_ascii(renderer, "\\^{}");
+		break;
+	case 92: // '\\'
+		if (escape == URL) {
+			// / acts as path sep even on windows:
+			cmark_render_ascii(renderer, "/");
+		} else {
+			cmark_render_ascii(renderer, "\\textbackslash{}");
+		}
+		break;
+	case 124: // '|'
+		cmark_render_ascii(renderer, "\\textbar{}");
+		break;
+	case 60: // '<'
+		cmark_render_ascii(renderer, "\\textless{}");
+		break;
+	case 62: // '>'
+		cmark_render_ascii(renderer, "\\textgreater{}");
+		break;
+	case 91: // '['
+	case 93: // ']'
+		cmark_render_ascii(renderer, "{");
+		cmark_render_code_point(renderer, c);
+		cmark_render_ascii(renderer, "}");
+		break;
+	case 34: // '"'
+		cmark_render_ascii(renderer, "\\textquotedbl{}");
+		// requires \usepackage[T1]{fontenc}
+		break;
+	case 39: // '\''
+		cmark_render_ascii(renderer, "\\textquotesingle{}");
+		// requires \usepackage{textcomp}
+		break;
+	case 160: // nbsp
+		cmark_render_ascii(renderer, "~");
+		break;
+	case 8230: // hellip
+		cmark_render_ascii(renderer, "\\ldots{}");
+		break;
+	case 8216: // lsquo
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "`");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	case 8217: // rsquo
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "\'");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	case 8220: // ldquo
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "``");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	case 8221: // rdquo
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "''");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	case 8212: // emdash
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "---");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	case 8211: // endash
+		if (escape == NORMAL) {
+			cmark_render_ascii(renderer, "--");
+		} else {
+			cmark_render_code_point(renderer, c);
+		}
+		break;
+	default:
+		cmark_render_code_point(renderer, c);
 	}
-	renderer->begin_line = (c == 10);
 }
 
 typedef enum  {

@@ -56,8 +56,6 @@ static inline void outc(cmark_renderer *renderer,
 	} else {
 		cmark_render_code_point(renderer, c);
 	}
-	renderer->begin_line = (c == 10);
-
 }
 
 static int
