@@ -714,6 +714,21 @@ numeric_entities(test_batch_runner *runner)
 }
 
 static void
+test_safe(test_batch_runner *runner)
+{
+	// Test safe mode
+	static const char raw_html[] =
+		"<div>\nhi\n</div>\n\n<a>hi</a>\n[link](JAVAscript:alert('hi'))\n![image](file:my.js)\n";
+	char *html = cmark_markdown_to_html(raw_html,
+					    sizeof(raw_html) - 1,
+		                            CMARK_OPT_DEFAULT |
+					    CMARK_OPT_SAFE);
+	STR_EQ(runner, html, "<!-- raw HTML omitted -->\n<p><!-- raw HTML omitted -->hi<!-- raw HTML omitted -->\n<a href=\"\">link</a>\n<img src=\"\" alt=\"image\" /></p>\n",
+	       "input with raw HTML and dangerous links");
+	free(html);
+}
+
+static void
 test_md_to_html(test_batch_runner *runner, const char *markdown,
 		const char *expected_html, const char *msg)
 {
@@ -741,6 +756,7 @@ int main() {
 	line_endings(runner);
 	numeric_entities(runner);
 	test_cplusplus(runner);
+	test_safe(runner);
 
 	test_print_summary(runner);
 	retval =  test_ok(runner) ? 0 : 1;

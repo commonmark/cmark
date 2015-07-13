@@ -139,11 +139,16 @@ Usage
 Instructions for the use of the command line program and library can
 be found in the man pages in the `man` subdirectory.
 
-**A note on security:**
-This library does not attempt to sanitize link attributes or
-raw HTML.  If you use it in applications that accept
-untrusted user input, you must run the output through an HTML
-sanitizer to protect against
+Security
+--------
+
+By default, the library will pass through raw HTML and potentially
+dangerous links (`javascript:`, `vbscript:`, `data:`, `file:`).
+
+It is recommended that users either disable this potentially unsafe
+feature by using the option `CMARK_OPT_SAFE` (or `--safe` with the
+command-line program), or run the output through an HTML sanitizer
+to protect against
 [XSS attacks](http://en.wikipedia.org/wiki/Cross-site_scripting).
 
 Contributing

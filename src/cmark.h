@@ -516,6 +516,14 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
  */
 #define CMARK_OPT_VALIDATE_UTF8 16
 
+/** Suppress raw HTML and unsafe links (`javascript:`, `vbscript:`,
+ * `file:`, and `data:`, except for `image/png`, `image/gif`,
+ * `image/jpeg`, or `image/webp` mime types).  Raw HTML is replaced
+ * by a placeholder HTML comment. Unsafe links are replaced by
+ * empty strings.
+ */
+#define CMARK_OPT_SAFE 32
+
 /**
  * ## Version information
  */

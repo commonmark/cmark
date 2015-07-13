@@ -315,3 +315,17 @@ bufsize_t _scan_entity(const unsigned char *p)
   .? { return 0; }
 */
 }
+
+// Returns positive value if a URL begins in a way that is potentially
+// dangerous, with javascript:, vbscript:, file:, or data:, otherwise 0.
+bufsize_t _scan_dangerous_url(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  'data:image/' ('png'|'gif'|'jpeg'|'webp') { return 0; }
+  'javascript:' | 'vbscript:' | 'file:' | 'data:' { return (bufsize_t)(p - start); }
+  .? { return 0; }
+*/
+}
+

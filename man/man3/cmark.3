@@ -1,4 +1,4 @@
-.TH cmark 3 "July 12, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "July 13, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -568,6 +568,22 @@ dashes.
 .PP
 Validate UTF\-8 in the input before parsing, replacing illegal sequences
 with the replacement character U+FFFD.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_SAFE 32
+.RE
+\f[]
+.fi
+
+.PP
+Suppress raw HTML and unsafe links (\f[C]javascript:\f[],
+\f[C]vbscript:\f[], \f[C]file:\f[], and \f[C]data:\f[], except for
+\f[C]image/png\f[], \f[C]image/gif\f[], \f[C]image/jpeg\f[], or
+\f[C]image/webp\f[] mime types). Raw HTML is replaced by a placeholder
+HTML comment. Unsafe links are replaced by empty strings.
 
 .SS
 Version information
