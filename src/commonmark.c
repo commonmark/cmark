@@ -30,7 +30,7 @@ static inline void outc(cmark_renderer *renderer,
 		escape != LITERAL &&
 		((escape == NORMAL &&
 		  (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' ||
-		   c == '<' || c == '>' || c == '\\' || c == '`' ||
+		   c == '<' || c == '>' || c == '\\' || c == '`' || c == '!' ||
 		   (c == '&' && isalpha(nextc)) ||
 		   (c == '!' && nextc == '[') ||
 		   (renderer->begin_line &&
