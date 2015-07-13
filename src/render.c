@@ -126,7 +126,7 @@ cmark_render_ascii(cmark_renderer* renderer, const char* s)
 }
 
 void
-cmark_render_code_point(cmark_renderer *renderer, uint8_t c)
+cmark_render_code_point(cmark_renderer *renderer, uint32_t c)
 {
 	utf8proc_encode_char(c, renderer->buffer);
 	renderer->column += 1;
