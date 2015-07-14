@@ -742,9 +742,9 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 				break;
 			default:
 				fprintf(stderr,
-					"Error (%s:%d): Unknown HTML block type %d\n",
-					__FILE__, __LINE__,
-					container->as.html_block_type);
+				        "Error (%s:%d): Unknown HTML block type %d\n",
+				        __FILE__, __LINE__,
+				        container->as.html_block_type);
 				exit(1);
 			}
 
@@ -812,9 +812,9 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			S_advance_offset(parser, &input, parser->first_nonspace + matched - parser->offset, false);
 
 		} else if (!indented &&
-			   ((matched = scan_html_block_start(&input, parser->first_nonspace)) ||
-			    (container->type != NODE_PARAGRAPH &&
-			     (matched = scan_html_block_start_7(&input, parser->first_nonspace))))) {
+		           ((matched = scan_html_block_start(&input, parser->first_nonspace)) ||
+		            (container->type != NODE_PARAGRAPH &&
+		             (matched = scan_html_block_start_7(&input, parser->first_nonspace))))) {
 
 			container = add_child(parser, container, NODE_HTML, parser->first_nonspace + 1);
 			container->as.html_block_type = matched;
@@ -962,27 +962,27 @@ S_process_line(cmark_parser *parser, const unsigned char *buffer, bufsize_t byte
 			case 1:
 				// </script>, </style>, </pre>
 				matches_end_condition =
-					scan_html_block_end_1(&input, parser->first_nonspace);
+				    scan_html_block_end_1(&input, parser->first_nonspace);
 				break;
 			case 2:
 				// -->
 				matches_end_condition =
-					scan_html_block_end_2(&input, parser->first_nonspace);
+				    scan_html_block_end_2(&input, parser->first_nonspace);
 				break;
 			case 3:
 				// ?>
 				matches_end_condition =
-					scan_html_block_end_3(&input, parser->first_nonspace);
+				    scan_html_block_end_3(&input, parser->first_nonspace);
 				break;
 			case 4:
 				// >
 				matches_end_condition =
-					scan_html_block_end_4(&input, parser->first_nonspace);
+				    scan_html_block_end_4(&input, parser->first_nonspace);
 				break;
 			case 5:
 				// ]]>
 				matches_end_condition =
-					scan_html_block_end_5(&input, parser->first_nonspace);
+				    scan_html_block_end_5(&input, parser->first_nonspace);
 				break;
 			default:
 				matches_end_condition = 0;

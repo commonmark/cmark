@@ -23,9 +23,9 @@ void S_blankline(cmark_renderer *renderer)
 
 static
 void S_out(cmark_renderer *renderer,
-	   const char *source,
-	   bool wrap,
-	   cmark_escaping escape)
+           const char *source,
+           bool wrap,
+           cmark_escaping escape)
 {
 	int length = cmark_strbuf_safe_strlen(source);
 	unsigned char nextc;
@@ -74,7 +74,7 @@ void S_out(cmark_renderer *renderer,
 				renderer->column += 1;
 				renderer->begin_line = false;
 				renderer->last_breakable = renderer->buffer->size -
-				                        1;
+				                           1;
 				// skip following spaces
 				while (source[i + 1] == ' ') {
 					i++;
@@ -138,16 +138,16 @@ cmark_render_code_point(cmark_renderer *renderer, uint32_t c)
 
 char*
 cmark_render(cmark_node *root,
-	     int options,
-	     int width,
-	     void (*outc)(cmark_renderer*,
-			  cmark_escaping,
-			  int32_t,
-			  unsigned char),
-	     int (*render_node)(cmark_renderer *renderer,
-				cmark_node *node,
-				cmark_event_type ev_type,
-				int options))
+             int options,
+             int width,
+             void (*outc)(cmark_renderer*,
+                          cmark_escaping,
+                          int32_t,
+                          unsigned char),
+             int (*render_node)(cmark_renderer *renderer,
+                                cmark_node *node,
+                                cmark_event_type ev_type,
+                                int options))
 {
 	cmark_strbuf pref = GH_BUF_INIT;
 	cmark_strbuf buf = GH_BUF_INIT;
@@ -157,8 +157,9 @@ cmark_render(cmark_node *root,
 	cmark_iter *iter = cmark_iter_new(root);
 
 	cmark_renderer renderer = { &buf, &pref, 0, width,
-				    0, 0, true, false, false,
-	                            outc, S_cr, S_blankline, S_out };
+	                            0, 0, true, false, false,
+	                            outc, S_cr, S_blankline, S_out
+	                          };
 
 	while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
 		cur = cmark_iter_get_node(iter);

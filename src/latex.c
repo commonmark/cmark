@@ -19,9 +19,9 @@
 #define BLANKLINE() renderer->blankline(renderer)
 
 static inline void outc(cmark_renderer *renderer,
-			cmark_escaping escape,
-			int32_t c,
-			unsigned char nextc)
+                        cmark_escaping escape,
+                        int32_t c,
+                        unsigned char nextc)
 {
 	if (escape == LITERAL) {
 		cmark_render_code_point(renderer, c);
@@ -220,9 +220,9 @@ S_get_enumlevel(cmark_node *node)
 
 static int
 S_render_node(cmark_renderer *renderer,
-	      cmark_node *node,
-	      cmark_event_type ev_type,
-	      int options)
+              cmark_node *node,
+              cmark_event_type ev_type,
+              int options)
 {
 	int list_number;
 	char list_number_string[20];
@@ -260,7 +260,7 @@ S_render_node(cmark_renderer *renderer,
 			list_number = cmark_node_get_list_start(node);
 			if (list_number > 1) {
 				sprintf(list_number_string,
-				         "%d", list_number);
+				        "%d", list_number);
 				LIT("\\setcounter{enum");
 				LIT((char *)roman_numerals[S_get_enumlevel(node)]);
 				LIT("}{");

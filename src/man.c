@@ -18,9 +18,9 @@
 // Functions to convert cmark_nodes to groff man strings.
 static
 void S_outc(cmark_renderer *renderer,
-	    cmark_escaping escape,
-	    int32_t c,
-	    unsigned char nextc)
+            cmark_escaping escape,
+            int32_t c,
+            unsigned char nextc)
 {
 	(void)(nextc);
 
@@ -75,8 +75,8 @@ void S_outc(cmark_renderer *renderer,
 
 static int
 S_render_node(cmark_renderer *renderer,
-	      cmark_node *node,
-	      cmark_event_type ev_type,
+              cmark_node *node,
+              cmark_event_type ev_type,
               int options)
 {
 	cmark_node *tmp;
@@ -133,7 +133,7 @@ S_render_node(cmark_renderer *renderer,
 		if (entering) {
 			CR();
 			LIT(cmark_node_get_header_level(node) == 1 ?
-			                  ".SH" : ".SS");
+			    ".SH" : ".SS");
 			CR();
 		} else {
 			CR();

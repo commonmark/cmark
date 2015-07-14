@@ -179,7 +179,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
 		} else {
 			cmark_strbuf_put(html, node->as.literal.data,
-					 node->as.literal.len);
+			                 node->as.literal.len);
 		}
 		cr(html);
 		break;
@@ -239,7 +239,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
 		} else {
 			cmark_strbuf_put(html, node->as.literal.data,
-					 node->as.literal.len);
+			                 node->as.literal.len);
 		}
 		break;
 
@@ -265,15 +265,15 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			if (!((options & CMARK_OPT_SAFE) &&
 			      scan_dangerous_url(&node->as.link.url, 0))) {
 				houdini_escape_href(html,
-						    node->as.link.url.data,
-						    node->as.link.url.len);
+				                    node->as.link.url.data,
+				                    node->as.link.url.len);
 
 			}
 			if (node->as.link.title.len) {
 				cmark_strbuf_puts(html, "\" title=\"");
 				escape_html(html,
-					    node->as.link.title.data,
-					    node->as.link.title.len);
+				            node->as.link.title.data,
+				            node->as.link.title.len);
 			}
 			cmark_strbuf_puts(html, "\">");
 		} else {
@@ -287,8 +287,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			if (!((options & CMARK_OPT_SAFE) &&
 			      scan_dangerous_url(&node->as.link.url, 0))) {
 				houdini_escape_href(html,
-						    node->as.link.url.data,
-						    node->as.link.url.len);
+				                    node->as.link.url.data,
+				                    node->as.link.url.len);
 
 			}
 			cmark_strbuf_puts(html, "\" alt=\"");

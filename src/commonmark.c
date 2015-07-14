@@ -21,28 +21,28 @@
 // Functions to convert cmark_nodes to commonmark strings.
 
 static inline void outc(cmark_renderer *renderer,
-			cmark_escaping escape,
-			int32_t c,
-			unsigned char nextc)
+                        cmark_escaping escape,
+                        int32_t c,
+                        unsigned char nextc)
 {
 	bool needs_escaping = false;
 	needs_escaping =
-		escape != LITERAL &&
-		((escape == NORMAL &&
-		  (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' ||
-		   c == '<' || c == '>' || c == '\\' || c == '`' || c == '!' ||
-		   (c == '&' && isalpha(nextc)) ||
-		   (c == '!' && nextc == '[') ||
-		   (renderer->begin_line &&
-		    (c == '-' || c == '+' || c == '=')) ||
-		   ((c == '.' || c == ')') &&
-		    isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
-		 (escape == URL &&
-		  (c == '`' || c == '<' || c == '>' || isspace(c) ||
-		        c == '\\' || c == ')' || c == '(')) ||
-		 (escape == TITLE &&
-		  (c == '`' || c == '<' || c == '>' || c == '"' ||
-		        c == '\\')));
+	    escape != LITERAL &&
+	    ((escape == NORMAL &&
+	      (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' ||
+	       c == '<' || c == '>' || c == '\\' || c == '`' || c == '!' ||
+	       (c == '&' && isalpha(nextc)) ||
+	       (c == '!' && nextc == '[') ||
+	       (renderer->begin_line &&
+	        (c == '-' || c == '+' || c == '=')) ||
+	       ((c == '.' || c == ')') &&
+	        isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
+	     (escape == URL &&
+	      (c == '`' || c == '<' || c == '>' || isspace(c) ||
+	       c == '\\' || c == ')' || c == '(')) ||
+	     (escape == TITLE &&
+	      (c == '`' || c == '<' || c == '>' || c == '"' ||
+	       c == '\\')));
 
 	if (needs_escaping) {
 		if (isspace(c)) {
@@ -159,9 +159,9 @@ get_containing_block(cmark_node *node)
 
 static int
 S_render_node(cmark_renderer *renderer,
-	      cmark_node *node,
-	      cmark_event_type ev_type,
-	      int options)
+              cmark_node *node,
+              cmark_event_type ev_type,
+              int options)
 {
 	cmark_node *tmp;
 	int list_number;
