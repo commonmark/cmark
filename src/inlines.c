@@ -455,8 +455,6 @@ static cmark_node* handle_hyphen(subject* subj, bool smart)
 	int i;
 	cmark_strbuf buf = GH_BUF_INIT;
 
-	assert(numyphens > 1);
-
 	if (numhyphens % 3 == 0) { // if divisible by 3, use all em dashes
 		em_count = numhyphens / 3;
 	} else if (numhyphens % 2 == 0) { // if divisible by 2, use all en dashes
