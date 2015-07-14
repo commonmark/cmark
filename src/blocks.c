@@ -400,11 +400,16 @@ static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos, cmark_list
 		}
 	} else if (cmark_isdigit(c)) {
 		int start = 0;
+		int digits = 0;
 
 		do {
 			start = (10 * start) + (peek_at(input, pos) - '0');
 			pos++;
-		} while (cmark_isdigit(peek_at(input, pos)));
+			digits++;
+			// We limit to 9 digits to avoid overflow,
+			// assuming max int is 2^31 - 1
+			// This also seems to be the limit for 'start' in some browsers.
+		} while (digits < 9 && cmark_isdigit(peek_at(input, pos)));
 
 		c = peek_at(input, pos);
 		if (c == '.' || c == ')') {
