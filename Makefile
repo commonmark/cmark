@@ -75,8 +75,7 @@ afl:
 	    -o test/afl_results \
 	    -x test/afl_dictionary \
 	    -t 100 \
-	    -m none \
-	    $(CMARK)
+	    $(CMARK) $(CMARK_OPTS)
 
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
