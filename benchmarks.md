@@ -16,11 +16,11 @@ Chacon.
 | cheapskate        |    8.24    |
 | peg-markdown      |    5.45    |
 | parsedown         |    5.06    |
-| **commonmark.js** |    2.20    |
-| marked            |    2.13    |
-| discount          |    1.90    |
+| **commonmark.js** |    2.09    |
+| marked            |    1.99    |
+| discount          |    1.85    |
 | **cmark**         |    0.29    |
-| hoedown           |    0.23    |
+| hoedown           |    0.21    |
 
 To run these benchmarks, use `make bench PROG=/path/to/program`.
 
