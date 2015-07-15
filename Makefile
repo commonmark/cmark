@@ -18,6 +18,7 @@ BENCHINP?=README.md
 VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
+CLANG_CHECK?=clang-check
 
 .PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench astyle update-spec afl clang-check
 
@@ -78,8 +79,8 @@ afl:
 	    -t 100 \
 	    $(CMARK) $(CMARK_OPTS)
 
-clang-check:
-	find src -name '*.c' | xargs $$CLANG_CHECK_PATH/bin/clang-check -p build -analyze
+clang-check: all
+	${CLANG_CHECK} -p build -analyze src/*.c
 
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
