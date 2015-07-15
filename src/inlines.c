@@ -65,46 +65,6 @@ static void subject_from_buf(subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap);
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
-static cmark_chunk cmark_clean_autolink(cmark_chunk *url, int is_email)
-{
-	cmark_strbuf buf = GH_BUF_INIT;
-
-	cmark_chunk_trim(url);
-
-	if (url->len == 0) {
-		cmark_chunk result = CMARK_CHUNK_EMPTY;
-		return result;
-	}
-
-	if (is_email)
-		cmark_strbuf_puts(&buf, "mailto:");
-
-	houdini_unescape_html_f(&buf, url->data, url->len);
-	return cmark_chunk_buf_detach(&buf);
-}
-
-static inline cmark_node *make_link(cmark_node *label, cmark_chunk *url, cmark_chunk *title)
-{
-	cmark_node* e = (cmark_node *)calloc(1, sizeof(*e));
-	if(e != NULL) {
-		e->type = CMARK_NODE_LINK;
-		e->first_child   = label;
-		e->last_child    = label;
-		e->as.link.url   = *url;
-		e->as.link.title = *title;
-		e->next = NULL;
-		label->parent = e;
-	}
-	return e;
-}
-
-static inline cmark_node* make_autolink(cmark_node* label, cmark_chunk url, int is_email)
-{
-	cmark_chunk clean_url = cmark_clean_autolink(&url, is_email);
-	cmark_chunk title = CMARK_CHUNK_EMPTY;
-	return make_link(label, &clean_url, &title);
-}
-
 // Create an inline with a literal string value.
 static inline cmark_node* make_literal(cmark_node_type t, cmark_chunk s)
 {
@@ -144,6 +104,18 @@ static inline cmark_node* make_simple(cmark_node_type t)
 	return e;
 }
 
+// Like make_str, but parses entities.
+static cmark_node *make_str_with_entities(cmark_chunk *content)
+{
+	cmark_strbuf unescaped = GH_BUF_INIT;
+
+	if (houdini_unescape_html(&unescaped, content->data, content->len)) {
+		return make_str(cmark_chunk_buf_detach(&unescaped));
+	} else {
+		return make_str(*content);
+	}
+}
+
 // Duplicate a chunk by creating a copy of the buffer not by reusing the
 // buffer like cmark_chunk_dup does.
 static cmark_chunk chunk_clone(cmark_chunk *src)
@@ -158,6 +130,33 @@ static cmark_chunk chunk_clone(cmark_chunk *src)
 	c.data[len] = '\0';
 
 	return c;
+}
+
+static cmark_chunk cmark_clean_autolink(cmark_chunk *url, int is_email)
+{
+	cmark_strbuf buf = GH_BUF_INIT;
+
+	cmark_chunk_trim(url);
+
+	if (url->len == 0) {
+		cmark_chunk result = CMARK_CHUNK_EMPTY;
+		return result;
+	}
+
+	if (is_email)
+		cmark_strbuf_puts(&buf, "mailto:");
+
+	houdini_unescape_html_f(&buf, url->data, url->len);
+	return cmark_chunk_buf_detach(&buf);
+}
+
+static inline cmark_node* make_autolink(cmark_chunk url, int is_email)
+{
+	cmark_node *link = make_simple(CMARK_NODE_LINK);
+	link->as.link.url   = cmark_clean_autolink(&url, is_email);
+	link->as.link.title = cmark_chunk_literal("");
+	cmark_node_append_child(link, make_str_with_entities(&url));
+	return link;
 }
 
 static void subject_from_buf(subject *e, cmark_strbuf *buffer,
@@ -695,19 +694,6 @@ static cmark_node* handle_entity(subject* subj)
 	return make_str(cmark_chunk_buf_detach(&ent));
 }
 
-// Like make_str, but parses entities.
-// Returns an inline sequence consisting of str and entity elements.
-static cmark_node *make_str_with_entities(cmark_chunk *content)
-{
-	cmark_strbuf unescaped = GH_BUF_INIT;
-
-	if (houdini_unescape_html(&unescaped, content->data, content->len)) {
-		return make_str(cmark_chunk_buf_detach(&unescaped));
-	} else {
-		return make_str(*content);
-	}
-}
-
 // Clean a URL: remove surrounding whitespace and surrounding <>,
 // and remove \ that escape punctuation.
 cmark_chunk cmark_clean_url(cmark_chunk *url)
@@ -772,10 +758,7 @@ static cmark_node* handle_pointy_brace(subject* subj)
 		contents = cmark_chunk_dup(&subj->input, subj->pos, matchlen - 1);
 		subj->pos += matchlen;
 
-		return make_autolink(
-		           make_str_with_entities(&contents),
-		           contents, 0
-		       );
+		return make_autolink(contents, 0);
 	}
 
 	// next try to match an email autolink
@@ -784,10 +767,7 @@ static cmark_node* handle_pointy_brace(subject* subj)
 		contents = cmark_chunk_dup(&subj->input, subj->pos, matchlen - 1);
 		subj->pos += matchlen;
 
-		return make_autolink(
-		           make_str_with_entities(&contents),
-		           contents, 1
-		       );
+		return make_autolink(contents, 1);
 	}
 
 	// finally, try to match an html tag
