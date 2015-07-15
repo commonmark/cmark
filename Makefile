@@ -19,7 +19,7 @@ VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 
-.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench astyle update-spec afl
+.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench astyle update-spec afl clang-check
 
 all: cmake_build man/man3/cmark.3
 
@@ -36,7 +36,8 @@ $(BUILDDIR):
 	cmake .. \
 		-G "$(GENERATOR)" \
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
-		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX)
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 install: $(BUILDDIR)
 	make -C $(BUILDDIR) install
@@ -76,6 +77,9 @@ afl:
 	    -x test/afl_dictionary \
 	    -t 100 \
 	    $(CMARK) $(CMARK_OPTS)
+
+clang-check:
+	find src -name '*.c' | xargs $$CLANG_CHECK_PATH/bin/clang-check -p build -analyze
 
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
