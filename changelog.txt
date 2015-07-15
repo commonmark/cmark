@@ -1,3 +1,147 @@
+[0.21.0]
+
+  * Updated to version 0.21 of spec.
+  * Added latex renderer (#31). New exported function in API:
+    `cmark_render_latex`. New source file: `src/latex.hs`.
+  * Updates for new HTML block spec. Removed old `html_block_tag` scanner.
+    Added new `html_block_start` and `html_block_start_7`, as well
+    as `html_block_end_n` for n = 1-5. Rewrote block parser for new HTML
+    block spec.
+  * We no longer preprocess tabs to spaces before parsing.
+    Instead, we keep track of both the byte offset and
+    the (virtual) column as we parse block starts.
+    This allows us to handle tabs without converting
+    to spaces first.  Tabs are left as tabs in the output, as
+    per the revised spec.
+  * Removed utf8 validation by default.  We now replace null characters
+    in the line splitting code.
+  * Added `CMARK_OPT_VALIDATE_UTF8` option and command-line option
+    `--validate-utf8`.  This option causes cmark to check for valid
+    UTF-8, replacing invalid sequences with the replacement
+    character, U+FFFD.  Previously this was done by default in
+    connection with tab expansion, but we no longer do it by
+    default with the new tab treatment.  (Many applications will
+    know that the input is valid UTF-8, so validation will not
+    be necessary.)
+  * Added `CMARK_OPT_SAFE` option and `--safe` command-line flag.
+    + Added `CMARK_OPT_SAFE`.  This option disables rendering of raw HTML
+      and potentially dangerous links.
+    + Added `--safe` option in command-line program.
+    + Updated `cmark.3` man page.
+    + Added `scan_dangerous_url` to scanners.
+    + In HTML, suppress rendering of raw HTML and potentially dangerous
+      links if `CMARK_OPT_SAFE`.  Dangerous URLs are those that begin
+      with `javascript:`, `vbscript:`, `file:`, or `data:` (except for
+      `image/png`, `image/gif`, `image/jpeg`, or `image/webp` mime types).
+    + Added `api_test` for `OPT_CMARK_SAFE`.
+    + Rewrote `README.md` on security.
+  * Limit ordered list start to 9 digits, per spec.
+  * Added width parameter to `render_man` (API change).
+  * Extracted common renderer code from latex, man, and commonmark
+    renderers into a separate module, `renderer.[ch]` (#63).  To write a
+    renderer now, you only need to write a character escaping function
+    and a node rendering function.  You pass these to `cmark_render`
+    and it handles all the plumbing (including line wrapping) for you.
+    So far this is an internal module, but we might consider adding
+    it to the API in the future.
+  * commonmark writer:  correctly handle email autolinks.
+  * commonmark writer:  escape `!`.
+  * Fixed soft breaks in commonmark renderer.
+  * Fixed scanner for link url. re2c returns the longest match, so we
+    were getting bad results with `[link](foo\(and\(bar\)\))`
+    which it would parse as containing a bare `\` followed by
+    an in-parens chunk ending with the final paren.
+  * Allow non-initial hyphens in html tag names. This allows for
+    custom tags, see jgm/CommonMark#239.
+  * Updated `test/smart_punct.txt`.
+  * Implemented new treatment of hyphens with `--smart`, converting
+    sequences of hyphens to sequences of em and en dashes that contain no
+    hyphens.
+  * HTML renderer:  properly split info on first space char (see
+    jgm/commonmark.js#54).
+  * Changed version variables to functions (#60, Andrius Bentkus).
+    This is easier to access using ffi, since some languages, like C#
+    like to use only function interfaces for accessing library
+    functionality.
+  * `process_emphasis`: Fixed setting lower bound to potential openers.
+    Renamed `potential_openers` -> `openers_bottom`.
+    Renamed `start_delim` -> `stack_bottom`.
+  * Added case for #59 to `pathological_test.py`.
+  * Fixed emphasis/link parsing bug (#59).
+  * Fixed off-by-one error in line splitting routine.
+    This caused certain NULLs not to be replaced.
+  * Don't rtrim in `subject_from_buffer`.  This gives bad results in
+    parsing reference links, where we might have trailing blanks
+    (`finalize` removes the bytes parsed as a reference definition;
+    before this change, some blank bytes might remain on the line).
+    + Added `column` and `first_nonspace_column` fields to `parser`.
+    + Added utility function to advance the offset, computing
+      the virtual column too.  Note that we don't need to deal with
+      UTF-8 here at all.  Only ASCII occurs in block starts.
+    + Significant performance improvement due to the fact that
+      we're not doing UTF-8 validation.
+  * Fixed entity lookup table.  The old one had many errors.
+    The new one is derived from the list in the npm entities package.
+    Since the sequences can now be longer (multi-code-point), we
+    have bumped the length limit from 4 to 8, which also affects
+    `houdini_html_u.c`.  An example of the kind of error that was fixed:
+    `&ngE;` should be rendered as "≧̸" (U+02267 U+00338), but it was
+    being rendered as "≧" (which is the same as `&gE;`).
+  * Replace gperf-based entity lookup with binary tree lookup.
+    The primary advantage is a big reduction in the size of
+    the compiled library and executable (> 100K).
+    There should be no measurable performance difference in
+    normal documents.  I detected only a slight performance
+    hit in a file containing 1,000,000 entities.
+    + Removed `src/html_unescape.gperf` and `src/html_unescape.h`.
+    + Added `src/entities.h` (generated by `tools/make_entities_h.py`).
+    + Added binary tree lookup functions to `houdini_html_u.c`, and
+      use the data in `src/entities.h`.
+    * Renamed `entities.h` -> `entities.inc`, and
+      `tools/make_entities_h.py` -> `tools/make_entitis_inc.py`.
+  * Fixed cases like
+    ```
+    [ref]: url
+    "title" ok
+    ```
+    Here we should parse the first line as a reference.
+  * `inlines.c`:  Added utility functions to skip spaces and line endings.
+  * Fixed backslashes in link destinations that are not part of escapes
+    (jgm/commonmark#45).
+  * `process_line`: Removed "add newline if line doesn't have one."
+    This isn't actually needed.
+  * Small logic fixes and a simplification in `process_emphasis`.
+  * Added more pathological tests:
+    + Many link closers with no openers.
+    + Many link openers with no closers.
+    + Many emph openers with no closers.
+    + Many closers with no openers.
+    + `"*a_ " * 20000`.
+  * Fixed `process_emphasis` to handle new pathological cases.
+    Now we have an array of pointers (`potential_openers`),
+    keyed to the delim char.  When we've failed to match a potential opener
+    prior to point X in the delimiter stack, we reset `potential_openers`
+    for that opener type to X, and thus avoid having to look again through
+    all the openers we've already rejected.
+  * `process_inlines`:  remove closers from delim stack when possible.
+    When they have no matching openers and cannot be openers themselves,
+    we can safely remove them.  This helps with a performance case:
+    `"a_ " * 20000` (jgm/commonmark.js#43).
+  * Roll utf8proc_charlen into utf8proc_valid (Nick Wellnhofer).
+    Speeds up "make bench" by another percent.
+  * `spec_tests.py`: allow `→` for tab in HTML examples.
+  * `normalize.py`:  don't collapse whitespace in pre contexts.
+  * Use utf-8 aware re2c.
+  * Makefile afl target:  removed `-m none`, added `CMARK_OPTS`.
+  * README: added `make afl` instructions.
+  * Limit generated generated `cmark.3` to 72 character line width.
+  * Travis: switched to containerized build system.
+  * Removed `debug.h`. (It uses GNU extensions, and we don't need it anyway.)
+  * Removed sundown from benchmarks, because the reading was anomalous.
+    sundown had an arbitrary 16MB limit on buffers, and the benchmark
+    input exceeded that.  So who knows what we were actually testing?
+    Added hoedown, sundown's successor, which is a better comparison.
+
 [0.20.0]
 
   * Fixed bug in list item parsing when items indented >= 4 spaces (#52).
