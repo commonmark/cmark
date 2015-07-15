@@ -172,7 +172,6 @@ eliminating several worst-case performance issues.
 Nick Wellnhofer contributed many improvements, including
 most of the C library's API and its test harness.
 
-[sundown]: https://github.com/vmg/sundown
 [benchmarks]: benchmarks.md
 [the spec]: http://spec.commonmark.org
 [CommonMark]: http://commonmark.org
