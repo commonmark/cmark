@@ -620,7 +620,8 @@ S_insert_emph(subject *subj, delimiter *opener, delimiter *closer)
 		// replace empty opener inline with emph
 		cmark_chunk_free(&(opener_inl->as.literal));
 		emph = opener_inl;
-		emph->type = use_delims == 1 ? NODE_EMPH : NODE_STRONG;
+		emph->type = use_delims == 1 ?
+			CMARK_NODE_EMPH : CMARK_NODE_STRONG;
 		// remove opener from list
 		remove_delimiter(subj, opener);
 	} else {
@@ -961,7 +962,7 @@ noMatch:
 
 match:
 	inl = opener->inl_text;
-	inl->type = is_image ? NODE_IMAGE : NODE_LINK;
+	inl->type = is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK;
 	cmark_chunk_free(&inl->as.literal);
 	inl->first_child = link_text;
 	process_emphasis(subj, opener);
