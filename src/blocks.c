@@ -564,8 +564,9 @@ static void chop_trailing_hashtags(cmark_chunk *ch)
 	while (n >= 0 && peek_at(ch, n) == '#')
 		n--;
 
-	// Check for a be a space before the final #s:
-	if (n != orig_n && n >= 0 && peek_at(ch, n) == ' ') {
+	// Check for a space before the final #s:
+	if (n != orig_n && n >= 0 &&
+	    (peek_at(ch, n) == ' ' || peek_at(ch, n) == '\t')) {
 		ch->len = n;
 		cmark_chunk_rtrim(ch);
 	}
