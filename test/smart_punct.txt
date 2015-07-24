@@ -58,6 +58,14 @@ by the single quote before `jolly`:
 <p>’tis the season to be ‘jolly’</p>
 .
 
+Multiple apostrophes should not be marked as open/closing quotes.
+
+.
+'We'll use Jane's boat and John's truck,' Jenna said.
+.
+<p>‘We’ll use Jane’s boat and John’s truck,’ Jenna said.</p>
+.
+
 An unmatched double quote will be interpreted as a
 left double quote, to facilitate this style:
 
