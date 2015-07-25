@@ -26,6 +26,8 @@ static inline void outc(cmark_renderer *renderer,
                         unsigned char nextc)
 {
 	bool needs_escaping = false;
+	char encoded[20];
+
 	needs_escaping =
 	    escape != LITERAL &&
 	    ((escape == NORMAL &&
@@ -47,7 +49,8 @@ static inline void outc(cmark_renderer *renderer,
 	if (needs_escaping) {
 		if (isspace(c)) {
 			// use percent encoding for spaces
-			cmark_strbuf_printf(renderer->buffer, "%%%2x", c);
+			sprintf(encoded, "%%%2x", c);
+			cmark_strbuf_puts(renderer->buffer, encoded);
 			renderer->column += 3;
 		} else {
 			cmark_render_ascii(renderer, "\\");
