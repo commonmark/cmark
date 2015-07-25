@@ -37,6 +37,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	bool literal = false;
 	cmark_delim_type delim;
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
+	char buffer[100];
 
 	if (entering) {
 		indent(state);
@@ -44,11 +45,12 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 		cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
 
 		if (options & CMARK_OPT_SOURCEPOS && node->start_line != 0) {
-			cmark_strbuf_printf(xml, " sourcepos=\"%d:%d-%d:%d\"",
-			                    node->start_line,
-			                    node->start_column,
-			                    node->end_line,
-			                    node->end_column);
+			sprintf(buffer, " sourcepos=\"%d:%d-%d:%d\"",
+				node->start_line,
+				node->start_column,
+				node->end_line,
+				node->end_column);
+			cmark_strbuf_puts(xml, buffer);
 		}
 
 		literal = false;
@@ -70,8 +72,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			switch (cmark_node_get_list_type(node)) {
 			case CMARK_ORDERED_LIST:
 				cmark_strbuf_puts(xml, " type=\"ordered\"");
-				cmark_strbuf_printf(xml, " start=\"%d\"",
-				                    cmark_node_get_list_start(node));
+				sprintf(buffer," start=\"%d\"",
+					cmark_node_get_list_start(node));
+				cmark_strbuf_puts(xml, buffer);
 				delim = cmark_node_get_list_delim(node);
 				if (delim == CMARK_PAREN_DELIM) {
 					cmark_strbuf_puts(xml,
@@ -87,13 +90,15 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 			default:
 				break;
 			}
-			cmark_strbuf_printf(xml, " tight=\"%s\"",
-			                    (cmark_node_get_list_tight(node) ?
-			                     "true" : "false"));
+			sprintf(buffer, " tight=\"%s\"",
+				(cmark_node_get_list_tight(node) ?
+				 "true" : "false"));
+			cmark_strbuf_puts(xml, buffer);
 			break;
 		case CMARK_NODE_HEADER:
-			cmark_strbuf_printf(xml, " level=\"%d\"",
-			                    node->as.header.level);
+			sprintf(buffer, " level=\"%d\"",
+				node->as.header.level);
+			cmark_strbuf_puts(xml, buffer);
 			break;
 		case CMARK_NODE_CODE_BLOCK:
 			if (node->as.code.info.len > 0) {
