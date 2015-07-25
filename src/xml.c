@@ -40,8 +40,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 	if (entering) {
 		indent(state);
-		cmark_strbuf_printf(xml, "<%s",
-		                    cmark_node_get_type_string(node));
+		cmark_strbuf_putc(xml, '<');
+		cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
 
 		if (options & CMARK_OPT_SOURCEPOS && node->start_line != 0) {
 			cmark_strbuf_printf(xml, " sourcepos=\"%d:%d-%d:%d\"",
@@ -135,8 +135,9 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	} else if (node->first_child) {
 		state->indent -= 2;
 		indent(state);
-		cmark_strbuf_printf(xml, "</%s>\n",
-		                    cmark_node_get_type_string(node));
+		cmark_strbuf_puts(xml, "</");
+		cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
+		cmark_strbuf_puts(xml, ">\n");
 	}
 
 	return 1;
