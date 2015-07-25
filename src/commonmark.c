@@ -171,7 +171,7 @@ S_render_node(cmark_renderer *renderer,
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 	const char *info, *code, *title;
 	size_t info_len, code_len;
-	cmark_strbuf listmarker = GH_BUF_INIT;
+	char listmarker[20];
 	char *emph_delim;
 	bufsize_t marker_width;
 
@@ -230,12 +230,12 @@ S_render_node(cmark_renderer *renderer,
 			// we ensure a width of at least 4 so
 			// we get nice transition from single digits
 			// to double
-			cmark_strbuf_printf(&listmarker,
-			                    "%d%s%s", list_number,
-			                    list_delim == CMARK_PAREN_DELIM ?
-			                    ")" : ".",
-			                    list_number < 10 ? "  " : " ");
-			marker_width = listmarker.size;
+			sprintf(listmarker,
+				"%d%s%s", list_number,
+				list_delim == CMARK_PAREN_DELIM ?
+				")" : ".",
+				list_number < 10 ? "  " : " ");
+			marker_width = safe_strlen(listmarker);
 		}
 		if (entering) {
 			if (cmark_node_get_list_type(node->parent) ==
@@ -243,7 +243,7 @@ S_render_node(cmark_renderer *renderer,
 				LIT("* ");
 				cmark_strbuf_puts(renderer->prefix, "  ");
 			} else {
-				LIT((char *)listmarker.ptr);
+				LIT(listmarker);
 				for (i = marker_width; i--;) {
 					cmark_strbuf_putc(renderer->prefix, ' ');
 				}
@@ -254,7 +254,6 @@ S_render_node(cmark_renderer *renderer,
 			                      marker_width);
 			CR();
 		}
-		cmark_strbuf_free(&listmarker);
 		break;
 
 	case CMARK_NODE_HEADER:
