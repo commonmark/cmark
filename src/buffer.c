@@ -165,54 +165,6 @@ void cmark_strbuf_puts(cmark_strbuf *buf, const char *string)
 	                 cmark_strbuf_safe_strlen(string));
 }
 
-void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap)
-{
-	size_t expected_size = strlen(format);
-	if (expected_size <= SIZE_MAX / 2)
-		expected_size *= 2;
-	S_strbuf_grow_by(buf, expected_size);
-
-	while (1) {
-		va_list args;
-		va_copy(args, ap);
-
-		int len = vsnprintf(
-		              (char *)buf->ptr + buf->size,
-		              buf->asize - buf->size,
-		              format, args
-		          );
-#ifndef HAVE_C99_SNPRINTF
-		// Assume we're on Windows.
-		if (len < 0) {
-			len = _vscprintf(format, args);
-		}
-#endif
-
-		va_end(args);
-
-		if (len < 0) {
-			perror("vsnprintf in cmark_strbuf_vprintf");
-			abort();
-		}
-
-		if ((size_t)len < (size_t)(buf->asize - buf->size)) {
-			buf->size += len;
-			break;
-		}
-
-		S_strbuf_grow_by(buf, len);
-	}
-}
-
-void cmark_strbuf_printf(cmark_strbuf *buf, const char *format, ...)
-{
-	va_list ap;
-
-	va_start(ap, format);
-	cmark_strbuf_vprintf(buf, format, ap);
-	va_end(ap);
-}
-
 void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize, const cmark_strbuf *buf)
 {
 	bufsize_t copylen;

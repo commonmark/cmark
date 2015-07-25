@@ -58,9 +58,6 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string);
 void cmark_strbuf_putc(cmark_strbuf *buf, int c);
 void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data, bufsize_t len);
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string);
-void cmark_strbuf_printf(cmark_strbuf *buf, const char *format, ...)
-	CMARK_ATTRIBUTE((format (printf, 2, 3)));
-void cmark_strbuf_vprintf(cmark_strbuf *buf, const char *format, va_list ap);
 void cmark_strbuf_clear(cmark_strbuf *buf);
 
 bufsize_t cmark_strbuf_strchr(const cmark_strbuf *buf, int c, bufsize_t pos);

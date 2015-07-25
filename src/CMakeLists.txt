@@ -139,11 +139,6 @@ CHECK_C_SOURCE_COMPILES("
   int f(void) __attribute__ (());
   int main() { return 0; }
 " HAVE___ATTRIBUTE__)
-CHECK_C_SOURCE_RUNS("
-  #include <stdio.h>
-  int main() { return snprintf(NULL, 0, \"123\") == 3 ? 0 : 1; }
-" HAVE_C99_SNPRINTF)
-CHECK_SYMBOL_EXISTS(va_copy stdarg.h HAVE_VA_COPY)
 
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
