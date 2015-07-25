@@ -31,12 +31,14 @@ struct render_state {
 static void
 S_render_sourcepos(cmark_node *node, cmark_strbuf *html, int options)
 {
+	char buffer[100];
 	if (CMARK_OPT_SOURCEPOS & options) {
-		cmark_strbuf_printf(html, " data-sourcepos=\"%d:%d-%d:%d\"",
-		                    cmark_node_get_start_line(node),
-		                    cmark_node_get_start_column(node),
-		                    cmark_node_get_end_line(node),
-		                    cmark_node_get_end_column(node));
+		sprintf(buffer, " data-sourcepos=\"%d:%d-%d:%d\"",
+			cmark_node_get_start_line(node),
+			cmark_node_get_start_column(node),
+			cmark_node_get_end_line(node),
+			cmark_node_get_end_column(node));
+		cmark_strbuf_puts(html, buffer);
 	}
 }
 
@@ -50,6 +52,7 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 	char start_header[] = "<h0";
 	char end_header[] = "</h0";
 	bool tight;
+	char buffer[100];
 
 	bool entering = (ev_type == CMARK_EVENT_ENTER);
 
@@ -108,9 +111,8 @@ S_render_node(cmark_node *node, cmark_event_type ev_type,
 				S_render_sourcepos(node, html, options);
 				cmark_strbuf_puts(html, ">\n");
 			} else {
-				cmark_strbuf_printf(html,
-				                    "<ol start=\"%d\"",
-				                    start);
+				sprintf(buffer, "<ol start=\"%d\"", start);
+				cmark_strbuf_puts(html, buffer);
 				S_render_sourcepos(node, html, options);
 				cmark_strbuf_puts(html, ">\n");
 			}
