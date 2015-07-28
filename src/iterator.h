@@ -8,14 +8,14 @@ extern "C" {
 #include "cmark.h"
 
 typedef struct {
-	cmark_event_type  ev_type;
-	cmark_node       *node;
+  cmark_event_type ev_type;
+  cmark_node *node;
 } cmark_iter_state;
 
 struct cmark_iter {
-	cmark_node       *root;
-	cmark_iter_state  cur;
-	cmark_iter_state  next;
+  cmark_node *root;
+  cmark_iter_state cur;
+  cmark_iter_state next;
 };
 
 #ifdef __cplusplus

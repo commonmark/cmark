@@ -20,7 +20,7 @@ RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
 
-.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench astyle update-spec afl clang-check
+.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench format update-spec afl clang-check
 
 all: cmake_build man/man3/cmark.3
 
@@ -115,6 +115,7 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	esac
 	re2c --case-insensitive -b -i --no-generation-date -8 \
 		--encoding-policy substitute -o $@ $<
+	clang-format -style llvm -i $@
 
 # We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:
@@ -167,9 +168,8 @@ bench: $(BENCHFILE)
 		  done \
 	} 2>&1  | grep 'real' | awk '{print $$2}' | python3 'bench/stats.py'
 
-astyle:
-	astyle --style=linux -t -p -r  'src/*.c' --exclude=scanners.c
-	astyle --style=linux -t -p -r  'src/*.h' --exclude=html_unescape.h
+format:
+	clang-format -style llvm -i src/*.c src/*.h
 
 operf: $(CMARK)
 	operf $< < $(BENCHINP) > /dev/null

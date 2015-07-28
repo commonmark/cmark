@@ -10,25 +10,27 @@ extern "C" {
 #define REFMAP_SIZE 16
 
 struct cmark_reference {
-	struct cmark_reference *next;
-	unsigned char *label;
-	cmark_chunk url;
-	cmark_chunk title;
-	unsigned int hash;
+  struct cmark_reference *next;
+  unsigned char *label;
+  cmark_chunk url;
+  cmark_chunk title;
+  unsigned int hash;
 };
 
 typedef struct cmark_reference cmark_reference;
 
 struct cmark_reference_map {
-	cmark_reference *table[REFMAP_SIZE];
+  cmark_reference *table[REFMAP_SIZE];
 };
 
 typedef struct cmark_reference_map cmark_reference_map;
 
 cmark_reference_map *cmark_reference_map_new(void);
 void cmark_reference_map_free(cmark_reference_map *map);
-cmark_reference* cmark_reference_lookup(cmark_reference_map *map, cmark_chunk *label);
-extern void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label, cmark_chunk *url, cmark_chunk *title);
+cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
+                                        cmark_chunk *label);
+extern void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
+                                   cmark_chunk *url, cmark_chunk *title);
 
 #ifdef __cplusplus
 }

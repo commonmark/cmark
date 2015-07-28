@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, bufsize_t offset);
+bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c,
+                   bufsize_t offset);
 bufsize_t _scan_scheme(const unsigned char *p);
 bufsize_t _scan_autolink_uri(const unsigned char *p);
 bufsize_t _scan_autolink_email(const unsigned char *p);
