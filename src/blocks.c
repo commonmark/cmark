@@ -635,7 +635,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
         S_advance_offset(parser, &input, container->as.list.marker_offset +
                                              container->as.list.padding,
                          true);
-      } else if (parser->blank) {
+      } else if (parser->blank && container->first_child != NULL) {
+        // if container->first_child is NULL, then the opening line
+        // of the list item was blank after the list marker; in this
+        // case, we are done with the list item.
         S_advance_offset(parser, &input,
                          parser->first_nonspace - parser->offset, false);
       } else {
