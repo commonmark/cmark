@@ -55,7 +55,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       renderer->column = renderer->prefix->size;
     }
 
-    len = utf8proc_iterate((const uint8_t *)source + i, length - i, &c);
+    len = cmark_utf8proc_iterate((const uint8_t *)source + i, length - i, &c);
     if (len == -1) { // error condition
       return;        // return without rendering rest of string
     }
@@ -118,7 +118,7 @@ void cmark_render_ascii(cmark_renderer *renderer, const char *s) {
 }
 
 void cmark_render_code_point(cmark_renderer *renderer, uint32_t c) {
-  utf8proc_encode_char(c, renderer->buffer);
+  cmark_utf8proc_encode_char(c, renderer->buffer);
   renderer->column += 1;
 }
 

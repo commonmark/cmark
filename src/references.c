@@ -37,7 +37,7 @@ static unsigned char *normalize_reference(cmark_chunk *ref) {
   if (ref->len == 0)
     return NULL;
 
-  utf8proc_case_fold(&normalized, ref->data, ref->len);
+  cmark_utf8proc_case_fold(&normalized, ref->data, ref->len);
   cmark_strbuf_trim(&normalized);
   cmark_strbuf_normalize_whitespace(&normalized);
 
