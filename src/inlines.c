@@ -283,7 +283,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     while (peek_at(subj, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
       before_char_pos -= 1;
     }
-    len = utf8proc_iterate(subj->input.data + before_char_pos,
+    len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
                            subj->pos - before_char_pos, &before_char);
     if (len == -1) {
       before_char = 10;
@@ -300,24 +300,24 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     }
   }
 
-  len = utf8proc_iterate(subj->input.data + subj->pos,
+  len = cmark_utf8proc_iterate(subj->input.data + subj->pos,
                          subj->input.len - subj->pos, &after_char);
   if (len == -1) {
     after_char = 10;
   }
-  left_flanking = numdelims > 0 && !utf8proc_is_space(after_char) &&
-                  !(utf8proc_is_punctuation(after_char) &&
-                    !utf8proc_is_space(before_char) &&
-                    !utf8proc_is_punctuation(before_char));
+  left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                  !(cmark_utf8proc_is_punctuation(after_char) &&
+                    !cmark_utf8proc_is_space(before_char) &&
+                    !cmark_utf8proc_is_punctuation(before_char));
   right_flanking =
-      numdelims > 0 && !utf8proc_is_space(before_char) &&
-      !(utf8proc_is_punctuation(before_char) &&
-        !utf8proc_is_space(after_char) && !utf8proc_is_punctuation(after_char));
+      numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+      !(cmark_utf8proc_is_punctuation(before_char) &&
+        !cmark_utf8proc_is_space(after_char) && !cmark_utf8proc_is_punctuation(after_char));
   if (c == '_') {
     *can_open = left_flanking &&
-                (!right_flanking || utf8proc_is_punctuation(before_char));
+                (!right_flanking || cmark_utf8proc_is_punctuation(before_char));
     *can_close = right_flanking &&
-                 (!left_flanking || utf8proc_is_punctuation(after_char));
+                 (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
   } else if (c == '\'' || c == '"') {
     *can_open = left_flanking && !right_flanking;
     *can_close = right_flanking;

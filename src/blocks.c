@@ -594,7 +594,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   bool maybe_lazy;
 
   if (parser->options & CMARK_OPT_VALIDATE_UTF8) {
-    utf8proc_check(parser->curline, buffer, bytes);
+    cmark_utf8proc_check(parser->curline, buffer, bytes);
   } else {
     cmark_strbuf_put(parser->curline, buffer, bytes);
   }

@@ -75,7 +75,7 @@ bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
           codepoint >= 0x110000) {
         codepoint = 0xFFFD;
       }
-      utf8proc_encode_char(codepoint, ob);
+      cmark_utf8proc_encode_char(codepoint, ob);
       return i + 1;
     }
   }

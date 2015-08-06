@@ -107,7 +107,7 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len) {
   return length;
 }
 
-void utf8proc_check(cmark_strbuf *ob, const uint8_t *line, bufsize_t size) {
+void cmark_utf8proc_check(cmark_strbuf *ob, const uint8_t *line, bufsize_t size) {
   bufsize_t i = 0;
 
   while (i < size) {
@@ -146,7 +146,7 @@ void utf8proc_check(cmark_strbuf *ob, const uint8_t *line, bufsize_t size) {
   }
 }
 
-int utf8proc_iterate(const uint8_t *str, bufsize_t str_len, int32_t *dst) {
+int cmark_utf8proc_iterate(const uint8_t *str, bufsize_t str_len, int32_t *dst) {
   int length;
   int32_t uc = -1;
 
@@ -184,7 +184,7 @@ int utf8proc_iterate(const uint8_t *str, bufsize_t str_len, int32_t *dst) {
   return length;
 }
 
-void utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
+void cmark_utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
   uint8_t dst[4];
   bufsize_t len = 0;
 
@@ -222,13 +222,13 @@ void utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
   cmark_strbuf_put(buf, dst, len);
 }
 
-void utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, bufsize_t len) {
+void cmark_utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, bufsize_t len) {
   int32_t c;
 
-#define bufpush(x) utf8proc_encode_char(x, dest)
+#define bufpush(x) cmark_utf8proc_encode_char(x, dest)
 
   while (len > 0) {
-    bufsize_t char_len = utf8proc_iterate(str, len, &c);
+    bufsize_t char_len = cmark_utf8proc_iterate(str, len, &c);
 
     if (char_len >= 0) {
 #include "case_fold_switch.inc"
@@ -243,14 +243,14 @@ void utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, bufsize_t len) {
 }
 
 // matches anything in the Zs class, plus LF, CR, TAB, FF.
-int utf8proc_is_space(int32_t uc) {
+int cmark_utf8proc_is_space(int32_t uc) {
   return (uc == 9 || uc == 10 || uc == 12 || uc == 13 || uc == 32 ||
           uc == 160 || uc == 5760 || (uc >= 8192 && uc <= 8202) || uc == 8239 ||
           uc == 8287 || uc == 12288);
 }
 
 // matches anything in the P[cdefios] classes.
-int utf8proc_is_punctuation(int32_t uc) {
+int cmark_utf8proc_is_punctuation(int32_t uc) {
   return (
       (uc < 128 && cmark_ispunct((char)uc)) || uc == 161 || uc == 167 ||
       uc == 171 || uc == 182 || uc == 183 || uc == 187 || uc == 191 ||
