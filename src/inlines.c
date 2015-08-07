@@ -939,11 +939,16 @@ match:
 }
 
 // Parse a hard or soft linebreak, returning an inline.
-// Assumes the subject has a newline at the current position.
+// Assumes the subject has a cr or newline at the current position.
 static cmark_node *handle_newline(subject *subj) {
   bufsize_t nlpos = subj->pos;
-  // skip over newline
-  advance(subj);
+  // skip over cr, crlf, or lf:
+  if (peek_at(subj, subj->pos) == '\r') {
+	  advance(subj);
+  }
+  if (peek_at(subj, subj->pos) == '\n') {
+	  advance(subj);
+  }
   // skip spaces at beginning of line
   skip_spaces(subj);
   if (nlpos > 1 && peek_at(subj, nlpos - 1) == ' ' &&
