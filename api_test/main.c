@@ -677,6 +677,13 @@ line_endings(test_batch_runner *runner)
 	STR_EQ(runner, html, "<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n<li>d</li>\n</ul>\n",
 	       "list with different line endings");
 	free(html);
+	static const char crlf_lines[] = "line\r\nline\r\n";
+	html = cmark_markdown_to_html(crlf_lines,
+				      sizeof(crlf_lines) - 1,
+				      CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS);
+	STR_EQ(runner, html, "<p>line<br />\nline</p>\n",
+	       "crlf endings with CMARK_OPT_HARDBREAKS");
+	free(html);
 }
 
 static void
