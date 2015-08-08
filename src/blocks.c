@@ -598,6 +598,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   } else {
     cmark_strbuf_put(parser->curline, buffer, bytes);
   }
+  // ensure line ends with a newline:
+  if (!S_is_line_end_char(parser->curline->ptr[bytes - 1])) {
+	  cmark_strbuf_putc(parser->curline, '\n');
+  }
   parser->offset = 0;
   parser->column = 0;
   parser->blank = false;
