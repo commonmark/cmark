@@ -477,10 +477,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
     bool process = false;
     for (eol = buffer; eol < end; ++eol) {
       if (S_is_line_end_char(*eol)) {
-        if (eol < end && *eol == '\r')
-          eol++;
-        if (eol < end && *eol == '\n')
-          eol++;
         process = true;
         break;
       }
@@ -514,6 +510,11 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
     }
 
     buffer += chunk_len;
+    // skip over line ending characters:
+    if (buffer < end && *buffer == '\r')
+      buffer++;
+    if (buffer < end && *buffer == '\n')
+      buffer++;
   }
 }
 
