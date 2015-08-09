@@ -282,17 +282,12 @@ void cmark_strbuf_normalize_whitespace(cmark_strbuf *s) {
   bufsize_t r, w;
 
   for (r = 0, w = 0; r < s->size; ++r) {
-    switch (s->ptr[r]) {
-    case ' ':
-    case '\n':
-      if (last_char_was_space)
-        break;
-
-      s->ptr[w++] = ' ';
-      last_char_was_space = true;
-      break;
-
-    default:
+    if (cmark_isspace(s->ptr[r])) {
+      if (!last_char_was_space) {
+        s->ptr[w++] = ' ';
+        last_char_was_space = true;
+      }
+    } else {
       s->ptr[w++] = s->ptr[r];
       last_char_was_space = false;
     }
