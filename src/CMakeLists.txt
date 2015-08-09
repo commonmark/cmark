@@ -104,6 +104,9 @@ endif(MSVC)
 set_property(TARGET ${LIBRARY}
   APPEND PROPERTY MACOSX_RPATH true)
 
+# Avoid name clash between PROGRAM and LIBRARY pdb files.
+set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark_dll)
+
 generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
 
