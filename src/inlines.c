@@ -1034,13 +1034,13 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   case '_':
   case '\'':
   case '"':
-    new_inl = handle_delim(subj, c, options & CMARK_OPT_SMART);
+    new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0);
     break;
   case '-':
-    new_inl = handle_hyphen(subj, options & CMARK_OPT_SMART);
+    new_inl = handle_hyphen(subj, (options & CMARK_OPT_SMART) != 0);
     break;
   case '.':
-    new_inl = handle_period(subj, options & CMARK_OPT_SMART);
+    new_inl = handle_period(subj, (options & CMARK_OPT_SMART) != 0);
     break;
   case '[':
     advance(subj);

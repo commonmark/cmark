@@ -426,7 +426,7 @@ int cmark_node_set_list_tight(cmark_node *node, int tight) {
   }
 
   if (node->type == CMARK_NODE_LIST) {
-    node->as.list.tight = tight;
+    node->as.list.tight = tight == 1;
     return 1;
   } else {
     return 0;
