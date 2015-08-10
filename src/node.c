@@ -717,7 +717,7 @@ int cmark_node_check(cmark_node *node, FILE *out) {
   }
 
   cur = node;
-  while (true) {
+  for (;;) {
     if (cur->first_child) {
       if (cur->first_child->prev != NULL) {
         S_print_error(out, cur->first_child, "prev");
