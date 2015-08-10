@@ -48,7 +48,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf);
 void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize,
                             const cmark_strbuf *buf);
 
-static inline const char *cmark_strbuf_cstr(const cmark_strbuf *buf) {
+CMARK_INLINE const char *cmark_strbuf_cstr(const cmark_strbuf *buf) {
   return (char *)buf->ptr;
 }
 
@@ -75,14 +75,14 @@ void cmark_strbuf_unescape(cmark_strbuf *s);
 /* Print error and abort. */
 void cmark_strbuf_overflow_err(void);
 
-static inline bufsize_t cmark_strbuf_check_bufsize(size_t size) {
+CMARK_INLINE bufsize_t cmark_strbuf_check_bufsize(size_t size) {
   if (size > BUFSIZE_MAX) {
     cmark_strbuf_overflow_err();
   }
   return (bufsize_t)size;
 }
 
-static inline bufsize_t cmark_strbuf_safe_strlen(const char *str) {
+CMARK_INLINE bufsize_t cmark_strbuf_safe_strlen(const char *str) {
   return cmark_strbuf_check_bufsize(strlen(str));
 }
 

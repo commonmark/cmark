@@ -15,3 +15,11 @@
 #else
   #define CMARK_ATTRIBUTE(list)
 #endif
+
+#ifndef CMARK_INLINE
+  #ifdef _MSC_VER
+    #define CMARK_INLINE __inline
+  #else
+    #define CMARK_INLINE static inline
+  #endif
+#endif
