@@ -27,20 +27,20 @@ IF (PYTHONINTERP_FOUND)
 
   add_test(spectest_library
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec"
-    "${CMAKE_SOURCE_DIR}/test/spec.txt" "--library-dir" "${CMAKE_BINARY_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
 
   add_test(pathological_tests_library
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/pathological_tests.py"
-    "--library-dir" "${CMAKE_BINARY_DIR}/src"
+    "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
 
   add_test(spectest_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/test/spec.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
 
   add_test(smartpuncttest_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_SOURCE_DIR}/test/smart_punct.txt" "--program" "${CMAKE_BINARY_DIR}/src/cmark --smart"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
     )
 
 ELSE(PYTHONINTERP_FOUND)
