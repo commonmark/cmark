@@ -130,12 +130,12 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_HEADER:
     if (entering) {
       cr(html);
-      start_header[2] = '0' + node->as.header.level;
+      start_header[2] = (char)('0' + node->as.header.level);
       cmark_strbuf_puts(html, start_header);
       S_render_sourcepos(node, html, options);
       cmark_strbuf_putc(html, '>');
     } else {
-      end_header[3] = '0' + node->as.header.level;
+      end_header[3] = (char)('0' + node->as.header.level);
       cmark_strbuf_puts(html, end_header);
       cmark_strbuf_puts(html, ">\n");
     }

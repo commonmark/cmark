@@ -133,7 +133,7 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string) {
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c) {
   S_strbuf_grow_by(buf, 1);
-  buf->ptr[buf->size++] = c;
+  buf->ptr[buf->size++] = (unsigned char)(c & 0xFF);
   buf->ptr[buf->size] = '\0';
 }
 
