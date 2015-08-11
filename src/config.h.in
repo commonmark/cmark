@@ -17,9 +17,9 @@
 #endif
 
 #ifndef CMARK_INLINE
-  #ifdef _MSC_VER
+  #if defined(_MSC_VER) && !defined(__cplusplus)
     #define CMARK_INLINE __inline
   #else
-    #define CMARK_INLINE static inline
+    #define CMARK_INLINE inline
   #endif
 #endif
