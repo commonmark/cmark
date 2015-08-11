@@ -426,7 +426,7 @@ int cmark_node_set_list_tight(cmark_node *node, int tight) {
   }
 
   if (node->type == CMARK_NODE_LIST) {
-    node->as.list.tight = tight;
+    node->as.list.tight = tight == 1;
     return 1;
   } else {
     return 0;
@@ -717,7 +717,7 @@ int cmark_node_check(cmark_node *node, FILE *out) {
   }
 
   cur = node;
-  while (true) {
+  for (;;) {
     if (cur->first_child) {
       if (cur->first_child->prev != NULL) {
         S_print_error(out, cur->first_child, "prev");

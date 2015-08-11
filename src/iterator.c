@@ -31,7 +31,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
 void cmark_iter_free(cmark_iter *iter) { free(iter); }
 
 static bool S_is_leaf(cmark_node *node) {
-  return (1 << node->type) & S_leaf_mask;
+  return ((1 << node->type) & S_leaf_mask) != 0;
 }
 
 cmark_event_type cmark_iter_next(cmark_iter *iter) {
