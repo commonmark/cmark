@@ -13,11 +13,17 @@ set(PROJECT_VERSION_MINOR 21)
 set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
 
+option(CMARK_TESTS "Build cmark tests and enable testing" ON)
+
 add_subdirectory(src)
-add_subdirectory(api_test)
+if(CMARK_TESTS)
+  add_subdirectory(api_test)
+endif()
 add_subdirectory(man)
-enable_testing()
-add_subdirectory(test testdir)
+if(CMARK_TESTS)
+  enable_testing()
+  add_subdirectory(test testdir)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
