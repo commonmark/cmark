@@ -214,10 +214,12 @@ of [character]s rather than bytes.  A conforming parser may be limited
 to a certain encoding.
 
 A [line](@line) is a sequence of zero or more [character]s
+other than newline (`U+000A`) or carriage return (`U+000D`),
 followed by a [line ending] or by the end of file.
 
-A [line ending](@line-ending) is a newline (`U+000A`), carriage return
-(`U+000D`), or carriage return + newline.
+A [line ending](@line-ending) is a newline (`U+000A`), a carriage return
+(`U+000D`) not followed by a newline, or a carriage return and a
+following newline.
 
 A line containing no characters, or a line containing only spaces
 (`U+0020`) or tabs (`U+0009`), is called a [blank line](@blank-line).
@@ -241,7 +243,7 @@ or more [Unicode whitespace character]s.
 
 A [space](@space) is `U+0020`.
 
-A [non-whitespace character](@non-space-character) is any character
+A [non-whitespace character](@non-whitespace-character) is any character
 that is not a [whitespace character].
 
 An [ASCII punctuation character](@ascii-punctuation-character)
@@ -302,6 +304,15 @@ by spaces with a tab stop of 4 characters.
 <blockquote>
 <p>foo→bar</p>
 </blockquote>
+.
+
+.
+    foo
+→bar
+.
+<pre><code>foo
+bar
+</code></pre>
 .
 
 
@@ -566,8 +577,8 @@ If you want a horizontal rule in a list item, use a different bullet:
 An [ATX header](@atx-header)
 consists of a string of characters, parsed as inline content, between an
 opening sequence of 1--6 unescaped `#` characters and an optional
-closing sequence of any number of `#` characters.  The opening sequence
-of `#` characters cannot be followed directly by a
+closing sequence of any number of unescaped `#` characters.
+The opening sequence of `#` characters cannot be followed directly by a
 [non-whitespace character]. The optional closing sequence of `#`s must be
 preceded by a [space] and may be followed by spaces only.  The opening
 `#` character may be indented 0-3 spaces.  The raw contents of the
@@ -699,8 +710,7 @@ Spaces are allowed after the closing sequence:
 <h3>foo</h3>
 .
 
-A sequence of `#` characters with a
-[non-whitespace character] following it
+A sequence of `#` characters with anything but [space]s following it
 is not a closing sequence, but counts as part of the contents of the
 header:
 
@@ -1650,8 +1660,8 @@ followed by one of the strings (case-insensitive) `address`,
 `caption`, `center`, `col`, `colgroup`, `dd`, `details`, `dialog`,
 `dir`, `div`, `dl`, `dt`, `fieldset`, `figcaption`, `figure`,
 `footer`, `form`, `frame`, `frameset`, `h1`, `head`, `header`, `hr`,
-`html`, `legend`, `li`, `link`, `main`, `menu`, `menuitem`, `meta`,
-`nav`, `noframes`, `ol`, `optgroup`, `option`, `p`, `param`, `pre`,
+`html`, `iframe`, `legend`, `li`, `link`, `main`, `menu`, `menuitem`,
+`meta`, `nav`, `noframes`, `ol`, `optgroup`, `option`, `p`, `param`,
 `section`, `source`, `summary`, `table`, `tbody`, `td`,
 `tfoot`, `th`, `thead`, `title`, `tr`, `track`, `ul`, followed
 by [whitespace], the end of the line, the string `>`, or
@@ -1659,13 +1669,14 @@ the string `/>`.\
 **End condition:** line is followed by a [blank line].
 
 7.  **Start condition:**  line begins with a complete [open tag]
-or [closing tag] (with any [tag name]) followed only by [whitespace]
+or [closing tag] (with any [tag name] other than `script`,
+`style`, or `pre`) followed only by [whitespace]
 or the end of the line.\
 **End condition:** line is followed by a [blank line].
 
 All types of [HTML blocks] except type 7 may interrupt
 a paragraph.  Blocks of type 7 may not interrupt a paragraph.
-(This restricted is intended to prevent unwanted interpretation
+(This restriction is intended to prevent unwanted interpretation
 of long tags inside a wrapped paragraph as starting HTML blocks.)
 
 Some simple examples follow.  Here are some basic HTML blocks
@@ -4906,8 +4917,8 @@ than HTML need not be HTML-entity aware.  HTML renderers may either escape
 Unicode characters as entities or leave them as they are.  (However,
 `"`, `&`, `<`, and `>` must always be rendered as entities.)
 
-[Named entities](@name-entities) consist of `&`
-+ any of the valid HTML5 entity names + `;`. The
+[Named entities](@name-entities) consist of `&` + any of the valid
+HTML5 entity names + `;`. The
 [following document](https://html.spec.whatwg.org/multipage/entities.json)
 is used as an authoritative source of the valid entity names and their
 corresponding code points.
@@ -4935,10 +4946,10 @@ the code point `U+0000` will also be replaced by `U+FFFD`.
 <p># Ӓ Ϡ � �</p>
 .
 
-[Hexadecimal entities](@hexadecimal-entities)
-consist of `&#` + either `X` or `x` + a string of 1-8 hexadecimal digits
-+ `;`. They will also be parsed and turned into the corresponding
-Unicode code points in the AST.
+[Hexadecimal entities](@hexadecimal-entities) consist of `&#` + either
+`X` or `x` + a string of 1-8 hexadecimal digits + `;`. They will also
+be parsed and turned into the corresponding Unicode code points in the
+AST.
 
 .
 &#X22; &#XD06; &#xcab;
