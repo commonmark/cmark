@@ -1,3 +1,49 @@
+[0.22.0]
+
+  * Removed `pre` from blocktags scanner. `pre` is handled separately
+    in rule 1 and needn't be handled in rule 6.
+  * Added `iframe` to list of blocktags, as per spec change.
+  * Fixed bug with `HRULE` after blank line. This previously caused cmark
+    to break out of a list, thinking it had two consecutive blanks.
+  * Check for empty string before trying to look at line ending.
+  * Make sure every line fed to `S_process_line` ends with `\n` (#72).
+    So `S_process_line` sees only unix style line endings. Ultimately we
+    probably want a better solution, allowing the line ending style of
+    the input file to be preserved. This solution forces output with newlines.
+  * Improved `cmark_strbuf_normalize_whitespace` (#73). Now all characters
+    that satisfy `cmark_isspace` are recognized as whitespace. Previously
+    `\r` and `\t` (and others) weren't included.
+  * Treat line ending with EOF as ending with newline (#71).
+  * Fixed `--hardbreaks` with `\r\n` line breaks (#68).
+  * Disallow list item starting with multiple blank lines (jgm/CommonMark#332).
+  * Allow tabs before closing `#`s in ATX header
+  * Removed `cmark_strbuf_printf` and `cmark_strbuf_vprintf`.
+    These are no longer needed, and cause complications for MSVC.
+    Also removed `HAVE_VA_COPY` and `HAVE_C99_SNPRINTF` feature tests.
+  * Added option to disable tests (Kevin Wojniak).
+  * Added `CMARK_INLINE` macro.
+  * Removed need to disable MSVC warnings 4267, 4244, 4800
+    (Kevin Wojniak).
+  * Fixed MSVC inline errors when cmark is included in sources that
+    don't have the same set of disabled warnings (Kevin Wojniak).
+  * Fix `FileNotFoundError` errors on tests when cmark is built from
+    another project via `add_subdirectory()` (Kevin Wojniak).
+  * Prefix `utf8proc` functions to avoid conflict with existing library
+    (Kevin Wojniak).
+  * Avoid name clash between Windows `.pdb` files (Nick Wellnhofer).
+  * Improved `smart_punct.txt` (see jgm/commonmark.js#61).
+  * Set `POSITION_INDEPENDENT_CODE` `ON` for static library (see #39).
+  * `make bench`: allow overriding `BENCHFILE`. Previously if you did
+    this, it would clopper `BENCHFILE` with the default bench file.
+  * `make bench`: Use -10 priority with renice.
+  * Improved `make_autolink`. Ensures that title is chunk with empty
+    string rather than NULL, as with other links.
+  * Added `clang-check` target.
+  * Travis: split `roundtrip_test` and `leakcheck` (OGINO Masanori).
+  * Use clang-format, llvm style, for formatting. Reformatted all source files.
+    Added `format` target to Makefile. Removed `astyle` target.
+    Updated `.editorconfig`.
+
 [0.21.0]
 
   * Updated to version 0.21 of spec.
