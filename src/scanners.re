@@ -6,11 +6,17 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 {
 	bufsize_t res;
 	unsigned char *ptr = (unsigned char *)c->data;
-	unsigned char lim = ptr[c->len];
+        unsigned char zero = '\0';
 
-	ptr[c->len] = '\0';
-	res = scanner(ptr + offset);
-	ptr[c->len] = lim;
+        if (ptr == NULL) {
+          res = scanner(&zero);
+        } else {
+	  unsigned char lim = ptr[c->len];
+
+	  ptr[c->len] = '\0';
+	  res = scanner(ptr + offset);
+	  ptr[c->len] = lim;
+        }
 
 	return res;
 }
