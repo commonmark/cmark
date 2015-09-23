@@ -21,6 +21,7 @@ whitespace_re = re.compile('\s+')
 class MyHTMLParser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
+        self.convert_charrefs = False
         self.last = "starttag"
         self.in_pre = False
         self.output = ""
