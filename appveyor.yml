@@ -10,6 +10,7 @@ install:
 
 build_script:
   - 'nmake'
+  - 'dir build'
 
 test_script:
   - 'nmake test'
