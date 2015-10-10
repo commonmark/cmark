@@ -6,10 +6,10 @@ SPEC=test/spec.txt
 PROG=$(BUILDDIR)\src\cmark.exe
 GENERATOR=NMake Makefiles
 
-all: $(BUILDDIR)
+all: $(BUILDDIR)/CMakeFiles
 	@cd $(BUILDDIR) && $(MAKE) /nologo && cd ..
 
-$(BUILDDIR):
+$(BUILDDIR)/CMakeFiles:
 	@-mkdir $(BUILDDIR) 2> nul
 	cd $(BUILDDIR) && \
 	cmake \
