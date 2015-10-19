@@ -140,7 +140,7 @@ char *cmark_render_xml(cmark_node *root, int options) {
 
   cmark_strbuf_puts(state.xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
   cmark_strbuf_puts(state.xml,
-                    "<!DOCTYPE CommonMark SYSTEM \"CommonMark.dtd\">\n");
+                    "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n");
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     S_render_node(cur, ev_type, &state, options);
