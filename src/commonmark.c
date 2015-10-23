@@ -95,7 +95,7 @@ static int shortest_unused_backtick_sequence(const char *code) {
     used = used >> 1;
     i++;
   }
-  return i;
+  return (int)i;
 }
 
 static bool is_autolink(cmark_node *node) {
