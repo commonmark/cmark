@@ -368,7 +368,7 @@ CMARK_EXPORT void cmark_consolidate_text_nodes(cmark_node *root);
  *
  * Simple interface:
  *
- *     cmark_node *document = cmark_parse_document("Hello *world*", 12,
+ *     cmark_node *document = cmark_parse_document("Hello *world*", 13,
  *                                                 CMARK_OPT_DEFAULT);
  *
  * Streaming interface:
