@@ -110,8 +110,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
           tmp = tmp->prev;
           list_number += 1;
         }
-        char list_number_s[20];
-        sprintf(list_number_s, "\"%d.\" 4", list_number);
+        const size_t LIST_NUMBER_SIZE = 20;
+        char list_number_s[LIST_NUMBER_SIZE];
+        snprintf(list_number_s, LIST_NUMBER_SIZE, "\"%d.\" 4", list_number);
         LIT(list_number_s);
       }
       CR();

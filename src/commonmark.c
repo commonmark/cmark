@@ -23,7 +23,8 @@
 static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
-  char encoded[20];
+  const size_t ENCODED_SIZE = 20;
+  char encoded[ENCODED_SIZE];
 
   needs_escaping =
       escape != LITERAL &&
@@ -42,7 +43,7 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   if (needs_escaping) {
     if (isspace(c)) {
       // use percent encoding for spaces
-      sprintf(encoded, "%%%2x", c);
+      snprintf(encoded, ENCODED_SIZE, "%%%2x", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
       renderer->column += 3;
     } else {
@@ -153,7 +154,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
   size_t info_len, code_len;
-  char listmarker[20];
+  const size_t LISTMARKER_SIZE = 20;
+  char listmarker[LISTMARKER_SIZE];
   char *emph_delim;
   bufsize_t marker_width;
 
@@ -206,9 +208,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       // we ensure a width of at least 4 so
       // we get nice transition from single digits
       // to double
-      sprintf(listmarker, "%d%s%s", list_number,
-              list_delim == CMARK_PAREN_DELIM ? ")" : ".",
-              list_number < 10 ? "  " : " ");
+      snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
+               list_delim == CMARK_PAREN_DELIM ? ")" : ".",
+               list_number < 10 ? "  " : " ");
       marker_width = safe_strlen(listmarker);
     }
     if (entering) {
