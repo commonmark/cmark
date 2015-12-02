@@ -1,3 +1,8 @@
+if(NOT LIB_INSTALL_DIR)
+  set(LIB_INSTALL_DIR "lib" CACHE STRING
+  "Set the installation directory for libraries." FORCE)
+endif(NOT LIB_INSTALL_DIR)
+
 cmake_minimum_required(VERSION 2.8)
 set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
@@ -55,7 +60,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
-  DESTINATION lib/pkgconfig)
+  DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 
 include (GenerateExportHeader)
 
@@ -119,7 +124,7 @@ set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${LIBRARY}
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
   )
 
 install(FILES
