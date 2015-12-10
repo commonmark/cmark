@@ -368,9 +368,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       if (entering) {
         LIT("<");
         if (strncmp(cmark_node_get_url(node), "mailto:", 7) == 0) {
-          LIT((char *)cmark_node_get_url(node) + 7);
+          LIT((const char *)cmark_node_get_url(node) + 7);
         } else {
-          LIT((char *)cmark_node_get_url(node));
+          LIT((const char *)cmark_node_get_url(node));
         }
         LIT(">");
         // return signal to skip contents of node...

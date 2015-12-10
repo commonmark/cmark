@@ -9,12 +9,12 @@
 
 /* Binary tree lookup code for entities added by JGM */
 
-static unsigned char *S_lookup(int i, int low, int hi, const unsigned char *s,
+static const unsigned char *S_lookup(int i, int low, int hi, const unsigned char *s,
                                int len) {
   int j;
-  int cmp = strncmp((char *)s, (char *)cmark_entities[i].entity, len);
+  int cmp = strncmp((const char *)s, (const char *)cmark_entities[i].entity, len);
   if (cmp == 0 && cmark_entities[i].entity[len] == 0) {
-    return (unsigned char *)cmark_entities[i].bytes;
+    return (const unsigned char *)cmark_entities[i].bytes;
   } else if (cmp < 0 && i > low) {
     j = i - ((i - low) / 2);
     if (j == i)
@@ -30,7 +30,7 @@ static unsigned char *S_lookup(int i, int low, int hi, const unsigned char *s,
   }
 }
 
-static unsigned char *S_lookup_entity(const unsigned char *s, int len) {
+static const unsigned char *S_lookup_entity(const unsigned char *s, int len) {
   return S_lookup(CMARK_NUM_ENTITIES / 2, 0, CMARK_NUM_ENTITIES - 1, s, len);
 }
 
