@@ -18,7 +18,8 @@ DOS attacks," but there are some chinks in the armor:
     ...
     0m17.84s
 
-`hoedown` has many parsing bugs.  Here is a selection:
+`hoedown` has many parsing bugs.  Here is a selection (as of
+v3.0.3):
 
     % hoedown
     - one
@@ -67,6 +68,23 @@ DOS attacks," but there are some chinks in the armor:
     [foo](url "ti\*tle")
     ^D
     <p><a href="url" title="ti\*tle">foo</a></p>
+
+
+    % ./hoedown
+    - one
+     - two
+      - three
+       - four
+    ^D
+    <ul>
+    <li>one
+
+    <ul>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>
+    </ul></li>
+    </ul>
 
 
 `discount`
