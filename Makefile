@@ -20,7 +20,7 @@ RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
 
-.PHONY: all cmake_build spec leakcheck clean fuzztest dingus upload test update-site upload-site debug ubsan asan mingw archive bench format update-spec afl clang-check
+.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive bench format update-spec afl clang-check
 
 all: cmake_build man/man3/cmark.3
 
