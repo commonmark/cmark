@@ -160,9 +160,10 @@ $(BENCHDIR)/benchinput.md: progit
 		cat progit/$$lang/*/*.markdown >> $@; \
 	done
 
+# for more accurate results, run with
+# sudo renice -10 $$; make bench
 bench: $(BENCHFILE)
-	{ sudo renice -10 $$$$; \
-	  for x in `seq 1 $(NUMRUNS)` ; do \
+	{ for x in `seq 1 $(NUMRUNS)` ; do \
 	  /usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
 	  /usr/bin/env time -p $(PROG) $< >/dev/null ; \
 		  done \
