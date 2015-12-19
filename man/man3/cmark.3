@@ -1,4 +1,4 @@
-.TH cmark 3 "October 28, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "December 19, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -28,8 +28,8 @@ Creating and Destroying Nodes
 
 .PP
 Creates a new node of type \f[I]type\f[]. Note that the node may have
-other required properties, which it is the caller\[cq]s responsibility
-to assign.
+other required properties, which it is the caller's responsibility to
+assign.
 
 .PP
 \fIvoid\f[] \fBcmark_node_free\f[](\fIcmark_node *node\f[])
@@ -112,6 +112,8 @@ are nodes of type:
 .IP \[bu] 2
 CMARK_NODE_HTML
 .IP \[bu] 2
+CMARK_NODE_RAW_BLOCK
+.IP \[bu] 2
 CMARK_NODE_HRULE
 .IP \[bu] 2
 CMARK_NODE_CODE_BLOCK
@@ -125,6 +127,8 @@ CMARK_NODE_LINEBREAK
 CMARK_NODE_CODE
 .IP \[bu] 2
 CMARK_NODE_INLINE_HTML
+.IP \[bu] 2
+CMARK_NODE_RAW_INLINE
 .PP
 Nodes must only be modified after an \f[C]EXIT\f[] event, or an
 \f[C]ENTER\f[] event for leaf nodes.
@@ -285,8 +289,7 @@ Returns 1 if \f[I]node\f[] is a tight list, 0 otherwise.
 \fIint\f[] \fBcmark_node_set_list_tight\f[](\fIcmark_node *node\f[], \fIint tight\f[])
 
 .PP
-Sets the \[lq]tightness\[rq] of a list. Returns 1 on success, 0 on
-failure.
+Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
@@ -554,7 +557,7 @@ Normalize tree by consolidating adjacent text nodes.
 .fi
 
 .PP
-Convert straight quotes to curly, \[em] to em dashes, \[en] to en
+Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
 dashes.
 
 .PP

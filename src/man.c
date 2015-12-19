@@ -142,6 +142,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_HTML:
     break;
 
+  case CMARK_NODE_RAW_BLOCK:
+    CR();
+    OUT(cmark_node_get_literal(node), false, LITERAL);
+    CR();
+    break;
+
   case CMARK_NODE_HRULE:
     CR();
     LIT(".PP\n  *  *  *  *  *");
@@ -188,6 +194,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_INLINE_HTML:
+    break;
+
+  case CMARK_NODE_RAW_INLINE:
+    OUT(cmark_node_get_literal(node), false, LITERAL);
     break;
 
   case CMARK_NODE_STRONG:
