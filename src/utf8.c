@@ -107,7 +107,8 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len) {
   return length;
 }
 
-void cmark_utf8proc_check(cmark_strbuf *ob, const uint8_t *line, bufsize_t size) {
+void cmark_utf8proc_check(cmark_strbuf *ob, const uint8_t *line,
+                          bufsize_t size) {
   bufsize_t i = 0;
 
   while (i < size) {
@@ -146,7 +147,8 @@ void cmark_utf8proc_check(cmark_strbuf *ob, const uint8_t *line, bufsize_t size)
   }
 }
 
-int cmark_utf8proc_iterate(const uint8_t *str, bufsize_t str_len, int32_t *dst) {
+int cmark_utf8proc_iterate(const uint8_t *str, bufsize_t str_len,
+                           int32_t *dst) {
   int length;
   int32_t uc = -1;
 
@@ -222,7 +224,8 @@ void cmark_utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
   cmark_strbuf_put(buf, dst, len);
 }
 
-void cmark_utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str, bufsize_t len) {
+void cmark_utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str,
+                              bufsize_t len) {
   int32_t c;
 
 #define bufpush(x) cmark_utf8proc_encode_char(x, dest)

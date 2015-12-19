@@ -284,7 +284,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
       before_char_pos -= 1;
     }
     len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
-                           subj->pos - before_char_pos, &before_char);
+                                 subj->pos - before_char_pos, &before_char);
     if (len == -1) {
       before_char = 10;
     }
@@ -301,7 +301,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   }
 
   len = cmark_utf8proc_iterate(subj->input.data + subj->pos,
-                         subj->input.len - subj->pos, &after_char);
+                               subj->input.len - subj->pos, &after_char);
   if (len == -1) {
     after_char = 10;
   }
@@ -309,10 +309,10 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
                   !(cmark_utf8proc_is_punctuation(after_char) &&
                     !cmark_utf8proc_is_space(before_char) &&
                     !cmark_utf8proc_is_punctuation(before_char));
-  right_flanking =
-      numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
-      !(cmark_utf8proc_is_punctuation(before_char) &&
-        !cmark_utf8proc_is_space(after_char) && !cmark_utf8proc_is_punctuation(after_char));
+  right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                   !(cmark_utf8proc_is_punctuation(before_char) &&
+                     !cmark_utf8proc_is_space(after_char) &&
+                     !cmark_utf8proc_is_punctuation(after_char));
   if (c == '_') {
     *can_open = left_flanking &&
                 (!right_flanking || cmark_utf8proc_is_punctuation(before_char));
@@ -944,10 +944,10 @@ static cmark_node *handle_newline(subject *subj) {
   bufsize_t nlpos = subj->pos;
   // skip over cr, crlf, or lf:
   if (peek_at(subj, subj->pos) == '\r') {
-	  advance(subj);
+    advance(subj);
   }
   if (peek_at(subj, subj->pos) == '\n') {
-	  advance(subj);
+    advance(subj);
   }
   // skip spaces at beginning of line
   skip_spaces(subj);
