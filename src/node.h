@@ -63,6 +63,8 @@ struct cmark_node {
 
   cmark_strbuf string_content;
 
+  cmark_writer_format format;
+
   union {
     cmark_chunk literal;
     cmark_list list;

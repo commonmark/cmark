@@ -52,8 +52,16 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     switch (node->type) {
     case CMARK_NODE_TEXT:
     case CMARK_NODE_CODE:
-    case CMARK_NODE_HTML:
-    case CMARK_NODE_INLINE_HTML:
+      cmark_strbuf_puts(xml, ">");
+      escape_xml(xml, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_puts(xml, "</");
+      cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
+      literal = true;
+      break;
+    case CMARK_NODE_RAW_BLOCK:
+    case CMARK_NODE_RAW_INLINE:
+      sprintf(buffer, " format=\"%s\"", cmark_node_get_format_string(node));
+      cmark_strbuf_puts(xml, buffer);
       cmark_strbuf_puts(xml, ">");
       escape_xml(xml, node->as.literal.data, node->as.literal.len);
       cmark_strbuf_puts(xml, "</");

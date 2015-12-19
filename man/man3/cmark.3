@@ -1,4 +1,4 @@
-.TH cmark 3 "October 28, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "December 18, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -18,6 +18,9 @@ Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
 null\-terminated, UTF\-8\-encoded string.
 
 .SS
+Formats
+
+.SS
 Node Structure
 
 .SS
@@ -28,8 +31,8 @@ Creating and Destroying Nodes
 
 .PP
 Creates a new node of type \f[I]type\f[]. Note that the node may have
-other required properties, which it is the caller\[cq]s responsibility
-to assign.
+other required properties, which it is the caller's responsibility to
+assign.
 
 .PP
 \fIvoid\f[] \fBcmark_node_free\f[](\fIcmark_node *node\f[])
@@ -207,6 +210,20 @@ Like \f[I]cmark_node_get_type\f[], but returns a string representation
 of the type, or \f[C]"<unknown>"\f[].
 
 .PP
+\fIcmark_writer_format\f[] \fBcmark_node_get_format\f[](\fIcmark_node *node\f[])
+
+.PP
+Returns the format of \f[I]node\f[], or \f[C]CMARK_FORMAT_NONE\f[] on
+error.
+
+.PP
+\fIconst char *\f[] \fBcmark_node_get_format_string\f[](\fIcmark_node *node\f[])
+
+.PP
+Like \f[I]cmark_node_get_format\f[], but returns a string representation
+of the type, or \f[C]"<unknown>"\f[].
+
+.PP
 \fIconst char *\f[] \fBcmark_node_get_literal\f[](\fIcmark_node *node\f[])
 
 .PP
@@ -285,8 +302,7 @@ Returns 1 if \f[I]node\f[] is a tight list, 0 otherwise.
 \fIint\f[] \fBcmark_node_set_list_tight\f[](\fIcmark_node *node\f[], \fIint tight\f[])
 
 .PP
-Sets the \[lq]tightness\[rq] of a list. Returns 1 on success, 0 on
-failure.
+Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
@@ -554,7 +570,7 @@ Normalize tree by consolidating adjacent text nodes.
 .fi
 
 .PP
-Convert straight quotes to curly, \[em] to em dashes, \[en] to en
+Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
 dashes.
 
 .PP

@@ -11,19 +11,10 @@
 #include <fcntl.h>
 #endif
 
-typedef enum {
-  FORMAT_NONE,
-  FORMAT_HTML,
-  FORMAT_XML,
-  FORMAT_MAN,
-  FORMAT_COMMONMARK,
-  FORMAT_LATEX
-} writer_format;
-
 void print_usage() {
   printf("Usage:   cmark [FILE*]\n");
   printf("Options:\n");
-  printf("  --to, -t FORMAT  Specify output format (html, xml, man, "
+  printf("  --to, -t CMARK_FORMAT  Specify output format (html, xml, man, "
          "commonmark, latex)\n");
   printf("  --width WIDTH    Specify wrap width (default 0 = nowrap)\n");
   printf("  --sourcepos      Include source position attribute\n");
@@ -35,24 +26,24 @@ void print_usage() {
   printf("  --version        Print version\n");
 }
 
-static void print_document(cmark_node *document, writer_format writer,
+static void print_document(cmark_node *document, cmark_writer_format writer,
                            int options, int width) {
   char *result;
 
   switch (writer) {
-  case FORMAT_HTML:
+  case CMARK_FORMAT_HTML:
     result = cmark_render_html(document, options);
     break;
-  case FORMAT_XML:
+  case CMARK_FORMAT_XML:
     result = cmark_render_xml(document, options);
     break;
-  case FORMAT_MAN:
+  case CMARK_FORMAT_MAN:
     result = cmark_render_man(document, options, width);
     break;
-  case FORMAT_COMMONMARK:
+  case CMARK_FORMAT_COMMONMARK:
     result = cmark_render_commonmark(document, options, width);
     break;
-  case FORMAT_LATEX:
+  case CMARK_FORMAT_LATEX:
     result = cmark_render_latex(document, options, width);
     break;
   default:
@@ -72,7 +63,7 @@ int main(int argc, char *argv[]) {
   cmark_node *document;
   int width = 0;
   char *unparsed;
-  writer_format writer = FORMAT_HTML;
+  cmark_writer_format writer = CMARK_FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -119,15 +110,15 @@ int main(int argc, char *argv[]) {
       i += 1;
       if (i < argc) {
         if (strcmp(argv[i], "man") == 0) {
-          writer = FORMAT_MAN;
+          writer = CMARK_FORMAT_MAN;
         } else if (strcmp(argv[i], "html") == 0) {
-          writer = FORMAT_HTML;
+          writer = CMARK_FORMAT_HTML;
         } else if (strcmp(argv[i], "xml") == 0) {
-          writer = FORMAT_XML;
+          writer = CMARK_FORMAT_XML;
         } else if (strcmp(argv[i], "commonmark") == 0) {
-          writer = FORMAT_COMMONMARK;
+          writer = CMARK_FORMAT_COMMONMARK;
         } else if (strcmp(argv[i], "latex") == 0) {
-          writer = FORMAT_LATEX;
+          writer = CMARK_FORMAT_LATEX;
         } else {
           fprintf(stderr, "Unknown format %s\n", argv[i]);
           exit(1);

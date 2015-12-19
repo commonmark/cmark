@@ -17,7 +17,7 @@ static const cmark_node_type node_types[] = {
 	CMARK_NODE_LIST,
 	CMARK_NODE_ITEM,
 	CMARK_NODE_CODE_BLOCK,
-	CMARK_NODE_HTML,
+	CMARK_NODE_RAW_BLOCK,
 	CMARK_NODE_PARAGRAPH,
 	CMARK_NODE_HEADER,
 	CMARK_NODE_HRULE,
@@ -25,7 +25,7 @@ static const cmark_node_type node_types[] = {
 	CMARK_NODE_SOFTBREAK,
 	CMARK_NODE_LINEBREAK,
 	CMARK_NODE_CODE,
-	CMARK_NODE_INLINE_HTML,
+	CMARK_NODE_RAW_INLINE,
 	CMARK_NODE_EMPH,
 	CMARK_NODE_STRONG,
 	CMARK_NODE_LINK,
@@ -472,7 +472,7 @@ hierarchy(test_batch_runner *runner)
 		(1 << CMARK_NODE_BLOCK_QUOTE) |
 		(1 << CMARK_NODE_LIST) |
 		(1 << CMARK_NODE_CODE_BLOCK) |
-		(1 << CMARK_NODE_HTML) |
+		(1 << CMARK_NODE_RAW_BLOCK) |
 		(1 << CMARK_NODE_PARAGRAPH) |
 		(1 << CMARK_NODE_HEADER) |
 		(1 << CMARK_NODE_HRULE);
@@ -481,7 +481,7 @@ hierarchy(test_batch_runner *runner)
 		(1 << CMARK_NODE_SOFTBREAK) |
 		(1 << CMARK_NODE_LINEBREAK) |
 		(1 << CMARK_NODE_CODE) |
-		(1 << CMARK_NODE_INLINE_HTML) |
+		(1 << CMARK_NODE_RAW_INLINE) |
 		(1 << CMARK_NODE_EMPH) |
 		(1 << CMARK_NODE_STRONG) |
 		(1 << CMARK_NODE_LINK) |
@@ -492,7 +492,7 @@ hierarchy(test_batch_runner *runner)
 	test_content(runner, CMARK_NODE_LIST,          list_item_flag);
 	test_content(runner, CMARK_NODE_ITEM,          top_level_blocks);
 	test_content(runner, CMARK_NODE_CODE_BLOCK ,   0);
-	test_content(runner, CMARK_NODE_HTML,          0);
+	test_content(runner, CMARK_NODE_RAW_BLOCK,          0);
 	test_content(runner, CMARK_NODE_PARAGRAPH,     all_inlines);
 	test_content(runner, CMARK_NODE_HEADER,        all_inlines);
 	test_content(runner, CMARK_NODE_HRULE,         0);
@@ -500,7 +500,7 @@ hierarchy(test_batch_runner *runner)
 	test_content(runner, CMARK_NODE_SOFTBREAK,     0);
 	test_content(runner, CMARK_NODE_LINEBREAK,     0);
 	test_content(runner, CMARK_NODE_CODE,   0);
-	test_content(runner, CMARK_NODE_INLINE_HTML,   0);
+	test_content(runner, CMARK_NODE_RAW_INLINE,   0);
 	test_content(runner, CMARK_NODE_EMPH,          all_inlines);
 	test_content(runner, CMARK_NODE_STRONG,        all_inlines);
 	test_content(runner, CMARK_NODE_LINK,          all_inlines);

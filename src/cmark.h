@@ -26,6 +26,18 @@ extern "C" {
 CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
 
+/** ## Formats
+ */
+
+typedef enum {
+  CMARK_FORMAT_NONE,
+  CMARK_FORMAT_HTML,
+  CMARK_FORMAT_XML,
+  CMARK_FORMAT_MAN,
+  CMARK_FORMAT_COMMONMARK,
+  CMARK_FORMAT_LATEX
+} cmark_writer_format;
+
 /** ## Node Structure
  */
 
@@ -39,7 +51,7 @@ typedef enum {
   CMARK_NODE_LIST,
   CMARK_NODE_ITEM,
   CMARK_NODE_CODE_BLOCK,
-  CMARK_NODE_HTML,
+  CMARK_NODE_RAW_BLOCK,
   CMARK_NODE_PARAGRAPH,
   CMARK_NODE_HEADER,
   CMARK_NODE_HRULE,
@@ -52,7 +64,7 @@ typedef enum {
   CMARK_NODE_SOFTBREAK,
   CMARK_NODE_LINEBREAK,
   CMARK_NODE_CODE,
-  CMARK_NODE_INLINE_HTML,
+  CMARK_NODE_RAW_INLINE,
   CMARK_NODE_EMPH,
   CMARK_NODE_STRONG,
   CMARK_NODE_LINK,
@@ -232,6 +244,16 @@ CMARK_EXPORT cmark_node_type cmark_node_get_type(cmark_node *node);
  */
 CMARK_EXPORT
 const char *cmark_node_get_type_string(cmark_node *node);
+
+/** Returns the format of 'node', or `CMARK_FORMAT_NONE` on error.
+ */
+CMARK_EXPORT cmark_writer_format cmark_node_get_format(cmark_node *node);
+
+/** Like 'cmark_node_get_format', but returns a string representation
+    of the type, or `"<unknown>"`.
+ */
+CMARK_EXPORT
+const char *cmark_node_get_format_string(cmark_node *node);
 
 /** Returns the string contents of 'node', or NULL if none.
  */

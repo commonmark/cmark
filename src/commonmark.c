@@ -279,10 +279,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     BLANKLINE();
     break;
 
-  case CMARK_NODE_HTML:
-    BLANKLINE();
-    OUT(cmark_node_get_literal(node), false, LITERAL);
-    BLANKLINE();
+  case CMARK_NODE_RAW_BLOCK:
+    if (cmark_node_get_format(node) == CMARK_FORMAT_COMMONMARK ||
+        cmark_node_get_format(node) == CMARK_FORMAT_HTML) {
+      BLANKLINE();
+      OUT(cmark_node_get_literal(node), false, LITERAL);
+      BLANKLINE();
+    }
     break;
 
   case CMARK_NODE_HRULE:
@@ -335,8 +338,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
-  case CMARK_NODE_INLINE_HTML:
-    OUT(cmark_node_get_literal(node), false, LITERAL);
+  case CMARK_NODE_RAW_INLINE:
+    if (cmark_node_get_format(node) == CMARK_FORMAT_COMMONMARK ||
+        cmark_node_get_format(node) == CMARK_FORMAT_HTML) {
+      OUT(cmark_node_get_literal(node), false, LITERAL);
+    }
     break;
 
   case CMARK_NODE_STRONG:

@@ -58,7 +58,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     switch (node->type) {
     case CMARK_NODE_TEXT:
     case CMARK_NODE_CODE:
-    case CMARK_NODE_INLINE_HTML:
+    case CMARK_NODE_RAW_INLINE:
       escape_html(html, node->as.literal.data, node->as.literal.len);
       break;
 
@@ -166,11 +166,11 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     cmark_strbuf_puts(html, "</code></pre>\n");
     break;
 
-  case CMARK_NODE_HTML:
+  case CMARK_NODE_RAW_BLOCK:
     cr(html);
     if (options & CMARK_OPT_SAFE) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
-    } else {
+    } else if (node->format == CMARK_FORMAT_HTML) {
       cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
     }
     cr(html);
@@ -225,10 +225,10 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     cmark_strbuf_puts(html, "</code>");
     break;
 
-  case CMARK_NODE_INLINE_HTML:
+  case CMARK_NODE_RAW_INLINE:
     if (options & CMARK_OPT_SAFE) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
-    } else {
+    } else if (node->format == CMARK_FORMAT_HTML) {
       cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
     }
     break;
