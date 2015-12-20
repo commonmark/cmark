@@ -16,6 +16,9 @@ if (WIN32)
   set_tests_properties(api_test PROPERTIES
     ENVIRONMENT "PATH=${WIN_DLL_DIR};$ENV{PATH}"
     )
+  set(ROUNDTRIP,"${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.bat")
+else(WIN32)
+  set(ROUNDTRIP,"${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.sh")
 endif(WIN32)
 
 IF (PYTHONINTERP_FOUND)
@@ -42,6 +45,14 @@ IF (PYTHONINTERP_FOUND)
   add_test(smartpuncttest_executable
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
     )
+
+  add_test(roundtriptest_executable
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--program"
+    "${ROUNDTRIP} ${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    )
+
 
 ELSE(PYTHONINTERP_FOUND)
 
