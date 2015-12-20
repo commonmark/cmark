@@ -210,7 +210,8 @@ of the type, or \f[C]"<unknown>"\f[].
 \fIconst char *\f[] \fBcmark_node_get_literal\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the string contents of \f[I]node\f[], or NULL if none.
+Returns the string contents of \f[I]node\f[], or an empty string if none
+is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_literal\f[](\fIcmark_node *node\f[], \fIconst char *content\f[])
@@ -291,7 +292,7 @@ Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the info string from a fenced code block, or NULL if none.
+Returns the info string from a fenced code block.
 
 .PP
 \fIint\f[] \fBcmark_node_set_fence_info\f[](\fIcmark_node *node\f[], \fIconst char *info\f[])
@@ -304,7 +305,8 @@ Sets the info string in a fenced code block, returning 1 on success and
 \fIconst char *\f[] \fBcmark_node_get_url\f[](\fIcmark_node *node\f[])
 
 .PP
-Gets the URL of a link or image \f[I]node\f[], or NULL if none.
+Returns the URL of a link or image \f[I]node\f[], or an empty string if
+no URL is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_url\f[](\fIcmark_node *node\f[], \fIconst char *url\f[])
@@ -317,7 +319,8 @@ on failure.
 \fIconst char *\f[] \fBcmark_node_get_title\f[](\fIcmark_node *node\f[])
 
 .PP
-Gets the title of a link or image \f[I]node\f[], or NULL if none.
+Returns the title of a link or image \f[I]node\f[], or an empty string
+if no title is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_title\f[](\fIcmark_node *node\f[], \fIconst char *title\f[])
@@ -330,8 +333,8 @@ on failure.
 \fIconst char *\f[] \fBcmark_node_get_on_enter\f[](\fIcmark_node *node\f[])
 
 .PP
-Gets the literal "on enter" text for a custom \f[I]node\f[], or NULL if
-none.
+Returns the literal "on enter" text for a custom \f[I]node\f[], or an
+empty string if no on_enter is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
@@ -345,8 +348,8 @@ success 0 on failure.
 \fIconst char *\f[] \fBcmark_node_get_on_exit\f[](\fIcmark_node *node\f[])
 
 .PP
-Gets the literal "on exit" text for a custom \f[I]node\f[], or NULL if
-none.
+Returns the literal "on exit" text for a custom \f[I]node\f[], or an
+empty string if no on_exit is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])

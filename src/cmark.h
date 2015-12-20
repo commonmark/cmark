@@ -235,7 +235,8 @@ CMARK_EXPORT cmark_node_type cmark_node_get_type(cmark_node *node);
 CMARK_EXPORT
 const char *cmark_node_get_type_string(cmark_node *node);
 
-/** Returns the string contents of 'node', or NULL if none.
+/** Returns the string contents of 'node', or an empty
+    string if none is set.
  */
 CMARK_EXPORT const char *cmark_node_get_literal(cmark_node *node);
 
@@ -290,7 +291,7 @@ CMARK_EXPORT int cmark_node_get_list_tight(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_list_tight(cmark_node *node, int tight);
 
-/** Returns the info string from a fenced code block, or NULL if none.
+/** Returns the info string from a fenced code block.
  */
 CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
 
@@ -299,7 +300,8 @@ CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_fence_info(cmark_node *node, const char *info);
 
-/** Gets the URL of a link or image 'node', or NULL if none.
+/** Returns the URL of a link or image 'node', or an empty string
+    if no URL is set.
  */
 CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
 
@@ -308,7 +310,8 @@ CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_url(cmark_node *node, const char *url);
 
-/** Gets the title of a link or image 'node', or NULL if none.
+/** Returns the title of a link or image 'node', or an empty
+    string if no title is set.
  */
 CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
 
@@ -317,8 +320,8 @@ CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
 
-/** Gets the literal "on enter" text for a custom 'node', or
-    NULL if none.
+/** Returns the literal "on enter" text for a custom 'node', or
+    an empty string if no on_enter is set.
  */
 CMARK_EXPORT const char *cmark_node_get_on_enter(cmark_node *node);
 
@@ -329,8 +332,8 @@ CMARK_EXPORT const char *cmark_node_get_on_enter(cmark_node *node);
 CMARK_EXPORT int cmark_node_set_on_enter(cmark_node *node,
                                          const char *on_enter);
 
-/** Gets the literal "on exit" text for a custom 'node', or
-    NULL if none.
+/** Returns the literal "on exit" text for a custom 'node', or
+    an empty string if no on_exit is set.
  */
 CMARK_EXPORT const char *cmark_node_get_on_exit(cmark_node *node);
 
