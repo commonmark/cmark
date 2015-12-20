@@ -4,7 +4,6 @@
 #include <errno.h>
 #include "config.h"
 #include "cmark.h"
-#include "bench.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
@@ -153,14 +152,12 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    start_timer();
     while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
       cmark_parser_feed(parser, buffer, bytes);
       if (bytes < sizeof(buffer)) {
         break;
       }
     }
-    end_timer("processing lines");
 
     fclose(fp);
   }
@@ -175,18 +172,12 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  start_timer();
   document = cmark_parser_finish(parser);
-  end_timer("finishing document");
   cmark_parser_free(parser);
 
-  start_timer();
   print_document(document, writer, options, width);
-  end_timer("print_document");
 
-  start_timer();
   cmark_node_free(document);
-  end_timer("free_blocks");
 
   free(files);
 
