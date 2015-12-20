@@ -14,7 +14,6 @@ ALLTESTS=alltests.md
 NUMRUNS?=10
 CMARK=$(BUILDDIR)/src/cmark
 PROG?=$(CMARK)
-BENCHINP?=README.md
 VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
@@ -154,26 +153,28 @@ fuzztest:
 progit:
 	git clone https://github.com/progit/progit.git
 
-$(BENCHDIR)/benchinput.md: progit
+$(BENCHFILE): progit
 	echo "" > $@
 	for lang in ar az be ca cs de en eo es es-ni fa fi fr hi hu id it ja ko mk nl no-nb pl pt-br ro ru sr th tr uk vi zh zh-tw; do \
-		cat progit/$$lang/*/*.markdown >> $@; \
+		for i in `seq 1 10`; do \
+			cat progit/$$lang/*/*.markdown >> $@; \
+		done; \
 	done
 
 # for more accurate results, run with
 # sudo renice -10 $$; make bench
 bench: $(BENCHFILE)
 	{ for x in `seq 1 $(NUMRUNS)` ; do \
-	  /usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
-	  /usr/bin/env time -p $(PROG) $< >/dev/null ; \
-		  done \
+		/usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
+		/usr/bin/env time -p $(PROG) $< >/dev/null ; \
+		done \
 	} 2>&1  | grep 'real' | awk '{print $$2}' | python3 'bench/stats.py'
 
 format:
 	clang-format -style llvm -i src/*.c src/*.h
 
 operf: $(CMARK)
-	operf $< < $(BENCHINP) > /dev/null
+	operf $< < $(BENCHFILE) > /dev/null
 
 distclean: clean
 	-rm -rf *.dSYM
