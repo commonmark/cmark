@@ -160,7 +160,6 @@ CMARK_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
  * of type:
  *
  * * CMARK_NODE_HTML
- * * CMARK_NODE_CUSTOM_BLOCK
  * * CMARK_NODE_HRULE
  * * CMARK_NODE_CODE_BLOCK
  * * CMARK_NODE_TEXT
@@ -168,7 +167,6 @@ CMARK_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
  * * CMARK_NODE_LINEBREAK
  * * CMARK_NODE_CODE
  * * CMARK_NODE_INLINE_HTML
- * * CMARK_NODE_CUSTOM_INLINE
  *
  * Nodes must only be modified after an `EXIT` event, or an `ENTER` event for
  * leaf nodes.
@@ -318,6 +316,29 @@ CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
+
+/** Gets the literal "on enter" text for a custom 'node', or
+    NULL if none.
+ */
+CMARK_EXPORT const char *cmark_node_get_on_enter(cmark_node *node);
+
+/** Sets the literal text to render "on enter" for a custom 'node'.
+    Any children of the node will be rendered after this text.
+    Returns 1 on success 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_set_on_enter(cmark_node *node,
+                                         const char *on_enter);
+
+/** Gets the literal "on exit" text for a custom 'node', or
+    NULL if none.
+ */
+CMARK_EXPORT const char *cmark_node_get_on_exit(cmark_node *node);
+
+/** Sets the literal text to render "on exit" for a custom 'node'.
+    Any children of the node will be rendered before this text.
+    Returns 1 on success 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_set_on_exit(cmark_node *node, const char *on_exit);
 
 /** Returns the line on which 'node' begins.
  */

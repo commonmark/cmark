@@ -144,7 +144,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_CUSTOM_BLOCK:
     CR();
-    OUT(cmark_node_get_literal(node), false, LITERAL);
+    OUT(entering ? cmark_node_get_on_enter(node) : cmark_node_get_on_exit(node),
+        false, LITERAL);
     CR();
     break;
 
@@ -197,7 +198,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CUSTOM_INLINE:
-    OUT(cmark_node_get_literal(node), false, LITERAL);
+    OUT(entering ? cmark_node_get_on_enter(node) : cmark_node_get_on_exit(node),
+        false, LITERAL);
     break;
 
   case CMARK_NODE_STRONG:

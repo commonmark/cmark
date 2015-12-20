@@ -112,8 +112,6 @@ are nodes of type:
 .IP \[bu] 2
 CMARK_NODE_HTML
 .IP \[bu] 2
-CMARK_NODE_CUSTOM_BLOCK
-.IP \[bu] 2
 CMARK_NODE_HRULE
 .IP \[bu] 2
 CMARK_NODE_CODE_BLOCK
@@ -127,8 +125,6 @@ CMARK_NODE_LINEBREAK
 CMARK_NODE_CODE
 .IP \[bu] 2
 CMARK_NODE_INLINE_HTML
-.IP \[bu] 2
-CMARK_NODE_CUSTOM_INLINE
 .PP
 Nodes must only be modified after an \f[C]EXIT\f[] event, or an
 \f[C]ENTER\f[] event for leaf nodes.
@@ -329,6 +325,36 @@ Gets the title of a link or image \f[I]node\f[], or NULL if none.
 .PP
 Sets the title of a link or image \f[I]node\f[]. Returns 1 on success, 0
 on failure.
+
+.PP
+\fIconst char *\f[] \fBcmark_node_get_on_enter\f[](\fIcmark_node *node\f[])
+
+.PP
+Gets the literal "on enter" text for a custom \f[I]node\f[], or NULL if
+none.
+
+.PP
+\fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
+
+.PP
+Sets the literal text to render "on enter" for a custom \f[I]node\f[].
+Any children of the node will be rendered after this text. Returns 1 on
+success 0 on failure.
+
+.PP
+\fIconst char *\f[] \fBcmark_node_get_on_exit\f[](\fIcmark_node *node\f[])
+
+.PP
+Gets the literal "on exit" text for a custom \f[I]node\f[], or NULL if
+none.
+
+.PP
+\fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])
+
+.PP
+Sets the literal text to render "on exit" for a custom \f[I]node\f[].
+Any children of the node will be rendered before this text. Returns 1 on
+success 0 on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_get_start_line\f[](\fIcmark_node *node\f[])

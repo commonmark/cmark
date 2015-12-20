@@ -178,7 +178,10 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
 
   case CMARK_NODE_CUSTOM_BLOCK:
     cr(html);
-    cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+    cmark_strbuf_put(
+        html, (const unsigned char *)(entering ? cmark_node_get_on_enter(node)
+                                               : cmark_node_get_on_exit(node)),
+        node->as.literal.len);
     cr(html);
     break;
 
@@ -240,7 +243,10 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     break;
 
   case CMARK_NODE_CUSTOM_INLINE:
-    cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+    cmark_strbuf_put(
+        html, (const unsigned char *)(entering ? cmark_node_get_on_enter(node)
+                                               : cmark_node_get_on_exit(node)),
+        node->as.literal.len);
     break;
 
   case CMARK_NODE_STRONG:

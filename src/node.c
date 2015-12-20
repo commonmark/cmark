@@ -113,6 +113,11 @@ static void S_free_nodes(cmark_node *e) {
       cmark_chunk_free(&e->as.link.url);
       cmark_chunk_free(&e->as.link.title);
       break;
+    case CMARK_NODE_CUSTOM_BLOCK:
+    case CMARK_NODE_CUSTOM_INLINE:
+      cmark_chunk_free(&e->as.custom.on_enter);
+      cmark_chunk_free(&e->as.custom.on_exit);
+      break;
     default:
       break;
     }
@@ -520,6 +525,72 @@ int cmark_node_set_title(cmark_node *node, const char *title) {
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
     cmark_chunk_set_cstr(&node->as.link.title, title);
+    return 1;
+  default:
+    break;
+  }
+
+  return 0;
+}
+
+const char *cmark_node_get_on_enter(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_CUSTOM_INLINE:
+  case CMARK_NODE_CUSTOM_BLOCK:
+    return cmark_chunk_to_cstr(&node->as.custom.on_enter);
+  default:
+    break;
+  }
+
+  return NULL;
+}
+
+int cmark_node_set_on_enter(cmark_node *node, const char *on_enter) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_CUSTOM_INLINE:
+  case CMARK_NODE_CUSTOM_BLOCK:
+    cmark_chunk_set_cstr(&node->as.custom.on_enter, on_enter);
+    return 1;
+  default:
+    break;
+  }
+
+  return 0;
+}
+
+const char *cmark_node_get_on_exit(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_CUSTOM_INLINE:
+  case CMARK_NODE_CUSTOM_BLOCK:
+    return cmark_chunk_to_cstr(&node->as.custom.on_exit);
+  default:
+    break;
+  }
+
+  return NULL;
+}
+
+int cmark_node_set_on_exit(cmark_node *node, const char *on_exit) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_CUSTOM_INLINE:
+  case CMARK_NODE_CUSTOM_BLOCK:
+    cmark_chunk_set_cstr(&node->as.custom.on_exit, on_exit);
     return 1;
   default:
     break;
