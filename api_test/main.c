@@ -445,6 +445,47 @@ create_tree(test_batch_runner *runner)
 	cmark_node_free(emph);
 }
 
+static void
+custom_nodes(test_batch_runner *runner)
+{
+	char *html;
+        char *man;
+	cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
+	cmark_node *p = cmark_node_new(CMARK_NODE_PARAGRAPH);
+	cmark_node_append_child(doc, p);
+	cmark_node *ci = cmark_node_new(CMARK_NODE_CUSTOM_INLINE);
+	cmark_node *str1 = cmark_node_new(CMARK_NODE_TEXT);
+	cmark_node_set_literal(str1, "Hello");
+	OK(runner, cmark_node_append_child(ci, str1), "append1");
+	OK(runner, cmark_node_set_on_enter(ci, "<ON ENTER|"),
+		"set_on_enter");
+	OK(runner, cmark_node_set_on_exit(ci, "|ON EXIT>"),
+		"set_on_exit");
+	STR_EQ(runner, cmark_node_get_on_enter(ci), "<ON ENTER|",
+	       "get_on_enter");
+	STR_EQ(runner, cmark_node_get_on_exit(ci), "|ON EXIT>",
+	       "get_on_exit");
+	cmark_node_append_child(p, ci);
+	cmark_node *cb = cmark_node_new(CMARK_NODE_CUSTOM_BLOCK);
+	cmark_node_set_on_enter(cb, "<on enter|");
+	// leave on_exit unset
+	STR_EQ(runner, cmark_node_get_on_exit(cb), "",
+	       "get_on_exit (empty)");
+	cmark_node_append_child(doc, cb);
+
+	html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+	STR_EQ(runner, html, "<p><ON ENTER|Hello|ON EXIT></p>\n<on enter|\n",
+	       "render_html");
+	free(html);
+
+	man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 0);
+	STR_EQ(runner, man, ".PP\n<ON ENTER|Hello|ON EXIT>\n<on enter|\n",
+	       "render_man");
+	free(man);
+
+	cmark_node_free(doc);
+}
+
 void
 hierarchy(test_batch_runner *runner)
 {
@@ -765,6 +806,7 @@ int main() {
 	iterator(runner);
 	iterator_delete(runner);
 	create_tree(runner);
+	custom_nodes(runner);
 	hierarchy(runner);
 	parser(runner);
 	render_html(runner);
