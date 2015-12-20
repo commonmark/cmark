@@ -280,7 +280,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_HTML:
+    BLANKLINE();
     OUT(cmark_node_get_literal(node), false, LITERAL);
+    BLANKLINE();
     break;
 
   case CMARK_NODE_CUSTOM_BLOCK:
