@@ -46,6 +46,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_DOCUMENT:
   case CMARK_NODE_BLOCK_QUOTE:
   case CMARK_NODE_ITEM:
+  case CMARK_NODE_CUSTOM_BLOCK:
     return S_is_block(child) && child->type != CMARK_NODE_ITEM;
 
   case CMARK_NODE_LIST:
@@ -57,6 +58,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_STRONG:
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
+  case CMARK_NODE_CUSTOM_INLINE:
     return S_is_inline(child);
 
   default:
