@@ -1363,7 +1363,7 @@ aaa
 .
 
 Unclosed code blocks are closed by the end of the document
-(or the enclosing [block quote] or [list item]):
+(or the enclosing [block quote][block quotes] or [list item][list items]):
 
 .
 ```
@@ -1987,8 +1987,8 @@ p {color:blue;}
 .
 
 If there is no matching end tag, the block will end at the
-end of the document (or the enclosing [block quote] or
-[list item]):
+end of the document (or the enclosing [block quote][block quotes]
+or [list item][list items]):
 
 .
 <style
@@ -3421,6 +3421,48 @@ A list item may contain any kind of block:
 </blockquote>
 </li>
 </ol>
+.
+
+A list item that contains an indented code block will preserve
+empty lines within the code block verbatim, unless there are two
+or more empty lines in a row (since as described above, two
+blank lines end the list):
+
+.
+- Foo
+
+      bar
+
+      baz
+.
+<ul>
+<li>
+<p>Foo</p>
+<pre><code>bar
+
+baz
+</code></pre>
+</li>
+</ul>
+.
+
+.
+- Foo
+
+      bar
+
+
+      baz
+.
+<ul>
+<li>
+<p>Foo</p>
+<pre><code>bar
+</code></pre>
+</li>
+</ul>
+<pre><code>  baz
+</code></pre>
 .
 
 Note that ordered list start numbers must be nine digits or less:
@@ -5304,7 +5346,7 @@ The following rules define emphasis and strong emphasis:
 2.  A single `_` character [can open emphasis] iff
     it is part of a [left-flanking delimiter run]
     and either (a) not part of a [right-flanking delimiter run]
-    or (b) part of a [right-flanking delimeter run]
+    or (b) part of a [right-flanking delimiter run]
     preceded by punctuation.
 
 3.  A single `*` character [can close emphasis](@can-close-emphasis)
@@ -5313,7 +5355,7 @@ The following rules define emphasis and strong emphasis:
 4.  A single `_` character [can close emphasis] iff
     it is part of a [right-flanking delimiter run]
     and either (a) not part of a [left-flanking delimiter run]
-    or (b) part of a [left-flanking delimeter run]
+    or (b) part of a [left-flanking delimiter run]
     followed by punctuation.
 
 5.  A double `**` [can open strong emphasis](@can-open-strong-emphasis)
@@ -5322,7 +5364,7 @@ The following rules define emphasis and strong emphasis:
 6.  A double `__` [can open strong emphasis] iff
     it is part of a [left-flanking delimiter run]
     and either (a) not part of a [right-flanking delimiter run]
-    or (b) part of a [right-flanking delimeter run]
+    or (b) part of a [right-flanking delimiter run]
     preceded by punctuation.
 
 7.  A double `**` [can close strong emphasis](@can-close-strong-emphasis)
@@ -5331,7 +5373,7 @@ The following rules define emphasis and strong emphasis:
 8.  A double `__` [can close strong emphasis]
     it is part of a [right-flanking delimiter run]
     and either (a) not part of a [left-flanking delimiter run]
-    or (b) part of a [left-flanking delimeter run]
+    or (b) part of a [left-flanking delimiter run]
     followed by punctuation.
 
 9.  Emphasis begins with a delimiter that [can open emphasis] and ends
@@ -7639,7 +7681,7 @@ consists of `"`, zero or more
 characters not including `"`, and a final `"`.
 
 An [open tag](@open-tag) consists of a `<` character, a [tag name],
-zero or more [attributes](@attribute], optional [whitespace], an optional `/`
+zero or more [attribute]s, optional [whitespace], an optional `/`
 character, and a `>` character.
 
 A [closing tag](@closing-tag) consists of the string `</`, a
