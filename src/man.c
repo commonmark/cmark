@@ -123,7 +123,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_HEADER:
     if (entering) {
       CR();
-      LIT(cmark_node_get_header_level(node) == 1 ? ".SH" : ".SS");
+      LIT(cmark_node_get_heading_level(node) == 1 ? ".SH" : ".SS");
       CR();
     } else {
       CR();

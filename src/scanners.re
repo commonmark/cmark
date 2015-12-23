@@ -247,8 +247,8 @@ bufsize_t _scan_spacechars(const unsigned char *p)
 */
 }
 
-// Match ATX header start.
-bufsize_t _scan_atx_header_start(const unsigned char *p)
+// Match ATX heading start.
+bufsize_t _scan_atx_heading_start(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
@@ -258,9 +258,9 @@ bufsize_t _scan_atx_header_start(const unsigned char *p)
 */
 }
 
-// Match setext header line.  Return 1 for level-1 header,
+// Match setext heading line.  Return 1 for level-1 heading,
 // 2 for level-2, 0 for no match.
-bufsize_t _scan_setext_header_line(const unsigned char *p)
+bufsize_t _scan_setext_heading_line(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c

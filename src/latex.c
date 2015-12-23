@@ -266,7 +266,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_HEADER:
     if (entering) {
-      switch (cmark_node_get_header_level(node)) {
+      switch (cmark_node_get_heading_level(node)) {
       case 1:
         LIT("\\section");
         break;

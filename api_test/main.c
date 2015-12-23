@@ -72,9 +72,9 @@ constructor(test_batch_runner *runner)
 
 		switch (node->type) {
 		case CMARK_NODE_HEADER:
-			INT_EQ(runner, cmark_node_get_header_level(node), 1,
-			       "default header level is 1");
-			node->as.header.level = 1;
+			INT_EQ(runner, cmark_node_get_heading_level(node), 1,
+			       "default heading level is 1");
+			node->as.heading.level = 1;
 			break;
 
 		case CMARK_NODE_LIST:
@@ -126,11 +126,11 @@ accessors(test_batch_runner *runner)
 
 	// Getters
 
-	cmark_node *header = cmark_node_first_child(doc);
-	INT_EQ(runner, cmark_node_get_header_level(header), 2,
-	       "get_header_level");
+	cmark_node *heading = cmark_node_first_child(doc);
+	INT_EQ(runner, cmark_node_get_heading_level(heading), 2,
+	       "get_heading_level");
 
-	cmark_node *bullet_list = cmark_node_next(header);
+	cmark_node *bullet_list = cmark_node_next(heading);
 	INT_EQ(runner, cmark_node_get_list_type(bullet_list),
 	       CMARK_BULLET_LIST, "get_list_type bullet");
 	INT_EQ(runner, cmark_node_get_list_tight(bullet_list), 1,
@@ -180,8 +180,8 @@ accessors(test_batch_runner *runner)
 
 	// Setters
 
-	OK(runner, cmark_node_set_header_level(header, 3),
-	   "set_header_level");
+	OK(runner, cmark_node_set_heading_level(heading, 3),
+	   "set_heading_level");
 
 	OK(runner, cmark_node_set_list_type(bullet_list, CMARK_ORDERED_LIST),
 	   "set_list_type ordered");
@@ -242,9 +242,9 @@ accessors(test_batch_runner *runner)
 
 	// Getter errors
 
-	INT_EQ(runner, cmark_node_get_header_level(bullet_list), 0,
-	       "get_header_level error");
-	INT_EQ(runner, cmark_node_get_list_type(header), CMARK_NO_LIST,
+	INT_EQ(runner, cmark_node_get_heading_level(bullet_list), 0,
+	       "get_heading_level error");
+	INT_EQ(runner, cmark_node_get_list_type(heading), CMARK_NO_LIST,
 	       "get_list_type error");
 	INT_EQ(runner, cmark_node_get_list_start(code), 0,
 	       "get_list_start error");
@@ -256,14 +256,14 @@ accessors(test_batch_runner *runner)
 	   "get_fence_info error");
 	OK(runner, cmark_node_get_url(html) == NULL,
 	   "get_url error");
-	OK(runner, cmark_node_get_title(header) == NULL,
+	OK(runner, cmark_node_get_title(heading) == NULL,
 	   "get_title error");
 
 	// Setter errors
 
-	OK(runner, !cmark_node_set_header_level(bullet_list, 3),
-	   "set_header_level error");
-	OK(runner, !cmark_node_set_list_type(header, CMARK_ORDERED_LIST),
+	OK(runner, !cmark_node_set_heading_level(bullet_list, 3),
+	   "set_heading_level error");
+	OK(runner, !cmark_node_set_list_type(heading, CMARK_ORDERED_LIST),
 	   "set_list_type error");
 	OK(runner, !cmark_node_set_list_start(code, 3),
 	   "set_list_start error");
@@ -275,13 +275,13 @@ accessors(test_batch_runner *runner)
 	   "set_fence_info error");
 	OK(runner, !cmark_node_set_url(html, "url"),
 	   "set_url error");
-	OK(runner, !cmark_node_set_title(header, "title"),
+	OK(runner, !cmark_node_set_title(heading, "title"),
 	   "set_title error");
 
-	OK(runner, !cmark_node_set_header_level(header, 0),
-	   "set_header_level too small");
-	OK(runner, !cmark_node_set_header_level(header, 7),
-	   "set_header_level too large");
+	OK(runner, !cmark_node_set_heading_level(heading, 0),
+	   "set_heading_level too small");
+	OK(runner, !cmark_node_set_heading_level(heading, 7),
+	   "set_heading_level too large");
 	OK(runner, !cmark_node_set_list_type(bullet_list, CMARK_NO_LIST),
 	   "set_list_type invalid");
 	OK(runner, !cmark_node_set_list_start(bullet_list, -1),

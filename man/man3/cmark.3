@@ -1,4 +1,4 @@
-.TH cmark 3 "December 19, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "December 22, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -88,7 +88,7 @@ of \f[C]CMARK_EVENT_EXIT\f[]). The iterator will return
 natural application is an HTML renderer, where an \f[C]ENTER\f[] event
 outputs an open tag and an \f[C]EXIT\f[] event outputs a close tag. An
 iterator might also be used to transform an AST in some systematic way,
-for example, turning all level\-3 headers into regular paragraphs.
+for example, turning all level\-3 headings into regular paragraphs.
 .IP
 .nf
 \f[C]
@@ -221,17 +221,17 @@ Sets the string contents of \f[I]node\f[]. Returns 1 on success, 0 on
 failure.
 
 .PP
-\fIint\f[] \fBcmark_node_get_header_level\f[](\fIcmark_node *node\f[])
+\fIint\f[] \fBcmark_node_get_heading_level\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the header level of \f[I]node\f[], or 0 if \f[I]node\f[] is not
-a header.
+Returns the heading level of \f[I]node\f[], or 0 if \f[I]node\f[] is not
+a heading.
 
 .PP
-\fIint\f[] \fBcmark_node_set_header_level\f[](\fIcmark_node *node\f[], \fIint level\f[])
+\fIint\f[] \fBcmark_node_set_heading_level\f[](\fIcmark_node *node\f[], \fIint level\f[])
 
 .PP
-Sets the header level of \f[I]node\f[], returning 1 on success and 0 on
+Sets the heading level of \f[I]node\f[], returning 1 on success and 0 on
 error.
 
 .PP

@@ -35,7 +35,7 @@ typedef struct {
 typedef struct {
   int level;
   bool setext;
-} cmark_header;
+} cmark_heading;
 
 typedef struct {
   cmark_chunk url;
@@ -72,7 +72,7 @@ struct cmark_node {
     cmark_chunk literal;
     cmark_list list;
     cmark_code code;
-    cmark_header header;
+    cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
     int html_block_type;

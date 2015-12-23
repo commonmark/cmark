@@ -208,7 +208,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   } else if (b->type == CMARK_NODE_DOCUMENT ||
              (b->type == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (b->type == CMARK_NODE_HEADER && b->as.header.setext)) {
+             (b->type == CMARK_NODE_HEADER && b->as.heading.setext)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline->size;
     if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\n')
@@ -687,7 +687,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       }
     } else if (container->type == CMARK_NODE_HEADER) {
 
-      // a header can never contain more than one line
+      // a heading can never contain more than one line
       all_matched = false;
 
     } else if (container->type == CMARK_NODE_HTML) {
@@ -750,7 +750,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       container = add_child(parser, container, CMARK_NODE_BLOCK_QUOTE,
                             parser->offset + 1);
 
-    } else if (!indented && (matched = scan_atx_header_start(
+    } else if (!indented && (matched = scan_atx_heading_start(
                                  &input, parser->first_nonspace))) {
 
       S_advance_offset(parser, &input,
@@ -767,8 +767,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
         level++;
         hashpos++;
       }
-      container->as.header.level = level;
-      container->as.header.setext = false;
+      container->as.heading.level = level;
+      container->as.heading.setext = false;
 
     } else if (!indented && (matched = scan_open_code_fence(
                                  &input, parser->first_nonspace))) {
@@ -799,22 +799,22 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     } else if (!indented && container->type == CMARK_NODE_PARAGRAPH &&
                (lev =
-                    scan_setext_header_line(&input, parser->first_nonspace)) &&
+                    scan_setext_heading_line(&input, parser->first_nonspace)) &&
                // check that there is only one line in the paragraph:
                (cmark_strbuf_strrchr(
                     &container->string_content, '\n',
                     cmark_strbuf_len(&container->string_content) - 2) < 0)) {
 
       container->type = CMARK_NODE_HEADER;
-      container->as.header.level = lev;
-      container->as.header.setext = true;
+      container->as.heading.level = lev;
+      container->as.heading.setext = true;
       S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
 
     } else if (!indented &&
                !(container->type == CMARK_NODE_PARAGRAPH && !all_matched) &&
                (matched = scan_hrule(&input, parser->first_nonspace))) {
 
-      // it's only now that we know the line is not part of a setext header:
+      // it's only now that we know the line is not part of a setext heading:
       container = add_child(parser, container, CMARK_NODE_HRULE,
                             parser->first_nonspace + 1);
       S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
@@ -981,7 +981,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     } else if (accepts_lines(container->type)) {
 
       if (container->type == CMARK_NODE_HEADER &&
-          container->as.header.setext == false) {
+          container->as.heading.setext == false) {
         chop_trailing_hashtags(&input);
       }
       add_line(container, &input, parser->first_nonspace);

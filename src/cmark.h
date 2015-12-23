@@ -141,7 +141,7 @@ CMARK_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
  * One natural application is an HTML renderer, where an `ENTER` event
  * outputs an open tag and an `EXIT` event outputs a close tag.
  * An iterator might also be used to transform an AST in some systematic
- * way, for example, turning all level-3 headers into regular paragraphs.
+ * way, for example, turning all level-3 headings into regular paragraphs.
  *
  *     void
  *     usage_example(cmark_node *root) {
@@ -245,13 +245,17 @@ CMARK_EXPORT const char *cmark_node_get_literal(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_literal(cmark_node *node, const char *content);
 
-/** Returns the header level of 'node', or 0 if 'node' is not a header.
+/** Returns the heading level of 'node', or 0 if 'node' is not a heading.
  */
-CMARK_EXPORT int cmark_node_get_header_level(cmark_node *node);
+CMARK_EXPORT int cmark_node_get_heading_level(cmark_node *node);
 
-/** Sets the header level of 'node', returning 1 on success and 0 on error.
+/* For backwards compatibility */
+#define cmark_node_get_header_level cmark_node_get_heading_level
+#define cmark_node_set_header_level cmark_node_set_heading_level
+
+/** Sets the heading level of 'node', returning 1 on success and 0 on error.
  */
-CMARK_EXPORT int cmark_node_set_header_level(cmark_node *node, int level);
+CMARK_EXPORT int cmark_node_set_heading_level(cmark_node *node, int level);
 
 /** Returns the list type of 'node', or `CMARK_NO_LIST` if 'node'
  * is not a list.

@@ -74,7 +74,7 @@ cmark_node *cmark_node_new(cmark_node_type type) {
 
   switch (node->type) {
   case CMARK_NODE_HEADER:
-    node->as.header.level = 1;
+    node->as.heading.level = 1;
     break;
 
   case CMARK_NODE_LIST: {
@@ -173,7 +173,7 @@ const char *cmark_node_get_type_string(cmark_node *node) {
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
   case CMARK_NODE_HEADER:
-    return "header";
+    return "heading";
   case CMARK_NODE_HRULE:
     return "hrule";
   case CMARK_NODE_TEXT:
@@ -303,14 +303,14 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   return 0;
 }
 
-int cmark_node_get_header_level(cmark_node *node) {
+int cmark_node_get_heading_level(cmark_node *node) {
   if (node == NULL) {
     return 0;
   }
 
   switch (node->type) {
   case CMARK_NODE_HEADER:
-    return node->as.header.level;
+    return node->as.heading.level;
 
   default:
     break;
@@ -319,14 +319,14 @@ int cmark_node_get_header_level(cmark_node *node) {
   return 0;
 }
 
-int cmark_node_set_header_level(cmark_node *node, int level) {
+int cmark_node_set_heading_level(cmark_node *node, int level) {
   if (node == NULL || level < 1 || level > 6) {
     return 0;
   }
 
   switch (node->type) {
   case CMARK_NODE_HEADER:
-    node->as.header.level = level;
+    node->as.heading.level = level;
     return 1;
 
   default:

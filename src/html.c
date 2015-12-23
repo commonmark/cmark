@@ -43,8 +43,8 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   cmark_node *parent;
   cmark_node *grandparent;
   cmark_strbuf *html = state->html;
-  char start_header[] = "<h0";
-  char end_header[] = "</h0";
+  char start_heading[] = "<h0";
+  char end_heading[] = "</h0";
   bool tight;
   char buffer[100];
 
@@ -130,13 +130,13 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_HEADER:
     if (entering) {
       cr(html);
-      start_header[2] = (char)('0' + node->as.header.level);
-      cmark_strbuf_puts(html, start_header);
+      start_heading[2] = (char)('0' + node->as.heading.level);
+      cmark_strbuf_puts(html, start_heading);
       S_render_sourcepos(node, html, options);
       cmark_strbuf_putc(html, '>');
     } else {
-      end_header[3] = (char)('0' + node->as.header.level);
-      cmark_strbuf_puts(html, end_header);
+      end_heading[3] = (char)('0' + node->as.heading.level);
+      cmark_strbuf_puts(html, end_heading);
       cmark_strbuf_puts(html, ">\n");
     }
     break;
