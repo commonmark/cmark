@@ -188,7 +188,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     cr(html);
     break;
 
-  case CMARK_NODE_HRULE:
+  case CMARK_NODE_THEMATIC_BREAK:
     cr(html);
     cmark_strbuf_puts(html, "<hr");
     S_render_sourcepos(node, html, options);

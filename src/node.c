@@ -174,8 +174,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "paragraph";
   case CMARK_NODE_HEADING:
     return "heading";
-  case CMARK_NODE_HRULE:
-    return "hrule";
+  case CMARK_NODE_THEMATIC_BREAK:
+    return "thematic_break";
   case CMARK_NODE_TEXT:
     return "text";
   case CMARK_NODE_SOFTBREAK:

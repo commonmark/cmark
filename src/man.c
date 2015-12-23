@@ -149,7 +149,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     CR();
     break;
 
-  case CMARK_NODE_HRULE:
+  case CMARK_NODE_THEMATIC_BREAK:
     CR();
     LIT(".PP\n  *  *  *  *  *");
     CR();

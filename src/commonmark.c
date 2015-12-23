@@ -292,7 +292,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     BLANKLINE();
     break;
 
-  case CMARK_NODE_HRULE:
+  case CMARK_NODE_THEMATIC_BREAK:
     BLANKLINE();
     LIT("-----");
     BLANKLINE();

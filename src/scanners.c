@@ -25495,10 +25495,10 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
   }
 }
 
-// Scan a horizontal rule line: "...three or more hyphens, asterisks,
+// Scan a thematic break line: "...three or more hyphens, asterisks,
 // or underscores on a line by themselves. If you wish, you may use
 // spaces between the hyphens or asterisks."
-bufsize_t _scan_hrule(const unsigned char *p) {
+bufsize_t _scan_thematic_break(const unsigned char *p) {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 

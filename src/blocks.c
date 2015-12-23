@@ -812,10 +812,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     } else if (!indented &&
                !(container->type == CMARK_NODE_PARAGRAPH && !all_matched) &&
-               (matched = scan_hrule(&input, parser->first_nonspace))) {
+               (matched = scan_thematic_break(&input, parser->first_nonspace))) {
 
       // it's only now that we know the line is not part of a setext heading:
-      container = add_child(parser, container, CMARK_NODE_HRULE,
+      container = add_child(parser, container, CMARK_NODE_THEMATIC_BREAK,
                             parser->first_nonspace + 1);
       S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
 
@@ -902,7 +902,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   container->last_line_blank =
       (parser->blank && container->type != CMARK_NODE_BLOCK_QUOTE &&
        container->type != CMARK_NODE_HEADING &&
-       container->type != CMARK_NODE_HRULE &&
+       container->type != CMARK_NODE_THEMATIC_BREAK &&
        !(container->type == CMARK_NODE_CODE_BLOCK &&
          container->as.code.fenced) &&
        !(container->type == CMARK_NODE_ITEM && container->first_child == NULL &&
