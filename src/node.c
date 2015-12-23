@@ -53,7 +53,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     return child->type == CMARK_NODE_ITEM;
 
   case CMARK_NODE_PARAGRAPH:
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
   case CMARK_NODE_EMPH:
   case CMARK_NODE_STRONG:
   case CMARK_NODE_LINK:
@@ -73,7 +73,7 @@ cmark_node *cmark_node_new(cmark_node_type type) {
   node->type = type;
 
   switch (node->type) {
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     node->as.heading.level = 1;
     break;
 
@@ -172,7 +172,7 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "raw_block";
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     return "heading";
   case CMARK_NODE_HRULE:
     return "hrule";
@@ -309,7 +309,7 @@ int cmark_node_get_heading_level(cmark_node *node) {
   }
 
   switch (node->type) {
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     return node->as.heading.level;
 
   default:
@@ -325,7 +325,7 @@ int cmark_node_set_heading_level(cmark_node *node, int level) {
   }
 
   switch (node->type) {
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     node->as.heading.level = level;
     return 1;
 

@@ -120,7 +120,7 @@ static inline bool can_contain(cmark_node_type parent_type,
 
 static inline bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADER ||
+          block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
@@ -208,7 +208,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   } else if (b->type == CMARK_NODE_DOCUMENT ||
              (b->type == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (b->type == CMARK_NODE_HEADER && b->as.heading.setext)) {
+             (b->type == CMARK_NODE_HEADING && b->as.heading.setext)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline->size;
     if (b->end_column && parser->curline->ptr[b->end_column - 1] == '\n')
@@ -336,7 +336,7 @@ static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (cur->type == CMARK_NODE_PARAGRAPH || cur->type == CMARK_NODE_HEADER) {
+      if (cur->type == CMARK_NODE_PARAGRAPH || cur->type == CMARK_NODE_HEADING) {
         cmark_parse_inlines(cur, refmap, options);
       }
     }
@@ -685,7 +685,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
           }
         }
       }
-    } else if (container->type == CMARK_NODE_HEADER) {
+    } else if (container->type == CMARK_NODE_HEADING) {
 
       // a heading can never contain more than one line
       all_matched = false;
@@ -757,7 +757,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                        parser->first_nonspace + matched - parser->offset,
                        false);
       container =
-          add_child(parser, container, CMARK_NODE_HEADER, parser->offset + 1);
+          add_child(parser, container, CMARK_NODE_HEADING, parser->offset + 1);
 
       bufsize_t hashpos =
           cmark_chunk_strchr(&input, '#', parser->first_nonspace);
@@ -805,7 +805,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                     &container->string_content, '\n',
                     cmark_strbuf_len(&container->string_content) - 2) < 0)) {
 
-      container->type = CMARK_NODE_HEADER;
+      container->type = CMARK_NODE_HEADING;
       container->as.heading.level = lev;
       container->as.heading.setext = true;
       S_advance_offset(parser, &input, input.len - 1 - parser->offset, false);
@@ -901,7 +901,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   // on an empty list item.
   container->last_line_blank =
       (parser->blank && container->type != CMARK_NODE_BLOCK_QUOTE &&
-       container->type != CMARK_NODE_HEADER &&
+       container->type != CMARK_NODE_HEADING &&
        container->type != CMARK_NODE_HRULE &&
        !(container->type == CMARK_NODE_CODE_BLOCK &&
          container->as.code.fenced) &&
@@ -980,7 +980,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     } else if (accepts_lines(container->type)) {
 
-      if (container->type == CMARK_NODE_HEADER &&
+      if (container->type == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
         chop_trailing_hashtags(&input);
       }

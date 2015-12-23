@@ -228,7 +228,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     if (entering) {
       for (i = cmark_node_get_heading_level(node); i > 0; i--) {
         LIT("#");

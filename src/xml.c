@@ -86,7 +86,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
               (cmark_node_get_list_tight(node) ? "true" : "false"));
       cmark_strbuf_puts(xml, buffer);
       break;
-    case CMARK_NODE_HEADER:
+    case CMARK_NODE_HEADING:
       sprintf(buffer, " level=\"%d\"", node->as.heading.level);
       cmark_strbuf_puts(xml, buffer);
       break;

@@ -127,7 +127,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     }
     break;
 
-  case CMARK_NODE_HEADER:
+  case CMARK_NODE_HEADING:
     if (entering) {
       cr(html);
       start_heading[2] = (char)('0' + node->as.heading.level);
