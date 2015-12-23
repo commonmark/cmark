@@ -528,6 +528,9 @@ Render a \f[I]node\f[] tree as a commonmark document.
 .PP
 Render a \f[I]node\f[] tree as a LaTeX document.
 
+.SS
+Options
+
 .PP
 .nf
 \fC
@@ -538,13 +541,16 @@ Render a \f[I]node\f[] tree as a LaTeX document.
 .fi
 
 .PP
-Default writer options.
+Default options.
+
+.SS
+Options affecting rendering
 
 .PP
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_SOURCEPOS 1
+#define CMARK_OPT_SOURCEPOS 1 << 1
 .RE
 \f[]
 .fi
@@ -556,7 +562,7 @@ Include a \f[C]data\-sourcepos\f[] attribute on all block elements.
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_HARDBREAKS 2
+#define CMARK_OPT_HARDBREAKS 1 << 2
 .RE
 \f[]
 .fi
@@ -568,7 +574,26 @@ Render \f[C]softbreak\f[] elements as hard line breaks.
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_NORMALIZE 4
+#define CMARK_OPT_SAFE 1 << 3
+.RE
+\f[]
+.fi
+
+.PP
+Suppress raw HTML and unsafe links (\f[C]javascript:\f[],
+\f[C]vbscript:\f[], \f[C]file:\f[], and \f[C]data:\f[], except for
+\f[C]image/png\f[], \f[C]image/gif\f[], \f[C]image/jpeg\f[], or
+\f[C]image/webp\f[] mime types). Raw HTML is replaced by a placeholder
+HTML comment. Unsafe links are replaced by empty strings.
+
+.SS
+Options affecting parsing
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_NORMALIZE 1 << 8
 .RE
 \f[]
 .fi
@@ -580,20 +605,7 @@ Normalize tree by consolidating adjacent text nodes.
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_SMART 8
-.RE
-\f[]
-.fi
-
-.PP
-Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
-dashes.
-
-.PP
-.nf
-\fC
-.RS 0n
-#define CMARK_OPT_VALIDATE_UTF8 16
+#define CMARK_OPT_VALIDATE_UTF8 1 << 9
 .RE
 \f[]
 .fi
@@ -606,17 +618,14 @@ with the replacement character U+FFFD.
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_SAFE 32
+#define CMARK_OPT_SMART 1 << 10
 .RE
 \f[]
 .fi
 
 .PP
-Suppress raw HTML and unsafe links (\f[C]javascript:\f[],
-\f[C]vbscript:\f[], \f[C]file:\f[], and \f[C]data:\f[], except for
-\f[C]image/png\f[], \f[C]image/gif\f[], \f[C]image/jpeg\f[], or
-\f[C]image/webp\f[] mime types). Raw HTML is replaced by a placeholder
-HTML comment. Unsafe links are replaced by empty strings.
+Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
+dashes.
 
 .SS
 Version information

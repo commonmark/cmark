@@ -483,30 +483,25 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width);
 CMARK_EXPORT
 char *cmark_render_latex(cmark_node *root, int options, int width);
 
-/** Default writer options.
+/**
+ * ## Options
+ */
+
+/** Default options.
  */
 #define CMARK_OPT_DEFAULT 0
 
+/**
+ * ### Options affecting rendering
+ */
+
 /** Include a `data-sourcepos` attribute on all block elements.
  */
-#define CMARK_OPT_SOURCEPOS 1
+#define CMARK_OPT_SOURCEPOS 1 << 1
 
 /** Render `softbreak` elements as hard line breaks.
  */
-#define CMARK_OPT_HARDBREAKS 2
-
-/** Normalize tree by consolidating adjacent text nodes.
- */
-#define CMARK_OPT_NORMALIZE 4
-
-/** Convert straight quotes to curly, --- to em dashes, -- to en dashes.
- */
-#define CMARK_OPT_SMART 8
-
-/** Validate UTF-8 in the input before parsing, replacing illegal
- * sequences with the replacement character U+FFFD.
- */
-#define CMARK_OPT_VALIDATE_UTF8 16
+#define CMARK_OPT_HARDBREAKS 1 << 2
 
 /** Suppress raw HTML and unsafe links (`javascript:`, `vbscript:`,
  * `file:`, and `data:`, except for `image/png`, `image/gif`,
@@ -514,7 +509,24 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
  * by a placeholder HTML comment. Unsafe links are replaced by
  * empty strings.
  */
-#define CMARK_OPT_SAFE 32
+#define CMARK_OPT_SAFE 1 << 3
+
+/**
+ * ### Options affecting parsing
+ */
+
+/** Normalize tree by consolidating adjacent text nodes.
+ */
+#define CMARK_OPT_NORMALIZE 1 << 8
+
+/** Validate UTF-8 in the input before parsing, replacing illegal
+ * sequences with the replacement character U+FFFD.
+ */
+#define CMARK_OPT_VALIDATE_UTF8 1 << 9
+
+/** Convert straight quotes to curly, --- to em dashes, -- to en dashes.
+ */
+#define CMARK_OPT_SMART 1 << 10
 
 /**
  * ## Version information
