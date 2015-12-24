@@ -10,6 +10,15 @@
 #include <fcntl.h>
 #endif
 
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+
+#ifdef CMARK_LUA
+extern int luaopen_cmark(lua_State *L);
+extern void push_cmark_node(lua_State *L, cmark_node *node);
+#endif
+
 typedef enum {
   FORMAT_NONE,
   FORMAT_HTML,
@@ -30,6 +39,9 @@ void print_usage() {
   printf("  --safe           Suppress raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
   printf("  --normalize      Consolidate adjacent text nodes\n");
+#ifdef CMARK_LUA
+  printf("  --lua FILE       Run the specified lua filter before rendering\n");
+#endif
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -65,6 +77,7 @@ static void print_document(cmark_node *document, writer_format writer,
 int main(int argc, char *argv[]) {
   int i, numfps = 0;
   int *files;
+  int *luafiles;
   char buffer[4096];
   cmark_parser *parser;
   size_t bytes;
@@ -73,17 +86,27 @@ int main(int argc, char *argv[]) {
   char *unparsed;
   writer_format writer = FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
-
+  bool skip_rendering = false;
+  char *format = "html";
+#ifdef CMARK_LUA
+  int status = 0;
+  int numluafps = 0;
+#endif
+ 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
   files = (int *)malloc(argc * sizeof(*files));
+  luafiles = (int *)malloc(argc * sizeof(*files));
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {
       printf("cmark %s", CMARK_VERSION_STRING);
       printf(" - CommonMark converter\n(C) 2014, 2015 John MacFarlane\n");
+#ifdef CMARK_LUA
+      printf("Compiled with lua scripting support\n");
+#endif
       exit(0);
     } else if (strcmp(argv[i], "--sourcepos") == 0) {
       options |= CMARK_OPT_SOURCEPOS;
@@ -97,7 +120,20 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_NORMALIZE;
     } else if (strcmp(argv[i], "--validate-utf8") == 0) {
       options |= CMARK_OPT_VALIDATE_UTF8;
-    } else if ((strcmp(argv[i], "--help") == 0) ||
+    } else if (strcmp(argv[i], "--lua") == 0) {
+#ifdef CMARK_LUA
+      if (i + 1 < argc) {
+        luafiles[numluafps++] = ++i;
+      } else {
+        fprintf(stderr, "No --lua file specified\n");
+        exit(1);
+      }
+#else
+      fprintf(stderr,
+              "--lua not supported: cmark was not compiled with lua support\n");
+      exit(1);
+#endif
+   } else if ((strcmp(argv[i], "--help") == 0) ||
                (strcmp(argv[i], "-h") == 0)) {
       print_usage();
       exit(0);
@@ -117,6 +153,7 @@ int main(int argc, char *argv[]) {
     } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--to") == 0)) {
       i += 1;
       if (i < argc) {
+        format = argv[i];
         if (strcmp(argv[i], "man") == 0) {
           writer = FORMAT_MAN;
         } else if (strcmp(argv[i], "html") == 0) {
@@ -175,11 +212,46 @@ int main(int argc, char *argv[]) {
   document = cmark_parser_finish(parser);
   cmark_parser_free(parser);
 
-  print_document(document, writer, options, width);
+#ifdef CMARK_LUA
+  /* A cmark filter is a lua file that returns
+     a function with two argument, the document node
+     and the format. The function may modify the document node,
+     print values, or whatever. */
+
+  for (i = 0; i < numluafps; i++) {
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+//    luaL_requiref(L, "utf8", luaopen_utf8, 1);
+    luaL_requiref(L, "cmark", luaopen_cmark, 1);
+    status = luaL_loadfile(L, argv[luafiles[i]]) ||
+      lua_pcall(L, 0, 1, 0);
+    if (status != 0) {
+      fprintf(stderr, "%s\n", lua_tostring(L, -1));
+      return 3;
+    } else {
+      push_cmark_node(L, document);
+      lua_pushstring(L, format);
+      if (lua_pcall(L, 2, 1, 0) != 0) {
+        fprintf(stderr, "Error running filter %s: %s\n",
+                argv[luafiles[i]], lua_tostring(L, -1));
+        return 5;
+      }
+      if (lua_isnumber(L, -1)) {
+        // if filter returns -1, we skip rendering
+        skip_rendering = (lua_tonumber(L, -1) == -1);
+      }
+    }
+    lua_close(L);
+  }
+#endif
+
+  if (!skip_rendering) {
+    print_document(document, writer, options, width);
+  }
 
   cmark_node_free(document);
 
   free(files);
-
+  free(luafiles);
   return 0;
 }

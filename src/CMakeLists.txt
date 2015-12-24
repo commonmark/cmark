@@ -45,6 +45,12 @@ set(PROGRAM_SOURCES
   ${LIBRARY_SOURCES}
   main.c
   )
+if(CMARK_LUA)
+  set(PROGRAM_SOURCES
+    ${PROGRAM_SOURCES}
+    cmark_wrap.c
+    )
+endif(CMARK_LUA)
 
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -64,6 +70,12 @@ add_compiler_export_flags()
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
   COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+
+if(CMARK_LUA)
+  set_target_properties(${PROGRAM} PROPERTIES
+    COMPILE_FLAGS -DCMARK_LUA=1
+    LINK_FLAGS -llua)
+endif(CMARK_LUA)
 
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
@@ -164,10 +176,6 @@ endif()
 if(MSVC)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif()
-
-if($ENV{TIMER})
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTIMER=1")
-endif($ENV{TIMER})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")

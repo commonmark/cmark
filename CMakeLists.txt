@@ -1,6 +1,7 @@
 project(cmark)
 cmake_minimum_required(VERSION 2.8.9)
 include("FindAsan.cmake")
+include("FindLua.cmake")
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
@@ -15,13 +16,13 @@ set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 
+option(CMARK_LUA "Compile in support for lua scripting" OFF)
+
 add_subdirectory(src)
-if(CMARK_TESTS)
-  add_subdirectory(api_test)
-endif()
 add_subdirectory(man)
 if(CMARK_TESTS)
   enable_testing()
+  add_subdirectory(api_test)
   add_subdirectory(test testdir)
 endif()
 
