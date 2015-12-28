@@ -571,7 +571,7 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
   int chars_to_tab;
   while (count > 0 && (c = peek_at(input, parser->offset))) {
     if (c == '\t') {
-      chars_to_tab = 4 - (parser->column % TAB_STOP);
+      chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
       parser->column += chars_to_tab;
       parser->offset += 1;
       count -= (columns ? chars_to_tab : 1);
