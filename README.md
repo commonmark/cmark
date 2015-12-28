@@ -56,6 +56,7 @@ There are also libraries that wrap `libcmark` for
 [go](https://github.com/rhinoman/go-commonmark),
 [Haskell](http://hackage.haskell.org/package/cmark),
 [ruby](https://github.com/gjtorikian/commonmarker),
+[lua](https://github.com/jgm/cmark-lua),
 [Perl](https://metacpan.org/release/CommonMark), and
 [R](http://cran.r-project.org/package=commonmark).
 
