@@ -996,12 +996,12 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     parser->current = container;
   }
 finished:
-  parser->last_line_length = parser->curline->size;
+  parser->last_line_length = input.len;
   if (parser->last_line_length &&
-      parser->curline->ptr[parser->last_line_length - 1] == '\n')
+      input.data[parser->last_line_length - 1] == '\n')
     parser->last_line_length -= 1;
   if (parser->last_line_length &&
-      parser->curline->ptr[parser->last_line_length - 1] == '\r')
+      input.data[parser->last_line_length - 1] == '\r')
     parser->last_line_length -= 1;
 
   cmark_strbuf_clear(parser->curline);
