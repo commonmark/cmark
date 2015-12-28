@@ -7,10 +7,9 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c,
                    bufsize_t offset) {
   bufsize_t res;
   unsigned char *ptr = (unsigned char *)c->data;
-  unsigned char zero = '\0';
 
-  if (ptr == NULL) {
-    res = scanner(&zero);
+  if (ptr == NULL || offset > c->len) {
+    return 0;
   } else {
     unsigned char lim = ptr[c->len];
 
