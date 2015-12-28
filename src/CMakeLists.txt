@@ -46,6 +46,15 @@ set(PROGRAM_SOURCES
   main.c
   )
 
+# We make LIB_INSTALL_DIR configurable rather than
+# hard-coding lib, because on some OSes different locations
+# are used for different architectures (e.g. /usr/lib64 on
+# 64-bit Fedora).
+if(NOT LIB_INSTALL_DIR)
+  set(LIB_INSTALL_DIR "lib" CACHE STRING
+  "Set the installation directory for libraries." FORCE)
+endif(NOT LIB_INSTALL_DIR)
+
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
@@ -54,7 +63,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
-  DESTINATION lib/pkgconfig)
+  DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 
 include (GenerateExportHeader)
 
@@ -118,8 +127,8 @@ set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${LIBRARY} ${STATICLIBRARY}
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
   )
 
 install(FILES
