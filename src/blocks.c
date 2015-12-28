@@ -262,7 +262,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->as.code.literal = cmark_chunk_buf_detach(&b->string_content);
     break;
 
-  case CMARK_NODE_HTML:
+  case CMARK_NODE_HTML_BLOCK:
     b->as.literal = cmark_chunk_buf_detach(&b->string_content);
     break;
 
@@ -690,7 +690,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       // a heading can never contain more than one line
       all_matched = false;
 
-    } else if (container->type == CMARK_NODE_HTML) {
+    } else if (container->type == CMARK_NODE_HTML_BLOCK) {
 
       switch (container->as.html_block_type) {
       case 1:
@@ -735,7 +735,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   maybe_lazy = parser->current->type == CMARK_NODE_PARAGRAPH;
   // try new container starts:
   while (container->type != CMARK_NODE_CODE_BLOCK &&
-         container->type != CMARK_NODE_HTML) {
+         container->type != CMARK_NODE_HTML_BLOCK) {
 
     S_find_first_nonspace(parser, &input);
     indented = parser->indent >= CODE_INDENT;
@@ -791,7 +791,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                               (matched = scan_html_block_start_7(
                                    &input, parser->first_nonspace))))) {
 
-      container = add_child(parser, container, CMARK_NODE_HTML,
+      container = add_child(parser, container, CMARK_NODE_HTML_BLOCK,
                             parser->first_nonspace + 1);
       container->as.html_block_type = matched;
       // note, we don't adjust parser->offset because the tag is part of the
@@ -933,7 +933,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
       add_line(container, &input, parser->offset);
 
-    } else if (container->type == CMARK_NODE_HTML) {
+    } else if (container->type == CMARK_NODE_HTML_BLOCK) {
 
       add_line(container, &input, parser->offset);
 

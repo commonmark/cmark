@@ -1,4 +1,4 @@
-.TH cmark 3 "December 23, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "December 28, 2015" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -110,7 +110,7 @@ usage_example(cmark_node *root) {
 Iterators will never return \f[C]EXIT\f[] events for leaf nodes, which
 are nodes of type:
 .IP \[bu] 2
-CMARK_NODE_HTML
+CMARK_NODE_HTML_BLOCK
 .IP \[bu] 2
 CMARK_NODE_THEMATIC_BREAK
 .IP \[bu] 2
@@ -124,7 +124,7 @@ CMARK_NODE_LINEBREAK
 .IP \[bu] 2
 CMARK_NODE_CODE
 .IP \[bu] 2
-CMARK_NODE_INLINE_HTML
+CMARK_NODE_HTML_INLINE
 .PP
 Nodes must only be modified after an \f[C]EXIT\f[] event, or an
 \f[C]ENTER\f[] event for leaf nodes.

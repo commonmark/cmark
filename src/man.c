@@ -139,7 +139,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     CR();
     break;
 
-  case CMARK_NODE_HTML:
+  case CMARK_NODE_HTML_BLOCK:
     break;
 
   case CMARK_NODE_CUSTOM_BLOCK:
@@ -194,7 +194,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     LIT("\\f[]");
     break;
 
-  case CMARK_NODE_INLINE_HTML:
+  case CMARK_NODE_HTML_INLINE:
     break;
 
   case CMARK_NODE_CUSTOM_INLINE:

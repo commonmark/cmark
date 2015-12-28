@@ -24,7 +24,7 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 // Macros for creating various kinds of simple.
 #define make_str(s) make_literal(CMARK_NODE_TEXT, s)
 #define make_code(s) make_literal(CMARK_NODE_CODE, s)
-#define make_raw_html(s) make_literal(CMARK_NODE_INLINE_HTML, s)
+#define make_raw_html(s) make_literal(CMARK_NODE_HTML_INLINE, s)
 #define make_linebreak() make_simple(CMARK_NODE_LINEBREAK)
 #define make_softbreak() make_simple(CMARK_NODE_SOFTBREAK)
 #define make_emph() make_simple(CMARK_NODE_EMPH)
