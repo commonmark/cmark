@@ -142,7 +142,12 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   }
 }
 
-typedef enum { NO_LINK, URL_AUTOLINK, EMAIL_AUTOLINK, NORMAL_LINK } link_type;
+typedef enum { NO_LINK,
+	       URL_AUTOLINK,
+	       EMAIL_AUTOLINK,
+	       NORMAL_LINK,
+               INTERNAL_LINK
+             } link_type;
 
 static link_type get_link_type(cmark_node *node) {
   size_t title_len, url_len;
@@ -158,6 +163,10 @@ static link_type get_link_type(cmark_node *node) {
   const char *url = cmark_node_get_url(node);
   cmark_chunk url_chunk = cmark_chunk_literal(url);
 
+  if (url && *url == '#') {
+    return INTERNAL_LINK;
+  }
+
   url_len = safe_strlen(url);
   if (url_len == 0 || scan_scheme(&url_chunk, 0) == 0) {
     return NO_LINK;
@@ -166,30 +175,29 @@ static link_type get_link_type(cmark_node *node) {
   const char *title = cmark_node_get_title(node);
   title_len = safe_strlen(title);
   // if it has a title, we can't treat it as an autolink:
-  if (title_len > 0) {
-    return NORMAL_LINK;
+  if (title_len == 0) {
+
+    link_text = node->first_child;
+    cmark_consolidate_text_nodes(link_text);
+    realurl = (char *)url;
+    realurllen = url_len;
+    if (strncmp(realurl, "mailto:", 7) == 0) {
+      realurl += 7;
+      realurllen -= 7;
+      isemail = true;
+    }
+    if (realurllen == link_text->as.literal.len &&
+        strncmp(realurl, (char *)link_text->as.literal.data,
+                link_text->as.literal.len) == 0) {
+      if (isemail) {
+        return EMAIL_AUTOLINK;
+      } else {
+        return URL_AUTOLINK;
+      }
+    }
   }
 
-  link_text = node->first_child;
-  cmark_consolidate_text_nodes(link_text);
-  realurl = (char *)url;
-  realurllen = url_len;
-  if (strncmp(realurl, "mailto:", 7) == 0) {
-    realurl += 7;
-    realurllen -= 7;
-    isemail = true;
-  }
-  if (realurllen == link_text->as.literal.len &&
-      strncmp(realurl, (char *)link_text->as.literal.data,
-              link_text->as.literal.len) == 0) {
-    if (isemail) {
-      return EMAIL_AUTOLINK;
-    } else {
-      return URL_AUTOLINK;
-    }
-  } else {
-    return NORMAL_LINK;
-  }
+  return NORMAL_LINK;
 }
 
 static int S_get_enumlevel(cmark_node *node) {
@@ -386,6 +394,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       case NORMAL_LINK:
         LIT("\\href{");
         OUT(url, false, URL);
+        LIT("}{");
+        break;
+      case INTERNAL_LINK:
+        LIT("\\protect\\hyperlink{");
+        OUT(url + 1, false, URL);
         LIT("}{");
         break;
       case NO_LINK:
