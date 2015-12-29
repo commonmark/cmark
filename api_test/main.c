@@ -508,6 +508,48 @@ static void render_html(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void render_xml(test_batch_runner *runner) {
+  char *xml;
+
+  static const char markdown[] = "foo *bar*\n"
+                                 "\n"
+                                 "paragraph 2\n";
+  cmark_node *doc =
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+
+  xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+  STR_EQ(runner, xml,
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+            "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+            "  <paragraph>\n"
+            "    <text>foo </text>\n"
+            "    <emph>\n"
+            "      <text>bar</text>\n"
+            "    </emph>\n"
+            "  </paragraph>\n"
+            "  <paragraph>\n"
+            "    <text>paragraph 2</text>\n"
+            "  </paragraph>\n"
+            "</document>\n",
+         "render document");
+  free(xml);
+  cmark_node *paragraph = cmark_node_first_child(doc);
+  xml = cmark_render_xml(paragraph, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml,
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+            "<paragraph sourcepos=\"1:1-1:9\">\n"
+            "  <text>foo </text>\n"
+            "  <emph>\n"
+            "    <text>bar</text>\n"
+            "  </emph>\n"
+            "</paragraph>\n",
+         "render first paragraph with source pos");
+  free(xml);
+  cmark_node_free(doc);
+}
+
 static void render_man(test_batch_runner *runner) {
   char *man;
 
@@ -817,6 +859,7 @@ int main() {
   hierarchy(runner);
   parser(runner);
   render_html(runner);
+  render_xml(runner);
   render_man(runner);
   render_latex(runner);
   render_commonmark(runner);
