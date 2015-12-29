@@ -168,7 +168,7 @@ bench: $(BENCHFILE)
 	} 2>&1  | grep 'real' | awk '{print $$2}' | python3 'bench/stats.py'
 
 format:
-	clang-format -style llvm -i src/*.c src/*.h
+	clang-format -style llvm -i src/*.c src/*.h api_test/*.c api_test/*.h
 
 operf: $(CMARK)
 	operf $< < $(BENCHFILE) > /dev/null
