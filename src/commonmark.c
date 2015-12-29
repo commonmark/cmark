@@ -31,7 +31,7 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
-         (renderer->begin_line && (c == '-' || c == '+' || c == '=')) ||
+         (renderer->begin_content && (c == '-' || c == '+' || c == '=')) ||
          ((c == '.' || c == ')') &&
           isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
        (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
@@ -176,6 +176,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_BLOCK_QUOTE:
     if (entering) {
       LIT("> ");
+      renderer->begin_content = true;
       cmark_strbuf_puts(renderer->prefix, "> ");
     } else {
       cmark_strbuf_truncate(renderer->prefix, renderer->prefix->size - 2);
@@ -214,9 +215,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
         LIT("* ");
+        renderer->begin_content = true;
         cmark_strbuf_puts(renderer->prefix, "  ");
       } else {
         LIT(listmarker);
+        renderer->begin_content = true;
         for (i = marker_width; i--;) {
           cmark_strbuf_putc(renderer->prefix, ' ');
         }
@@ -234,6 +237,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT("#");
       }
       LIT(" ");
+      renderer->begin_content = true;
       renderer->no_wrap = true;
     } else {
       renderer->no_wrap = false;
