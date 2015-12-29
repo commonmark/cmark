@@ -601,7 +601,7 @@ static void render_latex(test_batch_runner *runner) {
 static void render_commonmark(test_batch_runner *runner) {
   char *commonmark;
 
-  static const char markdown[] = "\\- foo *bar* \\*bar\\*\n"
+  static const char markdown[] = "> \\- foo *bar* \\*bar\\*\n"
                                  "\n"
                                  "- Lorem ipsum dolor sit - amet,\n"
                                  "  consectetur adipiscing elit,\n"
@@ -612,7 +612,7 @@ static void render_commonmark(test_batch_runner *runner) {
 
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 24);
   STR_EQ(runner, commonmark,
-                                 "\\- foo *bar* \\*bar\\*\n"
+                                 "> \\- foo *bar* \\*bar\\*\n"
                                  "\n"
                                  "* Lorem ipsum dolor sit\n"
                                  "  \\- amet, consectetur\n"
@@ -624,7 +624,7 @@ static void render_commonmark(test_batch_runner *runner) {
          "render document with wrapping");
   free(commonmark);
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, commonmark, "\\- foo *bar* \\*bar\\*\n"
+  STR_EQ(runner, commonmark, "> \\- foo *bar* \\*bar\\*\n"
                              "\n"
                              "* Lorem ipsum dolor sit - amet,\n"
                              "  consectetur adipiscing elit,\n"
