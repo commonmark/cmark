@@ -865,7 +865,6 @@ static cmark_node *handle_close_bracket(subject *subj, cmark_node *parent) {
 
   // Next, look for a following [link label] that matches in refmap.
   // skip spaces
-  subj->pos = subj->pos + scan_spacechars(&subj->input, subj->pos);
   raw_label = cmark_chunk_literal("");
   found_label = link_label(subj, &raw_label);
   if (!found_label || raw_label.len == 0) {
