@@ -603,7 +603,7 @@ static void render_commonmark(test_batch_runner *runner) {
 
   static const char markdown[] = "> \\- foo *bar* \\*bar\\*\n"
                                  "\n"
-                                 "- Lorem ipsum dolor sit - amet,\n"
+                                 "- Lorem ipsum dolor sit amet,\n"
                                  "  consectetur adipiscing elit,\n"
                                  "- sed do eiusmod tempor incididunt\n"
                                  "  ut labore et dolore magna aliqua.\n";
@@ -615,7 +615,7 @@ static void render_commonmark(test_batch_runner *runner) {
                                  "> \\- foo *bar* \\*bar\\*\n"
                                  "\n"
                                  "* Lorem ipsum dolor sit\n"
-                                 "  \\- amet, consectetur\n"
+                                 "  amet, consectetur\n"
                                  "  adipiscing elit,\n"
                                  "* sed do eiusmod tempor\n"
                                  "  incididunt ut labore\n"
@@ -626,7 +626,7 @@ static void render_commonmark(test_batch_runner *runner) {
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
   STR_EQ(runner, commonmark, "> \\- foo *bar* \\*bar\\*\n"
                              "\n"
-                             "* Lorem ipsum dolor sit - amet,\n"
+                             "* Lorem ipsum dolor sit amet,\n"
                              "  consectetur adipiscing elit,\n"
                              "* sed do eiusmod tempor incididunt\n"
                              "  ut labore et dolore magna aliqua.\n",
