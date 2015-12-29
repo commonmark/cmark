@@ -551,6 +551,53 @@ static void render_man(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void render_latex(test_batch_runner *runner) {
+  char *latex;
+
+  static const char markdown[] = "foo *bar* $%\n"
+                                 "\n"
+                                 "- Lorem ipsum dolor sit amet,\n"
+                                 "  consectetur adipiscing elit,\n"
+                                 "- sed do eiusmod tempor incididunt\n"
+                                 "  ut labore et dolore magna aliqua.\n";
+  cmark_node *doc =
+    cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+
+  latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 20);
+  STR_EQ(runner, latex,
+            "foo \\emph{bar} \\$\\%\n"
+            "\n"
+            "\\begin{itemize}\n"
+            "\\item Lorem ipsum\n"
+            "dolor sit amet,\n"
+            "consectetur\n"
+            "adipiscing elit,\n"
+            "\n"
+            "\\item sed do eiusmod\n"
+            "tempor incididunt ut\n"
+            "labore et dolore\n"
+            "magna aliqua.\n"
+            "\n"
+            "\\end{itemize}\n",
+         "render document with wrapping");
+  free(latex);
+  latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, latex,
+            "foo \\emph{bar} \\$\\%\n"
+            "\n"
+            "\\begin{itemize}\n"
+            "\\item Lorem ipsum dolor sit amet,\n"
+            "consectetur adipiscing elit,\n"
+            "\n"
+            "\\item sed do eiusmod tempor incididunt\n"
+            "ut labore et dolore magna aliqua.\n"
+            "\n"
+            "\\end{itemize}\n",
+         "render document without wrapping");
+  free(latex);
+  cmark_node_free(doc);
+}
+
 static void utf8(test_batch_runner *runner) {
   // Ranges
   test_char(runner, 1, "\x01", "valid utf8 01");
@@ -734,6 +781,7 @@ int main() {
   parser(runner);
   render_html(runner);
   render_man(runner);
+  render_latex(runner);
   utf8(runner);
   line_endings(runner);
   numeric_entities(runner);
