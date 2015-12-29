@@ -336,7 +336,8 @@ static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (cur->type == CMARK_NODE_PARAGRAPH || cur->type == CMARK_NODE_HEADING) {
+      if (cur->type == CMARK_NODE_PARAGRAPH ||
+          cur->type == CMARK_NODE_HEADING) {
         cmark_parse_inlines(cur, refmap, options);
       }
     }
@@ -812,7 +813,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     } else if (!indented &&
                !(container->type == CMARK_NODE_PARAGRAPH && !all_matched) &&
-               (matched = scan_thematic_break(&input, parser->first_nonspace))) {
+               (matched =
+                    scan_thematic_break(&input, parser->first_nonspace))) {
 
       // it's only now that we know the line is not part of a setext heading:
       container = add_child(parser, container, CMARK_NODE_THEMATIC_BREAK,

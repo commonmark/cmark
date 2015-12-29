@@ -142,12 +142,13 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   }
 }
 
-typedef enum { NO_LINK,
-	       URL_AUTOLINK,
-	       EMAIL_AUTOLINK,
-	       NORMAL_LINK,
-               INTERNAL_LINK
-             } link_type;
+typedef enum {
+  NO_LINK,
+  URL_AUTOLINK,
+  EMAIL_AUTOLINK,
+  NORMAL_LINK,
+  INTERNAL_LINK
+} link_type;
 
 static link_type get_link_type(cmark_node *node) {
   size_t title_len, url_len;
