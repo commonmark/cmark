@@ -44,6 +44,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
     }
     renderer->column = 0;
     renderer->begin_line = true;
+    renderer->begin_content = true;
     renderer->need_cr -= 1;
   }
 
@@ -65,6 +66,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         cmark_strbuf_putc(renderer->buffer, ' ');
         renderer->column += 1;
         renderer->begin_line = false;
+        renderer->begin_content = false;
         renderer->last_breakable = renderer->buffer->size - 1;
         // skip following spaces
         while (source[i + 1] == ' ') {
@@ -76,13 +78,16 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       cmark_strbuf_putc(renderer->buffer, '\n');
       renderer->column = 0;
       renderer->begin_line = true;
+      renderer->begin_content = true;
       renderer->last_breakable = 0;
     } else if (escape == LITERAL) {
       cmark_render_code_point(renderer, c);
       renderer->begin_line = false;
+      renderer->begin_content = false;
     } else {
       (renderer->outc)(renderer, escape, c, nextc);
       renderer->begin_line = false;
+      renderer->begin_content = false;
     }
 
     // If adding the character went beyond width, look for an
@@ -104,6 +109,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       cmark_chunk_free(&remainder);
       renderer->last_breakable = 0;
       renderer->begin_line = false;
+      renderer->begin_content = false;
     }
 
     i += len;
@@ -136,7 +142,8 @@ char *cmark_render(cmark_node *root, int options, int width,
   cmark_iter *iter = cmark_iter_new(root);
 
   cmark_renderer renderer = {&buf,  &pref, 0,    width, 0,           0,    true,
-                             false, false, outc, S_cr,  S_blankline, S_out};
+                             false, false, false,
+                             outc, S_cr,  S_blankline, S_out};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
