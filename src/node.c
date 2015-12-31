@@ -52,7 +52,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     return child->type == CMARK_NODE_ITEM;
 
   case CMARK_NODE_CUSTOM_BLOCK:
-    return child->type != CMARK_NODE_ITEM;
+    return true;
 
   case CMARK_NODE_PARAGRAPH:
   case CMARK_NODE_HEADING:
