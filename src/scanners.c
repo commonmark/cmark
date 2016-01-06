@@ -15371,9 +15371,9 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     unsigned char yych;
     unsigned int yyaccept = 0;
     static const unsigned char yybm[] = {
-        0,   128, 128, 128, 128, 128, 128, 128, 128, 128, 8,   128, 128, 8,
+        0,   128, 128, 128, 128, 128, 128, 128, 128, 0,   8,   128, 128, 8,
         128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-        128, 128, 128, 128, 136, 224, 224, 224, 224, 224, 224, 224, 128, 128,
+        128, 128, 128, 128, 8,   224, 224, 224, 224, 224, 224, 224, 128, 128,
         224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224,
         224, 224, 224, 224, 32,  224, 32,  224, 224, 224, 224, 224, 224, 224,
         224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224,
@@ -15515,7 +15515,7 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     }
     if (yych <= '>') {
       if (yych <= '\r') {
-        if (yych <= '\t') {
+        if (yych <= 0x08) {
           if (yych <= 0x00)
             goto yy951;
           goto yy1017;
@@ -15528,8 +15528,10 @@ bufsize_t _scan_link_url(const unsigned char *p) {
         }
       } else {
         if (yych <= '(') {
-          if (yych <= ' ')
+          if (yych <= 0x1F)
             goto yy1017;
+          if (yych <= ' ')
+            goto yy951;
           goto yy1015;
         } else {
           if (yych <= ')')
@@ -16063,22 +16065,22 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     marker = ++p;
     yych = *p;
     if (yych <= '[') {
-      if (yych <= '\r') {
-        if (yych <= '\t') {
+      if (yych <= 0x1F) {
+        if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy951;
-          goto yy1017;
-        } else {
-          if (yych <= '\n')
-            goto yy951;
-          if (yych <= '\f')
+          if (yych <= 0x08)
             goto yy1017;
           goto yy951;
+        } else {
+          if (yych == '\r')
+            goto yy951;
+          goto yy1017;
         }
       } else {
         if (yych <= '(') {
           if (yych <= ' ')
-            goto yy1017;
+            goto yy951;
           if (yych >= '(')
             goto yy1040;
         } else {
@@ -16125,7 +16127,7 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     }
     if (yych <= '>') {
       if (yych <= '\r') {
-        if (yych <= '\t') {
+        if (yych <= 0x08) {
           if (yych <= 0x00)
             goto yy951;
           goto yy1017;
@@ -16138,8 +16140,10 @@ bufsize_t _scan_link_url(const unsigned char *p) {
         }
       } else {
         if (yych <= '(') {
-          if (yych <= ' ')
+          if (yych <= 0x1F)
             goto yy1017;
+          if (yych <= ' ')
+            goto yy951;
           goto yy1015;
         } else {
           if (yych <= ')')
@@ -16253,38 +16257,42 @@ bufsize_t _scan_link_url(const unsigned char *p) {
   yy1015:
     ++p;
     yych = *p;
-    if (yych <= '>') {
-      if (yych <= ' ') {
+    if (yych <= '=') {
+      if (yych <= 0x1F) {
         if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy959;
-          if (yych >= '\n')
+          if (yych >= '\t')
             goto yy959;
         } else {
           if (yych == '\r')
             goto yy959;
         }
       } else {
-        if (yych <= ')') {
+        if (yych <= '(') {
+          if (yych <= ' ')
+            goto yy959;
           if (yych <= '\'')
             goto yy1015;
-          if (yych >= ')')
-            goto yy1004;
         } else {
+          if (yych <= ')')
+            goto yy1004;
           if (yych == '<')
             goto yy971;
-          if (yych <= '=')
-            goto yy1015;
-          goto yy1030;
+          goto yy1015;
         }
       }
     } else {
       if (yych <= 0xE0) {
-        if (yych <= 0x7F) {
-          if (yych == '\\')
-            goto yy1031;
-          goto yy1015;
+        if (yych <= '\\') {
+          if (yych <= '>')
+            goto yy1030;
+          if (yych <= '[')
+            goto yy1015;
+          goto yy1031;
         } else {
+          if (yych <= 0x7F)
+            goto yy1015;
           if (yych <= 0xC1)
             goto yy959;
           if (yych <= 0xDF)
@@ -16347,9 +16355,9 @@ bufsize_t _scan_link_url(const unsigned char *p) {
   yy1020:
     ++p;
     yych = *p;
-    if (yych <= 0x7F) {
+    if (yych <= '\\') {
       if (yych <= '\r') {
-        if (yych <= '\t') {
+        if (yych <= 0x08) {
           if (yych <= 0x00)
             goto yy959;
           goto yy1017;
@@ -16361,30 +16369,35 @@ bufsize_t _scan_link_url(const unsigned char *p) {
           goto yy959;
         }
       } else {
-        if (yych <= '>') {
-          if (yych <= '=')
-            goto yy1017;
-          goto yy1029;
-        } else {
-          if (yych == '\\')
-            goto yy1020;
+        if (yych <= '=') {
+          if (yych == ' ')
+            goto yy959;
           goto yy1017;
+        } else {
+          if (yych <= '>')
+            goto yy1029;
+          if (yych <= '[')
+            goto yy1017;
+          goto yy1020;
         }
       }
     } else {
-      if (yych <= 0xED) {
-        if (yych <= 0xDF) {
-          if (yych <= 0xC1)
-            goto yy959;
+      if (yych <= 0xEC) {
+        if (yych <= 0xC1) {
+          if (yych <= 0x7F)
+            goto yy1017;
+          goto yy959;
         } else {
+          if (yych <= 0xDF)
+            goto yy1022;
           if (yych <= 0xE0)
             goto yy1023;
-          if (yych <= 0xEC)
-            goto yy1024;
-          goto yy1028;
+          goto yy1024;
         }
       } else {
         if (yych <= 0xF0) {
+          if (yych <= 0xED)
+            goto yy1028;
           if (yych <= 0xEF)
             goto yy1024;
           goto yy1025;
@@ -16511,22 +16524,22 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     ++p;
     yych = *p;
     if (yych <= '[') {
-      if (yych <= '\r') {
-        if (yych <= '\t') {
+      if (yych <= 0x1F) {
+        if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy959;
-          goto yy1017;
-        } else {
-          if (yych <= '\n')
-            goto yy959;
-          if (yych <= '\f')
+          if (yych <= 0x08)
             goto yy1017;
           goto yy959;
+        } else {
+          if (yych == '\r')
+            goto yy959;
+          goto yy1017;
         }
       } else {
         if (yych <= ')') {
           if (yych <= ' ')
-            goto yy1017;
+            goto yy959;
           if (yych <= '(')
             goto yy1015;
           goto yy1040;
@@ -16627,12 +16640,12 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     yyaccept = 0;
     marker = ++p;
     yych = *p;
-    if (yych <= '>') {
-      if (yych <= ' ') {
+    if (yych <= '=') {
+      if (yych <= 0x1F) {
         if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy951;
-          if (yych <= '\t')
+          if (yych <= 0x08)
             goto yy1017;
           goto yy951;
         } else {
@@ -16641,27 +16654,31 @@ bufsize_t _scan_link_url(const unsigned char *p) {
           goto yy1017;
         }
       } else {
-        if (yych <= ')') {
+        if (yych <= '(') {
+          if (yych <= ' ')
+            goto yy951;
           if (yych <= '\'')
             goto yy1040;
-          if (yych <= '(')
-            goto yy1015;
-          goto yy1004;
+          goto yy1015;
         } else {
+          if (yych <= ')')
+            goto yy1004;
           if (yych == '<')
             goto yy991;
-          if (yych <= '=')
-            goto yy1040;
-          goto yy1043;
+          goto yy1040;
         }
       }
     } else {
       if (yych <= 0xE0) {
-        if (yych <= 0x7F) {
-          if (yych == '\\')
-            goto yy1044;
-          goto yy1040;
+        if (yych <= '\\') {
+          if (yych <= '>')
+            goto yy1043;
+          if (yych <= '[')
+            goto yy1040;
+          goto yy1044;
         } else {
+          if (yych <= 0x7F)
+            goto yy1040;
           if (yych <= 0xC1)
             goto yy951;
           if (yych <= 0xDF)
@@ -16688,12 +16705,12 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     yyaccept = 2;
     marker = ++p;
     yych = *p;
-    if (yych <= '>') {
-      if (yych <= ' ') {
+    if (yych <= '=') {
+      if (yych <= 0x1F) {
         if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy1007;
-          if (yych <= '\t')
+          if (yych <= 0x08)
             goto yy1017;
           goto yy1007;
         } else {
@@ -16702,27 +16719,31 @@ bufsize_t _scan_link_url(const unsigned char *p) {
           goto yy1017;
         }
       } else {
-        if (yych <= ')') {
+        if (yych <= '(') {
+          if (yych <= ' ')
+            goto yy1007;
           if (yych <= '\'')
             goto yy1015;
-          if (yych <= '(')
-            goto yy1017;
-          goto yy1004;
+          goto yy1017;
         } else {
+          if (yych <= ')')
+            goto yy1004;
           if (yych == '<')
             goto yy971;
-          if (yych <= '=')
-            goto yy1015;
-          goto yy1030;
+          goto yy1015;
         }
       }
     } else {
       if (yych <= 0xE0) {
-        if (yych <= 0x7F) {
-          if (yych == '\\')
-            goto yy1031;
-          goto yy1015;
+        if (yych <= '\\') {
+          if (yych <= '>')
+            goto yy1030;
+          if (yych <= '[')
+            goto yy1015;
+          goto yy1031;
         } else {
+          if (yych <= 0x7F)
+            goto yy1015;
           if (yych <= 0xC1)
             goto yy1007;
           if (yych <= 0xDF)
@@ -16763,7 +16784,7 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     yych = *p;
     if (yych <= '\\') {
       if (yych <= '\r') {
-        if (yych <= '\t') {
+        if (yych <= 0x08) {
           if (yych <= 0x00)
             goto yy951;
           goto yy1017;
@@ -16776,8 +16797,10 @@ bufsize_t _scan_link_url(const unsigned char *p) {
         }
       } else {
         if (yych <= '=') {
-          if (yych <= ' ')
+          if (yych <= 0x1F)
             goto yy1017;
+          if (yych <= ' ')
+            goto yy951;
           goto yy1040;
         } else {
           if (yych <= '>')
@@ -16876,12 +16899,12 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     yyaccept = 2;
     marker = ++p;
     yych = *p;
-    if (yych <= '>') {
-      if (yych <= ' ') {
+    if (yych <= '=') {
+      if (yych <= 0x1F) {
         if (yych <= '\n') {
           if (yych <= 0x00)
             goto yy1007;
-          if (yych <= '\t')
+          if (yych <= 0x08)
             goto yy1017;
           goto yy1007;
         } else {
@@ -16890,27 +16913,31 @@ bufsize_t _scan_link_url(const unsigned char *p) {
           goto yy1017;
         }
       } else {
-        if (yych <= ')') {
+        if (yych <= '(') {
+          if (yych <= ' ')
+            goto yy1007;
           if (yych <= '\'')
             goto yy1040;
-          if (yych <= '(')
-            goto yy1015;
-          goto yy1004;
+          goto yy1015;
         } else {
+          if (yych <= ')')
+            goto yy1004;
           if (yych == '<')
             goto yy991;
-          if (yych <= '=')
-            goto yy1040;
-          goto yy1043;
+          goto yy1040;
         }
       }
     } else {
       if (yych <= 0xE0) {
-        if (yych <= 0x7F) {
-          if (yych == '\\')
-            goto yy1044;
-          goto yy1040;
+        if (yych <= '\\') {
+          if (yych <= '>')
+            goto yy1043;
+          if (yych <= '[')
+            goto yy1040;
+          goto yy1044;
         } else {
+          if (yych <= 0x7F)
+            goto yy1040;
           if (yych <= 0xC1)
             goto yy1007;
           if (yych <= 0xDF)
@@ -16942,7 +16969,7 @@ bufsize_t _scan_link_url(const unsigned char *p) {
     }
     if (yych <= '>') {
       if (yych <= '\r') {
-        if (yych <= '\t') {
+        if (yych <= 0x08) {
           if (yych <= 0x00)
             goto yy1007;
           goto yy1017;
@@ -16955,8 +16982,10 @@ bufsize_t _scan_link_url(const unsigned char *p) {
         }
       } else {
         if (yych <= '(') {
-          if (yych <= ' ')
+          if (yych <= 0x1F)
             goto yy1017;
+          if (yych <= ' ')
+            goto yy1007;
           goto yy1015;
         } else {
           if (yych <= ')')

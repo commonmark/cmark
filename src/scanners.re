@@ -214,7 +214,7 @@ bufsize_t _scan_link_url(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
+  [ \r\n]* [<] ([^<> \t\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
   [ \r\n]* (reg_char+ | escaped_char | [\\] | in_parens_nosp)* { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
