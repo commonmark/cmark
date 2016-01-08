@@ -800,11 +800,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     } else if (!indented && container->type == CMARK_NODE_PARAGRAPH &&
                (lev =
-                    scan_setext_heading_line(&input, parser->first_nonspace)) &&
-               // check that there is only one line in the paragraph:
-               (cmark_strbuf_strrchr(
-                    &container->string_content, '\n',
-                    cmark_strbuf_len(&container->string_content) - 2) < 0)) {
+                    scan_setext_heading_line(&input, parser->first_nonspace))) {
 
       container->type = CMARK_NODE_HEADING;
       container->as.heading.level = lev;
