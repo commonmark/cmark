@@ -171,7 +171,7 @@ const char *cmark_node_get_type_string(cmark_node *node) {
   case CMARK_NODE_HTML_BLOCK:
     return "html_block";
   case CMARK_NODE_CUSTOM_BLOCK:
-    return "raw_block";
+    return "custom_block";
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
   case CMARK_NODE_HEADING:
@@ -189,7 +189,7 @@ const char *cmark_node_get_type_string(cmark_node *node) {
   case CMARK_NODE_HTML_INLINE:
     return "html_inline";
   case CMARK_NODE_CUSTOM_INLINE:
-    return "raw_inline";
+    return "custom_inline";
   case CMARK_NODE_EMPH:
     return "emph";
   case CMARK_NODE_STRONG:
