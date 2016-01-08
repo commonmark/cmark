@@ -135,12 +135,17 @@ static bool is_autolink(cmark_node *node) {
 
 // if node is a block node, returns node.
 // otherwise returns first block-level node that is an ancestor of node.
+// if there is no block-level ancestor, returns NULL.
 static cmark_node *get_containing_block(cmark_node *node) {
-  while (node && (node->type < CMARK_NODE_FIRST_BLOCK ||
-                  node->type > CMARK_NODE_LAST_BLOCK)) {
-    node = node->parent;
+  while (node) {
+    if (node->type >= CMARK_NODE_FIRST_BLOCK &&
+        node->type <= CMARK_NODE_LAST_BLOCK) {
+      return node;
+    } else {
+      node = node->parent;
+    }
   }
-  return node;
+  return NULL;
 }
 
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
@@ -163,10 +168,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL && entering)) {
     tmp = get_containing_block(node);
     renderer->in_tight_list_item =
-        (tmp->type == CMARK_NODE_ITEM &&
-         cmark_node_get_list_tight(tmp->parent)) ||
-        (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&
-         cmark_node_get_list_tight(tmp->parent->parent));
+	tmp &&  // tmp might be NULL if there is no containing block
+        ((tmp->type == CMARK_NODE_ITEM &&
+          cmark_node_get_list_tight(tmp->parent)) ||
+         (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&
+          cmark_node_get_list_tight(tmp->parent->parent)));
   }
 
   switch (node->type) {
