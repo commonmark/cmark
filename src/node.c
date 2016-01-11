@@ -734,8 +734,7 @@ int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode) {
   if (!cmark_node_insert_before(oldnode, newnode)) {
     return 0;
   }
-  cmark_node_unlink(oldnode);
-  cmark_node_free(oldnode);
+  cmark_node_free(oldnode);  // free calls cmark_node_unlink
   return 1;
 }
 
