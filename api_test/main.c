@@ -359,10 +359,17 @@ static void create_tree(test_batch_runner *runner) {
   // 1e3
   OK(runner, cmark_node_previous(emph) == str1, "ins after2 works");
 
+  cmark_node *str4 = cmark_node_new(CMARK_NODE_TEXT);
+  cmark_node_set_literal(str4, "brzz");
+  OK(runner, cmark_node_replace(str1, str4), "replace");
+  INT_EQ(runner, cmark_node_check(doc, NULL), 0, "replace consistent");
+  OK(runner, cmark_node_previous(emph) == str4, "replace works");
+  INT_EQ(runner, cmark_node_replace(p, str4), 0, "replace str for p fails");
+
   cmark_node_unlink(emph);
 
   html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p>Hello, !</p>\n", "render_html after shuffling");
+  STR_EQ(runner, html, "<p>brzz!</p>\n", "render_html after shuffling");
   free(html);
 
   cmark_node_free(doc);
