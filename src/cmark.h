@@ -387,7 +387,8 @@ CMARK_EXPORT int cmark_node_insert_before(cmark_node *node,
  */
 CMARK_EXPORT int cmark_node_insert_after(cmark_node *node, cmark_node *sibling);
 
-/** Replaces 'oldnode' with 'newnode' and frees the memory used by 'oldnode'.
+/** Replaces 'oldnode' with 'newnode' and unlinks 'oldnode' (but does
+ * not free its memory).
  * Returns 1 on success, 0 on failure.
  */
 CMARK_EXPORT int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
