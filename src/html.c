@@ -144,7 +144,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_CODE_BLOCK:
     cr(html);
 
-    if (!node->as.code.fenced || node->as.code.info.len == 0) {
+    if (node->as.code.info.len == 0) {
       cmark_strbuf_puts(html, "<pre");
       S_render_sourcepos(node, html, options);
       cmark_strbuf_puts(html, "><code>");
