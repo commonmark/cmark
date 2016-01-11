@@ -83,9 +83,11 @@ with open(sourcefile, 'r') as cmarkh:
             state = 'default'
         elif typedef and typedef_end_re.match(line):
             typedef = False
+        elif typedef_start_re.match(line):
+            typedef = True
+            state = 'signature'
         elif state == 'man':
             state = 'signature'
-            typedef = typedef_start_re.match(line)
 
         # handle line
         if state == 'man':
