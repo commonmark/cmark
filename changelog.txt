@@ -1,3 +1,35 @@
+[0.24.0]
+
+  * [API change] Added `cmark_node_replace(oldnode, newnode)`.
+  * Updated spec.txt to 0.24.
+  * Fixed edge case with escaped parens in link destination (#97).
+    This was also checked against the #82 case with asan.
+  * Removed unnecessary check for `fenced` in `cmark_render_html`.
+    It's sufficient to check that the info string is empty.
+    Indeed, those who use the API may well create a code block
+    with an info string without explicitly setting `fenced`.
+  * Updated format of `test/smart_punct.txt`.
+  * Updated `test/spec.txt`, `test/smart_punct.txt`, and
+    `spec_tests.py` to new format.
+  * Fixed `get_containing_block` logic in `src/commonmark.c`.
+    This did not allow for the possibility that a node might have no
+    containing block, causing the commonmark renderer to segfault if
+    passed an inline node with no block parent.
+  * Fixed string representations of `CUSTOM_BLOCK`,
+    `CUSTOM_INLINE`.  The old versions `raw_inline` and
+    `raw_block` were being used, and this led to incorrect xml output.
+  * Use default opts in python sample wrapper.
+  * Allow multiline setext header content, as per spec.
+  * Don't allow spaces in link destinations, even with pointy brackets.
+    Conforms to latest change in spec.
+  * Updated `scheme` scanner according to spec change.  We no longer use
+    a whitelist of valid schemes.
+  * Allow any kind of nodes as children of `CUSTOM_BLOCK` (#96).
+  * `cmark.h`: moved typedefs for iterator into iterator section.
+    This just moves some code around so it makes more sense
+    to read, and in the man page.
+  * Fixed `make_man_page.py` so it includes typedefs again.
+
 [0.23.0]
 
   * [API change] Added `CUSTOM_BLOCK` and `CUSTOM_INLINE` node types.
