@@ -24,6 +24,8 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   char encoded[20];
+  bool follows_digit = renderer->buffer->size > 0 &&
+	  cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
 
   needs_escaping =
       escape != LITERAL &&
@@ -31,9 +33,12 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
-         (renderer->begin_content && (c == '-' || c == '+' || c == '=')) ||
-         ((c == '.' || c == ')') &&
-          isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
+         (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
+	  // begin_content doesn't get set to false til we've passed digits
+	  // at the beginning of line, so...
+	  !follows_digit) ||
+         (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
+	  (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
                           c == '\\' || c == ')' || c == '(')) ||
        (escape == TITLE &&
