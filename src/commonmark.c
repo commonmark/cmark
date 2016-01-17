@@ -193,9 +193,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_LIST:
     if (!entering && node->next && (node->next->type == CMARK_NODE_CODE_BLOCK ||
                                     node->next->type == CMARK_NODE_LIST)) {
-      // this ensures 2 blank lines after list,
-      // if before code block or list:
-      LIT("\n");
+      // this ensures that a following code block or list will be
+      // inteprereted correctly.
+      CR();
+      LIT("<!-- end list -->");
+      BLANKLINE();
     }
     break;
 
