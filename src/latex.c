@@ -217,7 +217,8 @@ static int S_get_enumlevel(cmark_node *node) {
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   int list_number;
-  char list_number_string[20];
+  const size_t LIST_NUMBER_STRING_SIZE = 20;
+  char list_number_string[LIST_NUMBER_STRING_SIZE];
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   cmark_list_type list_type;
   const char *roman_numerals[] = {"",   "i",   "ii",   "iii", "iv", "v",
@@ -249,7 +250,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       CR();
       list_number = cmark_node_get_list_start(node);
       if (list_number > 1) {
-        sprintf(list_number_string, "%d", list_number);
+        snprintf(list_number_string, LIST_NUMBER_STRING_SIZE, "%d",
+                 list_number);
         LIT("\\setcounter{enum");
         LIT((char *)roman_numerals[S_get_enumlevel(node)]);
         LIT("}{");
