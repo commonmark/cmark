@@ -23,8 +23,9 @@
 static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
-  bool follows_digit = renderer->buffer->size > 0 &&
-	  cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
+  bool follows_digit =
+      renderer->buffer->size > 0 &&
+      cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
   const size_t ENCODED_SIZE = 20;
   char encoded[ENCODED_SIZE];
 
@@ -35,11 +36,11 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
-	  // begin_content doesn't get set to false til we've passed digits
-	  // at the beginning of line, so...
-	  !follows_digit) ||
+          // begin_content doesn't get set to false til we've passed digits
+          // at the beginning of line, so...
+          !follows_digit) ||
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
-	  (nextc == 0 || cmark_isspace(nextc))))) ||
+          (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
                           c == '\\' || c == ')' || c == '(')) ||
        (escape == TITLE &&
@@ -178,7 +179,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL && entering)) {
     tmp = get_containing_block(node);
     renderer->in_tight_list_item =
-	tmp &&  // tmp might be NULL if there is no containing block
+        tmp && // tmp might be NULL if there is no containing block
         ((tmp->type == CMARK_NODE_ITEM &&
           cmark_node_get_list_tight(tmp->parent)) ||
          (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&

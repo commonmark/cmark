@@ -64,7 +64,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
     nextc = source[i + len];
     if (c == 32 && wrap) {
       if (!renderer->begin_line) {
-	last_nonspace = renderer->buffer->size;
+        last_nonspace = renderer->buffer->size;
         cmark_strbuf_putc(renderer->buffer, ' ');
         renderer->column += 1;
         renderer->begin_line = false;
@@ -73,11 +73,11 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         while (source[i + 1] == ' ') {
           i++;
         }
-	// We don't allow breaks that make a digit the first character
-	// because this causes problems with commonmark output.
-	if (!cmark_isdigit(source[i + 1])) {
+        // We don't allow breaks that make a digit the first character
+        // because this causes problems with commonmark output.
+        if (!cmark_isdigit(source[i + 1])) {
           renderer->last_breakable = last_nonspace;
-	}
+        }
       }
 
     } else if (c == 10) {
@@ -93,13 +93,13 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       // finished parsing a digit.  Reason:  in commonmark
       // we need to escape a potential list marker after
       // a digit:
-      renderer->begin_content = renderer->begin_content &&
-	                          cmark_isdigit(c) == 1;
+      renderer->begin_content =
+          renderer->begin_content && cmark_isdigit(c) == 1;
     } else {
       (renderer->outc)(renderer, escape, c, nextc);
       renderer->begin_line = false;
-      renderer->begin_content = renderer->begin_content &&
-	                          cmark_isdigit(c) == 1;
+      renderer->begin_content =
+          renderer->begin_content && cmark_isdigit(c) == 1;
     }
 
     // If adding the character went beyond width, look for an
@@ -153,8 +153,8 @@ char *cmark_render(cmark_node *root, int options, int width,
   char *result;
   cmark_iter *iter = cmark_iter_new(root);
 
-  cmark_renderer renderer = {&buf,  &pref, 0,    width, 0,           0,    true,
-                             true, false, false,
+  cmark_renderer renderer = {&buf, &pref, 0,           width, 0,
+                             0,    true,  true,        false, false,
                              outc, S_cr,  S_blankline, S_out};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {

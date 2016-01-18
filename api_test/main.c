@@ -525,33 +525,31 @@ static void render_xml(test_batch_runner *runner) {
       cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
   xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, xml,
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-            "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
-            "  <paragraph>\n"
-            "    <text>foo </text>\n"
-            "    <emph>\n"
-            "      <text>bar</text>\n"
-            "    </emph>\n"
-            "  </paragraph>\n"
-            "  <paragraph>\n"
-            "    <text>paragraph 2</text>\n"
-            "  </paragraph>\n"
-            "</document>\n",
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph>\n"
+                      "    <text>foo </text>\n"
+                      "    <emph>\n"
+                      "      <text>bar</text>\n"
+                      "    </emph>\n"
+                      "  </paragraph>\n"
+                      "  <paragraph>\n"
+                      "    <text>paragraph 2</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
          "render document");
   free(xml);
   cmark_node *paragraph = cmark_node_first_child(doc);
   xml = cmark_render_xml(paragraph, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml,
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-            "<paragraph sourcepos=\"1:1-1:9\">\n"
-            "  <text>foo </text>\n"
-            "  <emph>\n"
-            "    <text>bar</text>\n"
-            "  </emph>\n"
-            "</paragraph>\n",
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<paragraph sourcepos=\"1:1-1:9\">\n"
+                      "  <text>foo </text>\n"
+                      "  <emph>\n"
+                      "    <text>bar</text>\n"
+                      "  </emph>\n"
+                      "</paragraph>\n",
          "render first paragraph with source pos");
   free(xml);
   cmark_node_free(doc);
@@ -567,34 +565,32 @@ static void render_man(test_batch_runner *runner) {
                                  "- sed do eiusmod tempor incididunt\n"
                                  "  ut labore et dolore magna aliqua.\n";
   cmark_node *doc =
-    cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
   man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 20);
-  STR_EQ(runner, man,
-            ".PP\n"
-            "foo \\f[I]bar\\f[]\n"
-            ".IP \\[bu] 2\n"
-            "Lorem ipsum dolor\n"
-            "sit amet,\n"
-            "consectetur\n"
-            "adipiscing elit,\n"
-            ".IP \\[bu] 2\n"
-            "sed do eiusmod\n"
-            "tempor incididunt ut\n"
-            "labore et dolore\n"
-            "magna aliqua.\n",
+  STR_EQ(runner, man, ".PP\n"
+                      "foo \\f[I]bar\\f[]\n"
+                      ".IP \\[bu] 2\n"
+                      "Lorem ipsum dolor\n"
+                      "sit amet,\n"
+                      "consectetur\n"
+                      "adipiscing elit,\n"
+                      ".IP \\[bu] 2\n"
+                      "sed do eiusmod\n"
+                      "tempor incididunt ut\n"
+                      "labore et dolore\n"
+                      "magna aliqua.\n",
          "render document with wrapping");
   free(man);
   man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, man,
-            ".PP\n"
-            "foo \\f[I]bar\\f[]\n"
-            ".IP \\[bu] 2\n"
-            "Lorem ipsum dolor sit amet,\n"
-            "consectetur adipiscing elit,\n"
-            ".IP \\[bu] 2\n"
-            "sed do eiusmod tempor incididunt\n"
-            "ut labore et dolore magna aliqua.\n",
+  STR_EQ(runner, man, ".PP\n"
+                      "foo \\f[I]bar\\f[]\n"
+                      ".IP \\[bu] 2\n"
+                      "Lorem ipsum dolor sit amet,\n"
+                      "consectetur adipiscing elit,\n"
+                      ".IP \\[bu] 2\n"
+                      "sed do eiusmod tempor incididunt\n"
+                      "ut labore et dolore magna aliqua.\n",
          "render document without wrapping");
   free(man);
   cmark_node_free(doc);
@@ -610,38 +606,36 @@ static void render_latex(test_batch_runner *runner) {
                                  "- sed do eiusmod tempor incididunt\n"
                                  "  ut labore et dolore magna aliqua.\n";
   cmark_node *doc =
-    cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
   latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 20);
-  STR_EQ(runner, latex,
-            "foo \\emph{bar} \\$\\%\n"
-            "\n"
-            "\\begin{itemize}\n"
-            "\\item Lorem ipsum\n"
-            "dolor sit amet,\n"
-            "consectetur\n"
-            "adipiscing elit,\n"
-            "\n"
-            "\\item sed do eiusmod\n"
-            "tempor incididunt ut\n"
-            "labore et dolore\n"
-            "magna aliqua.\n"
-            "\n"
-            "\\end{itemize}\n",
+  STR_EQ(runner, latex, "foo \\emph{bar} \\$\\%\n"
+                        "\n"
+                        "\\begin{itemize}\n"
+                        "\\item Lorem ipsum\n"
+                        "dolor sit amet,\n"
+                        "consectetur\n"
+                        "adipiscing elit,\n"
+                        "\n"
+                        "\\item sed do eiusmod\n"
+                        "tempor incididunt ut\n"
+                        "labore et dolore\n"
+                        "magna aliqua.\n"
+                        "\n"
+                        "\\end{itemize}\n",
          "render document with wrapping");
   free(latex);
   latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, latex,
-            "foo \\emph{bar} \\$\\%\n"
-            "\n"
-            "\\begin{itemize}\n"
-            "\\item Lorem ipsum dolor sit amet,\n"
-            "consectetur adipiscing elit,\n"
-            "\n"
-            "\\item sed do eiusmod tempor incididunt\n"
-            "ut labore et dolore magna aliqua.\n"
-            "\n"
-            "\\end{itemize}\n",
+  STR_EQ(runner, latex, "foo \\emph{bar} \\$\\%\n"
+                        "\n"
+                        "\\begin{itemize}\n"
+                        "\\item Lorem ipsum dolor sit amet,\n"
+                        "consectetur adipiscing elit,\n"
+                        "\n"
+                        "\\item sed do eiusmod tempor incididunt\n"
+                        "ut labore et dolore magna aliqua.\n"
+                        "\n"
+                        "\\end{itemize}\n",
          "render document without wrapping");
   free(latex);
   cmark_node_free(doc);
@@ -657,19 +651,18 @@ static void render_commonmark(test_batch_runner *runner) {
                                  "- sed do eiusmod tempor incididunt\n"
                                  "  ut labore et dolore magna aliqua.\n";
   cmark_node *doc =
-    cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 26);
-  STR_EQ(runner, commonmark,
-                                 "> \\- foo *bar* \\*bar\\*\n"
-                                 "\n"
-                                 "  - Lorem ipsum dolor sit\n"
-                                 "    amet, consectetur\n"
-                                 "    adipiscing elit,\n"
-                                 "  - sed do eiusmod tempor\n"
-                                 "    incididunt ut labore\n"
-                                 "    et dolore magna\n"
-                                 "    aliqua.\n",
+  STR_EQ(runner, commonmark, "> \\- foo *bar* \\*bar\\*\n"
+                             "\n"
+                             "  - Lorem ipsum dolor sit\n"
+                             "    amet, consectetur\n"
+                             "    adipiscing elit,\n"
+                             "  - sed do eiusmod tempor\n"
+                             "    incididunt ut labore\n"
+                             "    et dolore magna\n"
+                             "    aliqua.\n",
          "render document with wrapping");
   free(commonmark);
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
@@ -685,8 +678,7 @@ static void render_commonmark(test_batch_runner *runner) {
   cmark_node *text = cmark_node_new(CMARK_NODE_TEXT);
   cmark_node_set_literal(text, "Hi");
   commonmark = cmark_render_commonmark(text, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, commonmark, "Hi\n",
-         "render single inline node");
+  STR_EQ(runner, commonmark, "Hi\n", "render single inline node");
   free(commonmark);
 
   cmark_node_free(text);
