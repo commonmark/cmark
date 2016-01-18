@@ -89,6 +89,9 @@ cmark_event_type cmark_iter_get_event_type(cmark_iter *iter) {
 cmark_node *cmark_iter_get_root(cmark_iter *iter) { return iter->root; }
 
 void cmark_consolidate_text_nodes(cmark_node *root) {
+  if (root == NULL) {
+    return;
+  }
   cmark_iter *iter = cmark_iter_new(root);
   cmark_strbuf buf = GH_BUF_INIT;
   cmark_event_type ev_type;
