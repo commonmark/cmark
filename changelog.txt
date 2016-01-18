@@ -1,3 +1,25 @@
+[0.24.1]
+
+  * Commonmark renderer:
+    + Use HTML comment, not two blank lines, to separate a list
+      item from a following code block or list.  This makes the
+      output more portable, since the "two blank lines" rule is
+      unique to CommonMark.  Also, it allows us to break out of
+      a sublist without breaking out of all levels of nesting.
+    + `is_autolink` - handle case where link has no children,
+      which previously caused a segfault.
+    + Use 4-space indent for bullet lists, for increased portability.
+    + Use 2-space + newline for line break for increased portability (#90).
+    + Improved punctuation escaping.  Previously all `)` and
+      `.` characters after digits were escaped; now they are
+      only escaped if they are genuinely in a position where
+      they'd cause a list item.  This is achieved by changes in
+      `render.c`: (a) `renderer->begin_content` is only set to
+      false after a string of digits at the beginning of the
+      line, and (b) we never break a line before a digit.
+      Also, `begin_content` is properly initialized to true.
+  * Handle NULL root in `consolidate_text_nodes`.
+
 [0.24.0]
 
   * [API change] Added `cmark_node_replace(oldnode, newnode)`.
