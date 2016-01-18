@@ -1,3 +1,10 @@
+#ifndef CMARK_CONFIG_H
+#define CMARK_CONFIG_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #cmakedefine HAVE_STDBOOL_H
 
 #ifdef HAVE_STDBOOL_H
@@ -56,5 +63,11 @@ CMARK_INLINE int c99_snprintf(char *outBuf, size_t size, const char *format, ...
 
     return count;
 }
+
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
