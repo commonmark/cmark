@@ -126,6 +126,9 @@ static bool is_autolink(cmark_node *node) {
   }
 
   link_text = node->first_child;
+  if (link_text == NULL) {
+    return false;
+  }
   cmark_consolidate_text_nodes(link_text);
   realurl = (char *)url->data;
   realurllen = url->len;
