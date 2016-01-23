@@ -217,7 +217,8 @@ bufsize_t cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, bufsize_t pos) {
   if (pos >= buf->size)
     pos = buf->size - 1;
 
-  for (bufsize_t i = pos; i >= 0; i--) {
+  bufsize_t i;
+  for (i = pos; i >= 0; i--) {
     if (buf->ptr[i] == (unsigned char)c)
       return i;
   }
