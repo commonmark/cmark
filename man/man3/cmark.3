@@ -1,4 +1,4 @@
-.TH cmark 3 "January 11, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "February 02, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -363,8 +363,8 @@ otherwise 0.
 \fIint\f[] \fBcmark_node_set_list_start\f[](\fIcmark_node *node\f[], \fIint start\f[])
 
 .PP
-Sets starting number of \f[I]node\f[], if it is an ordered list. Returns
-1 on success, 0 on failure.
+Sets starting number of \f[I]node\f[], if it is an ordered list.
+Returns 1 on success, 0 on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_get_list_tight\f[](\fIcmark_node *node\f[])
@@ -389,8 +389,8 @@ Returns the info string from a fenced code block.
 \fIint\f[] \fBcmark_node_set_fence_info\f[](\fIcmark_node *node\f[], \fIconst char *info\f[])
 
 .PP
-Sets the info string in a fenced code block, returning 1 on success and
-0 on failure.
+Sets the info string in a fenced code block, returning 1 on success
+and 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_url\f[](\fIcmark_node *node\f[])
@@ -517,8 +517,8 @@ Returns 1 on success, 0 on failure.
 \fIint\f[] \fBcmark_node_append_child\f[](\fIcmark_node *node\f[], \fIcmark_node *child\f[])
 
 .PP
-Adds \f[I]child\f[] to the end of the children of \f[I]node\f[]. Returns
-1 on success, 0 on failure.
+Adds \f[I]child\f[] to the end of the children of \f[I]node\f[].
+Returns 1 on success, 0 on failure.
 
 .PP
 \fIvoid\f[] \fBcmark_consolidate_text_nodes\f[](\fIcmark_node *root\f[])

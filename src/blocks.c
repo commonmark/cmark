@@ -570,12 +570,14 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
                              bufsize_t count, bool columns) {
   char c;
   int chars_to_tab;
+  int chars_to_advance;
   while (count > 0 && (c = peek_at(input, parser->offset))) {
     if (c == '\t') {
       chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
-      parser->column += chars_to_tab;
-      parser->offset += 1;
-      count -= (columns ? chars_to_tab : 1);
+      chars_to_advance = chars_to_tab > count ? count : chars_to_tab;
+      parser->column += chars_to_advance;
+      parser->offset += chars_to_advance < chars_to_tab ? 0 : 1;
+      count -= (columns ? chars_to_advance : 1);
     } else {
       parser->offset += 1;
       parser->column += 1; // assume ascii; block starts are ascii
