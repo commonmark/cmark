@@ -540,6 +540,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 
 static void chop_trailing_hashtags(cmark_chunk *ch) {
   bufsize_t n, orig_n;
+  char c;
 
   cmark_chunk_rtrim(ch);
   orig_n = n = ch->len - 1;
@@ -549,8 +550,8 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
     n--;
 
   // Check for a space before the final #s:
-  if (n != orig_n && n >= 0 &&
-      (peek_at(ch, n) == ' ' || peek_at(ch, n) == '\t')) {
+  if (n != orig_n && n >= 0 && (c = peek_at(ch, n)) &&
+		  (c == ' ' || c == '\t')) {
     ch->len = n;
     cmark_chunk_rtrim(ch);
   }
@@ -624,6 +625,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   bool indented;
   cmark_chunk input;
   bool maybe_lazy;
+  char c;
 
   if (parser->options & CMARK_OPT_VALIDATE_UTF8) {
     cmark_utf8proc_check(parser->curline, buffer, bytes);
@@ -659,8 +661,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
           parser->indent <= 3 && peek_at(&input, parser->first_nonspace) == '>';
       if (matched) {
         S_advance_offset(parser, &input, parser->indent + 1, true);
-        if (peek_at(&input, parser->offset) == ' ')
-          parser->offset++;
+        c = peek_at(&input, parser->offset);
+	if (c == ' ' || c == '\t') {
+          S_advance_offset(parser, &input, 1, true);
+	}
       } else {
         all_matched = false;
       }
@@ -708,8 +712,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
         } else {
           // skip opt. spaces of fence parser->offset
           i = container->as.code.fence_offset;
-          while (i > 0 && peek_at(&input, parser->offset) == ' ') {
-            S_advance_offset(parser, &input, 1, false);
+          while (i > 0 && (c = peek_at(&input, parser->offset)) && (c == ' ' || c == '\t')) {
+            S_advance_offset(parser, &input, 1, true);
             i--;
           }
         }
@@ -774,8 +778,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       S_advance_offset(parser, &input,
                        parser->first_nonspace + 1 - parser->offset, false);
       // optional following character
-      if (peek_at(&input, parser->offset) == ' ')
-        S_advance_offset(parser, &input, 1, false);
+      c = peek_at(&input, parser->offset);
+      if (c == ' ' || c == '\t') {
+        S_advance_offset(parser, &input, 1, true);
+      }
       container = add_child(parser, container, CMARK_NODE_BLOCK_QUOTE,
                             parser->offset + 1);
 
@@ -856,7 +862,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                        parser->first_nonspace + matched - parser->offset,
                        false);
       i = 0;
-      while (i <= 5 && peek_at(&input, parser->offset + i) == ' ') {
+      // TODO handle tabs
+      while (i <= 5 && (c = peek_at(&input, parser->offset + i)) && c == ' ') {
         i++;
       }
       // i = number of spaces after marker, up to 5
