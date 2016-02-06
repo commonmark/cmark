@@ -2,7 +2,7 @@
 title: CommonMark Spec
 author: John MacFarlane
 version: 0.24
-date: '2015-01-12'
+date: '2016-01-12'
 license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 ...
 
@@ -318,6 +318,24 @@ by spaces with a tab stop of 4 characters.
 <pre><code>foo
 bar
 </code></pre>
+````````````````````````````````
+
+```````````````````````````````` example
+ - foo
+   - bar
+→ - baz
+.
+<ul>
+<li>foo
+<ul>
+<li>bar
+<ul>
+<li>baz</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 ````````````````````````````````
 
 
@@ -1204,7 +1222,7 @@ bar</p>
 
 
 or use a thematic break that cannot count as a [setext heading
-line], such as
+underline], such as
 
 ```````````````````````````````` example
 Foo
@@ -8940,7 +8958,7 @@ This is text that can be incorporated into the last open
 block (a paragraph, code block, heading, or raw HTML).
 
 Setext headings are formed when we see a line of a paragraph
-that is a setext heading line.
+that is a [setext heading underline].
 
 Reference link definitions are detected when a paragraph is closed;
 the accumulated text lines are parsed to see if they begin with
