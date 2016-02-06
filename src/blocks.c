@@ -125,8 +125,19 @@ static inline bool accepts_lines(cmark_node_type block_type) {
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static void add_line(cmark_node *node, cmark_chunk *ch, bufsize_t offset) {
+static void add_line(cmark_node *node, cmark_chunk *ch, bufsize_t offset,
+		cmark_parser *parser) {
+  int chars_to_tab;
+  int i;
   assert(node->open);
+  if (parser->partially_consumed_tab) {
+    offset += 1; // skip over tab
+    // add space characters:
+    chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
+    for (i = 0; i < chars_to_tab; i++) {
+      cmark_strbuf_putc(&node->string_content, ' ');
+    }
+  }
   cmark_strbuf_put(&node->string_content, ch->data + offset, ch->len - offset);
 }
 
@@ -922,7 +933,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       parser->current->type == CMARK_NODE_PARAGRAPH &&
       cmark_strbuf_len(&parser->current->string_content) > 0) {
 
-    add_line(parser->current, &input, parser->offset);
+    add_line(parser->current, &input, parser->offset, parser);
 
   } else { // not a lazy continuation
 
@@ -934,11 +945,11 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
     if (container->type == CMARK_NODE_CODE_BLOCK) {
 
-      add_line(container, &input, parser->offset);
+      add_line(container, &input, parser->offset, parser);
 
     } else if (container->type == CMARK_NODE_HTML_BLOCK) {
 
-      add_line(container, &input, parser->offset);
+      add_line(container, &input, parser->offset, parser);
 
       int matches_end_condition;
       switch (container->as.html_block_type) {
@@ -987,13 +998,13 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
           container->as.heading.setext == false) {
         chop_trailing_hashtags(&input);
       }
-      add_line(container, &input, parser->first_nonspace);
+      add_line(container, &input, parser->first_nonspace, parser);
 
     } else {
       // create paragraph container for line
       container = add_child(parser, container, CMARK_NODE_PARAGRAPH,
                             parser->first_nonspace + 1);
-      add_line(container, &input, parser->first_nonspace);
+      add_line(container, &input, parser->first_nonspace, parser);
     }
 
     parser->current = container;
