@@ -70,6 +70,7 @@ cmark_parser *cmark_parser_new(int options) {
   parser->first_nonspace_column = 0;
   parser->indent = 0;
   parser->blank = false;
+  parser->partially_consumed_tab = false;
   parser->curline = line;
   parser->last_line_length = 0;
   parser->linebuf = buf;
@@ -574,11 +575,13 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
   while (count > 0 && (c = peek_at(input, parser->offset))) {
     if (c == '\t') {
       chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
-      chars_to_advance = chars_to_tab > count ? count : chars_to_tab;
+      parser->partially_consumed_tab = chars_to_tab > count;
+      chars_to_advance = parser->partially_consumed_tab ? count : chars_to_tab;
       parser->column += chars_to_advance;
-      parser->offset += chars_to_advance < chars_to_tab ? 0 : 1;
+      parser->offset += parser->partially_consumed_tab ? 0 : 1;
       count -= (columns ? chars_to_advance : 1);
     } else {
+      parser->partially_consumed_tab = false;
       parser->offset += 1;
       parser->column += 1; // assume ascii; block starts are ascii
       count -= 1;
