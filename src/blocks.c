@@ -17,6 +17,10 @@
 #define CODE_INDENT 4
 #define TAB_STOP 4
 
+#ifndef MIN
+#define MIN(x, y) ((x < y) ? x : y)
+#endif
+
 #define peek_at(i, n) (i)->data[n]
 
 static inline bool S_is_line_end_char(char c) {
@@ -587,11 +591,18 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
   while (count > 0 && (c = peek_at(input, parser->offset))) {
     if (c == '\t') {
       chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
-      parser->partially_consumed_tab = columns && chars_to_tab > count;
-      chars_to_advance = parser->partially_consumed_tab ? count : chars_to_tab;
-      parser->column += chars_to_advance;
-      parser->offset += parser->partially_consumed_tab ? 0 : 1;
-      count -= (columns ? chars_to_advance : 1);
+      if (columns) {
+	parser->partially_consumed_tab = chars_to_tab > count;
+	chars_to_advance = MIN(count, chars_to_tab);
+	parser->column += chars_to_advance;
+        parser->offset += (parser->partially_consumed_tab ? 0 : 1);
+	count -= chars_to_advance;
+      } else {
+	parser->partially_consumed_tab = false;
+	parser->column += chars_to_tab;
+	parser->offset += 1;
+	count -= 1;
+      }
     } else {
       parser->partially_consumed_tab = false;
       parser->offset += 1;
