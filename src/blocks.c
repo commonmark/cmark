@@ -27,6 +27,10 @@ static inline bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
+static inline bool S_is_space_or_tab(char c) {
+  return (c == ' ' || c == '\t');
+}
+
 static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
                           size_t len, bool eof);
 
@@ -540,7 +544,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 
 static void chop_trailing_hashtags(cmark_chunk *ch) {
   bufsize_t n, orig_n;
-  char c;
 
   cmark_chunk_rtrim(ch);
   orig_n = n = ch->len - 1;
@@ -550,8 +553,7 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
     n--;
 
   // Check for a space before the final #s:
-  if (n != orig_n && n >= 0 && (c = peek_at(ch, n)) &&
-		  (c == ' ' || c == '\t')) {
+  if (n != orig_n && n >= 0 && S_is_space_or_tab(peek_at(ch, n))) {
     ch->len = n;
     cmark_chunk_rtrim(ch);
   }
@@ -626,13 +628,12 @@ static bool S_parse_block_quote(cmark_parser *parser,
   matched =
       parser->indent <= 3 && peek_at(input, parser->first_nonspace) == '>';
   if (matched) {
-    char c;
 
     S_advance_offset(parser, input, parser->indent + 1, true);
-    c = peek_at(input, parser->offset);
 
-    if (c == ' ' || c == '\t')
+    if (S_is_space_or_tab(peek_at(input, parser->offset))) {
       S_advance_offset(parser, input, 1, true);
+    }
 
     res = true;
   }
@@ -694,10 +695,9 @@ static bool S_parse_code_block(cmark_parser *parser,
       parser->current = finalize(parser, container);
     } else {
       // skip opt. spaces of fence parser->offset
-      char c;
       int i = container->as.code.fence_offset;
 
-      while (i > 0 && (c = peek_at(input, parser->offset)) && (c == ' ' || c == '\t')) {
+      while (i > 0 && S_is_space_or_tab(peek_at(input, parser->offset))) {
         S_advance_offset(parser, input, 1, true);
         i--;
       }
@@ -799,7 +799,6 @@ static void try_new_container_starts(cmark_parser *parser,
   cmark_node_type cont_type = (*container)->type;
   bufsize_t matched = 0;
   int lev = 0;
-  char c;
   bool save_partially_consumed_tab;
   int save_offset;
   int save_column;
@@ -815,8 +814,7 @@ static void try_new_container_starts(cmark_parser *parser,
       S_advance_offset(parser, input,
                        parser->first_nonspace + 1 - parser->offset, false);
       // optional following character
-      c = peek_at(input, parser->offset);
-      if (c == ' ' || c == '\t') {
+      if (S_is_space_or_tab(peek_at(input, parser->offset))) {
         S_advance_offset(parser, input, 1, true);
       }
       *container = add_child(parser, *container, CMARK_NODE_BLOCK_QUOTE,
@@ -899,8 +897,7 @@ static void try_new_container_starts(cmark_parser *parser,
       save_column = parser->column;
 
       while (parser->column - save_column <= 5 &&
-		(c = peek_at(input, parser->offset)) &&
-		(c == ' ' || c == '\t')) {
+		S_is_space_or_tab(peek_at(input, parser->offset))) {
         S_advance_offset(parser, input, 1, true);
       }
 
