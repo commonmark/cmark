@@ -712,8 +712,10 @@ static bool S_parse_html_block(cmark_parser *parser,
                                cmark_node *container)
 {
   bool res = false;
+  int html_block_type = container->as.html_block_type;
 
-  switch (container->as.html_block_type) {
+  assert(html_block_type >= 1 && html_block_type <= 7);
+  switch (html_block_type) {
     case 1:
     case 2:
     case 3:
@@ -726,11 +728,6 @@ static bool S_parse_html_block(cmark_parser *parser,
     case 7:
       res = !parser->blank;
       break;
-    default:
-      fprintf(stderr, "Error (%s:%d): Unknown HTML block type %d\n", __FILE__,
-          __LINE__, container->as.html_block_type);
-      /* FIXME that's really not something a library should do .. */
-      exit(1);
   }
 
   return res;
