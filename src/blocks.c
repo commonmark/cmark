@@ -626,6 +626,9 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   cmark_chunk input;
   bool maybe_lazy;
   char c;
+  bool save_partially_consumed_tab;
+  int save_offset;
+  int save_column;
 
   if (parser->options & CMARK_OPT_VALIDATE_UTF8) {
     cmark_utf8proc_check(parser->curline, buffer, bytes);
@@ -861,21 +864,28 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       S_advance_offset(parser, &input,
                        parser->first_nonspace + matched - parser->offset,
                        false);
-      i = 0;
-      // TODO handle tabs
-      while (i <= 5 && (c = peek_at(&input, parser->offset + i)) && c == ' ') {
-        i++;
+
+      save_partially_consumed_tab = parser->partially_consumed_tab;
+      save_offset = parser->offset;
+      save_column = parser->column;
+
+      while (parser->column - save_column <= 5 &&
+		(c = peek_at(&input, parser->offset)) &&
+		(c == ' ' || c == '\t')) {
+        S_advance_offset(parser, &input, 1, true);
       }
-      // i = number of spaces after marker, up to 5
-      if (i >= 5 || i < 1 ||
-          S_is_line_end_char(peek_at(&input, parser->offset))) {
+
+      i = parser->column - save_column;
+      if (i >= 5 || i < 1) {
         data->padding = matched + 1;
+	parser->offset = save_offset;
+	parser->column = save_column;
+	parser->partially_consumed_tab = save_partially_consumed_tab;
         if (i > 0) {
-          S_advance_offset(parser, &input, 1, false);
+          S_advance_offset(parser, &input, 1, true);
         }
       } else {
         data->padding = matched + i;
-        S_advance_offset(parser, &input, i, true);
       }
 
       // check container; if it's a list, see if this list item
