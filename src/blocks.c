@@ -1047,10 +1047,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   // and the line isn't blank,
   // then treat this as a "lazy continuation line" and add it to
   // the open paragraph.
-  if (parser->current->type == CMARK_NODE_PARAGRAPH &&
-      parser->current != last_matched_container &&
-      container == last_matched_container &&
-      !parser->blank) {
+  if (parser->current != last_matched_container &&
+      container == last_matched_container && !parser->blank &&
+      parser->current->type == CMARK_NODE_PARAGRAPH &&
+      cmark_strbuf_len(&parser->current->string_content) > 0) {
     add_line(parser->current, &input, parser);
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
