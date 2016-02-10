@@ -559,6 +559,9 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
   }
 }
 
+// Find first nonspace character from current offset, setting
+// parser->first_nonspace, parser->first_nonspace_column,
+// parser->indent, and parser->blank. Does not advance parser->offset.
 static void S_find_first_nonspace(cmark_parser *parser, cmark_chunk *input) {
   char c;
   int chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
