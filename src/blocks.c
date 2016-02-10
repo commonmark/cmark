@@ -589,6 +589,15 @@ static void S_find_first_nonspace(cmark_parser *parser, cmark_chunk *input) {
   parser->blank = S_is_line_end_char(peek_at(input, parser->first_nonspace));
 }
 
+// Advance parser->offset and parser->column.  parser->offset is the
+// byte position in input; parser->column is a virtual column number
+// that takes into account tabs. (Multibyte characters are not taken
+// into account, because the Markdown line prefixes we are interested in
+// analyzing are entirely ASCII.)  The count parameter indicates
+// how far to advance the offset.  If columns is true, then count
+// indicates a number of columns; otherwise, a number of bytes.
+// If advancing a certain number of columns partially consumes
+// a tab character, parser->partially_consumed_tab is set to true.
 static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
                              bufsize_t count, bool columns) {
   char c;
@@ -736,8 +745,8 @@ static bool S_parse_html_block(cmark_parser *parser,
   return res;
 }
 
-// for each containing node, tries to parse the associated line start.
-// bails out on failure:  container will point to the last matching node.
+// For each containing node, try to parse the associated line start.
+// Bail out on failure:  container will point to the last matching node.
 static bool S_try_parse_line_start(cmark_parser *parser,
                                    cmark_chunk *input,
                                    cmark_node **container,
@@ -1028,13 +1037,19 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     tmp = tmp->parent;
   }
 
+  // If the last line processed belonged to a paragraph node,
+  // and we didn't match all of the line prefixes for the open containers,
+  // and we didn't start any new containers,
+  // and the line isn't blank,
+  // then treat this as a "lazy continuation line" and add it to
+  // the open paragraph.
   if (parser->current != last_matched_container &&
       container == last_matched_container && !parser->blank &&
       parser->current->type == CMARK_NODE_PARAGRAPH &&
       cmark_strbuf_len(&parser->current->string_content) > 0) {
     add_line(parser->current, &input, parser);
   } else { // not a lazy continuation
-    // finalize any blocks that were not matched and set cur to container:
+    // Finalize any blocks that were not matched and set cur to container:
     while (parser->current != last_matched_container) {
       parser->current = finalize(parser, parser->current);
       assert(parser->current != NULL);
