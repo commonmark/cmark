@@ -133,6 +133,11 @@ static inline bool accepts_lines(cmark_node_type block_type) {
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
+static inline bool contains_inlines(cmark_node_type block_type) {
+  return (block_type == CMARK_NODE_PARAGRAPH ||
+          block_type == CMARK_NODE_HEADING);
+}
+
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
   int chars_to_tab;
   int i;
@@ -357,8 +362,7 @@ static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (cur->type == CMARK_NODE_PARAGRAPH ||
-          cur->type == CMARK_NODE_HEADING) {
+      if (contains_inlines(cur->type)) {
         cmark_parse_inlines(cur, refmap, options);
       }
     }
