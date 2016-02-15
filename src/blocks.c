@@ -1,3 +1,10 @@
+/**
+ * Block parsing implementation.
+ *
+ * For a high-level overview of the block parsing process,
+ * see http://spec.commonmark.org/0.24/#phase-1-block-structure
+ */
+
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
@@ -635,7 +642,7 @@ static bool S_last_child_is_open(cmark_node *container) {
   return container->last_child && container->last_child->open;
 }
 
-static bool S_parse_block_quote(cmark_parser *parser,
+static bool parse_block_quote_prefix(cmark_parser *parser,
                                 cmark_chunk *input)
 {
   bool res = false;
@@ -656,7 +663,7 @@ static bool S_parse_block_quote(cmark_parser *parser,
   return res;
 }
 
-static bool S_parse_node_item(cmark_parser *parser,
+static bool parse_node_item_prefix(cmark_parser *parser,
                               cmark_chunk *input,
                               cmark_node *container)
 {
@@ -679,7 +686,7 @@ static bool S_parse_node_item(cmark_parser *parser,
   return res;
 }
 
-static bool S_parse_code_block(cmark_parser *parser,
+static bool parse_code_block_prefix(cmark_parser *parser,
                                cmark_chunk *input,
                                cmark_node *container,
                                bool *should_continue)
@@ -724,7 +731,7 @@ static bool S_parse_code_block(cmark_parser *parser,
   return res;
 }
 
-static bool S_parse_html_block(cmark_parser *parser,
+static bool parse_html_block_prefix(cmark_parser *parser,
                                cmark_node *container)
 {
   bool res = false;
@@ -749,41 +756,47 @@ static bool S_parse_html_block(cmark_parser *parser,
   return res;
 }
 
-// For each containing node, try to parse the associated line start.
-// Bail out on failure:  container will point to the last matching node.
-static bool S_try_parse_line_start(cmark_parser *parser,
-                                   cmark_chunk *input,
-                                   cmark_node **container,
-                                   bool *all_matched)
+/**
+ * For each containing node, try to parse the associated line start.
+ *
+ * Will not close unmatched blocks, as we may have a lazy continuation
+ * line -> http://spec.commonmark.org/0.24/#lazy-continuation-line
+ *
+ * Returns: The last matching node, or NULL
+ */
+static cmark_node *check_open_blocks(cmark_parser *parser,
+                                     cmark_chunk *input,
+                                     bool *all_matched)
 {
   bool should_continue = true;
   *all_matched = false;
+  cmark_node *container = parser->root;
   cmark_node_type cont_type;
 
-  while (S_last_child_is_open(*container)) {
-    *container = (*container)->last_child;
-    cont_type = (*container)->type;
+  while (S_last_child_is_open(container)) {
+    container = container->last_child;
+    cont_type = container->type;
 
     S_find_first_nonspace(parser, input);
 
     switch (cont_type) {
       case CMARK_NODE_BLOCK_QUOTE:
-        if (!S_parse_block_quote(parser, input))
+        if (!parse_block_quote_prefix(parser, input))
           goto done;
         break;
       case CMARK_NODE_ITEM:
-        if (!S_parse_node_item(parser, input, *container))
+        if (!parse_node_item_prefix(parser, input, container))
           goto done;
         break;
       case CMARK_NODE_CODE_BLOCK:
-        if (!S_parse_code_block(parser, input, *container, &should_continue))
+        if (!parse_code_block_prefix(parser, input, container, &should_continue))
           goto done;
         break;
       case CMARK_NODE_HEADING:
         // a heading can never contain more than one line
         goto done;
       case CMARK_NODE_HTML_BLOCK:
-        if (!S_parse_html_block(parser, *container))
+        if (!parse_html_block_prefix(parser, container))
           goto done;
         break;
       case CMARK_NODE_PARAGRAPH:
@@ -799,15 +812,20 @@ static bool S_try_parse_line_start(cmark_parser *parser,
 
 done:
   if (!*all_matched) {
-    *container = (*container)->parent; // back up to last matching node
+    container = container->parent; // back up to last matching node
   }
-  return should_continue;
+
+  if (!should_continue) {
+    container = NULL;
+  }
+
+  return container;
 }
 
-static void try_new_container_starts(cmark_parser *parser,
-                                     cmark_node **container,
-                                     cmark_chunk *input,
-                                     bool all_matched)
+static void open_new_blocks(cmark_parser *parser,
+                            cmark_node **container,
+                            cmark_chunk *input,
+                            bool all_matched)
 {
   bool indented;
   cmark_list *data = NULL;
@@ -973,51 +991,16 @@ static void try_new_container_starts(cmark_parser *parser,
   }
 }
 
-static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
-                           bufsize_t bytes) {
-  cmark_node *last_matched_container;
-  bool all_matched = true;
-  cmark_node *container, *tmp;
-  cmark_chunk input;
-
-  if (parser->options & CMARK_OPT_VALIDATE_UTF8) {
-    cmark_utf8proc_check(parser->curline, buffer, bytes);
-  } else {
-    cmark_strbuf_put(parser->curline, buffer, bytes);
-  }
-
-  // ensure line ends with a newline:
-  if (bytes == 0 || !S_is_line_end_char(parser->curline->ptr[bytes - 1])) {
-    cmark_strbuf_putc(parser->curline, '\n');
-  }
-
-  parser->offset = 0;
-  parser->column = 0;
-  parser->blank = false;
-
-  input.data = parser->curline->ptr;
-  input.len = parser->curline->size;
-
-  // container starts at the document root.
-  container = parser->root;
-
-  parser->line_number++;
-
-  if (!S_try_parse_line_start(parser, &input, &container, &all_matched))
-    goto finished;
-
-  last_matched_container = container;
-
-  // check to see if we've hit 2nd blank line, break out of list:
-  if (parser->blank && container->last_line_blank)
-    break_out_of_lists(parser, &container);
-
-  try_new_container_starts(parser, &container, &input, all_matched);
-
+static void add_text_to_container (cmark_parser *parser,
+                                   cmark_node *container,
+                                   cmark_node *last_matched_container,
+                                   cmark_chunk *input)
+{
+  cmark_node *tmp;
   // what remains at parser->offset is a text line.  add the text to the
   // appropriate container.
 
-  S_find_first_nonspace(parser, &input);
+  S_find_first_nonspace(parser, input);
 
   if (parser->blank && container->last_child)
     container->last_child->last_line_blank = true;
@@ -1051,7 +1034,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
       container == last_matched_container &&
       !parser->blank &&
       parser->current->type == CMARK_NODE_PARAGRAPH) {
-    add_line(parser->current, &input, parser);
+    add_line(parser->current, input, parser);
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
     while (parser->current != last_matched_container) {
@@ -1060,36 +1043,36 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     }
 
     if (container->type == CMARK_NODE_CODE_BLOCK) {
-      add_line(container, &input, parser);
+      add_line(container, input, parser);
     } else if (container->type == CMARK_NODE_HTML_BLOCK) {
-      add_line(container, &input, parser);
+      add_line(container, input, parser);
 
       int matches_end_condition;
       switch (container->as.html_block_type) {
       case 1:
         // </script>, </style>, </pre>
         matches_end_condition =
-            scan_html_block_end_1(&input, parser->first_nonspace);
+            scan_html_block_end_1(input, parser->first_nonspace);
         break;
       case 2:
         // -->
         matches_end_condition =
-            scan_html_block_end_2(&input, parser->first_nonspace);
+            scan_html_block_end_2(input, parser->first_nonspace);
         break;
       case 3:
         // ?>
         matches_end_condition =
-            scan_html_block_end_3(&input, parser->first_nonspace);
+            scan_html_block_end_3(input, parser->first_nonspace);
         break;
       case 4:
         // >
         matches_end_condition =
-            scan_html_block_end_4(&input, parser->first_nonspace);
+            scan_html_block_end_4(input, parser->first_nonspace);
         break;
       case 5:
         // ]]>
         matches_end_condition =
-            scan_html_block_end_5(&input, parser->first_nonspace);
+            scan_html_block_end_5(input, parser->first_nonspace);
         break;
       default:
         matches_end_condition = 0;
@@ -1105,20 +1088,62 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     } else if (accepts_lines(container->type)) {
       if (container->type == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
-        chop_trailing_hashtags(&input);
+        chop_trailing_hashtags(input);
       }
-      S_advance_offset(parser, &input, parser->first_nonspace - parser->offset, false);
-      add_line(container, &input, parser);
+      S_advance_offset(parser, input, parser->first_nonspace - parser->offset, false);
+      add_line(container, input, parser);
     } else {
       // create paragraph container for line
       container = add_child(parser, container, CMARK_NODE_PARAGRAPH,
                             parser->first_nonspace + 1);
-      S_advance_offset(parser, &input, parser->first_nonspace - parser->offset, false);
-      add_line(container, &input, parser);
+      S_advance_offset(parser, input, parser->first_nonspace - parser->offset, false);
+      add_line(container, input, parser);
     }
 
     parser->current = container;
   }
+}
+
+/* See http://spec.commonmark.org/0.24/#phase-1-block-structure */
+static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
+                           bufsize_t bytes) {
+  cmark_node *last_matched_container;
+  bool all_matched = true;
+  cmark_node *container;
+  cmark_chunk input;
+
+  if (parser->options & CMARK_OPT_VALIDATE_UTF8)
+    cmark_utf8proc_check(parser->curline, buffer, bytes);
+  else
+    cmark_strbuf_put(parser->curline, buffer, bytes);
+
+  // ensure line ends with a newline:
+  if (bytes == 0 || !S_is_line_end_char(parser->curline->ptr[bytes - 1]))
+    cmark_strbuf_putc(parser->curline, '\n');
+
+  parser->offset = 0;
+  parser->column = 0;
+  parser->blank = false;
+
+  input.data = parser->curline->ptr;
+  input.len = parser->curline->size;
+
+  parser->line_number++;
+
+  last_matched_container = check_open_blocks(parser, &input, &all_matched);
+
+  if (!last_matched_container)
+    goto finished;
+
+  container = last_matched_container;
+
+  // check to see if we've hit 2nd blank line, break out of list:
+  if (parser->blank && container->last_line_blank)
+    break_out_of_lists(parser, &container);
+
+  open_new_blocks(parser, &container, &input, all_matched);
+
+  add_text_to_container(parser, container, last_matched_container, &input);
 
 finished:
   parser->last_line_length = input.len;
