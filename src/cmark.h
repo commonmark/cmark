@@ -20,7 +20,7 @@ extern "C" {
  */
 
 /** Convert 'text' (assumed to be a UTF-8 encoded string with length
- * 'len' from CommonMark Markdown to HTML, returning a null-terminated,
+ * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
  * UTF-8-encoded string.
  */
 CMARK_EXPORT
