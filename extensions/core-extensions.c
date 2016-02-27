@@ -4,6 +4,7 @@
 #include <cmark.h>
 #include <cmark_extension_api.h>
 
+#include "parser.h"
 #include "buffer.h"
 #include "ext_scanners.h"
 
@@ -27,12 +28,12 @@ static void free_table_row(table_row *row) {
   free(row);
 }
 
-static cmark_strbuf *unescape_pipes(unsigned char *string, bufsize_t len)
+static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len)
 {
   cmark_strbuf *res = (cmark_strbuf *)malloc(sizeof(cmark_strbuf));
   bufsize_t r, w;
 
-  cmark_strbuf_init(res, len + 1);
+  cmark_strbuf_init(mem, res, len + 1);
   cmark_strbuf_put(res, string, len);
   cmark_strbuf_putc(res, '\0');
 
@@ -48,7 +49,7 @@ static cmark_strbuf *unescape_pipes(unsigned char *string, bufsize_t len)
   return res;
 }
 
-static table_row *row_from_string(unsigned char *string, int len) {
+static table_row *row_from_string(cmark_mem *mem, unsigned char *string, int len) {
   table_row *row = NULL;
   bufsize_t cell_matched = 0;
   bufsize_t cell_offset = 0;
@@ -60,7 +61,7 @@ static table_row *row_from_string(unsigned char *string, int len) {
   do {
     cell_matched = scan_table_cell(string, len, cell_offset);
     if (cell_matched) {
-      cmark_strbuf *cell_buf = unescape_pipes(string + cell_offset + 1,
+      cmark_strbuf *cell_buf = unescape_pipes(mem, string + cell_offset + 1,
           cell_matched - 1);
       row->n_columns += 1;
       row->cells = cmark_llist_append(row->cells, cell_buf);
@@ -95,13 +96,13 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
 
   parent_string = cmark_node_get_string_content(parent_container);
 
-  header_row = row_from_string((unsigned char *) parent_string, strlen(parent_string));
+  header_row = row_from_string(parser->mem, (unsigned char *) parent_string, strlen(parent_string));
 
   if (!header_row) {
     goto done;
   }
 
-  marker_row = row_from_string(input + cmark_parser_get_first_nonspace(parser),
+  marker_row = row_from_string(parser->mem, input + cmark_parser_get_first_nonspace(parser),
       len - cmark_parser_get_first_nonspace(parser));
 
   assert(marker_row);
@@ -161,7 +162,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
 
   /* We don't advance the offset here */
 
-  row = row_from_string(input + cmark_parser_get_first_nonspace(parser),
+  row = row_from_string(parser->mem, input + cmark_parser_get_first_nonspace(parser),
       len - cmark_parser_get_first_nonspace(parser));
 
   {
@@ -210,7 +211,7 @@ static int table_matches(cmark_syntax_extension *self,
   int res = 0;
 
   if (cmark_node_get_type(parent_container) == CMARK_NODE_TABLE) {
-    table_row *new_row = row_from_string(input + cmark_parser_get_first_nonspace(parser),
+    table_row *new_row = row_from_string(parser->mem, input + cmark_parser_get_first_nonspace(parser),
         len - cmark_parser_get_first_nonspace(parser));
     if (new_row) {
         if (new_row->n_columns == cmark_node_get_n_table_columns(parent_container))
