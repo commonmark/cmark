@@ -38,6 +38,7 @@ set(LIBRARY_SOURCES
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  linked_list.c
   ${HEADERS}
   )
 
