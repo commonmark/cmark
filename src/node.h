@@ -47,6 +47,14 @@ typedef struct {
   cmark_chunk on_exit;
 } cmark_custom;
 
+typedef struct {
+  int n_columns;
+} cmark_table;
+
+typedef struct {
+  bool is_header;
+} cmark_table_row;
+
 enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
   CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
@@ -80,6 +88,8 @@ struct cmark_node {
     cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
+    cmark_table table;
+    cmark_table_row table_row;
     int html_block_type;
   } as;
 };

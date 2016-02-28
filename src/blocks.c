@@ -153,7 +153,14 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
 }
 
 static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
-                                     cmark_node_type child_type) {
+                               cmark_node_type child_type) {
+  if (parent_type == CMARK_NODE_TABLE) {
+    return child_type == CMARK_NODE_TABLE_ROW;
+  }
+
+  if (parent_type == CMARK_NODE_TABLE_ROW)
+    return child_type == CMARK_NODE_TABLE_CELL;
+
   return (parent_type == CMARK_NODE_DOCUMENT ||
           parent_type == CMARK_NODE_BLOCK_QUOTE ||
           parent_type == CMARK_NODE_ITEM ||
@@ -168,7 +175,8 @@ static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
 
 static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADING);
+          block_type == CMARK_NODE_HEADING ||
+          block_type == CMARK_NODE_TABLE_CELL);
 }
 
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
