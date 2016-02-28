@@ -352,6 +352,15 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   return 0;
 }
 
+const char *cmark_node_get_string_content(cmark_node *node) {
+  return (char *) node->content.ptr;
+}
+
+int cmark_node_set_string_content(cmark_node *node, const char *content) {
+  cmark_strbuf_sets(&node->content, content);
+  return true;
+}
+
 int cmark_node_get_heading_level(cmark_node *node) {
   if (node == NULL) {
     return 0;
