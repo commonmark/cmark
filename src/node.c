@@ -135,6 +135,9 @@ static void S_free_nodes(cmark_node *e) {
   while (e != NULL) {
     cmark_strbuf_free(&e->content);
 
+    if (e->user_data && e->user_data_free_func)
+      e->user_data_free_func(e->user_data);
+
     free_node_as(e);
 
     if (e->last_child) {
@@ -291,6 +294,15 @@ int cmark_node_set_user_data(cmark_node *node, void *user_data) {
     return 0;
   }
   node->user_data = user_data;
+  return 1;
+}
+
+int cmark_node_set_user_data_free_func(cmark_node *node,
+                                        cmark_free_func free_func) {
+  if (node == NULL) {
+    return 0;
+  }
+  node->user_data_free_func = free_func;
   return 1;
 }
 
