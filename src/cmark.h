@@ -87,6 +87,8 @@ typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
 
+typedef void (*cmark_free_func) (void *user_data);
+
 /**
  * ## Custom memory allocator support
  */
@@ -252,6 +254,11 @@ CMARK_EXPORT void *cmark_node_get_user_data(cmark_node *node);
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_user_data(cmark_node *node, void *user_data);
+
+/** Set free function for user data */
+CMARK_EXPORT
+int cmark_node_set_user_data_free_func(cmark_node *node,
+                                        cmark_free_func free_func);
 
 /** Returns the type of 'node', or `CMARK_NODE_NONE` on error.
  */
