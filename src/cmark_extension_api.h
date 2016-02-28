@@ -167,6 +167,16 @@ void cmark_parser_advance_offset(cmark_parser *parser,
  */
 CMARK_EXPORT int cmark_node_set_type(cmark_node *node, cmark_node_type type);
 
+/** Return the string content for all types of 'node'.
+ *  The pointer stays valid as long as 'node' isn't freed.
+ */
+CMARK_EXPORT const char *cmark_node_get_string_content(cmark_node *node);
+
+/** Set the string 'content' for all types of 'node'.
+ *  Copies 'content'.
+ */
+CMARK_EXPORT int cmark_node_set_string_content(cmark_node *node, const char *content);
+
 #ifdef __cplusplus
 }
 #endif
