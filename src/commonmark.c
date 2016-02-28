@@ -273,8 +273,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     // begin or end with a blank line, and code isn't
     // first thing in a list item
     if (info_len == 0 &&
-        (code_len > 2 && !isspace(code[0]) &&
-         !(isspace(code[code_len - 1]) && isspace(code[code_len - 2]))) &&
+        (code_len > 2 && !isspace((unsigned char)code[0]) &&
+         !(isspace((unsigned char)code[code_len - 1]) && isspace((unsigned char)code[code_len - 2]))) &&
         !(node->prev == NULL && node->parent &&
           node->parent->type == CMARK_NODE_ITEM)) {
       LIT("    ");
