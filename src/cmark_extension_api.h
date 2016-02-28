@@ -161,6 +161,12 @@ void cmark_parser_advance_offset(cmark_parser *parser,
                                  int count,
                                  int columns);
 
+/** Change the type of 'node'.
+ *
+ * Return 0 if the type could be changed, 1 otherwise.
+ */
+CMARK_EXPORT int cmark_node_set_type(cmark_node *node, cmark_node_type type);
+
 #ifdef __cplusplus
 }
 #endif
