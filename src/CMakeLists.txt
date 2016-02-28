@@ -3,6 +3,7 @@ set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
 set(HEADERS
   cmark.h
+  cmark_extension_api.h
   parser.h
   buffer.h
   node.h
@@ -134,6 +135,7 @@ install(TARGETS ${PROGRAM} ${LIBRARY} ${STATICLIBRARY}
 
 install(FILES
   cmark.h
+  cmark_extension_api.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
   DESTINATION include
