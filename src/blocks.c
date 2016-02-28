@@ -1221,3 +1221,19 @@ int cmark_parser_has_partially_consumed_tab(cmark_parser *parser) {
 int cmark_parser_get_last_line_length(cmark_parser *parser) {
   return parser->last_line_length;
 }
+
+cmark_node *cmark_parser_add_child(cmark_parser *parser,
+                                   cmark_node   *parent,
+                                   cmark_node_type block_type,
+                                   int start_column) {
+  return add_child(parser, parent, block_type, start_column);
+}
+
+void cmark_parser_advance_offset(cmark_parser *parser,
+                                 const char *input,
+                                 int count,
+                                 int columns) {
+  cmark_chunk input_chunk = cmark_chunk_literal(input);
+
+  S_advance_offset(parser, &input_chunk, count, columns);
+}
