@@ -1,8 +1,10 @@
 if (NOT MSVC)
+
+include(GNUInstallDirs)
+
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/man1/cmark.1
-    DESTINATION share/man/man1)
+    DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/man3/cmark.3
-    DESTINATION share/man/man3)
+    DESTINATION ${CMAKE_INSTALL_MANDIR}/man3)
 endif(NOT MSVC)
-
