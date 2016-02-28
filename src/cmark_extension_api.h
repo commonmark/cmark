@@ -138,6 +138,29 @@ int cmark_parser_has_partially_consumed_tab(cmark_parser *parser);
 CMARK_EXPORT
 int cmark_parser_get_last_line_length(cmark_parser *parser);
 
+/** Add a child to 'parent' during the parsing process.
+ *
+ * If 'parent' isn't the kind of node that can accept this child,
+ * this function will back up till it hits a node that can, closing
+ * blocks as appropriate.
+ */
+CMARK_EXPORT
+cmark_node*cmark_parser_add_child(cmark_parser *parser,
+                                  cmark_node *parent,
+                                  cmark_node_type block_type,
+                                  int start_column);
+
+/** Advance the 'offset' of the parser in the current line.
+ *
+ * See the documentation of cmark_parser_get_offset() and
+ * cmark_parser_get_column() for more information.
+ */
+CMARK_EXPORT
+void cmark_parser_advance_offset(cmark_parser *parser,
+                                 const char *input,
+                                 int count,
+                                 int columns);
+
 #ifdef __cplusplus
 }
 #endif
