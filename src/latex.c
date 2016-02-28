@@ -332,6 +332,44 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_TABLE:
+    if (entering) {
+      int i, n_cols;
+      CR();
+      LIT("\\begin{table}");
+      CR();
+      LIT("\\begin{tabular}{");
+
+      n_cols = node->as.table.n_columns;
+      for (i = 0; i < n_cols; i++) {
+        LIT("l");
+      }
+      LIT("}");
+      CR();
+    } else {
+      LIT("\\end{tabular}");
+      CR();
+      LIT("\\end{table}");
+      CR();
+    }
+    break;
+
+  case CMARK_NODE_TABLE_ROW:
+    if (!entering) {
+      CR();
+    }
+    break;
+
+  case CMARK_NODE_TABLE_CELL:
+    if (!entering) {
+      if (node->next) {
+        LIT(" & ");
+      } else {
+        LIT(" \\\\");
+      }
+    }
+    break;
+
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;

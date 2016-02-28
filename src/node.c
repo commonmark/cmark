@@ -64,6 +64,17 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_IMAGE:
   case CMARK_NODE_CUSTOM_INLINE:
     return S_is_inline(child);
+  case CMARK_NODE_TABLE:
+    return child->type == CMARK_NODE_TABLE_ROW;
+  case CMARK_NODE_TABLE_ROW:
+    return child->type == CMARK_NODE_TABLE_CELL;
+  case CMARK_NODE_TABLE_CELL:
+    return child->type == CMARK_NODE_TEXT ||
+           child->type == CMARK_NODE_CODE ||
+           child->type == CMARK_NODE_EMPH ||
+           child->type == CMARK_NODE_STRONG ||
+           child->type == CMARK_NODE_LINK ||
+           child->type == CMARK_NODE_IMAGE;
 
   default:
     break;
@@ -210,6 +221,15 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "html_block";
   case CMARK_NODE_CUSTOM_BLOCK:
     return "custom_block";
+  case CMARK_NODE_TABLE:
+    return "table";
+  case CMARK_NODE_TABLE_ROW:
+    if (node->as.table_row.is_header)
+      return "table_header";
+    else
+      return "table_row";
+  case CMARK_NODE_TABLE_CELL:
+    return "table_cell";
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
   case CMARK_NODE_HEADING:
@@ -734,6 +754,68 @@ int cmark_node_get_end_column(cmark_node *node) {
     return 0;
   }
   return node->end_column;
+}
+
+int cmark_node_get_n_table_columns(cmark_node *node) {
+  if (node == NULL) {
+    return -1;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_TABLE:
+    return node->as.table.n_columns;
+  default:
+    break;
+  }
+
+  return -1;
+}
+
+int cmark_node_set_n_table_columns(cmark_node *node, int n_columns) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+    case CMARK_NODE_TABLE:
+      node->as.table.n_columns = n_columns;
+      return 1;
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+int cmark_node_is_table_header(cmark_node *node) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_TABLE_ROW:
+    return node->as.table_row.is_header;
+  default:
+    break;
+  }
+
+  return 1;
+}
+
+int cmark_node_set_is_table_header(cmark_node *node, int is_table_header) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+    case CMARK_NODE_TABLE_ROW:
+      node->as.table_row.is_header = is_table_header;
+      return 1;
+    default:
+      break;
+  }
+
+  return 0;
 }
 
 // Unlink a node without adjusting its next, prev, and parent pointers.
