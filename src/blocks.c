@@ -1185,3 +1185,39 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
 #endif
   return parser->root;
 }
+
+int cmark_parser_get_line_number(cmark_parser *parser) {
+  return parser->line_number;
+}
+
+bufsize_t cmark_parser_get_offset(cmark_parser *parser) {
+  return parser->offset;
+}
+
+bufsize_t cmark_parser_get_column(cmark_parser *parser) {
+  return parser->column;
+}
+
+int cmark_parser_get_first_nonspace(cmark_parser *parser) {
+  return parser->first_nonspace;
+}
+
+int cmark_parser_get_first_nonspace_column(cmark_parser *parser) {
+  return parser->first_nonspace_column;
+}
+
+int cmark_parser_get_indent(cmark_parser *parser) {
+  return parser->indent;
+}
+
+int cmark_parser_is_blank(cmark_parser *parser) {
+  return parser->blank;
+}
+
+int cmark_parser_has_partially_consumed_tab(cmark_parser *parser) {
+  return parser->partially_consumed_tab;
+}
+
+int cmark_parser_get_last_line_length(cmark_parser *parser) {
+  return parser->last_line_length;
+}
