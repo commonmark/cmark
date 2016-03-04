@@ -30,18 +30,7 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 #define make_emph(mem) make_simple(mem, CMARK_NODE_EMPH)
 #define make_strong(mem) make_simple(mem, CMARK_NODE_STRONG)
 
-typedef struct delimiter {
-  struct delimiter *previous;
-  struct delimiter *next;
-  cmark_node *inl_text;
-  bufsize_t position;
-  unsigned char delim_char;
-  bool can_open;
-  bool can_close;
-  bool active;
-} delimiter;
-
-typedef struct {
+typedef struct subject{
   cmark_mem *mem;
   cmark_chunk input;
   bufsize_t pos;
@@ -1126,4 +1115,123 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   // insert reference into refmap
   cmark_reference_create(refmap, &lab, &url, &title);
   return subj.pos;
+}
+
+unsigned char cmark_inline_parser_peek_char(cmark_inline_parser *parser) {
+  return peek_char(parser);
+}
+
+unsigned char cmark_inline_parser_peek_at(cmark_inline_parser *parser, bufsize_t pos) {
+  return peek_at(parser, pos);
+}
+
+int cmark_inline_parser_is_eof(cmark_inline_parser *parser) {
+  return is_eof(parser);
+}
+
+static char *
+my_strndup (const char *s, size_t n)
+{
+  char *result;
+  size_t len = strlen (s);
+
+  if (n < len)
+    len = n;
+
+  result = (char *) malloc (len + 1);
+  if (!result)
+    return 0;
+
+  result[len] = '\0';
+  return (char *) memcpy (result, s, len);
+}
+
+char *cmark_inline_parser_take_while(cmark_inline_parser *parser, cmark_inline_predicate pred) {
+  unsigned char c;
+  bufsize_t startpos = parser->pos;
+  bufsize_t len = 0;
+
+  while ((c = peek_char(parser)) && (*pred)(c)) {
+    advance(parser);
+    len++;
+  }
+
+  return my_strndup((const char *) parser->input.data + startpos, len);
+}
+
+void cmark_inline_parser_push_delimiter(cmark_inline_parser *parser,
+                                  unsigned char c,
+                                  int can_open,
+                                  int can_close,
+                                  cmark_node *inl_text) {
+  push_delimiter(parser, c, can_open, can_close, inl_text);
+}
+
+void cmark_inline_parser_remove_delimiter(cmark_inline_parser *parser, delimiter *delim) {
+  remove_delimiter(parser, delim);
+}
+
+int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
+                                  int max_delims,
+                                  unsigned char c,
+                                  int *left_flanking,
+                                  int *right_flanking,
+                                  int *punct_before,
+                                  int *punct_after) {
+  int numdelims = 0;
+  bufsize_t before_char_pos;
+  int32_t after_char = 0;
+  int32_t before_char = 0;
+  int len;
+  bool space_before, space_after;
+
+  if (parser->pos == 0) {
+    before_char = 10;
+  } else {
+    before_char_pos = parser->pos - 1;
+    // walk back to the beginning of the UTF_8 sequence:
+    while (peek_at(parser, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
+      before_char_pos -= 1;
+    }
+    len = cmark_utf8proc_iterate(parser->input.data + before_char_pos,
+                                 parser->pos - before_char_pos, &before_char);
+    if (len == -1) {
+      before_char = 10;
+    }
+  }
+
+  while (peek_char(parser) == c && numdelims <= max_delims) {
+    numdelims++;
+    advance(parser);
+  }
+
+  len = cmark_utf8proc_iterate(parser->input.data + parser->pos,
+                               parser->input.len - parser->pos, &after_char);
+  if (len == -1) {
+    after_char = 10;
+  }
+
+  *punct_before = cmark_utf8proc_is_punctuation(before_char);
+  *punct_after = cmark_utf8proc_is_punctuation(after_char);
+  space_before = cmark_utf8proc_is_space(before_char);
+  space_after = cmark_utf8proc_is_space(after_char);
+
+  *left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                  !(*punct_after && !space_before && !*punct_before);
+  *right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                  !(*punct_before && !space_after && !*punct_after);
+
+  return numdelims;
+}
+
+void cmark_inline_parser_advance_offset(cmark_inline_parser *parser) {
+  advance(parser);
+}
+
+int cmark_inline_parser_get_offset(cmark_inline_parser *parser) {
+  return parser->pos;
+}
+
+delimiter *cmark_inline_parser_get_last_delimiter(cmark_inline_parser *parser) {
+  return parser->last_delim;
 }

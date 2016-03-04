@@ -63,6 +63,21 @@ typedef struct cmark_plugin cmark_plugin;
  */
 typedef struct cmark_syntax_extension cmark_syntax_extension;
 
+typedef struct subject cmark_inline_parser;
+
+/** Exposed raw for now */
+
+typedef struct delimiter {
+  struct delimiter *previous;
+  struct delimiter *next;
+  cmark_node *inl_text;
+  int position;
+  unsigned char delim_char;
+  int can_open;
+  int can_close;
+  int active;
+} delimiter;
+
 /**
  * ### Plugin API.
  *
@@ -359,6 +374,87 @@ CMARK_EXPORT cmark_syntax_extension *cmark_node_get_syntax_extension(cmark_node 
 CMARK_EXPORT int cmark_node_set_syntax_extension(cmark_node *node,
                                                   cmark_syntax_extension *extension);
 
+/**
+ * ## Inline syntax extension helpers
+ *
+ * The inline parsing process is described in detail at
+ * <http://spec.commonmark.org/0.24/#phase-2-inline-structure>
+ */
+
+/** Should return 'true' if the predicate matches 'c', 'false' otherwise
+ */
+typedef int (*cmark_inline_predicate)(int c);
+
+/** Advance the current inline parsing offset */
+CMARK_EXPORT
+void cmark_inline_parser_advance_offset(cmark_inline_parser *parser);
+
+/** Get the current inline parsing offset */
+CMARK_EXPORT
+int cmark_inline_parser_get_offset(cmark_inline_parser *parser);
+
+/** Get the character located at the current inline parsing offset
+ */
+CMARK_EXPORT
+unsigned char cmark_inline_parser_peek_char(cmark_inline_parser *parser);
+
+/** Get the character located 'pos' bytes in the current line.
+ */
+CMARK_EXPORT
+unsigned char cmark_inline_parser_peek_at(cmark_inline_parser *parser, int pos);
+
+/** Whether the inline parser has reached the end of the current line
+ */
+CMARK_EXPORT
+int cmark_inline_parser_is_eof(cmark_inline_parser *parser);
+
+/** Get the characters located after the current inline parsing offset
+ * while 'pred' matches. Free after usage.
+ */
+CMARK_EXPORT
+char *cmark_inline_parser_take_while(cmark_inline_parser *parser, cmark_inline_predicate pred);
+
+/** Push a delimiter on the delimiter stack.
+ * See <<http://spec.commonmark.org/0.24/#phase-2-inline-structure> for
+ * more information on the parameters
+ */
+CMARK_EXPORT
+void cmark_inline_parser_push_delimiter(cmark_inline_parser *parser,
+                                  unsigned char c,
+                                  int can_open,
+                                  int can_close,
+                                  cmark_node *inl_text);
+
+/** Remove 'delim' from the delimiter stack
+ */
+CMARK_EXPORT
+void cmark_inline_parser_remove_delimiter(cmark_inline_parser *parser, delimiter *delim);
+
+CMARK_EXPORT
+delimiter *cmark_inline_parser_get_last_delimiter(cmark_inline_parser *parser);
+
+/** Convenience function to scan a given delimiter.
+ *
+ * 'left_flanking' and 'right_flanking' will be set to true if they
+ * respectively precede and follow a non-space, non-punctuation
+ * character.
+ *
+ * Additionally, 'punct_before' and 'punct_after' will respectively be set
+ * if the preceding or following character is a punctuation character.
+ *
+ * Note that 'left_flanking' and 'right_flanking' can both be 'true'.
+ *
+ * Returns the number of delimiters encountered, in the limit
+ * of 'max_delims', and advances the inline parsing offset.
+ */
+CMARK_EXPORT
+int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
+                                  int max_delims,
+                                  unsigned char c,
+                                  int *left_flanking,
+                                  int *right_flanking,
+                                  int *punct_before,
+                                  int *punct_after);
 #ifdef __cplusplus
 }
 #endif
