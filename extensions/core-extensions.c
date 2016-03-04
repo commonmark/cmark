@@ -232,7 +232,94 @@ static cmark_syntax_extension *register_table_syntax_extension(void) {
   return ext;
 }
 
+static cmark_node *strikethrough_match(cmark_syntax_extension *self,
+                                       cmark_parser *parser,
+                                       cmark_node *parent,
+                                       unsigned char character,
+                                       cmark_inline_parser *inline_parser)
+{
+  cmark_node *res = NULL;
+  int left_flanking, right_flanking, punct_before, punct_after;
+  int num_delims;
+
+  /* Exit early */
+  if (character != '~')
+    return NULL;
+
+  num_delims = cmark_inline_parser_scan_delimiters(inline_parser, 1, '~',
+      &left_flanking, &right_flanking, &punct_before, &punct_after);
+
+  if (num_delims > 0) { /* Should not be needed */
+    int can_open, can_close;
+
+    res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    cmark_node_set_literal(res, "~");
+
+    can_open = left_flanking;
+    can_close = right_flanking;
+    if (can_open || can_close)
+      cmark_inline_parser_push_delimiter(inline_parser, character, can_open, can_close, res);
+  }
+
+  return res;
+}
+
+static delimiter *strikethrough_insert(cmark_syntax_extension *self,
+                                       cmark_parser *parser,
+                                       cmark_inline_parser *inline_parser,
+                                       delimiter *opener,
+                                       delimiter *closer)
+{
+  cmark_node *strikethrough;
+  cmark_node *tmp, *next;
+  delimiter *delim, *tmp_delim;
+  delimiter *res = closer->next;
+
+  strikethrough = opener->inl_text;
+
+  if (!cmark_node_set_type(strikethrough, CMARK_NODE_STRIKETHROUGH))
+    goto done;
+
+  cmark_node_set_string_content(strikethrough, "~");
+  tmp = cmark_node_next(opener->inl_text);
+
+  while (tmp) {
+    if (tmp == closer->inl_text)
+      break;
+    next = cmark_node_next(tmp);
+    cmark_node_append_child(strikethrough, tmp);
+    tmp = next;
+  }
+
+  cmark_node_free(closer->inl_text);
+
+  delim = closer;
+  while (delim != NULL && delim != opener) {
+    tmp_delim = delim->previous;
+    cmark_inline_parser_remove_delimiter(inline_parser, delim);
+    delim = tmp_delim;
+  }
+
+  cmark_inline_parser_remove_delimiter(inline_parser, opener);
+
+done:
+  return res;
+}
+
+static cmark_syntax_extension *create_strikethrough_extension(void) {
+  cmark_syntax_extension *ext = cmark_syntax_extension_new("tilde_strikethrough");
+  cmark_llist *special_chars = NULL;
+
+  cmark_syntax_extension_set_match_inline_func(ext, strikethrough_match);
+  cmark_syntax_extension_set_inline_from_delim_func(ext, strikethrough_insert);
+  special_chars = cmark_llist_append(special_chars, (void *) '~');
+  cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
+
+  return ext;
+}
+
 int init_libcmarkextensions(cmark_plugin *plugin) {
   cmark_plugin_register_syntax_extension(plugin, register_table_syntax_extension());
+  cmark_plugin_register_syntax_extension(plugin, create_strikethrough_extension());
   return 1;
 }
