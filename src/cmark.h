@@ -66,8 +66,11 @@ typedef enum {
   CMARK_NODE_LINK,
   CMARK_NODE_IMAGE,
 
+  /* inlines with no syntax rules in the current specification */
+  CMARK_NODE_STRIKETHROUGH,
+
   CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+  CMARK_NODE_LAST_INLINE = CMARK_NODE_STRIKETHROUGH,
 } cmark_node_type;
 
 /* For backwards compatibility: */

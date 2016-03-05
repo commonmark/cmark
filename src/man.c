@@ -82,6 +82,19 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   switch (node->type) {
   case CMARK_NODE_DOCUMENT:
+    if (entering) {
+      /* Define a strikethrough macro */
+      /* Commenting out because this makes tests fail
+      LIT(".de ST");
+      CR();
+      LIT(".nr ww \\w'\\\\$1'");
+      CR();
+      LIT("\\Z@\\v'-.25m'\\l'\\\\n[ww]u'@\\\\$1");
+      CR();
+      LIT("..");
+      CR();
+      */
+    }
     break;
 
   case CMARK_NODE_BLOCK_QUOTE:
@@ -270,6 +283,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("[IMAGE: ");
     } else {
       LIT("]");
+    }
+    break;
+
+  case CMARK_NODE_STRIKETHROUGH:
+    if (entering) {
+      CR();
+      LIT(".ST \"");
+    } else {
+      LIT("\"");
+      CR();
     }
     break;
 

@@ -65,6 +65,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_STRONG:
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
+  case CMARK_NODE_STRIKETHROUGH:
   case CMARK_NODE_CUSTOM_INLINE:
     return S_is_inline(child);
   case CMARK_NODE_TABLE:
@@ -77,7 +78,8 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
            child->type == CMARK_NODE_EMPH ||
            child->type == CMARK_NODE_STRONG ||
            child->type == CMARK_NODE_LINK ||
-           child->type == CMARK_NODE_IMAGE;
+           child->type == CMARK_NODE_IMAGE ||
+           child->type == CMARK_NODE_STRIKETHROUGH;
 
   default:
     break;
@@ -259,6 +261,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
+  case CMARK_NODE_STRIKETHROUGH:
+    return "strikethrough";
   }
 
   return "<unknown>";

@@ -374,6 +374,14 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     }
     break;
 
+  case CMARK_NODE_STRIKETHROUGH:
+    if (entering) {
+      cmark_strbuf_puts(html, "<del>");
+    } else {
+      cmark_strbuf_puts(html, "</del>");
+    }
+  break;
+
   default:
     assert(false);
     break;
