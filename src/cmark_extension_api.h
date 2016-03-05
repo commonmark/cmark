@@ -60,6 +60,43 @@ typedef struct cmark_plugin cmark_plugin;
  * new block with cmark_parser_make_block and cmark_parser_add_child.
  * If no function was provided is NULL, the extension will have
  * no effect at all on the final block structure of the AST.
+ *
+ * #### Inline parsing phase hooks
+ *
+ * For each character provided by the extension through
+ * 'cmark_syntax_extension_set_special_inline_chars',
+ * the function provided by the extension through
+ * 'cmark_syntax_extension_set_match_inline_func'
+ * will get called, it is the responsibility of the extension
+ * to scan the characters located at the current inline parsing offset
+ * with the cmark_inline_parser API.
+ *
+ * Depending on the type of the extension, it can either:
+ *
+ * * Scan forward, determine that the syntax matches and return
+ *   a newly-created inline node with the appropriate type.
+ *   This is the technique that would be used if inline code
+ *   (with backticks) was implemented as an extension.
+ * * Scan only the character(s) that its syntax rules require
+ *   for opening and closing nodes, push a delimiter on the
+ *   delimiter stack, and return a simple text node with its
+ *   contents set to the character(s) consumed.
+ *   This is the technique that would be used if emphasis
+ *   inlines were implemented as an extension.
+ *
+ * When an extension has pushed delimiters on the stack,
+ * the function provided through
+ * 'cmark_syntax_extension_set_inline_from_delim_func'
+ * will get called in a latter phase,
+ * when the inline parser has matched opener and closer delimiters
+ * created by the extension together.
+ *
+ * It is then the responsibility of the extension to modify
+ * and populate the opener inline text node, and to remove
+ * the necessary delimiters from the delimiter stack.
+ *
+ * Finally, the extension should return NULL if its scan didn't
+ * match its syntax rules.
  */
 typedef struct cmark_syntax_extension cmark_syntax_extension;
 
@@ -153,6 +190,18 @@ typedef cmark_node * (*cmark_open_block_func) (cmark_syntax_extension *extension
                                        unsigned char *input,
                                        int len);
 
+typedef cmark_node *(*cmark_match_inline_func)(cmark_syntax_extension *extension,
+                                       cmark_parser *parser,
+                                       cmark_node *parent,
+                                       unsigned char character,
+                                       cmark_inline_parser *inline_parser);
+
+typedef delimiter *(*cmark_inline_from_delim_func)(cmark_syntax_extension *extension,
+                                           cmark_parser *parser,
+                                           cmark_inline_parser *inline_parser,
+                                           delimiter *opener,
+                                           delimiter *closer);
+
 /** Should return 'true' if 'input' can be contained in 'container',
  *  'false' otherwise.
  */
@@ -183,6 +232,24 @@ void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extensio
 CMARK_EXPORT
 void cmark_syntax_extension_set_match_block_func(cmark_syntax_extension *extension,
                                                  cmark_match_block_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_match_inline_func(cmark_syntax_extension *extension,
+                                                  cmark_match_inline_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_inline_from_delim_func(cmark_syntax_extension *extension,
+                                                       cmark_inline_from_delim_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *extension,
+                                                     cmark_llist *special_chars);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
