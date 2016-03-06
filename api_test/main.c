@@ -362,6 +362,9 @@ static void create_tree(test_batch_runner *runner) {
   cmark_node *str4 = cmark_node_new(CMARK_NODE_TEXT);
   cmark_node_set_literal(str4, "brzz");
   OK(runner, cmark_node_replace(str1, str4), "replace");
+  // The replaced node is not freed
+  cmark_node_free(str1);
+
   INT_EQ(runner, cmark_node_check(doc, NULL), 0, "replace consistent");
   OK(runner, cmark_node_previous(emph) == str4, "replace works");
   INT_EQ(runner, cmark_node_replace(p, str4), 0, "replace str for p fails");
