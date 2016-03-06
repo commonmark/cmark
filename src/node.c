@@ -530,6 +530,38 @@ int cmark_node_set_fence_info(cmark_node *node, const char *info) {
   }
 }
 
+int cmark_node_get_fenced(cmark_node *node, int *length, int *offset, char *character) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_CODE_BLOCK) {
+    *length = node->as.code.fence_length;
+    *offset = node->as.code.fence_offset;
+    *character = node->as.code.fence_char;
+    return node->as.code.fenced;
+  } else {
+    return 0;
+  }
+}
+
+int cmark_node_set_fenced(cmark_node * node, int fenced,
+    int length, int offset, char character) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_CODE_BLOCK) {
+    node->as.code.fenced = fenced;
+    node->as.code.fence_length = length;
+    node->as.code.fence_offset = offset;
+    node->as.code.fence_char = character;
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 const char *cmark_node_get_url(cmark_node *node) {
   if (node == NULL) {
     return NULL;
