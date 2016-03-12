@@ -10,6 +10,8 @@
 #include "houdini.h"
 #include "scanners.h"
 
+#define BUFFER_SIZE 100
+
 // Functions to convert cmark_nodes to HTML strings.
 
 static void escape_html(cmark_strbuf *dest, const unsigned char *source,
@@ -29,7 +31,6 @@ struct render_state {
 
 static void S_render_sourcepos(cmark_node *node, cmark_strbuf *html,
                                int options) {
-  const size_t BUFFER_SIZE = 100;
   char buffer[BUFFER_SIZE];
   if (CMARK_OPT_SOURCEPOS & options) {
     snprintf(buffer, BUFFER_SIZE, " data-sourcepos=\"%d:%d-%d:%d\"",
@@ -47,7 +48,6 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   char start_heading[] = "<h0";
   char end_heading[] = "</h0";
   bool tight;
-  const size_t BUFFER_SIZE = 100;
   char buffer[BUFFER_SIZE];
 
   bool entering = (ev_type == CMARK_EVENT_ENTER);

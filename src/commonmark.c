@@ -17,6 +17,8 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
+#define ENCODED_SIZE 20
+#define LISTMARKER_SIZE 20
 
 // Functions to convert cmark_nodes to commonmark strings.
 
@@ -26,7 +28,6 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
   bool follows_digit =
       renderer->buffer->size > 0 &&
       cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
-  const size_t ENCODED_SIZE = 20;
   char encoded[ENCODED_SIZE];
 
   needs_escaping =
@@ -168,7 +169,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
   size_t info_len, code_len;
-  const size_t LISTMARKER_SIZE = 20;
   char listmarker[LISTMARKER_SIZE];
   char *emph_delim;
   bufsize_t marker_width;
