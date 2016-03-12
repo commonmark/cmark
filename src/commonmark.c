@@ -20,7 +20,7 @@
 
 // Functions to convert cmark_nodes to commonmark strings.
 
-static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
+static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   bool follows_digit =

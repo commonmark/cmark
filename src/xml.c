@@ -21,7 +21,7 @@ struct render_state {
   int indent;
 };
 
-static inline void indent(struct render_state *state) {
+static CMARK_INLINE void indent(struct render_state *state) {
   int i;
   for (i = 0; i < state->indent; i++) {
     cmark_strbuf_putc(state->xml, ' ');

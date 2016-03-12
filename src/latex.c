@@ -18,7 +18,7 @@
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
 
-static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
+static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   if (escape == LITERAL) {
     cmark_render_code_point(renderer, c);

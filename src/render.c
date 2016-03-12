@@ -5,13 +5,13 @@
 #include "utf8.h"
 #include "render.h"
 
-static inline void S_cr(cmark_renderer *renderer) {
+static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
     renderer->need_cr = 1;
   }
 }
 
-static inline void S_blankline(cmark_renderer *renderer) {
+static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
   if (renderer->need_cr < 2) {
     renderer->need_cr = 2;
   }
