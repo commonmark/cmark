@@ -169,8 +169,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -pedantic")
 endif()
 
-# Compile as C++ under MSVC
-if(MSVC)
+# Compile as C++ under MSVC older than 12.0
+if(MSVC AND MSVC_VERSION LESS 1800)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif()
 

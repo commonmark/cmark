@@ -30,11 +30,11 @@
 
 #define peek_at(i, n) (i)->data[n]
 
-static inline bool S_is_line_end_char(char c) {
+static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
-static inline bool S_is_space_or_tab(char c) {
+static CMARK_INLINE bool S_is_space_or_tab(char c) {
   return (c == ' ' || c == '\t');
 }
 
@@ -126,7 +126,7 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
   return true;
 }
 
-static inline bool can_contain(cmark_node_type parent_type,
+static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
                                cmark_node_type child_type) {
   return (parent_type == CMARK_NODE_DOCUMENT ||
           parent_type == CMARK_NODE_BLOCK_QUOTE ||
@@ -134,13 +134,13 @@ static inline bool can_contain(cmark_node_type parent_type,
           (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
 }
 
-static inline bool accepts_lines(cmark_node_type block_type) {
+static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static inline bool contains_inlines(cmark_node_type block_type) {
+static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING);
 }

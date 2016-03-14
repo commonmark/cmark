@@ -33,7 +33,7 @@ void cmark_strbuf_overflow_err() {
   abort();
 }
 
-static inline void S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
+static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
   size_t target_size = (size_t)buf->size + add;
 
   if (target_size < add            /* Integer overflow. */
