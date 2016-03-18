@@ -788,6 +788,11 @@ static void line_endings(test_batch_runner *runner) {
   STR_EQ(runner, html, "<p>line<br />\nline</p>\n",
          "crlf endings with CMARK_OPT_HARDBREAKS");
   free(html);
+  html = cmark_markdown_to_html(crlf_lines, sizeof(crlf_lines) - 1,
+                                CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS);
+  STR_EQ(runner, html, "<p>line line</p>\n",
+         "crlf endings with CMARK_OPT_NOBREAKS");
+  free(html);
 
   static const char no_line_ending[] = "```\nline\n```";
   html = cmark_markdown_to_html(no_line_ending, sizeof(no_line_ending) - 1,

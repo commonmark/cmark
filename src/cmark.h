@@ -519,6 +519,10 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
  */
 #define CMARK_OPT_SAFE (1 << 3)
 
+/** Render `softbreak` elements as spaces.
+ */
+#define CMARK_OPT_NOBREAKS (1 << 4)
+
 /**
  * ### Options affecting parsing
  */
