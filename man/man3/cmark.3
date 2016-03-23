@@ -1,4 +1,4 @@
-.TH cmark 3 "February 02, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 23, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -14,7 +14,7 @@ Simple Interface
 
 .PP
 Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
-\f[I]len\f[] from CommonMark Markdown to HTML, returning a
+\f[I]len\f[]) from CommonMark Markdown to HTML, returning a
 null\-terminated, UTF\-8\-encoded string.
 
 .SS
@@ -102,14 +102,14 @@ Creating and Destroying Nodes
 
 .PP
 Creates a new node of type \f[I]type\f[]. Note that the node may have
-other required properties, which it is the caller\[cq]s responsibility
-to assign.
+other required properties, which it is the caller's responsibility to
+assign.
 
 .PP
 \fIvoid\f[] \fBcmark_node_free\f[](\fIcmark_node *node\f[])
 
 .PP
-Frees the memory allocated for a node.
+Frees the memory allocated for a node and any children.
 
 .SS
 Tree Traversal
@@ -376,8 +376,7 @@ Returns 1 if \f[I]node\f[] is a tight list, 0 otherwise.
 \fIint\f[] \fBcmark_node_set_list_tight\f[](\fIcmark_node *node\f[], \fIint tight\f[])
 
 .PP
-Sets the \[lq]tightness\[rq] of a list. Returns 1 on success, 0 on
-failure.
+Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
@@ -424,31 +423,31 @@ on failure.
 \fIconst char *\f[] \fBcmark_node_get_on_enter\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal \[lq]on enter\[rq] text for a custom \f[I]node\f[],
-or an empty string if no on_enter is set.
+Returns the literal "on enter" text for a custom \f[I]node\f[], or an
+empty string if no on_enter is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
 
 .PP
-Sets the literal text to render \[lq]on enter\[rq] for a custom
-\f[I]node\f[]. Any children of the node will be rendered after this
-text. Returns 1 on success 0 on failure.
+Sets the literal text to render "on enter" for a custom \f[I]node\f[].
+Any children of the node will be rendered after this text. Returns 1 on
+success 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_on_exit\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal \[lq]on exit\[rq] text for a custom \f[I]node\f[],
-or an empty string if no on_exit is set.
+Returns the literal "on exit" text for a custom \f[I]node\f[], or an
+empty string if no on_exit is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])
 
 .PP
-Sets the literal text to render \[lq]on exit\[rq] for a custom
-\f[I]node\f[]. Any children of the node will be rendered before this
-text. Returns 1 on success 0 on failure.
+Sets the literal text to render "on exit" for a custom \f[I]node\f[].
+Any children of the node will be rendered before this text. Returns 1 on
+success 0 on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_get_start_line\f[](\fIcmark_node *node\f[])
@@ -723,7 +722,7 @@ with the replacement character U+FFFD.
 .fi
 
 .PP
-Convert straight quotes to curly, \[em] to em dashes, \[en] to en
+Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
 dashes.
 
 .SS
