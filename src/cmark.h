@@ -96,7 +96,7 @@ typedef struct cmark_iter cmark_iter;
  */
 CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
 
-/** Frees the memory allocated for a node.
+/** Frees the memory allocated for a node and any children.
  */
 CMARK_EXPORT void cmark_node_free(cmark_node *node);
 
