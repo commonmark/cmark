@@ -1,3 +1,59 @@
+[0.25.0]
+
+  * Fixed tabs in indentation (#101).  This patch fixes S_advance_offset
+    so that it doesn't gobble a tab character when advancing less than the
+    width of a tab.
+  * Added partially_consumed_tab to parser.  This keeps track of when we
+    have gotten partway through a tab when consuming initial indentation.
+  * Simplified add_line (only need parser parameter).
+  * Properly handle partially consumed tab.  E.g. in
+
+        - foo
+
+         <TAB><TAB>bar
+
+    we should consume two spaces from the second tab, including two spaces
+    in the code block.
+  * Properly handle tabs with blockquotes and fenced blocks.
+  * Fixed handling of tabs in lists.
+  * Clarified logic in S_advance_offset.
+  * Use an assertion to check for in-range html_block_type.
+    It's a programming error if the type is out of range.
+  * Refactored S_processLines to make the logic easier to
+    understand, and added documentation (Mathie Duponchelle).
+  * Removed unnecessary check for empty string_content.
+  * Factored out contains_inlines.
+  * Moved the cmake minimum version to top line of CMakeLists.txt
+    (tinysun212).
+  * Fix ctype(3) usage on NetBSD (Kamil Rytarowski).  We need to cast value
+    passed to isspace(3) to unsigned char to explicitly prevent possibly
+    undefined behavior.
+  * Compile in plain C mode with MSVC 12.0 or newer (Nick Wellnhofer).
+    Under MSVC, we used to compile in C++ mode to get some C99 features
+    like mixing declarations and code. With newer MSVC versions, it's
+    possible to build in plain C mode.
+  * Switched from "inline" to "CMARK_INLINE" (Nick Wellnhofer).
+    Newer MSVC versions support enough of C99 to be able to compile cmark
+    in plain C mode. Only the "inline" keyword is still unsupported.
+    We have to use "__inline" instead.
+  * Added include guards to config.h
+  * config.h.in - added compatibility snprintf, vsnprintf for MSVC.
+  * Replaced sprintf with snprintf (Marco Benelli).
+  * config.h: include stdio.h for _vscprintf etc.
+  * Include starg.h when needed in config.h.
+  * Removed an unnecessary C99-ism in buffer.c.  This helps compiling on
+    systems like luarocks that don't have all the cmake configuration
+    goodness (thanks to carlmartus).
+  * Don't use variable length arrays (Nick Wellnhofer).
+    They're not supported by MSVC.
+  * Test with multiple MSVC versions under Appveyor (Nick Wellnhofer).
+  * Fix installation dir of man-pages on NetBSD (Kamil Rytarowski).
+  * Fixed typo in cmark.h comments (Chris Eidhof).
+  * Clarify in man page that cmark_node_free frees a node's children too.
+  * Fixed documentation of --width in man page.
+  * Require re2c >= 1.14.2 (#102).
+  * Generated scanners.c with more recent re2c.
+
 [0.24.1]
 
   * Commonmark renderer:
