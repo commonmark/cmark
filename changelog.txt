@@ -1,3 +1,9 @@
+[0.25.1]
+
+  * Release with no code changes.  cmark version was mistakenly set to
+    0.25.1 in the 0.25.0 release (#112), so this release just
+    ensures that this will cause no confusion later.
+
 [0.25.0]
 
   * Fixed tabs in indentation (#101).  This patch fixes S_advance_offset
