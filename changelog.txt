@@ -20,7 +20,7 @@
   * Use an assertion to check for in-range html_block_type.
     It's a programming error if the type is out of range.
   * Refactored S_processLines to make the logic easier to
-    understand, and added documentation (Mathie Duponchelle).
+    understand, and added documentation (Mathieu Duponchelle).
   * Removed unnecessary check for empty string_content.
   * Factored out contains_inlines.
   * Moved the cmake minimum version to top line of CMakeLists.txt
