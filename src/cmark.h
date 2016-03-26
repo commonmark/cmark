@@ -418,7 +418,7 @@ CMARK_EXPORT void cmark_consolidate_text_nodes(cmark_node *root);
  * Streaming interface:
  *
  *     cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
- *     FILE *fp = fopen("myfile.md", "r");
+ *     FILE *fp = fopen("myfile.md", "rb");
  *     while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
  *     	   cmark_parser_feed(parser, buffer, bytes);
  *     	   if (bytes < sizeof(buffer)) {
