@@ -1,3 +1,13 @@
+[0.25.2]
+
+  * Open files in binary mode (#113, Nick Wellnhofer).  Now that cmark
+    supports different line endings, files must be openend in binary mode
+    on Windows.
+  * Reset `partially_consumed_tab` on every new line (#114, Nick Wellnhofer).
+  * Handle buffer split across a CRLF line ending (#117).  Adds an internal
+    field to the parser struct to keep track of `last_buffer_ended_with_cr`.
+    Added test.
+
 [0.25.1]
 
   * Release with no code changes.  cmark version was mistakenly set to
