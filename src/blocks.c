@@ -1124,6 +1124,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   parser->offset = 0;
   parser->column = 0;
   parser->blank = false;
+  parser->partially_consumed_tab = false;
 
   input.data = parser->curline->ptr;
   input.len = parser->curline->size;
