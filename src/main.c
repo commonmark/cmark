@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
   parser = cmark_parser_new(options);
   for (i = 0; i < numfps; i++) {
-    FILE *fp = fopen(argv[files[i]], "r");
+    FILE *fp = fopen(argv[files[i]], "rb");
     if (fp == NULL) {
       fprintf(stderr, "Error opening file %s: %s\n", argv[files[i]],
               strerror(errno));
