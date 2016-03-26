@@ -90,6 +90,7 @@ cmark_parser *cmark_parser_new(int options) {
   parser->last_line_length = 0;
   parser->linebuf = buf;
   parser->options = options;
+  parser->last_buffer_ended_with_cr = false;
 
   return parser;
 }
@@ -506,6 +507,11 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   const unsigned char *end = buffer + len;
   static const uint8_t repl[] = {239, 191, 189};
 
+  if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
+    // skip NL if last buffer ended with CR ; see #117
+    buffer++;
+  }
+  parser->last_buffer_ended_with_cr = false;
   while (buffer < end) {
     const unsigned char *eol;
     bufsize_t chunk_len;
@@ -546,8 +552,11 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 
     buffer += chunk_len;
     // skip over line ending characters:
-    if (buffer < end && *buffer == '\r')
+    if (buffer < end && *buffer == '\r') {
       buffer++;
+      if (buffer == end)
+	parser->last_buffer_ended_with_cr = true;
+    }
     if (buffer < end && *buffer == '\n')
       buffer++;
   }

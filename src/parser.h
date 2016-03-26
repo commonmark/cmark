@@ -27,6 +27,7 @@ struct cmark_parser {
   bufsize_t last_line_length;
   cmark_strbuf *linebuf;
   int options;
+  bool last_buffer_ended_with_cr;
 };
 
 #ifdef __cplusplus
