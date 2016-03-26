@@ -852,6 +852,17 @@ static void test_md_to_html(test_batch_runner *runner, const char *markdown,
   free(html);
 }
 
+static void test_feed_across_line_ending(test_batch_runner *runner) {
+  // See #117
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_feed(parser, "line1\r", 6);
+  cmark_parser_feed(parser, "\nline2\r\n", 8);
+  cmark_node *document = cmark_parser_finish(parser);
+  OK(runner, document->first_child->next == NULL, "document has one paragraph");
+  cmark_parser_free(parser);
+  cmark_node_free(document);
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -876,6 +887,7 @@ int main() {
   numeric_entities(runner);
   test_cplusplus(runner);
   test_safe(runner);
+  test_feed_across_line_ending(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
