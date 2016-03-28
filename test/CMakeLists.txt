@@ -53,6 +53,13 @@ IF (PYTHONINTERP_FOUND)
     "${ROUNDTRIP} ${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
 
+  add_test(regressiontest_executable
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec"
+    "${CMAKE_CURRENT_SOURCE_DIR}/regression.txt" "--program"
+    "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    )
+
 
 ELSE(PYTHONINTERP_FOUND)
 

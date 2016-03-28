@@ -1,0 +1,34 @@
+### Regression tests
+
+Issue #113: EOL character weirdness on Windows
+(Important: first line ends with CR + CR + LF)
+
+```````````````````````````````` example
+line1
+line2
+.
+<p>line1</p>
+<p>line2</p>
+````````````````````````````````
+
+Issue #114: cmark skipping first character in line
+(Important: the blank lines around "Repeatedly" contain a tab.)
+
+```````````````````````````````` example
+By taking it apart
+
+- alternative solutions
+→
+Repeatedly solving
+→
+- how techniques
+.
+<p>By taking it apart</p>
+<ul>
+<li>alternative solutions</li>
+</ul>
+<p>Repeatedly solving</p>
+<ul>
+<li>how techniques</li>
+</ul>
+````````````````````````````````
