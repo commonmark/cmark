@@ -416,6 +416,10 @@ void cmark_parser_advance_offset(cmark_parser *parser,
                                  int count,
                                  int columns);
 
+
+CMARK_EXPORT
+void cmark_parser_feed_reentrant(cmark_parser *parser, const char *buffer, size_t len);
+
 /** Attach the syntax 'extension' to the 'parser', to provide extra syntax
  *  rules.
  *  See the documentation for cmark_syntax_extension for more information.
