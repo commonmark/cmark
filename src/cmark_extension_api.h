@@ -97,6 +97,10 @@ typedef struct cmark_plugin cmark_plugin;
  *
  * Finally, the extension should return NULL if its scan didn't
  * match its syntax rules.
+ *
+ * The extension can store whatever private data it might need
+ * with 'cmark_syntax_extension_set_private',
+ * and optionally define a free function for this data.
  */
 typedef struct cmark_syntax_extension cmark_syntax_extension;
 
@@ -250,6 +254,13 @@ void cmark_syntax_extension_set_inline_from_delim_func(cmark_syntax_extension *e
 CMARK_EXPORT
 void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *extension,
                                                      cmark_llist *special_chars);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
+                                        void *priv,
+                                        cmark_free_func free_func);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
