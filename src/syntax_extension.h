@@ -11,6 +11,8 @@ struct cmark_syntax_extension {
   cmark_inline_from_delim_func    insert_inline_from_delim;
   cmark_llist                   * special_inline_chars;
   char                          * name;
+  void                          * priv;
+  cmark_free_func                 free_function;
 };
 
 #endif
