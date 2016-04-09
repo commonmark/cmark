@@ -27,6 +27,7 @@ void print_usage() {
   printf("  --width WIDTH    Specify wrap width (default 0 = nowrap)\n");
   printf("  --sourcepos      Include source position attribute\n");
   printf("  --hardbreaks     Treat newlines as hard line breaks\n");
+  printf("  --nobreaks       Render soft line breaks as spaces\n");
   printf("  --safe           Suppress raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
   printf("  --normalize      Consolidate adjacent text nodes\n");
@@ -90,6 +91,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_SOURCEPOS;
     } else if (strcmp(argv[i], "--hardbreaks") == 0) {
       options |= CMARK_OPT_HARDBREAKS;
+    } else if (strcmp(argv[i], "--nobreaks") == 0) {
+      options |= CMARK_OPT_NOBREAKS;
     } else if (strcmp(argv[i], "--smart") == 0) {
       options |= CMARK_OPT_SMART;
     } else if (strcmp(argv[i], "--safe") == 0) {
