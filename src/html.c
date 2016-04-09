@@ -228,6 +228,8 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_SOFTBREAK:
     if (options & CMARK_OPT_HARDBREAKS) {
       cmark_strbuf_puts(html, "<br />\n");
+    } else if (options & CMARK_OPT_NOBREAKS) {
+      cmark_strbuf_putc(html, ' ');
     } else {
       cmark_strbuf_putc(html, '\n');
     }
