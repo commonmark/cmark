@@ -945,7 +945,9 @@ static void open_new_blocks(cmark_parser *parser,
       }
 
       i = parser->column - save_column;
-      if (i >= 5 || i < 1) {
+      if (i >= 5 || i < 1 ||
+	     // only spaces after list marker:
+	     S_is_line_end_char(peek_at(input, parser->offset)) ) {
         data->padding = matched + 1;
 	parser->offset = save_offset;
 	parser->column = save_column;
