@@ -23,7 +23,7 @@
 // Functions to convert cmark_nodes to commonmark strings.
 
 static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
-                        int32_t c, unsigned char nextc) {
+                              int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   bool follows_digit =
       renderer->buffer->size > 0 &&
@@ -173,7 +173,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   char *emph_delim;
   bufsize_t marker_width;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options) &&
-		!(CMARK_OPT_HARDBREAKS & options);
+                    !(CMARK_OPT_HARDBREAKS & options);
 
   // Don't adjust tight list status til we've started the list.
   // Otherwise we loose the blank line between a paragraph and
@@ -274,9 +274,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     // use indented form if no info, and code doesn't
     // begin or end with a blank line, and code isn't
     // first thing in a list item
-    if (info_len == 0 &&
-        (code_len > 2 && !isspace((unsigned char)code[0]) &&
-         !(isspace((unsigned char)code[code_len - 1]) && isspace((unsigned char)code[code_len - 2]))) &&
+    if (info_len == 0 && (code_len > 2 && !isspace((unsigned char)code[0]) &&
+                          !(isspace((unsigned char)code[code_len - 1]) &&
+                            isspace((unsigned char)code[code_len - 2]))) &&
         !(node->prev == NULL && node->parent &&
           node->parent->type == CMARK_NODE_ITEM)) {
       LIT("    ");
@@ -344,7 +344,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("  ");
       CR();
     } else if (renderer->width == 0 && !(CMARK_OPT_HARDBREAKS & options) &&
-		    !(CMARK_OPT_NOBREAKS & options)) {
+               !(CMARK_OPT_NOBREAKS & options)) {
       CR();
     } else {
       OUT(" ", allow_wrap, LITERAL);

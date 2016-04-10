@@ -467,7 +467,7 @@ static cmark_node *handle_period(subject *subj, bool smart) {
 }
 
 static void process_emphasis(subject *subj, delimiter *stack_bottom,
-				bool firstpass) {
+                             bool firstpass) {
   delimiter *closer = subj->last_delim;
   delimiter *opener;
   delimiter *old_closer;
@@ -496,7 +496,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom,
       while (opener != NULL && opener != stack_bottom &&
              opener != openers_bottom[closer->delim_char]) {
         if (opener->delim_char == closer->delim_char && opener->can_open &&
-			!(firstpass && opener->can_close)) {
+            !(firstpass && opener->can_close)) {
           opener_found = true;
           break;
         }

@@ -20,7 +20,7 @@
 #define LIST_NUMBER_STRING_SIZE 20
 
 static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
-                        int32_t c, unsigned char nextc) {
+                              int32_t c, unsigned char nextc) {
   if (escape == LITERAL) {
     cmark_render_code_point(renderer, c);
     return;
