@@ -552,7 +552,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   cmark_node *closer_inl = closer->inl_text;
   bufsize_t opener_num_chars = opener_inl->as.literal.len;
   bufsize_t closer_num_chars = closer_inl->as.literal.len;
-  cmark_node *tmp, *emph, *first_child, *last_child;
+  cmark_node *tmp, *tmpnext, *emph;
 
   // calculate the actual number of characters used from this closer
   if (closer_num_chars < 3 || opener_num_chars < 3) {
@@ -576,37 +576,22 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
     delim = tmp_delim;
   }
 
-  first_child = opener_inl->next;
-  last_child = closer_inl->prev;
+   // create new emph or strong, and splice it in to our inlines
+   // between the opener and closer
+   emph = use_delims == 1 ? make_emph() : make_strong();
+
+   tmp = opener_inl->next;
+   while (tmp && tmp != closer_inl) {
+     tmpnext = tmp->next;
+     cmark_node_append_child(emph, tmp);
+     tmp = tmpnext;
+   }
+   cmark_node_insert_after(opener_inl, emph);
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
-    // replace empty opener inline with emph
-    cmark_chunk_free(&(opener_inl->as.literal));
-    emph = opener_inl;
-    emph->type = use_delims == 1 ? CMARK_NODE_EMPH : CMARK_NODE_STRONG;
-    // remove opener from list
+    cmark_node_free(opener_inl);
     remove_delimiter(subj, opener);
-  } else {
-    // create new emph or strong, and splice it in to our inlines
-    // between the opener and closer
-    emph = use_delims == 1 ? make_emph() : make_strong();
-    emph->parent = opener_inl->parent;
-    emph->prev = opener_inl;
-    opener_inl->next = emph;
-  }
-
-  // push children below emph
-  emph->next = closer_inl;
-  closer_inl->prev = emph;
-  emph->first_child = first_child;
-  emph->last_child = last_child;
-
-  // fix children pointers
-  first_child->prev = NULL;
-  last_child->next = NULL;
-  for (tmp = first_child; tmp != NULL; tmp = tmp->next) {
-    tmp->parent = emph;
   }
 
   // if closer has 0 characters, remove it and its associated inline
@@ -786,7 +771,7 @@ noMatch:
 }
 
 // Return a link, an image, or a literal close bracket.
-static cmark_node *handle_close_bracket(subject *subj, cmark_node *parent) {
+static cmark_node *handle_close_bracket(subject *subj) {
   bufsize_t initial_pos;
   bufsize_t starturl, endurl, starttitle, endtitle, endall;
   bufsize_t n;
@@ -800,6 +785,7 @@ static cmark_node *handle_close_bracket(subject *subj, cmark_node *parent) {
   cmark_node *inl;
   cmark_chunk raw_label;
   int found_label;
+  cmark_node *tmp, *tmpnext;
 
   advance(subj); // advance past ]
   initial_pos = subj->pos;
@@ -897,24 +883,22 @@ noMatch:
   return make_str(cmark_chunk_literal("]"));
 
 match:
-  inl = opener->inl_text;
-  inl->type = is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK;
-  cmark_chunk_free(&inl->as.literal);
-  inl->first_child = link_text;
-  process_emphasis(subj, opener);
+  inl = make_simple(is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK);
   inl->as.link.url = url;
   inl->as.link.title = title;
-  inl->next = NULL;
-  if (link_text) {
-    cmark_node *tmp;
-    link_text->prev = NULL;
-    for (tmp = link_text; tmp->next != NULL; tmp = tmp->next) {
-      tmp->parent = inl;
-    }
-    tmp->parent = inl;
-    inl->last_child = tmp;
+  cmark_node_insert_before(opener->inl_text, inl);
+  // Add link text:
+  tmp = opener->inl_text->next;
+  while (tmp) {
+    tmpnext = tmp->next;
+    cmark_node_append_child(inl, tmp);
+    tmp = tmpnext;
   }
-  parent->last_child = inl;
+
+  // Free the bracket [:
+  cmark_node_free(opener->inl_text);
+
+  process_emphasis(subj, opener);
 
   // Now, if we have a link, we also want to deactivate earlier link
   // delimiters. (This code can be removed if we decide to allow links
@@ -1047,7 +1031,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     push_delimiter(subj, '[', true, false, new_inl);
     break;
   case ']':
-    new_inl = handle_close_bracket(subj, parent);
+    new_inl = handle_close_bracket(subj);
     break;
   case '!':
     advance(subj);
