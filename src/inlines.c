@@ -53,7 +53,7 @@ static CMARK_INLINE bool S_is_line_end_char(char c) {
 }
 
 static delimiter *S_insert_emph(subject *subj, delimiter *opener,
-                                delimiter *closer);
+                                delimiter *closer, bool firstpass);
 
 static int parse_inline(subject *subj, cmark_node *parent, int options);
 
@@ -466,7 +466,8 @@ static cmark_node *handle_period(subject *subj, bool smart) {
   }
 }
 
-static void process_emphasis(subject *subj, delimiter *stack_bottom) {
+static void process_emphasis(subject *subj, delimiter *stack_bottom,
+				bool firstpass) {
   delimiter *closer = subj->last_delim;
   delimiter *opener;
   delimiter *old_closer;
@@ -486,7 +487,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
 
   // now move forward, looking for closers, and handling each
   while (closer != NULL) {
-    if (closer->can_close &&
+    if (closer->can_close && !(firstpass && closer->can_open) &&
         (closer->delim_char == '*' || closer->delim_char == '_' ||
          closer->delim_char == '"' || closer->delim_char == '\'')) {
       // Now look backwards for first matching opener:
@@ -494,7 +495,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       opener_found = false;
       while (opener != NULL && opener != stack_bottom &&
              opener != openers_bottom[closer->delim_char]) {
-        if (opener->delim_char == closer->delim_char && opener->can_open) {
+        if (opener->delim_char == closer->delim_char && opener->can_open &&
+			!(firstpass && opener->can_close)) {
           opener_found = true;
           break;
         }
@@ -503,7 +505,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       old_closer = closer;
       if (closer->delim_char == '*' || closer->delim_char == '_') {
         if (opener_found) {
-          closer = S_insert_emph(subj, opener, closer);
+          closer = S_insert_emph(subj, opener, closer, firstpass);
         } else {
           closer = closer->next;
         }
@@ -527,7 +529,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       if (!opener_found) {
         // set lower bound for future searches for openers:
         openers_bottom[old_closer->delim_char] = old_closer->previous;
-        if (!old_closer->can_open) {
+        if (!firstpass && !old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
           // matching opener:
@@ -538,21 +540,23 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       closer = closer->next;
     }
   }
-  // free all delimiters in list until stack_bottom:
-  while (subj->last_delim != stack_bottom) {
-    remove_delimiter(subj, subj->last_delim);
+  if (!firstpass) {
+    // free all delimiters in list until stack_bottom:
+    while (subj->last_delim != stack_bottom) {
+      remove_delimiter(subj, subj->last_delim);
+    }
   }
 }
 
 static delimiter *S_insert_emph(subject *subj, delimiter *opener,
-                                delimiter *closer) {
+                                delimiter *closer, bool firstpass) {
   delimiter *delim, *tmp_delim;
   bufsize_t use_delims;
   cmark_node *opener_inl = opener->inl_text;
   cmark_node *closer_inl = closer->inl_text;
   bufsize_t opener_num_chars = opener_inl->as.literal.len;
   bufsize_t closer_num_chars = closer_inl->as.literal.len;
-  cmark_node *tmp, *emph, *first_child, *last_child;
+  cmark_node *tmp, *tmpnext, *emph, *first_child, *last_child;
 
   // calculate the actual number of characters used from this closer
   if (closer_num_chars < 3 || opener_num_chars < 3) {
@@ -576,37 +580,22 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
     delim = tmp_delim;
   }
 
-  first_child = opener_inl->next;
-  last_child = closer_inl->prev;
+  // create new emph or strong, and splice it in to our inlines
+  // between the opener and closer
+  emph = use_delims == 1 ? make_emph() : make_strong();
+
+  tmp = opener_inl->next;
+  while (tmp && tmp != closer_inl) {
+    tmpnext = tmp->next;
+    cmark_node_append_child(emph, tmp);
+    tmp = tmpnext;
+  }
+  cmark_node_insert_after(opener_inl, emph);
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
-    // replace empty opener inline with emph
-    cmark_chunk_free(&(opener_inl->as.literal));
-    emph = opener_inl;
-    emph->type = use_delims == 1 ? CMARK_NODE_EMPH : CMARK_NODE_STRONG;
-    // remove opener from list
+    cmark_node_free(opener_inl);
     remove_delimiter(subj, opener);
-  } else {
-    // create new emph or strong, and splice it in to our inlines
-    // between the opener and closer
-    emph = use_delims == 1 ? make_emph() : make_strong();
-    emph->parent = opener_inl->parent;
-    emph->prev = opener_inl;
-    opener_inl->next = emph;
-  }
-
-  // push children below emph
-  emph->next = closer_inl;
-  closer_inl->prev = emph;
-  emph->first_child = first_child;
-  emph->last_child = last_child;
-
-  // fix children pointers
-  first_child->prev = NULL;
-  last_child->next = NULL;
-  for (tmp = first_child; tmp != NULL; tmp = tmp->next) {
-    tmp->parent = emph;
   }
 
   // if closer has 0 characters, remove it and its associated inline
@@ -800,6 +789,7 @@ static cmark_node *handle_close_bracket(subject *subj, cmark_node *parent) {
   cmark_node *inl;
   cmark_chunk raw_label;
   int found_label;
+  cmark_node *tmp, *tmpnext;
 
   advance(subj); // advance past ]
   initial_pos = subj->pos;
@@ -897,24 +887,24 @@ noMatch:
   return make_str(cmark_chunk_literal("]"));
 
 match:
-  inl = opener->inl_text;
-  inl->type = is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK;
-  cmark_chunk_free(&inl->as.literal);
-  inl->first_child = link_text;
-  process_emphasis(subj, opener);
+  inl = make_simple(is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK);
   inl->as.link.url = url;
   inl->as.link.title = title;
-  inl->next = NULL;
-  if (link_text) {
-    cmark_node *tmp;
-    link_text->prev = NULL;
-    for (tmp = link_text; tmp->next != NULL; tmp = tmp->next) {
-      tmp->parent = inl;
-    }
-    tmp->parent = inl;
-    inl->last_child = tmp;
+  cmark_node_insert_before(opener->inl_text, inl);
+
+  // Add link text:
+  tmp = opener->inl_text->next;
+  while (tmp) {
+    tmpnext = tmp->next;
+    cmark_node_append_child(inl, tmp);
+    tmp = tmpnext;
   }
-  parent->last_child = inl;
+
+  // Free the bracket [:
+  cmark_node_free(opener->inl_text);
+
+  process_emphasis(subj, opener, true);
+  process_emphasis(subj, opener, false);
 
   // Now, if we have a link, we also want to deactivate earlier link
   // delimiters. (This code can be removed if we decide to allow links
@@ -1088,7 +1078,8 @@ extern void cmark_parse_inlines(cmark_node *parent, cmark_reference_map *refmap,
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))
     ;
 
-  process_emphasis(&subj, NULL);
+  process_emphasis(&subj, NULL, true);
+  process_emphasis(&subj, NULL, false);
 }
 
 // Parse zero or more space characters, including at most one newline.
