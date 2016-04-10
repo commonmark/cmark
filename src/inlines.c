@@ -576,17 +576,17 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
     delim = tmp_delim;
   }
 
-   // create new emph or strong, and splice it in to our inlines
-   // between the opener and closer
-   emph = use_delims == 1 ? make_emph() : make_strong();
+  // create new emph or strong, and splice it in to our inlines
+  // between the opener and closer
+  emph = use_delims == 1 ? make_emph() : make_strong();
 
-   tmp = opener_inl->next;
-   while (tmp && tmp != closer_inl) {
-     tmpnext = tmp->next;
-     cmark_node_append_child(emph, tmp);
-     tmp = tmpnext;
-   }
-   cmark_node_insert_after(opener_inl, emph);
+  tmp = opener_inl->next;
+  while (tmp && tmp != closer_inl) {
+    tmpnext = tmp->next;
+    cmark_node_append_child(emph, tmp);
+    tmp = tmpnext;
+  }
+  cmark_node_insert_after(opener_inl, emph);
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
