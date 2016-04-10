@@ -53,7 +53,7 @@ static CMARK_INLINE bool S_is_line_end_char(char c) {
 }
 
 static delimiter *S_insert_emph(subject *subj, delimiter *opener,
-                                delimiter *closer, bool firstpass);
+                                delimiter *closer);
 
 static int parse_inline(subject *subj, cmark_node *parent, int options);
 
@@ -505,7 +505,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom,
       old_closer = closer;
       if (closer->delim_char == '*' || closer->delim_char == '_') {
         if (opener_found) {
-          closer = S_insert_emph(subj, opener, closer, firstpass);
+          closer = S_insert_emph(subj, opener, closer);
         } else {
           closer = closer->next;
         }
@@ -549,14 +549,14 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom,
 }
 
 static delimiter *S_insert_emph(subject *subj, delimiter *opener,
-                                delimiter *closer, bool firstpass) {
+                                delimiter *closer) {
   delimiter *delim, *tmp_delim;
   bufsize_t use_delims;
   cmark_node *opener_inl = opener->inl_text;
   cmark_node *closer_inl = closer->inl_text;
   bufsize_t opener_num_chars = opener_inl->as.literal.len;
   bufsize_t closer_num_chars = closer_inl->as.literal.len;
-  cmark_node *tmp, *tmpnext, *emph, *first_child, *last_child;
+  cmark_node *tmp, *tmpnext, *emph;
 
   // calculate the actual number of characters used from this closer
   if (closer_num_chars < 3 || opener_num_chars < 3) {
@@ -775,7 +775,7 @@ noMatch:
 }
 
 // Return a link, an image, or a literal close bracket.
-static cmark_node *handle_close_bracket(subject *subj, cmark_node *parent) {
+static cmark_node *handle_close_bracket(subject *subj) {
   bufsize_t initial_pos;
   bufsize_t starturl, endurl, starttitle, endtitle, endall;
   bufsize_t n;
@@ -1037,7 +1037,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     push_delimiter(subj, '[', true, false, new_inl);
     break;
   case ']':
-    new_inl = handle_close_bracket(subj, parent);
+    new_inl = handle_close_bracket(subj);
     break;
   case '!':
     advance(subj);
