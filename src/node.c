@@ -691,6 +691,23 @@ int cmark_node_set_on_exit(cmark_node *node, const char *on_exit) {
   return 0;
 }
 
+cmark_syntax_extension *cmark_node_get_syntax_extension(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  }
+
+  return node->extension;
+}
+
+int cmark_node_set_syntax_extension(cmark_node *node, cmark_syntax_extension *extension) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  node->extension = extension;
+  return 1;
+}
+
 int cmark_node_get_start_line(cmark_node *node) {
   if (node == NULL) {
     return 0;

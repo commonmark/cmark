@@ -45,6 +45,7 @@ struct cmark_parser {
   /* Options set by the user, see the Options section in cmark.h */
   int options;
   bool last_buffer_ended_with_cr;
+  cmark_llist *syntax_extensions;
 };
 
 #ifdef __cplusplus

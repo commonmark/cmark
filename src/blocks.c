@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "cmark_ctype.h"
+#include "syntax_extension.h"
 #include "config.h"
 #include "parser.h"
 #include "cmark.h"
@@ -80,6 +81,12 @@ static cmark_node *make_document(cmark_mem *mem) {
   return e;
 }
 
+int cmark_parser_attach_syntax_extension(cmark_parser *parser,
+                                      cmark_syntax_extension *extension) {
+  parser->syntax_extensions = cmark_llist_append(parser->syntax_extensions, extension);
+  return 1;
+}
+
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
   parser->mem = mem;
@@ -103,6 +110,7 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->last_line_length = 0;
   parser->options = options;
   parser->last_buffer_ended_with_cr = false;
+  parser->syntax_extensions = NULL;
 
   return parser;
 }
@@ -117,6 +125,7 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
   cmark_reference_map_free(parser->refmap);
+  cmark_llist_free(parser->syntax_extensions);
   mem->free(parser);
 }
 
@@ -778,6 +787,21 @@ static bool parse_html_block_prefix(cmark_parser *parser,
   return res;
 }
 
+static bool parse_extension_block(cmark_parser *parser,
+                                  cmark_node *container,
+                                  cmark_chunk *input)
+{
+  bool res = false;
+
+  if (container->extension->last_block_matches) {
+    if (container->extension->last_block_matches(
+        container->extension, parser, input->data, input->len, container))
+      res = true;
+  }
+
+  return res;
+}
+
 /**
  * For each containing node, try to parse the associated line start.
  *
@@ -798,6 +822,12 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
     cont_type = S_type(container);
 
     S_find_first_nonspace(parser, input);
+
+    if (container->extension) {
+      if (!parse_extension_block(parser, container, input))
+        goto done;
+      continue;
+    }
 
     switch (cont_type) {
     case CMARK_NODE_BLOCK_QUOTE:
@@ -999,9 +1029,27 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.code.fence_length = 0;
       (*container)->as.code.fence_offset = 0;
       (*container)->as.code.info = cmark_chunk_literal("");
-
     } else {
-      break;
+      cmark_llist *tmp;
+      cmark_node *new_container = NULL;
+
+      for (tmp = parser->syntax_extensions; tmp; tmp=tmp->next) {
+        cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp->data;
+
+        if (ext->try_opening_block) {
+          new_container = ext->try_opening_block(
+              ext, indented, parser, *container, input->data, input->len);
+
+          if (new_container) {
+            *container = new_container;
+            break;
+          }
+        }
+      }
+
+      if (!new_container) {
+        break;
+      }
     }
 
     if (accepts_lines(S_type(*container))) {
