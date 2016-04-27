@@ -1,4 +1,4 @@
-.TH cmark 3 "April 09, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "April 26, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -599,32 +599,37 @@ Rendering
 \fIchar *\f[] \fBcmark_render_xml\f[](\fIcmark_node *root\f[], \fIint options\f[])
 
 .PP
-Render a \f[I]node\f[] tree as XML.
+Render a \f[I]node\f[] tree as XML. It is the caller's responsibility to
+free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[])
 
 .PP
 Render a \f[I]node\f[] tree as an HTML fragment. It is up to the user to
-add an appropriate header and footer.
+add an appropriate header and footer. It is the caller's responsibility
+to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_man\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
-Render a \f[I]node\f[] tree as a groff man page, without the header.
+Render a \f[I]node\f[] tree as a groff man page, without the header. It
+is the caller's responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_commonmark\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
-Render a \f[I]node\f[] tree as a commonmark document.
+Render a \f[I]node\f[] tree as a commonmark document. It is the caller's
+responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_latex\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
-Render a \f[I]node\f[] tree as a LaTeX document.
+Render a \f[I]node\f[] tree as a LaTeX document. It is the caller's
+responsibility to free the returned buffer.
 
 .SS
 Options
