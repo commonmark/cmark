@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cmark.h"
+#include "cmark_extension_api.h"
 #include "buffer.h"
 #include "chunk.h"
 
@@ -69,6 +70,8 @@ struct cmark_node {
   int end_column;
   uint16_t type;
   uint16_t flags;
+
+  cmark_syntax_extension *extension;
 
   union {
     cmark_chunk literal;
