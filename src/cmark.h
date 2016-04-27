@@ -140,6 +140,22 @@ void          cmark_llist_free_full (cmark_llist       * head,
 CMARK_EXPORT
 void          cmark_llist_free      (cmark_llist       * head);
 /**
+ * ## Initialization
+ */
+
+/** Initialize the cmark library. This will discover available plugins.
+ *  Returns 'true' if initialization was successful, 'false' otherwise.
+ */
+CMARK_EXPORT
+int cmark_init(void);
+
+/** Deinitialize the cmark library. This will release all plugins.
+ *  Returns true if deinitialization was successful, 'false' otherwise.
+ */
+CMARK_EXPORT
+int cmark_deinit(void);
+
+/**
  * ## Creating and Destroying Nodes
  */
 

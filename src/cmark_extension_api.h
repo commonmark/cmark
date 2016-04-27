@@ -33,6 +33,7 @@ extern "C" {
  * desirable.
  */
 
+typedef struct cmark_plugin cmark_plugin;
 
 /** A syntax extension that can be attached to a cmark_parser
  * with cmark_parser_attach_syntax_extension().
@@ -61,6 +62,67 @@ extern "C" {
  * no effect at all on the final block structure of the AST.
  */
 typedef struct cmark_syntax_extension cmark_syntax_extension;
+
+/**
+ * ### Plugin API.
+ *
+ * Extensions should be distributed as dynamic libraries,
+ * with a single exported function named after the distributed
+ * filename.
+ *
+ * When discovering extensions (see cmark_init), cmark will
+ * try to load a symbol named "init_{{filename}}" in all the
+ * dynamic libraries it encounters.
+ *
+ * For example, given a dynamic library named myextension.so
+ * (or myextension.dll), cmark will try to load the symbol
+ * named "init_myextension". This means that the filename
+ * must lend itself to forming a valid C identifier, with
+ * the notable exception of dashes, which will be translated
+ * to underscores, which means cmark will look for a function
+ * named "init_my_extension" if it encounters a dynamic library
+ * named "my-extension.so".
+ *
+ * See the 'cmark_plugin_init_func' typedef for the exact prototype
+ * this function should follow.
+ *
+ * For now the extensibility of cmark is not complete, as
+ * it only offers API to hook into the block parsing phase
+ * (<http://spec.commonmark.org/0.24/#phase-1-block-structure>).
+ *
+ * See 'cmark_plugin_register_syntax_extension' for more information.
+ */
+
+/** The prototype plugins' init function should follow.
+ */
+typedef int (*cmark_plugin_init_func)(cmark_plugin *plugin);
+
+/** Register a syntax 'extension' with the 'plugin', it will be made
+ * available as an extension and, if attached to a cmark_parser
+ * with 'cmark_parser_attach_syntax_extension', it will contribute
+ * to the block parsing process.
+ *
+ * See the documentation for 'cmark_syntax_extension' for information
+ * on how to implement one.
+ *
+ * This function will typically be called from the init function
+ * of external modules.
+ *
+ * This takes ownership of 'extension', one should not call
+ * 'cmark_syntax_extension_free' on a registered extension.
+ */
+CMARK_EXPORT
+int cmark_plugin_register_syntax_extension(cmark_plugin *plugin,
+                                            cmark_syntax_extension *extension);
+
+/** This will search for the syntax extension named 'name' among the
+ *  registered syntax extensions.
+ *
+ *  It can then be attached to a cmark_parser
+ *  with the cmark_parser_attach_syntax_extension method.
+ */
+CMARK_EXPORT
+cmark_syntax_extension *cmark_find_syntax_extension(const char *name);
 
 /** Should create and add a new open block to 'parent_container' if
  * 'input' matches a syntax rule for that block type. It is allowed
