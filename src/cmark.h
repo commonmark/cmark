@@ -21,7 +21,8 @@ extern "C" {
 
 /** Convert 'text' (assumed to be a UTF-8 encoded string with length
  * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
- * UTF-8-encoded string.
+ * UTF-8-encoded string. It is the caller's responsibility
+ * to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
@@ -179,7 +180,9 @@ typedef enum {
 } cmark_event_type;
 
 /** Creates a new iterator starting at 'root'.  The current node and event
- * type are undefined until `cmark_iter_next` is called for the first time.
+ * type are undefined until 'cmark_iter_next' is called for the first time.
+ * The memory allocated for the iterator should be released using
+ * 'cmark_iter_free' when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_iter *cmark_iter_new(cmark_node *root);
@@ -450,13 +453,16 @@ CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
 
 /** Parse a CommonMark document in 'buffer' of length 'len'.
- * Returns a pointer to a tree of nodes.
+ * Returns a pointer to a tree of nodes.  The memory allocated for
+ * the node tree should be released using 'cmark_node_free'
+ * when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 
 /** Parse a CommonMark document in file 'f', returning a pointer to
- * a tree of nodes.
+ * a tree of nodes.  The memory allocated for the node tree should be
+ * released using 'cmark_node_free' when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
