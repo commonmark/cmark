@@ -24,15 +24,18 @@ class CMark:
         else:
             sysname = platform.system()
             if sysname == 'Darwin':
-                libname = "libcmark.dylib"
+                libnames = [ "libcmark.dylib" ]
             elif sysname == 'Windows':
-                libname = "cmark.dll"
+                libnames = [ "cmark.dll", "libcmark.dll" ]
             else:
-                libname = "libcmark.so"
-            if library_dir:
-                libpath = os.path.join(library_dir, libname)
-            else:
-                libpath = os.path.join("build", "src", libname)
+                libnames = [ "libcmark.so" ]
+            if not library_dir:
+                library_dir = os.path.join("build", "src")
+            for libname in libnames:
+                candidate = os.path.join(library_dir, libname)
+                if os.path.isfile(candidate):
+                    libpath = candidate
+                    break
             cmark = CDLL(libpath)
             markdown = cmark.cmark_markdown_to_html
             markdown.restype = c_char_p
