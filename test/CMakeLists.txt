@@ -13,9 +13,9 @@ add_test(NAME api_test COMMAND api_test)
 
 if (WIN32)
   file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/src WIN_DLL_DIR)
-  set_tests_properties(api_test PROPERTIES
-    ENVIRONMENT "PATH=${WIN_DLL_DIR};$ENV{PATH}"
-    )
+  set(NEWPATH "${WIN_DLL_DIR};$ENV{PATH}")
+  string(REPLACE ";" "\\;" NEWPATH "${NEWPATH}")
+  set_tests_properties(api_test PROPERTIES ENVIRONMENT "PATH=${NEWPATH}")
   set(ROUNDTRIP,"${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.bat")
 else(WIN32)
   set(ROUNDTRIP,"${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.sh")
