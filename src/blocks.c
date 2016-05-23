@@ -528,7 +528,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
-    chunk_len = cmark_strbuf_check_bufsize(eol - buffer);
+    chunk_len = (eol - buffer);
     if (process) {
       if (parser->linebuf->size > 0) {
         cmark_strbuf_put(parser->linebuf, buffer, chunk_len);
