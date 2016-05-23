@@ -11,7 +11,6 @@
 #include "scanners.h"
 #include "render.h"
 
-#define safe_strlen(s) cmark_strbuf_safe_strlen(s)
 #define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
@@ -67,7 +66,7 @@ static int longest_backtick_sequence(const char *code) {
   int longest = 0;
   int current = 0;
   size_t i = 0;
-  size_t code_len = safe_strlen(code);
+  size_t code_len = strlen(code);
   while (i <= code_len) {
     if (code[i] == '`') {
       current++;
@@ -86,7 +85,7 @@ static int shortest_unused_backtick_sequence(const char *code) {
   int32_t used = 1;
   int current = 0;
   size_t i = 0;
-  size_t code_len = safe_strlen(code);
+  size_t code_len = strlen(code);
   while (i <= code_len) {
     if (code[i] == '`') {
       current++;
@@ -233,7 +232,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
                list_delim == CMARK_PAREN_DELIM ? ")" : ".",
                list_number < 10 ? "  " : " ");
-      marker_width = safe_strlen(listmarker);
+      marker_width = strlen(listmarker);
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
@@ -275,9 +274,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       BLANKLINE();
     }
     info = cmark_node_get_fence_info(node);
-    info_len = safe_strlen(info);
+    info_len = strlen(info);
     code = cmark_node_get_literal(node);
-    code_len = safe_strlen(code);
+    code_len = strlen(code);
     // use indented form if no info, and code doesn't
     // begin or end with a blank line, and code isn't
     // first thing in a list item
@@ -361,7 +360,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_CODE:
     code = cmark_node_get_literal(node);
-    code_len = safe_strlen(code);
+    code_len = strlen(code);
     numticks = shortest_unused_backtick_sequence(code);
     for (i = 0; i < numticks; i++) {
       LIT("`");
@@ -431,7 +430,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT("](");
         OUT(cmark_node_get_url(node), false, URL);
         title = cmark_node_get_title(node);
-        if (safe_strlen(title) > 0) {
+        if (strlen(title) > 0) {
           LIT(" \"");
           OUT(title, false, TITLE);
           LIT("\"");
@@ -448,7 +447,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("](");
       OUT(cmark_node_get_url(node), false, URL);
       title = cmark_node_get_title(node);
-      if (safe_strlen(title) > 0) {
+      if (strlen(title) > 0) {
         OUT(" \"", allow_wrap, LITERAL);
         OUT(title, false, TITLE);
         LIT("\"");
