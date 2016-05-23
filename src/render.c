@@ -19,7 +19,7 @@ static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
 
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                   cmark_escaping escape) {
-  int length = cmark_strbuf_safe_strlen(source);
+  int length = strlen(source);
   unsigned char nextc;
   int32_t c;
   int i = 0;
