@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include "config.h"
+#include "memory.h"
 #include "cmark.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]) {
   _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-  files = (int *)malloc(argc * sizeof(*files));
+  files = (int *)cmark_calloc(argc, sizeof(*files));
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {

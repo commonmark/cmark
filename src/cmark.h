@@ -573,6 +573,20 @@ int cmark_version();
 CMARK_EXPORT
 const char *cmark_version_string();
 
+/** Set the callback function that will be issued whenever the
+ * library hits an out of memory situation.
+ *
+ * This can happen when the heap memory allocator fails to allocate
+ * a block of memory, or when the index of an in-memory buffer overflows
+ *
+ * If no OOM handler is set, the library will call `abort` and
+ * terminate itself and the running process. If the custom OOM handler
+ * you set does return (i.e. it does not gracefully terminate the
+ * application), the behavior of the library will be unspecified.
+ */
+CMARK_EXPORT
+void cmark_set_oom_handler(void (*handler)(void));
+
 /** # AUTHORS
  *
  * John MacFarlane, Vicent Marti,  Kārlis Gaņģis, Nick Wellnhofer.
