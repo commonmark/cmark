@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "memory.h"
 #include "cmark_ctype.h"
 #include "buffer.h"
 
@@ -61,13 +62,11 @@ static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_chunk *c) {
   if (c->alloc) {
     return (char *)c->data;
   }
-  str = (unsigned char *)malloc(c->len + 1);
-  if (str != NULL) {
-    if (c->len > 0) {
-      memcpy(str, c->data, c->len);
-    }
-    str[c->len] = 0;
+  str = (unsigned char *)cmark_calloc(c->len + 1, 1);
+  if (c->len > 0) {
+    memcpy(str, c->data, c->len);
   }
+  str[c->len] = 0;
   c->data = str;
   c->alloc = 1;
 
@@ -84,7 +83,7 @@ static CMARK_INLINE void cmark_chunk_set_cstr(cmark_chunk *c, const char *str) {
     c->alloc = 0;
   } else {
     c->len = strlen(str);
-    c->data = (unsigned char *)malloc(c->len + 1);
+    c->data = (unsigned char *)cmark_calloc(c->len + 1, 1);
     c->alloc = 1;
     memcpy(c->data, str, c->len + 1);
   }

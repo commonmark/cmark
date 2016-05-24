@@ -71,7 +71,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
 }
 
 cmark_node *cmark_node_new(cmark_node_type type) {
-  cmark_node *node = (cmark_node *)calloc(1, sizeof(*node));
+  cmark_node *node = (cmark_node *)cmark_calloc(1, sizeof(*node));
   node->type = type;
 
   switch (node->type) {

@@ -10,6 +10,7 @@
 #include "config.h"
 #include "cmark_ctype.h"
 #include "buffer.h"
+#include "memory.h"
 
 /* Used as default value for cmark_strbuf->ptr so that people can always
  * assume ptr is non-NULL and zero terminated even for new cmark_strbufs.
@@ -29,34 +30,18 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size) {
     cmark_strbuf_grow(buf, initial_size);
 }
 
-static CMARK_INLINE bool S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
-  return cmark_strbuf_grow(buf, buf->size + add);
+static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
+  cmark_strbuf_grow(buf, buf->size + add);
 }
 
-#if BUFSIZE_MAX > (SIZE_MAX / 4)
-#  error "unsafe value for BUFSIZE_MAX"
-#endif
-
-bool cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
+void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   assert(target_size > 0);
 
   if (target_size < buf->asize)
-    return true;
+    return;
 
-  /*
-   * Do not allow string buffers to grow past this "safe" value.
-   *
-   * Note that this is a soft cap to prevent unbounded memory growth:
-   * in practice, the buffer can get larger than this value because we
-   * overgrow it by 50%
-   *
-   * Note that there are no overflow checks for the realloc because
-   * the value of BUFSIZE_MAX is always assured to be impossible
-   * to overflow on both 32 and 64 bit systems, since it will never
-   * be larger than 1/4th of our address space.
-   */
-  if (target_size > BUFSIZE_MAX)
-    return false;
+  if (target_size > (bufsize_t)(SIZE_MAX / 4))
+    cmark_trigger_oom();
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
    * complexity on append operations. */
@@ -64,13 +49,10 @@ bool cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  unsigned char *new_ptr = realloc(buf->asize ? buf->ptr : NULL, new_size);
-  if (!new_ptr)
-    return false;
+  unsigned char *new_ptr = cmark_realloc(buf->asize ? buf->ptr : NULL, new_size);
 
   buf->asize = new_size;
   buf->ptr = new_ptr;
-  return true;
 }
 
 bufsize_t cmark_strbuf_len(const cmark_strbuf *buf) { return buf->size; }
@@ -98,8 +80,8 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data,
     cmark_strbuf_clear(buf);
   } else {
     if (data != buf->ptr) {
-      if (len >= buf->asize && !cmark_strbuf_grow(buf, len))
-        return;
+      if (len >= buf->asize)
+        cmark_strbuf_grow(buf, len);
       memmove(buf->ptr, data, len);
     }
     buf->size = len;
@@ -113,17 +95,17 @@ void cmark_strbuf_sets(cmark_strbuf *buf, const char *string) {
 }
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c) {
-  if (!S_strbuf_grow_by(buf, 1))
-    return;
+  S_strbuf_grow_by(buf, 1);
   buf->ptr[buf->size++] = (unsigned char)(c & 0xFF);
   buf->ptr[buf->size] = '\0';
 }
 
 void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data,
                       bufsize_t len) {
-  if (len <= 0 || !S_strbuf_grow_by(buf, len))
+  if (len <= 0)
     return;
 
+  S_strbuf_grow_by(buf, len);
   memmove(buf->ptr + buf->size, data, len);
   buf->size += len;
   buf->ptr[buf->size] = '\0';
@@ -165,7 +147,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return (unsigned char *)calloc(1, 1);
+    return cmark_calloc(1, 1);
   }
 
   cmark_strbuf_init(buf, 0);

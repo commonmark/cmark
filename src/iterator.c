@@ -16,10 +16,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
   if (root == NULL) {
     return NULL;
   }
-  cmark_iter *iter = (cmark_iter *)malloc(sizeof(cmark_iter));
-  if (iter == NULL) {
-    return NULL;
-  }
+  cmark_iter *iter = (cmark_iter *)cmark_calloc(1, sizeof(cmark_iter));
   iter->root = root;
   iter->cur.ev_type = CMARK_EVENT_NONE;
   iter->cur.node = NULL;
