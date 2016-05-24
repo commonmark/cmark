@@ -38,6 +38,11 @@ IF (PYTHONINTERP_FOUND)
     "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
 
+  add_test(exhaustion_tests_executable
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/exhaustion_tests.py"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    )
+
   add_test(spectest_executable
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
