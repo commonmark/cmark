@@ -76,16 +76,14 @@ void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
   if (reflabel == NULL)
     return;
 
-  ref = (cmark_reference *)calloc(1, sizeof(*ref));
-  if (ref != NULL) {
-    ref->label = reflabel;
-    ref->hash = refhash(ref->label);
-    ref->url = cmark_clean_url(url);
-    ref->title = cmark_clean_title(title);
-    ref->next = NULL;
+  ref = (cmark_reference *)cmark_calloc(1, sizeof(*ref));
+  ref->label = reflabel;
+  ref->hash = refhash(ref->label);
+  ref->url = cmark_clean_url(url);
+  ref->title = cmark_clean_title(title);
+  ref->next = NULL;
 
-    add_reference(map, ref);
-  }
+  add_reference(map, ref);
 }
 
 // Returns reference if refmap contains a reference with matching
@@ -140,5 +138,5 @@ void cmark_reference_map_free(cmark_reference_map *map) {
 }
 
 cmark_reference_map *cmark_reference_map_new(void) {
-  return (cmark_reference_map *)calloc(1, sizeof(cmark_reference_map));
+  return (cmark_reference_map *)cmark_calloc(1, sizeof(cmark_reference_map));
 }

@@ -25,22 +25,6 @@ extern unsigned char cmark_strbuf__initbuf[];
 #define GH_BUF_INIT                                                            \
   { cmark_strbuf__initbuf, 0, 0 }
 
-/*
- * Maximum size for memory storage on any given `cmark_strbuf` object.
- *
- * This is a "safe" value to prevent unbounded memory growth when
- * parsing arbitrarily large (and potentially malicious) documents.
- *
- * It is currently set to 32mb, which is a reasonable default for
- * production applications. If you need to parse documents larger than
- * that, you can increase this value up to `SSIZE_MAX / 2` (which in
- * practice resolves to 1/4th of the total address space for the program).
- *
- * Anything larger than that is a security threat and hence static checks
- * will prevent CMark from compiling.
- */
-#define BUFSIZE_MAX (32 * 1024 * 1024)
-
 /**
  * Initialize a cmark_strbuf structure.
  *
@@ -52,7 +36,7 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size);
 /**
  * Grow the buffer to hold at least `target_size` bytes.
  */
-bool cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size);
+void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size);
 
 void cmark_strbuf_free(cmark_strbuf *buf);
 void cmark_strbuf_swap(cmark_strbuf *buf_a, cmark_strbuf *buf_b);
