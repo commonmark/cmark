@@ -5,7 +5,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
-#include <unistd.h>
 #include <stdbool.h>
 #include "config.h"
 
