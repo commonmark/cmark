@@ -21,7 +21,8 @@ unsigned char cmark_strbuf__initbuf[1];
 #define MIN(x, y) ((x < y) ? x : y)
 #endif
 
-void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size) {
+void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf, bufsize_t initial_size) {
+  buf->mem = mem;
   buf->asize = 0;
   buf->size = 0;
   buf->ptr = cmark_strbuf__initbuf;
@@ -41,7 +42,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
     return;
 
   if (target_size > (bufsize_t)(SIZE_MAX / 4))
-    cmark_trigger_oom();
+    abort();
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
    * complexity on append operations. */
@@ -49,7 +50,11 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  unsigned char *new_ptr = cmark_realloc(buf->asize ? buf->ptr : NULL, new_size);
+  unsigned char *new_ptr = buf->mem->calloc(new_size, 1);
+  if (buf->ptr != cmark_strbuf__initbuf) {
+    memcpy(new_ptr, buf->ptr, buf->size);
+    buf->mem->free(buf->ptr);
+  }
 
   buf->asize = new_size;
   buf->ptr = new_ptr;
@@ -62,9 +67,9 @@ void cmark_strbuf_free(cmark_strbuf *buf) {
     return;
 
   if (buf->ptr != cmark_strbuf__initbuf)
-    free(buf->ptr);
+    buf->mem->free(buf->ptr);
 
-  cmark_strbuf_init(buf, 0);
+  cmark_strbuf_init(buf->mem, buf, 0);
 }
 
 void cmark_strbuf_clear(cmark_strbuf *buf) {
@@ -147,10 +152,10 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return cmark_calloc(1, 1);
+    return buf->mem->calloc(1, 1);
   }
 
-  cmark_strbuf_init(buf, 0);
+  cmark_strbuf_init(buf->mem, buf, 0);
   return data;
 }
 

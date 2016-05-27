@@ -14,12 +14,13 @@ static unsigned int refhash(const unsigned char *link_ref) {
   return hash;
 }
 
-static void reference_free(cmark_reference *ref) {
+static void reference_free(cmark_reference_map *map, cmark_reference *ref) {
+  cmark_mem *mem = map->mem;
   if (ref != NULL) {
-    free(ref->label);
-    cmark_chunk_free(&ref->url);
-    cmark_chunk_free(&ref->title);
-    free(ref);
+    mem->free(ref->label);
+    cmark_chunk_free(mem, &ref->url);
+    cmark_chunk_free(mem, &ref->title);
+    mem->free(ref);
   }
 }
 
@@ -27,8 +28,8 @@ static void reference_free(cmark_reference *ref) {
 // remove leading/trailing whitespace, case fold
 // Return NULL if the reference name is actually empty (i.e. composed
 // solely from whitespace)
-static unsigned char *normalize_reference(cmark_chunk *ref) {
-  cmark_strbuf normalized = GH_BUF_INIT;
+static unsigned char *normalize_reference(cmark_mem *mem, cmark_chunk *ref) {
+  cmark_strbuf normalized = CMARK_BUF_INIT(mem);
   unsigned char *result;
 
   if (ref == NULL)
@@ -57,7 +58,7 @@ static void add_reference(cmark_reference_map *map, cmark_reference *ref) {
 
   while (t) {
     if (t->hash == ref->hash && !strcmp((char *)t->label, (char *)ref->label)) {
-      reference_free(ref);
+      reference_free(map, ref);
       return;
     }
 
@@ -70,17 +71,17 @@ static void add_reference(cmark_reference_map *map, cmark_reference *ref) {
 void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
                             cmark_chunk *url, cmark_chunk *title) {
   cmark_reference *ref;
-  unsigned char *reflabel = normalize_reference(label);
+  unsigned char *reflabel = normalize_reference(map->mem, label);
 
   /* empty reference name, or composed from only whitespace */
   if (reflabel == NULL)
     return;
 
-  ref = (cmark_reference *)cmark_calloc(1, sizeof(*ref));
+  ref = (cmark_reference *)map->mem->calloc(1, sizeof(*ref));
   ref->label = reflabel;
   ref->hash = refhash(ref->label);
-  ref->url = cmark_clean_url(url);
-  ref->title = cmark_clean_title(title);
+  ref->url = cmark_clean_url(map->mem, url);
+  ref->title = cmark_clean_title(map->mem, title);
   ref->next = NULL;
 
   add_reference(map, ref);
@@ -100,7 +101,7 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
   if (map == NULL)
     return NULL;
 
-  norm = normalize_reference(label);
+  norm = normalize_reference(map->mem, label);
   if (norm == NULL)
     return NULL;
 
@@ -129,7 +130,7 @@ void cmark_reference_map_free(cmark_reference_map *map) {
 
     while (ref) {
       next = ref->next;
-      reference_free(ref);
+      reference_free(map, ref);
       ref = next;
     }
   }
@@ -137,6 +138,8 @@ void cmark_reference_map_free(cmark_reference_map *map) {
   free(map);
 }
 
-cmark_reference_map *cmark_reference_map_new(void) {
-  return (cmark_reference_map *)cmark_calloc(1, sizeof(cmark_reference_map));
+cmark_reference_map *cmark_reference_map_new(cmark_mem *mem) {
+  cmark_reference_map *map = mem->calloc(1, sizeof(cmark_reference_map));
+  map->mem = mem;
+  return map;
 }

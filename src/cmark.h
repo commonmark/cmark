@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cmark_export.h>
 #include <cmark_version.h>
+#include "memory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,6 +89,19 @@ typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
 
 /**
+ * ## Custom memory allocator support
+ */
+
+/** Defines the memory allocation functions to be used by CMark
+ * when parsing and allocating a document tree
+ */
+typedef struct cmark_mem {
+	void *(*calloc)(size_t, size_t);
+	void (*free)(void *);
+} cmark_mem;
+
+
+/**
  * ## Creating and Destroying Nodes
  */
 
@@ -96,6 +110,11 @@ typedef struct cmark_iter cmark_iter;
  * to assign.
  */
 CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
+
+/** Same as `cmark_node_new`, but explicitly listing the memory
+ * allocator used to allocate the node
+ */
+CMARK_EXPORT cmark_node *cmark_node_new2(cmark_node_type type, cmark_mem *mem);
 
 /** Frees the memory allocated for a node and any children.
  */
@@ -437,6 +456,11 @@ CMARK_EXPORT void cmark_consolidate_text_nodes(cmark_node *root);
 CMARK_EXPORT
 cmark_parser *cmark_parser_new(int options);
 
+/** Creates a new parser object with the given memory allocator
+ */
+CMARK_EXPORT
+cmark_parser *cmark_parser_new2(int options, cmark_mem *mem);
+
 /** Frees memory allocated for a parser object.
  */
 CMARK_EXPORT
@@ -572,20 +596,6 @@ int cmark_version();
  */
 CMARK_EXPORT
 const char *cmark_version_string();
-
-/** Set the callback function that will be issued whenever the
- * library hits an out of memory situation.
- *
- * This can happen when the heap memory allocator fails to allocate
- * a block of memory, or when the index of an in-memory buffer overflows
- *
- * If no OOM handler is set, the library will call `abort` and
- * terminate itself and the running process. If the custom OOM handler
- * you set does return (i.e. it does not gracefully terminate the
- * application), the behavior of the library will be unspecified.
- */
-CMARK_EXPORT
-void cmark_set_oom_handler(void (*handler)(void));
 
 /** # AUTHORS
  *

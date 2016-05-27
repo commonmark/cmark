@@ -1,4 +1,4 @@
-.TH cmark 3 "May 14, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "June 02, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -15,7 +15,7 @@ Simple Interface
 .PP
 Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
 \f[I]len\f[]) from CommonMark Markdown to HTML, returning a
-null\-terminated, UTF\-8\-encoded string. It is the caller's
+null\-terminated, UTF\-8\-encoded string. It is the caller\[cq]s
 responsibility to free the returned buffer.
 
 .SS
@@ -96,6 +96,25 @@ typedef enum {
 
 
 .SS
+Custom memory allocator support
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef struct cmark_mem {
+	void *(*calloc)(size_t, size_t);
+	void (*free)(void *);
+} cmark_mem;
+.RE
+\f[]
+.fi
+
+.PP
+Defines the memory allocation functions to be used by CMark when parsing
+and allocating a document tree
+
+.SS
 Creating and Destroying Nodes
 
 .PP
@@ -103,8 +122,15 @@ Creating and Destroying Nodes
 
 .PP
 Creates a new node of type \f[I]type\f[]. Note that the node may have
-other required properties, which it is the caller's responsibility to
-assign.
+other required properties, which it is the caller\[cq]s responsibility
+to assign.
+
+.PP
+\fIcmark_node *\f[] \fBcmark_node_new2\f[](\fIcmark_node_type type\f[], \fIcmark_mem *mem\f[])
+
+.PP
+Same as \f[C]cmark_node_new\f[], but explicitly listing the memory
+allocator used to allocate the node
 
 .PP
 \fIvoid\f[] \fBcmark_node_free\f[](\fIcmark_node *node\f[])
@@ -378,7 +404,8 @@ Returns 1 if \f[I]node\f[] is a tight list, 0 otherwise.
 \fIint\f[] \fBcmark_node_set_list_tight\f[](\fIcmark_node *node\f[], \fIint tight\f[])
 
 .PP
-Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
+Sets the \[lq]tightness\[rq] of a list. Returns 1 on success, 0 on
+failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
@@ -425,31 +452,31 @@ on failure.
 \fIconst char *\f[] \fBcmark_node_get_on_enter\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal "on enter" text for a custom \f[I]node\f[], or an
-empty string if no on_enter is set.
+Returns the literal \[lq]on enter\[rq] text for a custom \f[I]node\f[],
+or an empty string if no on_enter is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
 
 .PP
-Sets the literal text to render "on enter" for a custom \f[I]node\f[].
-Any children of the node will be rendered after this text. Returns 1 on
-success 0 on failure.
+Sets the literal text to render \[lq]on enter\[rq] for a custom
+\f[I]node\f[]. Any children of the node will be rendered after this
+text. Returns 1 on success 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_on_exit\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal "on exit" text for a custom \f[I]node\f[], or an
-empty string if no on_exit is set.
+Returns the literal \[lq]on exit\[rq] text for a custom \f[I]node\f[],
+or an empty string if no on_exit is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])
 
 .PP
-Sets the literal text to render "on exit" for a custom \f[I]node\f[].
-Any children of the node will be rendered before this text. Returns 1 on
-success 0 on failure.
+Sets the literal text to render \[lq]on exit\[rq] for a custom
+\f[I]node\f[]. Any children of the node will be rendered before this
+text. Returns 1 on success 0 on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_get_start_line\f[](\fIcmark_node *node\f[])
@@ -563,6 +590,12 @@ cmark_parser_free(parser);
 Creates a new parser object.
 
 .PP
+\fIcmark_parser *\f[] \fBcmark_parser_new2\f[](\fIint options\f[], \fIcmark_mem *mem\f[])
+
+.PP
+Creates a new parser object with the given memory allocator
+
+.PP
 \fIvoid\f[] \fBcmark_parser_free\f[](\fIcmark_parser *parser\f[])
 
 .PP
@@ -604,36 +637,36 @@ Rendering
 \fIchar *\f[] \fBcmark_render_xml\f[](\fIcmark_node *root\f[], \fIint options\f[])
 
 .PP
-Render a \f[I]node\f[] tree as XML. It is the caller's responsibility to
-free the returned buffer.
+Render a \f[I]node\f[] tree as XML. It is the caller\[cq]s
+responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[])
 
 .PP
 Render a \f[I]node\f[] tree as an HTML fragment. It is up to the user to
-add an appropriate header and footer. It is the caller's responsibility
-to free the returned buffer.
+add an appropriate header and footer. It is the caller\[cq]s
+responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_man\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
 Render a \f[I]node\f[] tree as a groff man page, without the header. It
-is the caller's responsibility to free the returned buffer.
+is the caller\[cq]s responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_commonmark\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
-Render a \f[I]node\f[] tree as a commonmark document. It is the caller's
-responsibility to free the returned buffer.
+Render a \f[I]node\f[] tree as a commonmark document. It is the
+caller\[cq]s responsibility to free the returned buffer.
 
 .PP
 \fIchar *\f[] \fBcmark_render_latex\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
-Render a \f[I]node\f[] tree as a LaTeX document. It is the caller's
+Render a \f[I]node\f[] tree as a LaTeX document. It is the caller\[cq]s
 responsibility to free the returned buffer.
 
 .SS
@@ -744,7 +777,7 @@ with the replacement character U+FFFD.
 .fi
 
 .PP
-Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
+Convert straight quotes to curly, \[em] to em dashes, \[en] to en
 dashes.
 
 .SS

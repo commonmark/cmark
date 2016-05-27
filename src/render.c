@@ -4,6 +4,7 @@
 #include "cmark.h"
 #include "utf8.h"
 #include "render.h"
+#include "node.h"
 
 static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
@@ -108,7 +109,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         !renderer->begin_line && renderer->last_breakable > 0) {
 
       // copy from last_breakable to remainder
-      cmark_chunk_set_cstr(&remainder, (char *)renderer->buffer->ptr +
+      cmark_chunk_set_cstr(renderer->mem, &remainder, (char *)renderer->buffer->ptr +
                                            renderer->last_breakable + 1);
       // truncate at last_breakable
       cmark_strbuf_truncate(renderer->buffer, renderer->last_breakable);
@@ -118,7 +119,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                        renderer->prefix->size);
       cmark_strbuf_put(renderer->buffer, remainder.data, remainder.len);
       renderer->column = renderer->prefix->size + remainder.len;
-      cmark_chunk_free(&remainder);
+      cmark_chunk_free(renderer->mem, &remainder);
       renderer->last_breakable = 0;
       renderer->begin_line = false;
       renderer->begin_content = false;
@@ -146,14 +147,15 @@ char *cmark_render(cmark_node *root, int options, int width,
                    int (*render_node)(cmark_renderer *renderer,
                                       cmark_node *node,
                                       cmark_event_type ev_type, int options)) {
-  cmark_strbuf pref = GH_BUF_INIT;
-  cmark_strbuf buf = GH_BUF_INIT;
+  cmark_mem *mem = cmark_node_mem(root);
+  cmark_strbuf pref = CMARK_BUF_INIT(mem);
+  cmark_strbuf buf = CMARK_BUF_INIT(mem);
   cmark_node *cur;
   cmark_event_type ev_type;
   char *result;
   cmark_iter *iter = cmark_iter_new(root);
 
-  cmark_renderer renderer = {&buf, &pref, 0,           width, 0,
+  cmark_renderer renderer = {mem, &buf, &pref, 0, width, 0,
                              0,    true,  true,        false, false,
                              outc, S_cr,  S_blankline, S_out};
 
