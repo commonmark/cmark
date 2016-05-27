@@ -8,10 +8,12 @@ extern "C" {
 #include <stdlib.h>
 #include "buffer.h"
 #include "chunk.h"
+#include "memory.h"
 
 typedef enum { LITERAL, NORMAL, TITLE, URL } cmark_escaping;
 
 struct cmark_renderer {
+  cmark_mem *mem;
   cmark_strbuf *buffer;
   cmark_strbuf *prefix;
   int column;

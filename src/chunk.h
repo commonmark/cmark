@@ -4,9 +4,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "cmark.h"
+#include "buffer.h"
 #include "memory.h"
 #include "cmark_ctype.h"
-#include "buffer.h"
 
 #define CMARK_CHUNK_EMPTY                                                      \
   { NULL, 0, 0 }
@@ -17,9 +18,9 @@ typedef struct {
   bufsize_t alloc; // also implies a NULL-terminated string
 } cmark_chunk;
 
-static CMARK_INLINE void cmark_chunk_free(cmark_chunk *c) {
+static CMARK_INLINE void cmark_chunk_free(cmark_mem *mem, cmark_chunk *c) {
   if (c->alloc)
-    free(c->data);
+    mem->free(c->data);
 
   c->data = NULL;
   c->alloc = 0;
@@ -56,13 +57,13 @@ static CMARK_INLINE bufsize_t
   return p ? (bufsize_t)(p - ch->data) : ch->len;
 }
 
-static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_chunk *c) {
+static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_mem *mem, cmark_chunk *c) {
   unsigned char *str;
 
   if (c->alloc) {
     return (char *)c->data;
   }
-  str = (unsigned char *)cmark_calloc(c->len + 1, 1);
+  str = (unsigned char *)mem->calloc(c->len + 1, 1);
   if (c->len > 0) {
     memcpy(str, c->data, c->len);
   }
@@ -73,9 +74,9 @@ static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_chunk *c) {
   return (char *)str;
 }
 
-static CMARK_INLINE void cmark_chunk_set_cstr(cmark_chunk *c, const char *str) {
+static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c, const char *str) {
   if (c->alloc) {
-    free(c->data);
+    mem->free(c->data);
   }
   if (str == NULL) {
     c->len = 0;
@@ -83,7 +84,7 @@ static CMARK_INLINE void cmark_chunk_set_cstr(cmark_chunk *c, const char *str) {
     c->alloc = 0;
   } else {
     c->len = strlen(str);
-    c->data = (unsigned char *)cmark_calloc(c->len + 1, 1);
+    c->data = (unsigned char *)mem->calloc(c->len + 1, 1);
     c->alloc = 1;
     memcpy(c->data, str, c->len + 1);
   }

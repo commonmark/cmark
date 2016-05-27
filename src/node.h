@@ -48,6 +48,8 @@ typedef struct {
 } cmark_custom;
 
 struct cmark_node {
+  cmark_strbuf content;
+
   struct cmark_node *next;
   struct cmark_node *prev;
   struct cmark_node *parent;
@@ -62,11 +64,8 @@ struct cmark_node {
   int end_column;
 
   cmark_node_type type;
-
-  bool open;
   bool last_line_blank;
-
-  cmark_strbuf string_content;
+  bool open;
 
   union {
     cmark_chunk literal;
@@ -79,6 +78,9 @@ struct cmark_node {
   } as;
 };
 
+static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
+  return node->content.mem;
+}
 CMARK_EXPORT int cmark_node_check(cmark_node *node, FILE *out);
 
 #ifdef __cplusplus

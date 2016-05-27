@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
   _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-  files = (int *)cmark_calloc(argc, sizeof(*files));
+  files = (int *)calloc(argc, sizeof(*files));
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {

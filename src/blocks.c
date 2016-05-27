@@ -44,36 +44,38 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                            bufsize_t bytes);
 
-static cmark_node *make_block(cmark_node_type tag, int start_line,
+static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag, int start_line,
                               int start_column) {
   cmark_node *e;
 
-  e = (cmark_node *)cmark_calloc(1, sizeof(*e));
+  e = (cmark_node *)mem->calloc(1, sizeof(*e));
+  cmark_strbuf_init(mem, &e->content, 32);
   e->type = tag;
   e->open = true;
   e->start_line = start_line;
   e->start_column = start_column;
   e->end_line = start_line;
-  cmark_strbuf_init(&e->string_content, 32);
 
   return e;
 }
 
 // Create a root document node.
-static cmark_node *make_document() {
-  cmark_node *e = make_block(CMARK_NODE_DOCUMENT, 1, 1);
+static cmark_node *make_document(cmark_mem *mem) {
+  cmark_node *e = make_block(mem, CMARK_NODE_DOCUMENT, 1, 1);
   return e;
 }
 
-cmark_parser *cmark_parser_new(int options) {
-  cmark_parser *parser = (cmark_parser *)cmark_calloc(1, sizeof(cmark_parser));
-  cmark_node *document = make_document();
-  cmark_strbuf *line = (cmark_strbuf *)cmark_calloc(1, sizeof(cmark_strbuf));
-  cmark_strbuf *buf = (cmark_strbuf *)cmark_calloc(1, sizeof(cmark_strbuf));
-  cmark_strbuf_init(line, 256);
-  cmark_strbuf_init(buf, 0);
+cmark_parser *cmark_parser_new2(int options, cmark_mem *mem) {
+  cmark_parser *parser = mem->calloc(1, sizeof(cmark_parser));
+  parser->mem = mem;
 
-  parser->refmap = cmark_reference_map_new();
+  cmark_node *document = make_document(mem);
+  cmark_strbuf *line = mem->calloc(1, sizeof(cmark_strbuf));
+  cmark_strbuf *buf = mem->calloc(1, sizeof(cmark_strbuf));
+  cmark_strbuf_init(mem, line, 256);
+  cmark_strbuf_init(mem, buf, 0);
+
+  parser->refmap = cmark_reference_map_new(mem);
   parser->root = document;
   parser->current = document;
   parser->line_number = 0;
@@ -93,13 +95,30 @@ cmark_parser *cmark_parser_new(int options) {
   return parser;
 }
 
+static void *xcalloc(size_t nmem, size_t size) {
+  void *ptr = calloc(nmem, size);
+  if (!ptr) abort();
+  return ptr;
+}
+
+static void xfree(void *ptr) {
+  free(ptr);
+}
+
+cmark_mem DEFAULT_MEM_ALLOCATOR = { xcalloc, xfree };
+
+cmark_parser *cmark_parser_new(int options) {
+  return cmark_parser_new2(options, &DEFAULT_MEM_ALLOCATOR);
+}
+
 void cmark_parser_free(cmark_parser *parser) {
+  cmark_mem *mem = parser->mem;
   cmark_strbuf_free(parser->curline);
-  free(parser->curline);
+  mem->free(parser->curline);
   cmark_strbuf_free(parser->linebuf);
-  free(parser->linebuf);
+  mem->free(parser->linebuf);
   cmark_reference_map_free(parser->refmap);
-  free(parser);
+  mem->free(parser);
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b);
@@ -153,10 +172,10 @@ static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
     // add space characters:
     chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
     for (i = 0; i < chars_to_tab; i++) {
-      cmark_strbuf_putc(&node->string_content, ' ');
+      cmark_strbuf_putc(&node->content, ' ');
     }
   }
-  cmark_strbuf_put(&node->string_content, ch->data + parser->offset,
+  cmark_strbuf_put(&node->content, ch->data + parser->offset,
                    ch->len - parser->offset);
 }
 
@@ -229,7 +248,6 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   cmark_node *parent;
 
   parent = b->parent;
-
   assert(b->open); // shouldn't call finalize on closed blocks
   b->open = false;
 
@@ -251,15 +269,17 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   }
 
+  cmark_strbuf *node_content = &b->content;
+
   switch (b->type) {
   case CMARK_NODE_PARAGRAPH:
-    while (cmark_strbuf_at(&b->string_content, 0) == '[' &&
-           (pos = cmark_parse_reference_inline(&b->string_content,
+    while (cmark_strbuf_at(node_content, 0) == '[' &&
+           (pos = cmark_parse_reference_inline(parser->mem, node_content,
                                                parser->refmap))) {
 
-      cmark_strbuf_drop(&b->string_content, pos);
+      cmark_strbuf_drop(node_content, pos);
     }
-    if (is_blank(&b->string_content, 0)) {
+    if (is_blank(node_content, 0)) {
       // remove blank node (former reference def)
       cmark_node_free(b);
     }
@@ -267,34 +287,33 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
   case CMARK_NODE_CODE_BLOCK:
     if (!b->as.code.fenced) { // indented code
-      remove_trailing_blank_lines(&b->string_content);
-      cmark_strbuf_putc(&b->string_content, '\n');
+      remove_trailing_blank_lines(node_content);
+      cmark_strbuf_putc(node_content, '\n');
     } else {
-
       // first line of contents becomes info
-      for (pos = 0; pos < b->string_content.size; ++pos) {
-        if (S_is_line_end_char(b->string_content.ptr[pos]))
+      for (pos = 0; pos < node_content->size; ++pos) {
+        if (S_is_line_end_char(node_content->ptr[pos]))
           break;
       }
-      assert(pos < b->string_content.size);
+      assert(pos < node_content->size);
 
-      cmark_strbuf tmp = GH_BUF_INIT;
-      houdini_unescape_html_f(&tmp, b->string_content.ptr, pos);
+      cmark_strbuf tmp = CMARK_BUF_INIT(parser->mem);
+      houdini_unescape_html_f(&tmp, node_content->ptr, pos);
       cmark_strbuf_trim(&tmp);
       cmark_strbuf_unescape(&tmp);
       b->as.code.info = cmark_chunk_buf_detach(&tmp);
 
-      if (b->string_content.ptr[pos] == '\r')
+      if (node_content->ptr[pos] == '\r')
         pos += 1;
-      if (b->string_content.ptr[pos] == '\n')
+      if (node_content->ptr[pos] == '\n')
         pos += 1;
-      cmark_strbuf_drop(&b->string_content, pos);
+      cmark_strbuf_drop(node_content, pos);
     }
-    b->as.code.literal = cmark_chunk_buf_detach(&b->string_content);
+    b->as.code.literal = cmark_chunk_buf_detach(node_content);
     break;
 
   case CMARK_NODE_HTML_BLOCK:
-    b->as.literal = cmark_chunk_buf_detach(&b->string_content);
+    b->as.literal = cmark_chunk_buf_detach(node_content);
     break;
 
   case CMARK_NODE_LIST:      // determine tight/loose status
@@ -328,6 +347,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   default:
     break;
   }
+
   return parent;
 }
 
@@ -342,7 +362,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
     parent = finalize(parser, parent);
   }
 
-  cmark_node *child = make_block(block_type, parser->line_number, start_column);
+  cmark_node *child = make_block(parser->mem, block_type, parser->line_number, start_column);
   child->parent = parent;
 
   if (parent->last_child) {
@@ -358,7 +378,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
 
 // Walk through node and all children, recursively, parsing
 // string content into inline content where appropriate.
-static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
+static void process_inlines(cmark_mem *mem, cmark_node *root, cmark_reference_map *refmap,
                             int options) {
   cmark_iter *iter = cmark_iter_new(root);
   cmark_node *cur;
@@ -368,7 +388,7 @@ static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
       if (contains_inlines(cur->type)) {
-        cmark_parse_inlines(cur, refmap, options);
+        cmark_parse_inlines(mem, cur, refmap, options);
       }
     }
   }
@@ -379,7 +399,7 @@ static void process_inlines(cmark_node *root, cmark_reference_map *refmap,
 // Attempts to parse a list item marker (bullet or enumerated).
 // On success, returns length of the marker, and populates
 // data with the details.  On failure, returns 0.
-static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos,
+static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input, bufsize_t pos,
                                    cmark_list **dataptr) {
   unsigned char c;
   bufsize_t startpos;
@@ -393,7 +413,7 @@ static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos,
     if (!cmark_isspace(peek_at(input, pos))) {
       return 0;
     }
-    data = (cmark_list *)cmark_calloc(1, sizeof(*data));
+    data = (cmark_list *)mem->calloc(1, sizeof(*data));
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
@@ -419,7 +439,7 @@ static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos,
       if (!cmark_isspace(peek_at(input, pos))) {
         return 0;
       }
-      data = (cmark_list *)cmark_calloc(1, sizeof(*data));
+      data = (cmark_list *)mem->calloc(1, sizeof(*data));
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
       data->bullet_char = 0;
@@ -451,7 +471,7 @@ static cmark_node *finalize_document(cmark_parser *parser) {
   }
 
   finalize(parser, parser->root);
-  process_inlines(parser->root, parser->refmap, parser->options);
+  process_inlines(parser->mem, parser->root, parser->refmap, parser->options);
 
   return parser->root;
 }
@@ -899,7 +919,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((matched =
-                    parse_list_marker(input, parser->first_nonspace, &data)) &&
+                    parse_list_marker(parser->mem, input, parser->first_nonspace, &data)) &&
                (!indented || cont_type == CMARK_NODE_LIST)) {
       // Note that we can have new list items starting with >= 4
       // spaces indent, as long as the list container is still open.
