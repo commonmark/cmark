@@ -47,6 +47,11 @@ typedef struct {
   cmark_chunk on_exit;
 } cmark_custom;
 
+enum cmark_node__internal_flags {
+  CMARK_NODE__OPEN = (1 << 0),
+  CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
+};
+
 struct cmark_node {
   cmark_strbuf content;
 
@@ -62,10 +67,8 @@ struct cmark_node {
   int start_column;
   int end_line;
   int end_column;
-
-  cmark_node_type type;
-  bool last_line_blank;
-  bool open;
+  uint16_t type;
+  uint16_t flags;
 
   union {
     cmark_chunk literal;
