@@ -41,7 +41,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   if (target_size < buf->asize)
     return;
 
-  if (target_size > (bufsize_t)(SIZE_MAX / 4))
+  if (target_size > (bufsize_t)(INT32_MAX / 2))
     abort();
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
