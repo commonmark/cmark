@@ -30,6 +30,17 @@
 
 #define peek_at(i, n) (i)->data[n]
 
+static bool S_last_line_blank(const cmark_node *node) {
+  return (node->flags & CMARK_NODE__LAST_LINE_BLANK);
+}
+
+static void S_set_last_line_blank(cmark_node *node, bool is_blank) {
+  if (is_blank)
+    node->flags |= CMARK_NODE__LAST_LINE_BLANK;
+  else
+    node->flags &= ~CMARK_NODE__LAST_LINE_BLANK;
+}
+
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
@@ -51,7 +62,7 @@ static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag, int start_lin
   e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 32);
   e->type = tag;
-  e->open = true;
+  e->flags = CMARK_NODE__OPEN;
   e->start_line = start_line;
   e->start_column = start_column;
   e->end_line = start_line;
@@ -166,7 +177,7 @@ static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
   int chars_to_tab;
   int i;
-  assert(node->open);
+  assert(node->flags & CMARK_NODE__OPEN);
   if (parser->partially_consumed_tab) {
     parser->offset += 1; // skip over tab
     // add space characters:
@@ -211,7 +222,7 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 static bool ends_with_blank_line(cmark_node *node) {
   cmark_node *cur = node;
   while (cur != NULL) {
-    if (cur->last_line_blank) {
+    if (S_last_line_blank(cur)) {
       return true;
     }
     if (cur->type == CMARK_NODE_LIST || cur->type == CMARK_NODE_ITEM) {
@@ -248,8 +259,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   cmark_node *parent;
 
   parent = b->parent;
-  assert(b->open); // shouldn't call finalize on closed blocks
-  b->open = false;
+  assert(b->flags & CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
+  b->flags &= ~CMARK_NODE__OPEN;
 
   if (parser->curline->size == 0) {
     // end of input - line number has not been incremented
@@ -322,7 +333,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
     while (item) {
       // check for non-final non-empty list item ending with blank line:
-      if (item->last_line_blank && item->next) {
+      if (S_last_line_blank(item) && item->next) {
         b->as.list.tight = false;
         break;
       }
@@ -656,7 +667,7 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
 }
 
 static bool S_last_child_is_open(cmark_node *container) {
-  return container->last_child && container->last_child->open;
+  return container->last_child && (container->last_child->flags & CMARK_NODE__OPEN);
 }
 
 static bool parse_block_quote_prefix(cmark_parser *parser, cmark_chunk *input) {
@@ -1007,13 +1018,13 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   S_find_first_nonspace(parser, input);
 
   if (parser->blank && container->last_child)
-    container->last_child->last_line_blank = true;
+    S_set_last_line_blank(container->last_child, true);
 
   // block quote lines are never blank as they start with >
   // and we don't count blanks in fenced code for purposes of tight/loose
   // lists or breaking out of lists.  we also don't set last_line_blank
   // on an empty list item.
-  container->last_line_blank =
+  bool last_line_blank =
       (parser->blank && container->type != CMARK_NODE_BLOCK_QUOTE &&
        container->type != CMARK_NODE_HEADING &&
        container->type != CMARK_NODE_THEMATIC_BREAK &&
@@ -1022,9 +1033,11 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
        !(container->type == CMARK_NODE_ITEM && container->first_child == NULL &&
          container->start_line == parser->line_number));
 
+  S_set_last_line_blank(container, last_line_blank);
+
   tmp = container;
   while (tmp->parent) {
-    tmp->parent->last_line_blank = false;
+    S_set_last_line_blank(tmp->parent, false);
     tmp = tmp->parent;
   }
 
@@ -1144,7 +1157,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   container = last_matched_container;
 
   // check to see if we've hit 2nd blank line, break out of list:
-  if (parser->blank && container->last_line_blank)
+  if (parser->blank && S_last_line_blank(container))
     break_out_of_lists(parser, &container);
 
   open_new_blocks(parser, &container, &input, all_matched);
