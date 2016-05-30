@@ -25,11 +25,10 @@ typedef struct {
 typedef struct {
   cmark_chunk info;
   cmark_chunk literal;
-  int fence_length;
-  /* fence_offset must be 0-3, so we can use int8_t */
-  int8_t fence_offset;
+  uint8_t fence_length;
+  uint8_t fence_offset;
   unsigned char fence_char;
-  bool fenced;
+  int8_t fenced;
 } cmark_code;
 
 typedef struct {
