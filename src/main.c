@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {
       printf("cmark %s", CMARK_VERSION_STRING);
-      printf(" - CommonMark converter\n(C) 2014, 2015 John MacFarlane\n");
+      printf(" - CommonMark converter\n(C) 2014-2016 John MacFarlane\n");
       exit(0);
     } else if (strcmp(argv[i], "--sourcepos") == 0) {
       options |= CMARK_OPT_SOURCEPOS;
