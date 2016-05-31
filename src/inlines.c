@@ -781,7 +781,6 @@ static cmark_node *handle_close_bracket(subject *subj) {
   cmark_chunk url_chunk, title_chunk;
   cmark_chunk url, title;
   delimiter *opener;
-  cmark_node *link_text;
   cmark_node *inl;
   cmark_chunk raw_label;
   int found_label;
@@ -811,7 +810,6 @@ static cmark_node *handle_close_bracket(subject *subj) {
 
   // If we got here, we matched a potential link/image text.
   is_image = opener->delim_char == '!';
-  link_text = opener->inl_text->next;
 
   // Now we check to see if it's a link/image.
 
