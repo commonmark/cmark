@@ -28,7 +28,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
   cmark_chunk remainder = cmark_chunk_literal("");
   int k = renderer->buffer->size - 1;
 
-  wrap = wrap && !renderer->no_wrap;
+  wrap = wrap && !renderer->no_linebreaks;
 
   if (renderer->in_tight_list_item && renderer->need_cr > 1) {
     renderer->need_cr = 1;

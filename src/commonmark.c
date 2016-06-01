@@ -258,9 +258,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       }
       LIT(" ");
       renderer->begin_content = true;
-      renderer->no_wrap = true;
+      renderer->no_linebreaks = true;
     } else {
-      renderer->no_wrap = false;
+      renderer->no_linebreaks = false;
       BLANKLINE();
     }
     break;
@@ -343,8 +343,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (CMARK_OPT_HARDBREAKS & options) {
       LIT("  ");
       CR();
-    } else if (renderer->width == 0 && !(CMARK_OPT_HARDBREAKS & options) &&
-               !(CMARK_OPT_NOBREAKS & options)) {
+    } else if (!renderer->no_linebreaks &&
+		renderer->width == 0 &&
+		!(CMARK_OPT_HARDBREAKS & options) &&
+                !(CMARK_OPT_NOBREAKS & options)) {
       CR();
     } else {
       OUT(" ", allow_wrap, LITERAL);

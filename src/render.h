@@ -20,7 +20,7 @@ struct cmark_renderer {
   bufsize_t last_breakable;
   bool begin_line;
   bool begin_content;
-  bool no_wrap;
+  bool no_linebreaks;
   bool in_tight_list_item;
   void (*outc)(struct cmark_renderer *, cmark_escaping, int32_t, unsigned char);
   void (*cr)(struct cmark_renderer *);
