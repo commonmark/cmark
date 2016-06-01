@@ -5,13 +5,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
+#include <stdbool.h>
 #include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef int bufsize_t;
+typedef ssize_t bufsize_t;
 
 typedef struct {
   unsigned char *ptr;
@@ -22,7 +23,6 @@ extern unsigned char cmark_strbuf__initbuf[];
 
 #define GH_BUF_INIT                                                            \
   { cmark_strbuf__initbuf, 0, 0 }
-#define BUFSIZE_MAX INT_MAX
 
 /**
  * Initialize a cmark_strbuf structure.
@@ -71,20 +71,6 @@ void cmark_strbuf_rtrim(cmark_strbuf *buf);
 void cmark_strbuf_trim(cmark_strbuf *buf);
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s);
 void cmark_strbuf_unescape(cmark_strbuf *s);
-
-/* Print error and abort. */
-void cmark_strbuf_overflow_err(void);
-
-static CMARK_INLINE bufsize_t cmark_strbuf_check_bufsize(size_t size) {
-  if (size > BUFSIZE_MAX) {
-    cmark_strbuf_overflow_err();
-  }
-  return (bufsize_t)size;
-}
-
-static CMARK_INLINE bufsize_t cmark_strbuf_safe_strlen(const char *str) {
-  return cmark_strbuf_check_bufsize(strlen(str));
-}
 
 #ifdef __cplusplus
 }

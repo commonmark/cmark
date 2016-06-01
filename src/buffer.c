@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <limits.h>
 
 #include "config.h"
 #include "cmark_ctype.h"
 #include "buffer.h"
+#include "memory.h"
 
 /* Used as default value for cmark_strbuf->ptr so that people can always
  * assume ptr is non-NULL and zero terminated even for new cmark_strbufs.
@@ -28,67 +30,28 @@ void cmark_strbuf_init(cmark_strbuf *buf, bufsize_t initial_size) {
     cmark_strbuf_grow(buf, initial_size);
 }
 
-void cmark_strbuf_overflow_err() {
-  fprintf(stderr, "String buffer overflow");
-  abort();
-}
-
-static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
-  size_t target_size = (size_t)buf->size + add;
-
-  if (target_size < add            /* Integer overflow. */
-      || target_size > BUFSIZE_MAX /* Truncation overflow. */
-      ) {
-    cmark_strbuf_overflow_err();
-    return; /* unreachable */
-  }
-
-  if ((bufsize_t)target_size >= buf->asize)
-    cmark_strbuf_grow(buf, (bufsize_t)target_size);
+static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
+  cmark_strbuf_grow(buf, buf->size + add);
 }
 
 void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
-  unsigned char *new_ptr;
+  assert(target_size > 0);
 
   if (target_size < buf->asize)
     return;
 
-  if (buf->asize == 0) {
-    new_ptr = NULL;
-  } else {
-    new_ptr = buf->ptr;
-  }
+  if (target_size > (bufsize_t)(SIZE_MAX / 4))
+    cmark_trigger_oom();
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
    * complexity on append operations. */
-  size_t new_size = (size_t)target_size + (size_t)target_size / 2;
-
-  /* Account for terminating null byte. */
+  bufsize_t new_size = target_size + target_size / 2;
   new_size += 1;
-
-  /* round allocation up to multiple of 8 */
   new_size = (new_size + 7) & ~7;
 
-  if (new_size < (size_t)target_size /* Integer overflow. */
-      || new_size > BUFSIZE_MAX      /* Truncation overflow. */
-      ) {
-    if (target_size >= BUFSIZE_MAX) {
-      /* No space for terminating null byte. */
-      cmark_strbuf_overflow_err();
-      return; /* unreachable */
-    }
-    /* Oversize by the maximum possible amount. */
-    new_size = BUFSIZE_MAX;
-  }
+  unsigned char *new_ptr = cmark_realloc(buf->asize ? buf->ptr : NULL, new_size);
 
-  new_ptr = (unsigned char *)realloc(new_ptr, new_size);
-
-  if (!new_ptr) {
-    perror("realloc in cmark_strbuf_grow");
-    abort();
-  }
-
-  buf->asize = (bufsize_t)new_size;
+  buf->asize = new_size;
   buf->ptr = new_ptr;
 }
 
@@ -128,7 +91,7 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data,
 
 void cmark_strbuf_sets(cmark_strbuf *buf, const char *string) {
   cmark_strbuf_set(buf, (const unsigned char *)string,
-                   string ? cmark_strbuf_safe_strlen(string) : 0);
+                   string ? strlen(string) : 0);
 }
 
 void cmark_strbuf_putc(cmark_strbuf *buf, int c) {
@@ -150,7 +113,7 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data,
 
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string) {
   cmark_strbuf_put(buf, (const unsigned char *)string,
-                   cmark_strbuf_safe_strlen(string));
+                   strlen(string));
 }
 
 void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize,
@@ -184,7 +147,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return (unsigned char *)calloc(1, 1);
+    return cmark_calloc(1, 1);
   }
 
   cmark_strbuf_init(buf, 0);

@@ -48,15 +48,13 @@ static cmark_node *make_block(cmark_node_type tag, int start_line,
                               int start_column) {
   cmark_node *e;
 
-  e = (cmark_node *)calloc(1, sizeof(*e));
-  if (e != NULL) {
-    e->type = tag;
-    e->open = true;
-    e->start_line = start_line;
-    e->start_column = start_column;
-    e->end_line = start_line;
-    cmark_strbuf_init(&e->string_content, 32);
-  }
+  e = (cmark_node *)cmark_calloc(1, sizeof(*e));
+  e->type = tag;
+  e->open = true;
+  e->start_line = start_line;
+  e->start_column = start_column;
+  e->end_line = start_line;
+  cmark_strbuf_init(&e->string_content, 32);
 
   return e;
 }
@@ -68,10 +66,10 @@ static cmark_node *make_document() {
 }
 
 cmark_parser *cmark_parser_new(int options) {
-  cmark_parser *parser = (cmark_parser *)malloc(sizeof(cmark_parser));
+  cmark_parser *parser = (cmark_parser *)cmark_calloc(1, sizeof(cmark_parser));
   cmark_node *document = make_document();
-  cmark_strbuf *line = (cmark_strbuf *)malloc(sizeof(cmark_strbuf));
-  cmark_strbuf *buf = (cmark_strbuf *)malloc(sizeof(cmark_strbuf));
+  cmark_strbuf *line = (cmark_strbuf *)cmark_calloc(1, sizeof(cmark_strbuf));
+  cmark_strbuf *buf = (cmark_strbuf *)cmark_calloc(1, sizeof(cmark_strbuf));
   cmark_strbuf_init(line, 256);
   cmark_strbuf_init(buf, 0);
 
@@ -395,17 +393,13 @@ static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos,
     if (!cmark_isspace(peek_at(input, pos))) {
       return 0;
     }
-    data = (cmark_list *)calloc(1, sizeof(*data));
-    if (data == NULL) {
-      return 0;
-    } else {
-      data->marker_offset = 0; // will be adjusted later
-      data->list_type = CMARK_BULLET_LIST;
-      data->bullet_char = c;
-      data->start = 1;
-      data->delimiter = CMARK_PERIOD_DELIM;
-      data->tight = false;
-    }
+    data = (cmark_list *)cmark_calloc(1, sizeof(*data));
+    data->marker_offset = 0; // will be adjusted later
+    data->list_type = CMARK_BULLET_LIST;
+    data->bullet_char = c;
+    data->start = 1;
+    data->delimiter = CMARK_PERIOD_DELIM;
+    data->tight = false;
   } else if (cmark_isdigit(c)) {
     int start = 0;
     int digits = 0;
@@ -425,21 +419,16 @@ static bufsize_t parse_list_marker(cmark_chunk *input, bufsize_t pos,
       if (!cmark_isspace(peek_at(input, pos))) {
         return 0;
       }
-      data = (cmark_list *)calloc(1, sizeof(*data));
-      if (data == NULL) {
-        return 0;
-      } else {
-        data->marker_offset = 0; // will be adjusted later
-        data->list_type = CMARK_ORDERED_LIST;
-        data->bullet_char = 0;
-        data->start = start;
-        data->delimiter = (c == '.' ? CMARK_PERIOD_DELIM : CMARK_PAREN_DELIM);
-        data->tight = false;
-      }
+      data = (cmark_list *)cmark_calloc(1, sizeof(*data));
+      data->marker_offset = 0; // will be adjusted later
+      data->list_type = CMARK_ORDERED_LIST;
+      data->bullet_char = 0;
+      data->start = start;
+      data->delimiter = (c == '.' ? CMARK_PERIOD_DELIM : CMARK_PAREN_DELIM);
+      data->tight = false;
     } else {
       return 0;
     }
-
   } else {
     return 0;
   }
@@ -528,7 +517,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
-    chunk_len = cmark_strbuf_check_bufsize(eol - buffer);
+    chunk_len = (eol - buffer);
     if (process) {
       if (parser->linebuf->size > 0) {
         cmark_strbuf_put(parser->linebuf, buffer, chunk_len);

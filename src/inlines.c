@@ -63,38 +63,16 @@ static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
 static CMARK_INLINE cmark_node *make_literal(cmark_node_type t, cmark_chunk s) {
-  cmark_node *e = (cmark_node *)calloc(1, sizeof(*e));
-  if (e != NULL) {
-    e->type = t;
-    e->as.literal = s;
-    e->next = NULL;
-    e->prev = NULL;
-    e->parent = NULL;
-    e->first_child = NULL;
-    e->last_child = NULL;
-    // These fields aren't used for inlines:
-    e->start_line = 0;
-    e->start_column = 0;
-    e->end_line = 0;
-  }
+  cmark_node *e = (cmark_node *)cmark_calloc(1, sizeof(*e));
+  e->type = t;
+  e->as.literal = s;
   return e;
 }
 
 // Create an inline with no value.
 static CMARK_INLINE cmark_node *make_simple(cmark_node_type t) {
-  cmark_node *e = (cmark_node *)calloc(1, sizeof(*e));
-  if (e != NULL) {
-    e->type = t;
-    e->next = NULL;
-    e->prev = NULL;
-    e->parent = NULL;
-    e->first_child = NULL;
-    e->last_child = NULL;
-    // These fields aren't used for inlines:
-    e->start_line = 0;
-    e->start_column = 0;
-    e->end_line = 0;
-  }
+  cmark_node *e = (cmark_node *)cmark_calloc(1, sizeof(*e));
+  e->type = t;
   return e;
 }
 
@@ -116,7 +94,7 @@ static cmark_chunk chunk_clone(cmark_chunk *src) {
   bufsize_t len = src->len;
 
   c.len = len;
-  c.data = (unsigned char *)malloc(len + 1);
+  c.data = (unsigned char *)cmark_calloc(len + 1, 1);
   c.alloc = 1;
   memcpy(c.data, src->data, len);
   c.data[len] = '\0';
@@ -362,10 +340,7 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
 
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,
                            bool can_close, cmark_node *inl_text) {
-  delimiter *delim = (delimiter *)malloc(sizeof(delimiter));
-  if (delim == NULL) {
-    return;
-  }
+  delimiter *delim = (delimiter *)cmark_calloc(1, sizeof(delimiter));
   delim->delim_char = c;
   delim->can_open = can_open;
   delim->can_close = can_close;
