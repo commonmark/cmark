@@ -155,7 +155,7 @@ static link_type get_link_type(cmark_node *node) {
   size_t title_len, url_len;
   cmark_node *link_text;
   char *realurl;
-  int realurllen;
+  size_t realurllen;
   bool isemail = false;
 
   if (node->type != CMARK_NODE_LINK) {
