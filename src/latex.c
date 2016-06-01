@@ -155,7 +155,7 @@ static link_type get_link_type(cmark_node *node) {
   size_t title_len, url_len;
   cmark_node *link_text;
   char *realurl;
-  size_t realurllen;
+  int realurllen;
   bool isemail = false;
 
   if (node->type != CMARK_NODE_LINK) {
@@ -169,7 +169,7 @@ static link_type get_link_type(cmark_node *node) {
     return INTERNAL_LINK;
   }
 
-  url_len = safe_strlen(url);
+  url_len = (int)safe_strlen(url);
   if (url_len == 0 || scan_scheme(&url_chunk, 0) == 0) {
     return NO_LINK;
   }
