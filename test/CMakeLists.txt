@@ -50,7 +50,6 @@ IF (PYTHONINTERP_FOUND)
     ${PYTHON_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
-    "--no-normalize"
     "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
 
