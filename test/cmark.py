@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ctypes import CDLL, c_char_p, c_long
+from ctypes import CDLL, c_char_p, c_long, c_void_p
 from subprocess import *
 import platform
 import os
@@ -11,16 +11,34 @@ def pipe_through_prog(prog, text):
     [result, err] = p1.communicate(input=text.encode('utf-8'))
     return [p1.returncode, result.decode('utf-8'), err]
 
-def use_library(lib, text):
+def to_html(lib, text):
+    markdown = lib.cmark_markdown_to_html
+    markdown.restype = c_char_p
+    markdown.argtypes = [c_char_p, c_long, c_long]
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
-    return [0, lib(textbytes, textlen, 0).decode('utf-8'), '']
+    result = markdown(textbytes, textlen, 0).decode('utf-8')
+    return [0, result, '']
+
+def to_commonmark(lib, text):
+    textbytes = text.encode('utf-8')
+    textlen = len(textbytes)
+    parse_document = lib.cmark_parse_document
+    parse_document.restype = c_void_p
+    parse_document.argtypes = [c_char_p, c_long, c_long]
+    render_commonmark = lib.cmark_render_commonmark
+    render_commonmark.restype = c_char_p
+    render_commonmark.argtypes = [c_void_p, c_long, c_long]
+    node = parse_document(textbytes, textlen, 0)
+    result = render_commonmark(node, 0, 0).decode('utf-8')
+    return [0, result, '']
 
 class CMark:
     def __init__(self, prog=None, library_dir=None):
         self.prog = prog
         if prog:
             self.to_html = lambda x: pipe_through_prog(prog, x)
+            self.to_commonmark = lambda x: pipe_through_prog(prog + ' -t commonmark', x)
         else:
             sysname = platform.system()
             if sysname == 'Darwin':
@@ -37,7 +55,6 @@ class CMark:
                     libpath = candidate
                     break
             cmark = CDLL(libpath)
-            markdown = cmark.cmark_markdown_to_html
-            markdown.restype = c_char_p
-            markdown.argtypes = [c_char_p, c_long]
-            self.to_html = lambda x: use_library(markdown, x)
+            self.to_html = lambda x: to_html(cmark, x)
+            self.to_commonmark = lambda x: to_commonmark(cmark, x)
+
