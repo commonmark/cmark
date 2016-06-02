@@ -171,6 +171,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   size_t info_len, code_len;
   char listmarker[LISTMARKER_SIZE];
   char *emph_delim;
+  bool first_in_list_item;
   bufsize_t marker_width;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options) &&
                     !(CMARK_OPT_HARDBREAKS & options);
@@ -206,7 +207,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_LIST:
     if (!entering && node->next && (node->next->type == CMARK_NODE_CODE_BLOCK ||
                                     node->next->type == CMARK_NODE_LIST)) {
-      // this ensures that a following code block or list will be
+      // this ensures that a following indented code block or list will be
       // inteprereted correctly.
       CR();
       LIT("<!-- end list -->");
@@ -266,7 +267,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CODE_BLOCK:
-    BLANKLINE();
+    first_in_list_item = node->prev == NULL && node->parent &&
+          node->parent->type == CMARK_NODE_ITEM;
+
+    if (!first_in_list_item) {
+      BLANKLINE();
+    }
     info = cmark_node_get_fence_info(node);
     info_len = safe_strlen(info);
     code = cmark_node_get_literal(node);
@@ -277,8 +283,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (info_len == 0 && (code_len > 2 && !isspace((unsigned char)code[0]) &&
                           !(isspace((unsigned char)code[code_len - 1]) &&
                             isspace((unsigned char)code[code_len - 2]))) &&
-        !(node->prev == NULL && node->parent &&
-          node->parent->type == CMARK_NODE_ITEM)) {
+        !first_in_list_item) {
       LIT("    ");
       cmark_strbuf_puts(renderer->prefix, "    ");
       OUT(cmark_node_get_literal(node), false, LITERAL);
