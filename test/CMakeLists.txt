@@ -48,9 +48,10 @@ IF (PYTHONINTERP_FOUND)
 
   add_test(roundtriptest_executable
     ${PYTHON_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize"
-    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--program"
-    "${ROUNDTRIP} ${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
+    "--no-normalize"
+    "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
 
   add_test(regressiontest_executable
