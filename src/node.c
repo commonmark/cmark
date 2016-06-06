@@ -78,7 +78,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
 cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
   cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
   cmark_strbuf_init(mem, &node->content, 0);
-  node->type = type;
+  node->type = (uint16_t)type;
 
   switch (node->type) {
   case CMARK_NODE_HEADING:
@@ -155,7 +155,7 @@ cmark_node_type cmark_node_get_type(cmark_node *node) {
   if (node == NULL) {
     return CMARK_NODE_NONE;
   } else {
-    return node->type;
+    return (cmark_node_type)node->type;
   }
 }
 

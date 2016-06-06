@@ -50,7 +50,8 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  buf->ptr = buf->mem->realloc(buf->asize ? buf->ptr : NULL, new_size);
+  buf->ptr = (unsigned char *)buf->mem->realloc(
+		buf->asize ? buf->ptr : NULL, new_size);
   buf->asize = new_size;
 }
 
@@ -146,7 +147,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return buf->mem->calloc(1, 1);
+    return (unsigned char *)buf->mem->calloc(1, 1);
   }
 
   cmark_strbuf_init(buf->mem, buf, 0);

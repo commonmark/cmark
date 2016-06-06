@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 #include "config.h"
 #include "cmark.h"
 

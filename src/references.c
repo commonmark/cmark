@@ -139,7 +139,7 @@ void cmark_reference_map_free(cmark_reference_map *map) {
 }
 
 cmark_reference_map *cmark_reference_map_new(cmark_mem *mem) {
-  cmark_reference_map *map = mem->calloc(1, sizeof(cmark_reference_map));
+  cmark_reference_map *map = (cmark_reference_map *)mem->calloc(1, sizeof(cmark_reference_map));
   map->mem = mem;
   return map;
 }
