@@ -50,14 +50,8 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  unsigned char *new_ptr = buf->mem->calloc(new_size, 1);
-  if (buf->ptr != cmark_strbuf__initbuf) {
-    memcpy(new_ptr, buf->ptr, buf->size);
-    buf->mem->free(buf->ptr);
-  }
-
+  buf->ptr = buf->mem->realloc(buf->asize ? buf->ptr : NULL, new_size);
   buf->asize = new_size;
-  buf->ptr = new_ptr;
 }
 
 bufsize_t cmark_strbuf_len(const cmark_strbuf *buf) { return buf->size; }

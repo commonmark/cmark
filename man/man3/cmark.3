@@ -1,4 +1,4 @@
-.TH cmark 3 "June 02, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "June 06, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -104,6 +104,7 @@ Custom memory allocator support
 .RS 0n
 typedef struct cmark_mem {
 	void *(*calloc)(size_t, size_t);
+	void *(*realloc)(void *, size_t);
 	void (*free)(void *);
 } cmark_mem;
 .RE
