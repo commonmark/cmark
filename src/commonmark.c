@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <ctype.h>
 
 #include "config.h"
 #include "cmark.h"
@@ -31,24 +30,26 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
   char encoded[ENCODED_SIZE];
 
   needs_escaping =
+      c < 0x80 &&
       escape != LITERAL &&
       ((escape == NORMAL &&
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
-         (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
+         (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
           // begin_content doesn't get set to false til we've passed digits
           // at the beginning of line, so...
           !follows_digit) ||
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
           (nextc == 0 || cmark_isspace(nextc))))) ||
-       (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
-                          c == '\\' || c == ')' || c == '(')) ||
+       (escape == URL && (c == '`' || c == '<' || c == '>' ||
+                          cmark_isspace(c) || c == '\\' || c == ')' ||
+                          c == '(')) ||
        (escape == TITLE &&
         (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
 
   if (needs_escaping) {
-    if (isspace(c)) {
+    if (cmark_isspace(c)) {
       // use percent encoding for spaces
       snprintf(encoded, ENCODED_SIZE, "%%%2x", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
@@ -280,9 +281,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     // use indented form if no info, and code doesn't
     // begin or end with a blank line, and code isn't
     // first thing in a list item
-    if (info_len == 0 && (code_len > 2 && !isspace((unsigned char)code[0]) &&
-                          !(isspace((unsigned char)code[code_len - 1]) &&
-                            isspace((unsigned char)code[code_len - 2]))) &&
+    if (info_len == 0 && (code_len > 2 && !cmark_isspace(code[0]) &&
+                          !(cmark_isspace(code[code_len - 1]) &&
+                            cmark_isspace(code[code_len - 2]))) &&
         !first_in_list_item) {
       LIT("    ");
       cmark_strbuf_puts(renderer->prefix, "    ");
