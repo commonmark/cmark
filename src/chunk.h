@@ -83,7 +83,7 @@ static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c, co
     c->data = NULL;
     c->alloc = 0;
   } else {
-    c->len = strlen(str);
+    c->len = (bufsize_t)strlen(str);
     c->data = (unsigned char *)mem->calloc(c->len + 1, 1);
     c->alloc = 1;
     memcpy(c->data, str, c->len + 1);
@@ -91,7 +91,7 @@ static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c, co
 }
 
 static CMARK_INLINE cmark_chunk cmark_chunk_literal(const char *data) {
-  bufsize_t len = data ? strlen(data) : 0;
+  bufsize_t len = data ? (bufsize_t)strlen(data) : 0;
   cmark_chunk c = {(unsigned char *)data, len, 0};
   return c;
 }
