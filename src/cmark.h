@@ -97,6 +97,7 @@ typedef struct cmark_iter cmark_iter;
  */
 typedef struct cmark_mem {
 	void *(*calloc)(size_t, size_t);
+	void *(*realloc)(void *, size_t);
 	void (*free)(void *);
 } cmark_mem;
 

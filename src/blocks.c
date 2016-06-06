@@ -106,19 +106,8 @@ cmark_parser *cmark_parser_new2(int options, cmark_mem *mem) {
   return parser;
 }
 
-static void *xcalloc(size_t nmem, size_t size) {
-  void *ptr = calloc(nmem, size);
-  if (!ptr) abort();
-  return ptr;
-}
-
-static void xfree(void *ptr) {
-  free(ptr);
-}
-
-cmark_mem DEFAULT_MEM_ALLOCATOR = { xcalloc, xfree };
-
 cmark_parser *cmark_parser_new(int options) {
+  extern cmark_mem DEFAULT_MEM_ALLOCATOR;
   return cmark_parser_new2(options, &DEFAULT_MEM_ALLOCATOR);
 }
 
