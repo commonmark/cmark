@@ -76,7 +76,7 @@ static cmark_node *make_document(cmark_mem *mem) {
   return e;
 }
 
-cmark_parser *cmark_parser_new2(int options, cmark_mem *mem) {
+cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   cmark_parser *parser = mem->calloc(1, sizeof(cmark_parser));
   parser->mem = mem;
 
@@ -108,7 +108,7 @@ cmark_parser *cmark_parser_new2(int options, cmark_mem *mem) {
 
 cmark_parser *cmark_parser_new(int options) {
   extern cmark_mem DEFAULT_MEM_ALLOCATOR;
-  return cmark_parser_new2(options, &DEFAULT_MEM_ALLOCATOR);
+  return cmark_parser_new_with_mem(options, &DEFAULT_MEM_ALLOCATOR);
 }
 
 void cmark_parser_free(cmark_parser *parser) {

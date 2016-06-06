@@ -127,7 +127,7 @@ other required properties, which it is the caller\[cq]s responsibility
 to assign.
 
 .PP
-\fIcmark_node *\f[] \fBcmark_node_new2\f[](\fIcmark_node_type type\f[], \fIcmark_mem *mem\f[])
+\fIcmark_node *\f[] \fBcmark_node_new_with_mem\f[](\fIcmark_node_type type\f[], \fIcmark_mem *mem\f[])
 
 .PP
 Same as \f[C]cmark_node_new\f[], but explicitly listing the memory
@@ -591,7 +591,7 @@ cmark_parser_free(parser);
 Creates a new parser object.
 
 .PP
-\fIcmark_parser *\f[] \fBcmark_parser_new2\f[](\fIint options\f[], \fIcmark_mem *mem\f[])
+\fIcmark_parser *\f[] \fBcmark_parser_new_with_mem\f[](\fIint options\f[], \fIcmark_mem *mem\f[])
 
 .PP
 Creates a new parser object with the given memory allocator
