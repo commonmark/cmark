@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ctypes import CDLL, c_char_p, c_long, c_void_p
+from ctypes import CDLL, c_char_p, c_size_t, c_int, c_void_p
 from subprocess import *
 import platform
 import os
@@ -14,7 +14,7 @@ def pipe_through_prog(prog, text):
 def to_html(lib, text):
     markdown = lib.cmark_markdown_to_html
     markdown.restype = c_char_p
-    markdown.argtypes = [c_char_p, c_long, c_long]
+    markdown.argtypes = [c_char_p, c_size_t, c_int]
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
     result = markdown(textbytes, textlen, 0).decode('utf-8')
@@ -25,10 +25,10 @@ def to_commonmark(lib, text):
     textlen = len(textbytes)
     parse_document = lib.cmark_parse_document
     parse_document.restype = c_void_p
-    parse_document.argtypes = [c_char_p, c_long, c_long]
+    parse_document.argtypes = [c_char_p, c_size_t, c_int]
     render_commonmark = lib.cmark_render_commonmark
     render_commonmark.restype = c_char_p
-    render_commonmark.argtypes = [c_void_p, c_long, c_long]
+    render_commonmark.argtypes = [c_void_p, c_int, c_int]
     node = parse_document(textbytes, textlen, 0)
     result = render_commonmark(node, 0, 0).decode('utf-8')
     return [0, result, '']
