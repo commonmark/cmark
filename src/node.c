@@ -75,7 +75,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   return false;
 }
 
-cmark_node *cmark_node_new2(cmark_node_type type, cmark_mem *mem) {
+cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
   cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
   cmark_strbuf_init(mem, &node->content, 0);
   node->type = type;
@@ -102,7 +102,7 @@ cmark_node *cmark_node_new2(cmark_node_type type, cmark_mem *mem) {
 
 cmark_node *cmark_node_new(cmark_node_type type) {
   extern cmark_mem DEFAULT_MEM_ALLOCATOR;
-  return cmark_node_new2(type, &DEFAULT_MEM_ALLOCATOR);
+  return cmark_node_new_with_mem(type, &DEFAULT_MEM_ALLOCATOR);
 }
 
 // Free a cmark_node list and any children.

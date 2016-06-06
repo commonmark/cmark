@@ -115,7 +115,7 @@ CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
 /** Same as `cmark_node_new`, but explicitly listing the memory
  * allocator used to allocate the node
  */
-CMARK_EXPORT cmark_node *cmark_node_new2(cmark_node_type type, cmark_mem *mem);
+CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem);
 
 /** Frees the memory allocated for a node and any children.
  */
@@ -460,7 +460,7 @@ cmark_parser *cmark_parser_new(int options);
 /** Creates a new parser object with the given memory allocator
  */
 CMARK_EXPORT
-cmark_parser *cmark_parser_new2(int options, cmark_mem *mem);
+cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem);
 
 /** Frees memory allocated for a parser object.
  */
