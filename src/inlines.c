@@ -38,8 +38,17 @@ typedef struct delimiter {
   unsigned char delim_char;
   bool can_open;
   bool can_close;
-  bool active;
 } delimiter;
+
+typedef struct bracket {
+	struct bracket *previous;
+	struct delimiter *previous_delimiter;
+	cmark_node *inl_text;
+	bufsize_t position;
+  bool image;
+  bool active;
+  bool bracket_after;
+} bracket;
 
 typedef struct {
   cmark_mem *mem;
@@ -47,6 +56,7 @@ typedef struct {
   bufsize_t pos;
   cmark_reference_map *refmap;
   delimiter *last_delim;
+  bracket   *last_bracket;
 } subject;
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -139,6 +149,7 @@ static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
   e->pos = 0;
   e->refmap = refmap;
   e->last_delim = NULL;
+  e->last_bracket = NULL;
 }
 
 static CMARK_INLINE int isbacktick(int c) { return (c == '`'); }
@@ -342,6 +353,16 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
   free(delim);
 }
 
+static void pop_bracket(subject *subj) {
+  bracket *b;
+  if (subj->last_bracket == NULL)
+    return;
+  b = subj->last_bracket;
+  subj->last_bracket = subj->last_bracket->previous;
+  free(b);
+}
+
+
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,
                            bool can_close, cmark_node *inl_text) {
   delimiter *delim = (delimiter *)subj->mem->calloc(1, sizeof(delimiter));
@@ -355,8 +376,22 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
     delim->previous->next = delim;
   }
   delim->position = subj->pos;
-  delim->active = true;
   subj->last_delim = delim;
+}
+
+static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
+  bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
+  if (subj->last_bracket != NULL) {
+    subj->last_bracket->bracket_after = true;
+  }
+  b->image = image;
+  b->active = true;
+  b->inl_text = inl_text;
+  b->previous = subj->last_bracket;
+  b->previous_delimiter = subj->last_delim;
+  b->position = subj->pos;
+  b->bracket_after = false;
+  subj->last_bracket = b;
 }
 
 // Assumes the subject has a c at the current position.
@@ -465,9 +500,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
 
   // now move forward, looking for closers, and handling each
   while (closer != NULL) {
-    if (closer->can_close &&
-        (closer->delim_char == '*' || closer->delim_char == '_' ||
-         closer->delim_char == '"' || closer->delim_char == '\'')) {
+    if (closer->can_close) {
       // Now look backwards for first matching opener:
       opener = closer->previous;
       opener_found = false;
@@ -755,27 +788,21 @@ static cmark_node *handle_close_bracket(subject *subj) {
   bufsize_t starturl, endurl, starttitle, endtitle, endall;
   bufsize_t n;
   bufsize_t sps;
-  cmark_reference *ref;
-  bool is_image = false;
+  cmark_reference *ref = NULL;
   cmark_chunk url_chunk, title_chunk;
   cmark_chunk url, title;
-  delimiter *opener;
+  bracket *opener;
   cmark_node *inl;
   cmark_chunk raw_label;
   int found_label;
   cmark_node *tmp, *tmpnext;
+  bool is_image;
 
   advance(subj); // advance past ]
   initial_pos = subj->pos;
 
-  // look through list of delimiters for a [ or !
-  opener = subj->last_delim;
-  while (opener) {
-    if (opener->delim_char == '[' || opener->delim_char == '!') {
-      break;
-    }
-    opener = opener->previous;
-  }
+  // get last [ or ![
+  opener = subj->last_bracket;
 
   if (opener == NULL) {
     return make_str(subj->mem, cmark_chunk_literal("]"));
@@ -783,14 +810,13 @@ static cmark_node *handle_close_bracket(subject *subj) {
 
   if (!opener->active) {
     // take delimiter off stack
-    remove_delimiter(subj, opener);
+    pop_bracket(subj);
     return make_str(subj->mem, cmark_chunk_literal("]"));
   }
 
   // If we got here, we matched a potential link/image text.
-  is_image = opener->delim_char == '!';
-
   // Now we check to see if it's a link/image.
+  is_image = opener->image;
 
   // First, look for an inline link.
   if (peek_char(subj) == '(' &&
@@ -830,20 +856,23 @@ static cmark_node *handle_close_bracket(subject *subj) {
   // skip spaces
   raw_label = cmark_chunk_literal("");
   found_label = link_label(subj, &raw_label);
-  if (!found_label || raw_label.len == 0) {
-    cmark_chunk_free(subj->mem, &raw_label);
-    raw_label = cmark_chunk_dup(&subj->input, opener->position,
-                                initial_pos - opener->position - 1);
-  }
-
   if (!found_label) {
     // If we have a shortcut reference link, back up
     // to before the spacse we skipped.
     subj->pos = initial_pos;
   }
 
-  ref = cmark_reference_lookup(subj->refmap, &raw_label);
-  cmark_chunk_free(subj->mem, &raw_label);
+  if ((!found_label || raw_label.len == 0) && !opener->bracket_after) {
+    cmark_chunk_free(subj->mem, &raw_label);
+    raw_label = cmark_chunk_dup(&subj->input, opener->position,
+                                initial_pos - opener->position - 1);
+    found_label = true;
+  }
+
+  if (found_label) {
+    ref = cmark_reference_lookup(subj->refmap, &raw_label);
+    cmark_chunk_free(subj->mem, &raw_label);
+  }
 
   if (ref != NULL) { // found
     url = chunk_clone(subj->mem, &ref->url);
@@ -855,7 +884,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
 
 noMatch:
   // If we fall through to here, it means we didn't match a link:
-  remove_delimiter(subj, opener); // remove this opener from delimiter list
+  pop_bracket(subj); // remove this opener from delimiter list
   subj->pos = initial_pos;
   return make_str(subj->mem, cmark_chunk_literal("]"));
 
@@ -875,16 +904,16 @@ match:
   // Free the bracket [:
   cmark_node_free(opener->inl_text);
 
-  process_emphasis(subj, opener);
+  process_emphasis(subj, opener->previous_delimiter);
+  pop_bracket(subj);
 
   // Now, if we have a link, we also want to deactivate earlier link
   // delimiters. (This code can be removed if we decide to allow links
   // inside links.)
-  remove_delimiter(subj, opener);
   if (!is_image) {
-    opener = subj->last_delim;
+    opener = subj->last_bracket;
     while (opener != NULL) {
-      if (opener->delim_char == '[') {
+      if (!opener->image) {
         if (!opener->active) {
           break;
         } else {
@@ -1005,7 +1034,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   case '[':
     advance(subj);
     new_inl = make_str(subj->mem, cmark_chunk_literal("["));
-    push_delimiter(subj, '[', true, false, new_inl);
+    push_bracket(subj, false, new_inl);
     break;
   case ']':
     new_inl = handle_close_bracket(subj);
@@ -1015,7 +1044,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     if (peek_char(subj) == '[') {
       advance(subj);
       new_inl = make_str(subj->mem, cmark_chunk_literal("!["));
-      push_delimiter(subj, '!', false, true, new_inl);
+      push_bracket(subj, true, new_inl);
     } else {
       new_inl = make_str(subj->mem, cmark_chunk_literal("!"));
     }
@@ -1050,6 +1079,10 @@ extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent, cmark_refere
     ;
 
   process_emphasis(&subj, NULL);
+  // free bracket stack
+  while (subj.last_bracket) {
+    pop_bracket(&subj);
+  }
 }
 
 // Parse zero or more space characters, including at most one newline.
