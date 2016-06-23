@@ -112,7 +112,8 @@ typedef struct cmark_mem {
 CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
 
 /** Same as `cmark_node_new`, but explicitly listing the memory
- * allocator used to allocate the node
+ * allocator used to allocate the node.  Note:  be sure to use the same
+ * allocator for every node in a tree, or bad things can happen.
  */
 CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem);
 

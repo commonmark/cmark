@@ -30,9 +30,6 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   if (node == NULL || child == NULL) {
     return false;
   }
-  if (NODE_MEM(node) != NODE_MEM(child)) {
-    return 0;
-  }
 
   // Verify that child is not an ancestor of node or equal to node.
   cur = node;
