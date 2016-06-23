@@ -3240,8 +3240,8 @@ Four spaces gives us a code block:
 ````````````````````````````````
 
 
-The Laziness clause allows us to omit the `>` before a
-paragraph continuation line:
+The Laziness clause allows us to omit the `>` before
+[paragraph continuation text]:
 
 ```````````````````````````````` example
 > # Foo
@@ -3347,8 +3347,8 @@ foo
 ````````````````````````````````
 
 
-Note that in the following case, we have a paragraph
-continuation line:
+Note that in the following case, we have a [lazy
+continuation line]:
 
 ```````````````````````````````` example
 > foo
@@ -3370,7 +3370,7 @@ To see why, note that in
 
 the `- bar` is indented too far to start a list, and can't
 be an indented code block because indented code blocks cannot
-interrupt paragraphs, so it is a [paragraph continuation line].
+interrupt paragraphs, so it is [paragraph continuation text].
 
 A block quote can be empty:
 
@@ -4439,13 +4439,18 @@ So, in this case we need two spaces indent:
 - foo
   - bar
     - baz
+      - boo
 .
 <ul>
 <li>foo
 <ul>
 <li>bar
 <ul>
-<li>baz</li>
+<li>baz
+<ul>
+<li>boo</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -4460,11 +4465,13 @@ One is not enough:
 - foo
  - bar
   - baz
+   - boo
 .
 <ul>
 <li>foo</li>
 <li>bar</li>
 <li>baz</li>
+<li>boo</li>
 </ul>
 ````````````````````````````````
 
@@ -7956,7 +7963,7 @@ consists of a [link label] that [matches] a
 [link reference definition] elsewhere in the
 document and is not followed by `[]` or a link label.
 The contents of the first link label are parsed as inlines,
-which are used as the link's text.  the link's URI and title
+which are used as the link's text.  The link's URI and title
 are provided by the matching link reference definition.
 Thus, `[foo]` is equivalent to `[foo][]`.
 
