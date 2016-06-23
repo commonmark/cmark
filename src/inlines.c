@@ -751,11 +751,11 @@ noMatch:
 
 // Return a link, an image, or a literal close bracket.
 static cmark_node *handle_close_bracket(subject *subj) {
-  bufsize_t initial_pos;
+  bufsize_t initial_pos, save_pos;
   bufsize_t starturl, endurl, starttitle, endtitle, endall;
   bufsize_t n;
   bufsize_t sps;
-  cmark_reference *ref;
+  cmark_reference *ref = NULL;
   bool is_image = false;
   cmark_chunk url_chunk, title_chunk;
   cmark_chunk url, title;
@@ -830,11 +830,6 @@ static cmark_node *handle_close_bracket(subject *subj) {
   // skip spaces
   raw_label = cmark_chunk_literal("");
   found_label = link_label(subj, &raw_label);
-  if (!found_label || raw_label.len == 0) {
-    cmark_chunk_free(subj->mem, &raw_label);
-    raw_label = cmark_chunk_dup(&subj->input, opener->position,
-                                initial_pos - opener->position - 1);
-  }
 
   if (!found_label) {
     // If we have a shortcut reference link, back up
@@ -842,12 +837,22 @@ static cmark_node *handle_close_bracket(subject *subj) {
     subj->pos = initial_pos;
   }
 
-  ref = cmark_reference_lookup(subj->refmap, &raw_label);
-  cmark_chunk_free(subj->mem, &raw_label);
+  if (!found_label || raw_label.len == 0) {
+    save_pos = subj->pos;
+    subj->pos = opener->position - 1;
+    cmark_chunk_free(subj->mem, &raw_label);
+    found_label = link_label(subj, &raw_label);
+    subj->pos = save_pos;
+  }
 
-  if (ref != NULL) { // found
+  if (found_label) {
+    ref = cmark_reference_lookup(subj->refmap, &raw_label);
+  }
+
+  if (ref) {
     url = chunk_clone(subj->mem, &ref->url);
     title = chunk_clone(subj->mem, &ref->title);
+    cmark_chunk_free(subj->mem, &raw_label);
     goto match;
   } else {
     goto noMatch;
