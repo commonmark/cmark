@@ -95,7 +95,7 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
   unsigned char *norm;
   unsigned int hash;
 
-  if (label->len > MAX_LINK_LABEL_LENGTH)
+  if (label->len < 1 || label->len > MAX_LINK_LABEL_LENGTH)
     return NULL;
 
   if (map == NULL)
