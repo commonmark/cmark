@@ -34,7 +34,6 @@ typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
   cmark_node *inl_text;
-  bufsize_t position;
   unsigned char delim_char;
   bool can_open;
   bool can_close;
@@ -375,7 +374,6 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   if (delim->previous != NULL) {
     delim->previous->next = delim;
   }
-  delim->position = subj->pos;
   subj->last_delim = delim;
 }
 
