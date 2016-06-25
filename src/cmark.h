@@ -95,11 +95,10 @@ typedef struct cmark_iter cmark_iter;
  * when parsing and allocating a document tree
  */
 typedef struct cmark_mem {
-	void *(*calloc)(size_t, size_t);
-	void *(*realloc)(void *, size_t);
-	void (*free)(void *);
+  void *(*calloc)(size_t, size_t);
+  void *(*realloc)(void *, size_t);
+  void (*free)(void *);
 } cmark_mem;
-
 
 /**
  * ## Creating and Destroying Nodes
@@ -115,7 +114,8 @@ CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
  * allocator used to allocate the node.  Note:  be sure to use the same
  * allocator for every node in a tree, or bad things can happen.
  */
-CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem);
+CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type,
+                                                 cmark_mem *mem);
 
 /** Frees the memory allocated for a node and any children.
  */

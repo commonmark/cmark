@@ -109,8 +109,9 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         !renderer->begin_line && renderer->last_breakable > 0) {
 
       // copy from last_breakable to remainder
-      cmark_chunk_set_cstr(renderer->mem, &remainder, (char *)renderer->buffer->ptr +
-                                           renderer->last_breakable + 1);
+      cmark_chunk_set_cstr(renderer->mem, &remainder,
+                           (char *)renderer->buffer->ptr +
+                               renderer->last_breakable + 1);
       // truncate at last_breakable
       cmark_strbuf_truncate(renderer->buffer, renderer->last_breakable);
       // add newline, prefix, and remainder
@@ -155,9 +156,9 @@ char *cmark_render(cmark_node *root, int options, int width,
   char *result;
   cmark_iter *iter = cmark_iter_new(root);
 
-  cmark_renderer renderer = {mem, &buf, &pref, 0, width, 0,
-                             0,    true,  true,        false, false,
-                             outc, S_cr,  S_blankline, S_out};
+  cmark_renderer renderer = {mem,   &buf, &pref, 0,           width,
+                             0,     0,    true,  true,        false,
+                             false, outc, S_cr,  S_blankline, S_out};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);

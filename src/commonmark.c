@@ -29,8 +29,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
   char encoded[ENCODED_SIZE];
 
   needs_escaping =
-      c < 0x80 &&
-      escape != LITERAL &&
+      c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
@@ -41,9 +40,9 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
           !follows_digit) ||
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
           (nextc == 0 || cmark_isspace(nextc))))) ||
-       (escape == URL && (c == '`' || c == '<' || c == '>' ||
-                          cmark_isspace(c) || c == '\\' || c == ')' ||
-                          c == '(')) ||
+       (escape == URL &&
+        (c == '`' || c == '<' || c == '>' || cmark_isspace(c) || c == '\\' ||
+         c == ')' || c == '(')) ||
        (escape == TITLE &&
         (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
 
@@ -268,7 +267,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_CODE_BLOCK:
     first_in_list_item = node->prev == NULL && node->parent &&
-          node->parent->type == CMARK_NODE_ITEM;
+                         node->parent->type == CMARK_NODE_ITEM;
 
     if (!first_in_list_item) {
       BLANKLINE();
@@ -348,10 +347,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (CMARK_OPT_HARDBREAKS & options) {
       LIT("  ");
       CR();
-    } else if (!renderer->no_linebreaks &&
-		renderer->width == 0 &&
-		!(CMARK_OPT_HARDBREAKS & options) &&
-                !(CMARK_OPT_NOBREAKS & options)) {
+    } else if (!renderer->no_linebreaks && renderer->width == 0 &&
+               !(CMARK_OPT_HARDBREAKS & options) &&
+               !(CMARK_OPT_NOBREAKS & options)) {
       CR();
     } else {
       OUT(" ", allow_wrap, LITERAL);

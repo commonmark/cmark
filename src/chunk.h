@@ -57,7 +57,8 @@ static CMARK_INLINE bufsize_t
   return p ? (bufsize_t)(p - ch->data) : ch->len;
 }
 
-static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_mem *mem, cmark_chunk *c) {
+static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_mem *mem,
+                                                    cmark_chunk *c) {
   unsigned char *str;
 
   if (c->alloc) {
@@ -74,7 +75,8 @@ static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_mem *mem, cmark_chunk 
   return (char *)str;
 }
 
-static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c, const char *str) {
+static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c,
+                                              const char *str) {
   if (c->alloc) {
     mem->free(c->data);
   }

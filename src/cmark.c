@@ -12,17 +12,19 @@ const char *cmark_version_string() { return CMARK_VERSION_STRING; }
 
 static void *xcalloc(size_t nmem, size_t size) {
   void *ptr = calloc(nmem, size);
-  if (!ptr) abort();
+  if (!ptr)
+    abort();
   return ptr;
 }
 
 static void *xrealloc(void *ptr, size_t size) {
   void *new_ptr = realloc(ptr, size);
-  if (!new_ptr) abort();
+  if (!new_ptr)
+    abort();
   return new_ptr;
 }
 
-cmark_mem DEFAULT_MEM_ALLOCATOR = { xcalloc, xrealloc, free };
+cmark_mem DEFAULT_MEM_ALLOCATOR = {xcalloc, xrealloc, free};
 
 char *cmark_markdown_to_html(const char *text, size_t len, int options) {
   cmark_node *doc;

@@ -59,8 +59,8 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                            bufsize_t bytes);
 
-static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag, int start_line,
-                              int start_column) {
+static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
+                              int start_line, int start_column) {
   cmark_node *e;
 
   e = (cmark_node *)mem->calloc(1, sizeof(*e));
@@ -247,7 +247,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   cmark_node *parent;
 
   parent = b->parent;
-  assert(b->flags & CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
+  assert(b->flags &
+         CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
   b->flags &= ~CMARK_NODE__OPEN;
 
   if (parser->curline.size == 0) {
@@ -361,7 +362,8 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
     parent = finalize(parser, parent);
   }
 
-  cmark_node *child = make_block(parser->mem, block_type, parser->line_number, start_column);
+  cmark_node *child =
+      make_block(parser->mem, block_type, parser->line_number, start_column);
   child->parent = parent;
 
   if (parent->last_child) {
@@ -377,8 +379,8 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
 
 // Walk through node and all children, recursively, parsing
 // string content into inline content where appropriate.
-static void process_inlines(cmark_mem *mem, cmark_node *root, cmark_reference_map *refmap,
-                            int options) {
+static void process_inlines(cmark_mem *mem, cmark_node *root,
+                            cmark_reference_map *refmap, int options) {
   cmark_iter *iter = cmark_iter_new(root);
   cmark_node *cur;
   cmark_event_type ev_type;
@@ -398,8 +400,8 @@ static void process_inlines(cmark_mem *mem, cmark_node *root, cmark_reference_ma
 // Attempts to parse a list item marker (bullet or enumerated).
 // On success, returns length of the marker, and populates
 // data with the details.  On failure, returns 0.
-static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input, bufsize_t pos,
-                                   cmark_list **dataptr) {
+static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
+                                   bufsize_t pos, cmark_list **dataptr) {
   unsigned char c;
   bufsize_t startpos;
   cmark_list *data;
@@ -655,7 +657,8 @@ static void S_advance_offset(cmark_parser *parser, cmark_chunk *input,
 }
 
 static bool S_last_child_is_open(cmark_node *container) {
-  return container->last_child && (container->last_child->flags & CMARK_NODE__OPEN);
+  return container->last_child &&
+         (container->last_child->flags & CMARK_NODE__OPEN);
 }
 
 static bool parse_block_quote_prefix(cmark_parser *parser, cmark_chunk *input) {
@@ -917,8 +920,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
-    } else if ((matched =
-                    parse_list_marker(parser->mem, input, parser->first_nonspace, &data)) &&
+    } else if ((matched = parse_list_marker(parser->mem, input,
+                                            parser->first_nonspace, &data)) &&
                (!indented || cont_type == CMARK_NODE_LIST)) {
       // Note that we can have new list items starting with >= 4
       // spaces indent, as long as the list container is still open.
@@ -1015,8 +1018,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   const cmark_node_type ctype = S_type(container);
   const bool last_line_blank =
       (parser->blank && ctype != CMARK_NODE_BLOCK_QUOTE &&
-       ctype != CMARK_NODE_HEADING &&
-       ctype != CMARK_NODE_THEMATIC_BREAK &&
+       ctype != CMARK_NODE_HEADING && ctype != CMARK_NODE_THEMATIC_BREAK &&
        !(ctype == CMARK_NODE_CODE_BLOCK && container->as.code.fenced) &&
        !(ctype == CMARK_NODE_ITEM && container->first_child == NULL &&
          container->start_line == parser->line_number));

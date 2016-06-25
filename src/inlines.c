@@ -40,10 +40,10 @@ typedef struct delimiter {
 } delimiter;
 
 typedef struct bracket {
-	struct bracket *previous;
-	struct delimiter *previous_delimiter;
-	cmark_node *inl_text;
-	bufsize_t position;
+  struct bracket *previous;
+  struct delimiter *previous_delimiter;
+  cmark_node *inl_text;
+  bufsize_t position;
   bool image;
   bool active;
   bool bracket_after;
@@ -55,7 +55,7 @@ typedef struct {
   bufsize_t pos;
   cmark_reference_map *refmap;
   delimiter *last_delim;
-  bracket   *last_bracket;
+  bracket *last_bracket;
 } subject;
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -72,7 +72,8 @@ static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
-static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t, cmark_chunk s) {
+static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t,
+                                             cmark_chunk s) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
   e->type = t;
@@ -89,7 +90,8 @@ static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
 }
 
 // Like make_str, but parses entities.
-static cmark_node *make_str_with_entities(cmark_mem *mem, cmark_chunk *content) {
+static cmark_node *make_str_with_entities(cmark_mem *mem,
+                                          cmark_chunk *content) {
   cmark_strbuf unescaped = CMARK_BUF_INIT(mem);
 
   if (houdini_unescape_html(&unescaped, content->data, content->len)) {
@@ -114,7 +116,8 @@ static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
   return c;
 }
 
-static cmark_chunk cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url, int is_email) {
+static cmark_chunk cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
+                                        int is_email) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
   cmark_chunk_trim(url);
@@ -131,7 +134,8 @@ static cmark_chunk cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url, int is
   return cmark_chunk_buf_detach(&buf);
 }
 
-static CMARK_INLINE cmark_node *make_autolink(cmark_mem *mem, cmark_chunk url, int is_email) {
+static CMARK_INLINE cmark_node *make_autolink(cmark_mem *mem, cmark_chunk url,
+                                              int is_email) {
   cmark_node *link = make_simple(mem, CMARK_NODE_LINK);
   link->as.link.url = cmark_clean_autolink(mem, &url, is_email);
   link->as.link.title = cmark_chunk_literal("");
@@ -361,7 +365,6 @@ static void pop_bracket(subject *subj) {
   free(b);
 }
 
-
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,
                            bool can_close, cmark_node *inl_text) {
   delimiter *delim = (delimiter *)subj->mem->calloc(1, sizeof(delimiter));
@@ -506,13 +509,15 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       odd_match = false;
       while (opener != NULL && opener != stack_bottom &&
              opener != openers_bottom[closer->delim_char]) {
-	// interior closer of size 2 can't match opener of size 1
-	// or of size 1 can't match 2
-	odd_match = (closer->can_open || opener->can_close) &&
-		((opener->inl_text->as.literal.len +
-		    closer->inl_text->as.literal.len) % 3 == 0);
+        // interior closer of size 2 can't match opener of size 1
+        // or of size 1 can't match 2
+        odd_match = (closer->can_open || opener->can_close) &&
+                    ((opener->inl_text->as.literal.len +
+                      closer->inl_text->as.literal.len) %
+                         3 ==
+                     0);
         if (opener->delim_char == closer->delim_char && opener->can_open &&
-			!odd_match) {
+            !odd_match) {
           opener_found = true;
           break;
         }
@@ -544,10 +549,10 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       }
       if (!opener_found && !odd_match) {
         // set lower bound for future searches for openers
-	// (we don't do this with 'odd_match' set because
-	// a ** that didn't match an earlier * might turn into
-	// an opener, and the * might be matched by something
-	// else.
+        // (we don't do this with 'odd_match' set because
+        // a ** that didn't match an earlier * might turn into
+        // an opener, and the * might be matched by something
+        // else.
         openers_bottom[old_closer->delim_char] = old_closer->previous;
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
@@ -1079,8 +1084,8 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent, cmark_reference_map *refmap,
-                                int options) {
+extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
+                                cmark_reference_map *refmap, int options) {
   subject subj;
   subject_from_buf(mem, &subj, &parent->content, refmap);
   cmark_chunk_rtrim(&subj.input);

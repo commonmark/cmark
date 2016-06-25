@@ -23,7 +23,8 @@ typedef struct {
 
 extern unsigned char cmark_strbuf__initbuf[];
 
-#define CMARK_BUF_INIT(mem) {mem, cmark_strbuf__initbuf, 0, 0}
+#define CMARK_BUF_INIT(mem)                                                    \
+  { mem, cmark_strbuf__initbuf, 0, 0 }
 
 /**
  * Initialize a cmark_strbuf structure.
@@ -31,7 +32,8 @@ extern unsigned char cmark_strbuf__initbuf[];
  * For the cases where CMARK_BUF_INIT cannot be used to do static
  * initialization.
  */
-void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf, bufsize_t initial_size);
+void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
+                       bufsize_t initial_size);
 
 /**
  * Grow the buffer to hold at least `target_size` bytes.

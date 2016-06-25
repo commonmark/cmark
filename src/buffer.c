@@ -21,7 +21,8 @@ unsigned char cmark_strbuf__initbuf[1];
 #define MIN(x, y) ((x < y) ? x : y)
 #endif
 
-void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf, bufsize_t initial_size) {
+void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
+                       bufsize_t initial_size) {
   buf->mem = mem;
   buf->asize = 0;
   buf->size = 0;
@@ -50,8 +51,8 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  buf->ptr = (unsigned char *)buf->mem->realloc(
-		buf->asize ? buf->ptr : NULL, new_size);
+  buf->ptr = (unsigned char *)buf->mem->realloc(buf->asize ? buf->ptr : NULL,
+                                                new_size);
   buf->asize = new_size;
 }
 
@@ -112,8 +113,7 @@ void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data,
 }
 
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string) {
-  cmark_strbuf_put(buf, (const unsigned char *)string,
-                   strlen(string));
+  cmark_strbuf_put(buf, (const unsigned char *)string, strlen(string));
 }
 
 void cmark_strbuf_copy_cstr(char *data, bufsize_t datasize,
