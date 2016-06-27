@@ -37,6 +37,3 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
   "Choose the type of build, options are: Debug Profile Release Asan Ubsan." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
-
-# export targets
-install(EXPORT cmark DESTINATION lib/cmake)

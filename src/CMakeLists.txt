@@ -139,6 +139,8 @@ install(FILES
   DESTINATION include
   )
 
+install(EXPORT cmark DESTINATION ${LIB_INSTALL_DIR}/cmake)
+
 # Feature tests
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
