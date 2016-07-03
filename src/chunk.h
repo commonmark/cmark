@@ -77,9 +77,7 @@ static CMARK_INLINE const char *cmark_chunk_to_cstr(cmark_mem *mem,
 
 static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c,
                                               const char *str) {
-  if (c->alloc) {
-    mem->free(c->data);
-  }
+  unsigned char *old = c->alloc ? c->data : NULL;
   if (str == NULL) {
     c->len = 0;
     c->data = NULL;
@@ -89,6 +87,9 @@ static CMARK_INLINE void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c,
     c->data = (unsigned char *)mem->calloc(c->len + 1, 1);
     c->alloc = 1;
     memcpy(c->data, str, c->len + 1);
+  }
+  if (old != NULL) {
+    mem->free(old);
   }
 }
 

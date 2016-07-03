@@ -171,7 +171,13 @@ static void accessors(test_batch_runner *runner) {
   OK(runner, cmark_node_set_url(link, "URL"), "set_url");
   OK(runner, cmark_node_set_title(link, "TITLE"), "set_title");
 
-  OK(runner, cmark_node_set_literal(string, "LINK"), "set_literal string");
+  OK(runner, cmark_node_set_literal(string, "prefix-LINK"),
+     "set_literal string");
+
+  // Set literal to suffix of itself (issue #139).
+  const char *literal = cmark_node_get_literal(string);
+  OK(runner, cmark_node_set_literal(string, literal + sizeof("prefix")),
+     "set_literal suffix");
 
   char *rendered_html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
   static const char expected_html[] =
