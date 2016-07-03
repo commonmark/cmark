@@ -252,7 +252,7 @@ bufsize_t _scan_atx_heading_start(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [#]{1,6} ([ ]+|[\r\n])  { return (bufsize_t)(p - start); }
+  [#]{1,6} ([ \t]+|[\r\n])  { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
@@ -277,9 +277,9 @@ bufsize_t _scan_thematic_break(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ([*][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  ([_][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  ([-][ ]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
+  ([*][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
+  ([_][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
+  ([-][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
