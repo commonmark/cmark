@@ -401,7 +401,8 @@ static void process_inlines(cmark_mem *mem, cmark_node *root,
 // On success, returns length of the marker, and populates
 // data with the details.  On failure, returns 0.
 static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
-                                   bufsize_t pos, cmark_list **dataptr) {
+                                   bufsize_t pos, bool interrupts_paragraph,
+				   cmark_list **dataptr) {
   unsigned char c;
   bufsize_t startpos;
   cmark_list *data;
@@ -434,6 +435,9 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       // This also seems to be the limit for 'start' in some browsers.
     } while (digits < 9 && cmark_isdigit(peek_at(input, pos)));
 
+    if (interrupts_paragraph && start != 1) {
+      return 0;
+    }
     c = peek_at(input, pos);
     if (c == '.' || c == ')') {
       pos++;
@@ -921,8 +925,12 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((matched = parse_list_marker(parser->mem, input,
-                                            parser->first_nonspace, &data)) &&
-               (!indented || cont_type == CMARK_NODE_LIST)) {
+                                            parser->first_nonspace,
+					    (*container)->type ==
+					      CMARK_NODE_PARAGRAPH,
+					    &data)) &&
+		     (!indented || cont_type == CMARK_NODE_LIST)) {
+
       // Note that we can have new list items starting with >= 4
       // spaces indent, as long as the list container is still open.
       int i = 0;
