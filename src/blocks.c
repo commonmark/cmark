@@ -222,24 +222,6 @@ static bool ends_with_blank_line(cmark_node *node) {
   return false;
 }
 
-// Break out of all containing lists
-static int break_out_of_lists(cmark_parser *parser, cmark_node **bptr) {
-  cmark_node *container = *bptr;
-  cmark_node *b = parser->root;
-  // find first containing NODE_LIST:
-  while (b && S_type(b) != CMARK_NODE_LIST) {
-    b = b->last_child;
-  }
-  if (b) {
-    while (container && container != b) {
-      container = finalize(parser, container);
-    }
-    finalize(parser, b);
-    *bptr = b->parent;
-  }
-  return 0;
-}
-
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   bufsize_t pos;
   cmark_node *item;
@@ -1153,10 +1135,6 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
     goto finished;
 
   container = last_matched_container;
-
-  // check to see if we've hit 2nd blank line, break out of list:
-  if (parser->blank && S_last_line_blank(container))
-    break_out_of_lists(parser, &container);
 
   open_new_blocks(parser, &container, &input, all_matched);
 
