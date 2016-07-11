@@ -851,12 +851,13 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                                  input, parser->first_nonspace))) {
       bufsize_t hashpos;
       int level = 0;
+      bufsize_t heading_startpos = parser->first_nonspace;
 
       S_advance_offset(parser, input,
                        parser->first_nonspace + matched - parser->offset,
                        false);
       *container =
-          add_child(parser, *container, CMARK_NODE_HEADING, parser->offset + 1);
+          add_child(parser, *container, CMARK_NODE_HEADING, heading_startpos + 1);
 
       hashpos = cmark_chunk_strchr(input, '#', parser->first_nonspace);
 
