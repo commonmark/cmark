@@ -445,7 +445,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
         while (S_is_space_or_tab(peek_at(input, i))) {
           i++;
         }
-        if (peek_at(input, i) == '\n') {
+        if (S_is_line_end_char(peek_at(input, i))) {
 	  return 0;
         }
       }
