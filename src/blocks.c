@@ -388,6 +388,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
   unsigned char c;
   bufsize_t startpos;
   cmark_list *data;
+  bufsize_t i;
 
   startpos = pos;
   c = peek_at(input, pos);
@@ -397,6 +398,18 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
     if (!cmark_isspace(peek_at(input, pos))) {
       return 0;
     }
+
+    if (interrupts_paragraph) {
+      i = pos;
+      // require non-blank content after list marker:
+      while (S_is_space_or_tab(peek_at(input, i))) {
+        i++;
+      }
+      if (peek_at(input, i) == '\n') {
+	return 0;
+      }
+    }
+
     data = (cmark_list *)mem->calloc(1, sizeof(*data));
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
@@ -426,6 +439,17 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       if (!cmark_isspace(peek_at(input, pos))) {
         return 0;
       }
+      if (interrupts_paragraph) {
+        // require non-blank content after list marker:
+        i = pos;
+        while (S_is_space_or_tab(peek_at(input, i))) {
+          i++;
+        }
+        if (peek_at(input, i) == '\n') {
+	  return 0;
+        }
+      }
+
       data = (cmark_list *)mem->calloc(1, sizeof(*data));
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
