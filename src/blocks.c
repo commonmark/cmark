@@ -862,6 +862,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
     if (!indented && peek_at(input, parser->first_nonspace) == '>') {
 
+      bufsize_t blockquote_startpos = parser->first_nonspace;
+
       S_advance_offset(parser, input,
                        parser->first_nonspace + 1 - parser->offset, false);
       // optional following character
@@ -869,7 +871,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
         S_advance_offset(parser, input, 1, true);
       }
       *container = add_child(parser, *container, CMARK_NODE_BLOCK_QUOTE,
-                             parser->offset + 1);
+                             blockquote_startpos + 1);
 
     } else if (!indented && (matched = scan_atx_heading_start(
                                  input, parser->first_nonspace))) {
