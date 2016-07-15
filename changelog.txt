@@ -1,3 +1,107 @@
+[0.26.0]
+
+  * Implement spec changes for list items:
+    - Empty list items cannot interrupt paragraphs.
+    - Ordered lists cannot interrupt paragraphs unless
+      they start with 1.
+    - Removed "two blank lines break out of a list" feature.
+  * Fix sourcepos for blockquotes (#142).
+  * Fix sourcepos for atx headers (#141).
+  * Fix ATX headers and thematic breaks to allow tabs as well as spaces.
+  * Fix `chunk_set_cstr` with suffix of current string (#139,
+    Nick Wellnhofer).  It's possible that `cmark_chunk_set_cstr` is called
+    with a substring (suffix) of the current string. Delay freeing of the
+    chunk content to handle this case correctly.
+  * Export targets on installation (Jonathan Müller).
+    This allows using them in other cmake projects.
+  * Fix cmake warning about CMP0048 (Jonathan Müller).
+  * commonmark renderer:  Ensure we don't have a blank line
+    before a code block when it's the first thing in a list
+    item.
+  * Change parsing of strong/emph in response to spec changes.
+    `process_emphasis` now gets better results in corner cases.
+    The change is this:  when considering matches between an interior
+    delimiter run (one that can open and can close) and another delimiter
+    run, we require that the sum of the lengths of the two delimiter
+    runs mod 3 is not 0.
+  * Ported Robin Stocker's changes to link parsing in jgm/commonmark#101.
+    This uses a separate stack for brackets, instead of putting them on the
+    delimiter stack.  This avoids the need for looking through the delimiter
+    stack for the next bracket.
+  * `cmark_reference_lookup`: Return NULL if reference is null string.
+  * Fix character type detection in `commonmark.c` (Nick Wellnhofer).
+    Fixes test failures on Windows and undefined behavior.
+    - Implement `cmark_isalpha`.
+    - Check for ASCII character before implicit cast to char.
+    - Use internal ctype functions in `commonmark.c`.
+  * Better documentation of memory-freeing responsibilities.
+    in `cmark.h` and its man page (#124).
+  * Use library functions to insert nodes in emphasis/link processing.
+    Previously we did this manually, which introduces many
+    places where errors can creep in.
+  * Correctly handle list marker followed only by spaces.
+    Previously when a list marker was followed only by spaces,
+    cmark expected the following content to be indented by
+    the same number of spaces.  But in this case we should
+    treat the line just like a blank line and set list padding
+    accordingly.
+  * Fixed a number of issues relating to line wrapping.
+    - Extend `CMARK_OPT_NOBREAKS` to all renderers and add `--nobreaks`.
+    - Do not autowrap, regardless of width parameter, if
+      `CMARK_OPT_NOBREAKS` is set.
+    - Fixed `CMARK_OPT_HARDBREAKS` for LaTeX and man renderers.
+    - Ensure that no auto-wrapping occurs if
+      `CMARK_OPT_NOBREAKS` is enabled, or if output is CommonMark and
+      `CMARK_OPT_HARDBREAKS` is enabled.
+  * Set stdin to binary mode on Windows (Nick Wellnhofer, #113).
+    This fixes EOLs when reading from stdin.
+  * Add library option to render softbreaks as spaces (Pavlo
+    Kapyshin).  Note that the `NOBREAKS` option is HTML-only
+  * renderer:  `no_linebreaks` instead of `no_wrap`.
+    We generally want this option to prohibit any breaking
+    in things like headers (not just wraps, but softbreaks).
+  * Coerce `realurllen` to `int`.  This is an alternate solution for pull
+    request #132, which introduced a new warning on the comparison
+    (Benedict Cohen).
+  * Remove unused variable `link_text` (Mathiew Duponchelle).
+  * Improved safety checks in buffer (Vicent Marti).
+  * Add new interface allowing specification of custom memory allocator
+    for nodes (Vicent Marti).  Added `cmark_node_new_with_mem`,
+    `cmark_parser_new_with_mem`, `cmark_mem` to API.
+  * Reduce storage size for nodes by using bit flags instead of
+    separate booleans (Vicent Marti).
+  * config: Add `SSIZE_T` compat for Win32 (Vicent Marti).
+  * cmake: Global handler for OOM situations (Vicent Marti).
+  * Add tests for memory exhaustion (Vicent Marti).
+  * Document in man page and public header that one should use the same
+    memory allocator for every node in a tree.
+  * Fix ctypes in Python FFI calls (Nick Wellnhofer).  This didn't cause
+    problems so far because all types are 32-bit on 32-bit systems and
+    arguments are passed in registers on x86-64.  The wrong types could cause
+    crashes on other platforms, though.
+  * Remove spurious failures in roundtrip tests.  In the commonmark writer we
+    separate lists, and lists and indented code, using a dummy HTML comment.
+    So in evaluating the round-trip tests, we now strip out
+    these comments.  We also normalize HTML to avoid issues
+    having to do with line breaks.
+  * Add 2016 to copyright (Kevin Burke).
+  * Added `to_commonmark` in `test/cmark.py` (for round-trip tests).
+  * `spec_test.py` - parameterize `do_test` with converter.
+  * `spec_tests.py`: exit code is now sum of failures and errors.
+    This ensures that a failing exit code will be given when
+    there are errors, not just with failures.
+  * Fixed round trip tests.  Previously they actually ran
+    `cmark` instead of the round-trip version, since there was a bug in
+    setting the ROUNDTRIP variable (#131).
+  * Added new `roundtrip_tests.py`.  This replaces the old use of simple shell
+    scripts.  It is much faster, and more flexible.  (We will be able
+    to do custom normalization and skip certain tests.)
+  * Fix tests under MinGW (Nick Wellnhofer).
+  * Fix leak in `api_test` (Mathieu Duponchelle).
+  * Makefile: have leakcheck stop on first error instead of going through
+    all the formats and options and probably getting the same output.
+  * Add regression tests (Nick Wellnhofer).
+
 [0.25.2]
 
   * Open files in binary mode (#113, Nick Wellnhofer).  Now that cmark
