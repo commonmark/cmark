@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 2.8.9)
+
+# prevent ugly developer warnings because version is set directly, not through project()
+# it should be redone properly by using VERSION in project() if on CMake 3.x
+if(CMAKE_MAJOR_VERSION GREATER 2)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(cmark)
+
 include("FindAsan.cmake")
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")

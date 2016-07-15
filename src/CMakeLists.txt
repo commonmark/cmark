@@ -126,6 +126,7 @@ endif(MSVC)
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${LIBRARY} ${STATICLIBRARY}
+  EXPORT cmark
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION ${LIB_INSTALL_DIR}
   ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
@@ -137,6 +138,8 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
   DESTINATION include
   )
+
+install(EXPORT cmark DESTINATION ${LIB_INSTALL_DIR}/cmake)
 
 # Feature tests
 include(CheckIncludeFile)
