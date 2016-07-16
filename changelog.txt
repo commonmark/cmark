@@ -1,3 +1,10 @@
+[0.26.1]
+
+  * Removed unnecessary typedef that caused build failure on
+    some platforms.
+  * Use `$(MAKE)` in Makefile instead of hardcoded `make` (#146,
+    Tobias Kortkamp).
+
 [0.26.0]
 
   * Implement spec changes for list items:
