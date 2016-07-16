@@ -26,7 +26,7 @@ all: cmake_build man/man3/cmark.3
 $(CMARK): cmake_build
 
 cmake_build: $(BUILDDIR)
-	@make -j2 -C $(BUILDDIR)
+	@$(MAKE) -j2 -C $(BUILDDIR)
 	@echo "Binaries can be found in $(BUILDDIR)/src"
 
 $(BUILDDIR):
@@ -40,37 +40,37 @@ $(BUILDDIR):
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 install: $(BUILDDIR)
-	make -C $(BUILDDIR) install
+	$(MAKE) -C $(BUILDDIR) install
 
 debug:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
 	cmake .. -DCMAKE_BUILD_TYPE=Debug; \
-	make
+	$(MAKE)
 
 ubsan:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
 	cmake .. -DCMAKE_BUILD_TYPE=Ubsan; \
-	make
+	$(MAKE)
 
 asan:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
 	cmake .. -DCMAKE_BUILD_TYPE=Asan; \
-	make
+	$(MAKE)
 
 prof:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
 	cmake .. -DCMAKE_BUILD_TYPE=Profile; \
-	make
+	$(MAKE)
 
 afl:
 	@[ -n "$(AFL_PATH)" ] || { echo '$$AFL_PATH not set'; false; }
 	mkdir -p $(BUILDDIR)
 	cd $(BUILDDIR) && cmake .. -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-gcc
-	make
+	$(MAKE)
 	$(AFL_PATH)/afl-fuzz \
 	    -i test/afl_test_cases \
 	    -o test/afl_results \
@@ -85,7 +85,7 @@ mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
 	cd $(MINGW_BUILDDIR); \
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
-	make && make install
+	$(MAKE) && $(MAKE) install
 
 man/man3/cmark.3: src/cmark.h | $(CMARK)
 	python man/make_man_page.py $< > $@ \
@@ -125,7 +125,7 @@ update-spec:
  > $(SPEC)
 
 test: $(SPEC) cmake_build
-	make -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
+	$(MAKE) -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
 $(ALLTESTS): $(SPEC)
 	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
