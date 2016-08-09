@@ -41,7 +41,7 @@ Advantages of this library:
   thousands-deep nested bracketed text or block quotes).
 
 - **Flexible.** CommonMark input is parsed to an AST which can be
-  manipulated programatically prior to rendering.
+  manipulated programmatically prior to rendering.
 
 - **Multiple renderers.**  Output in HTML, groff man, LaTeX, CommonMark,
   and a custom XML format is supported. And it is easy to write new
