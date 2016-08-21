@@ -27,8 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----
 
-houdini.h, houdini_href_e.c, houdini_html_e.c, houdini_html_u.c,
-html_unescape.gperf, html_unescape.h
+houdini.h, houdini_href_e.c, houdini_html_e.c, houdini_html_u.c
 
 derive from https://github.com/vmg/houdini (with some modifications)
 
