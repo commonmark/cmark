@@ -3,6 +3,8 @@ set(LIBRARY "libcmarkextensions")
 set(STATICLIBRARY "libcmarkextensions_static")
 set(LIBRARY_SOURCES
     core-extensions.c
+    table.c
+    strikethrough.c
     ext_scanners.c
     ext_scanners.h
    )
