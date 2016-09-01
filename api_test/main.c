@@ -177,7 +177,7 @@ static void accessors(test_batch_runner *runner) {
   OK(runner, cmark_node_set_literal(string, literal + sizeof("prefix")),
      "set_literal suffix");
 
-  char *rendered_html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  char *rendered_html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   static const char expected_html[] =
       "<h3>Header</h3>\n"
       "<ol start=\"3\">\n"
@@ -299,7 +299,7 @@ static void iterator_delete(test_batch_runner *runner) {
     }
   }
 
-  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   static const char expected[] = "<p>a  c</p>\n"
                                  "<p>a  c</p>\n";
   STR_EQ(runner, html, expected, "iterate and delete nodes");
@@ -339,7 +339,7 @@ static void create_tree(test_batch_runner *runner) {
   OK(runner, cmark_node_append_child(emph, str2), "append3");
   INT_EQ(runner, cmark_node_check(doc, NULL), 0, "append3 consistent");
 
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "<p>Hello, <em>world</em>!</p>\n", "render_html");
   free(html);
 
@@ -375,7 +375,7 @@ static void create_tree(test_batch_runner *runner) {
 
   cmark_node_unlink(emph);
 
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "<p>brzz!</p>\n", "render_html after shuffling");
   free(html);
 
@@ -407,7 +407,7 @@ static void custom_nodes(test_batch_runner *runner) {
   STR_EQ(runner, cmark_node_get_on_exit(cb), "", "get_on_exit (empty)");
   cmark_node_append_child(doc, cb);
 
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "<p><ON ENTER|Hello|ON EXIT></p>\n<on enter|\n",
          "render_html");
   free(html);
@@ -503,17 +503,17 @@ static void render_html(test_batch_runner *runner) {
       cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
   cmark_node *paragraph = cmark_node_first_child(doc);
-  html = cmark_render_html(paragraph, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(paragraph, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "<p>foo <em>bar</em></p>\n", "render single paragraph");
   free(html);
 
   cmark_node *string = cmark_node_first_child(paragraph);
-  html = cmark_render_html(string, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(string, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "foo ", "render single inline");
   free(html);
 
   cmark_node *emph = cmark_node_next(string);
-  html = cmark_render_html(emph, CMARK_OPT_DEFAULT);
+  html = cmark_render_html(emph, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, "<em>bar</em>", "render inline with children");
   free(html);
 

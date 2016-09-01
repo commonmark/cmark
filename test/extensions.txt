@@ -132,3 +132,22 @@ This is just ~~~~~one~~~~~ huge strikethrough.
 <p>This <del>is ~ legit</del> isn't ~ legit.</p>
 <p>This is just <del>one</del> huge strikethrough.</p>
 ````````````````````````````````
+
+
+## HTML whitelist
+
+
+```````````````````````````````` example
+This is <xmp> not okay, but **this** <strong>is</strong>.
+
+<p>This is <xmp> not okay, but **this** <strong>is</strong>.</p>
+
+Nope, I won't have <textarea>.
+
+<p>No <textarea> here either.</p>
+.
+<p>This is &lt;xmp> not okay, but <strong>this</strong> <strong>is</strong>.</p>
+<p>This is &lt;xmp> not okay, but **this** <strong>is</strong>.</p>
+<p>Nope, I won't have &lt;textarea>.</p>
+<p>No &lt;textarea> here either.</p>
+````````````````````````````````

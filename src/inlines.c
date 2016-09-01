@@ -1149,10 +1149,10 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_parser *parser,
-                                cmark_node *parent,
-                                cmark_reference_map *refmap,
-                                int options) {
+void cmark_parse_inlines(cmark_parser *parser,
+                         cmark_node *parent,
+                         cmark_reference_map *refmap,
+                         int options) {
   subject subj;
   subject_from_buf(parser->mem, &subj, &parent->content, refmap);
   cmark_chunk_rtrim(&subj.input);

@@ -17,14 +17,58 @@ static void escape_html(cmark_strbuf *dest, const unsigned char *source,
   houdini_escape_html0(dest, source, length, 0);
 }
 
+static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size_t len) {
+  cmark_strbuf *html = renderer->html;
+  cmark_llist *it;
+  cmark_syntax_extension *ext;
+  bool filtered;
+  uint8_t *match;
+
+  while (len) {
+    match = memchr(data, '<', len);
+    if (!match)
+      break;
+
+    if (match != data) {
+      cmark_strbuf_put(html, data, match - data);
+      len -= (match - data);
+      data = match;
+    }
+
+    filtered = false;
+    for (it = renderer->filter_extensions; it; it = it->next) {
+      ext = ((cmark_syntax_extension *) it->data);
+      if (!ext->html_filter_func(ext, data, len)) {
+        filtered = true;
+        break;
+      }
+    }
+
+    if (!filtered) {
+      cmark_strbuf_putc(html, '<');
+    } else {
+      cmark_strbuf_puts(html, "&lt;");
+    }
+
+    ++data;
+    --len;
+  }
+
+  if (len)
+    cmark_strbuf_put(html, data, len);
+}
+
 static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   cmark_node *parent;
   cmark_node *grandparent;
   cmark_strbuf *html = renderer->html;
+  cmark_llist *it;
+  cmark_syntax_extension *ext;
   char start_heading[] = "<h0";
   char end_heading[] = "</h0";
   bool tight;
+  bool filtered;
   char buffer[BUFFER_SIZE];
 
   bool entering = (ev_type == CMARK_EVENT_ENTER);
@@ -154,6 +198,8 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     cmark_html_render_cr(html);
     if (options & CMARK_OPT_SAFE) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
+    } else if (renderer->filter_extensions) {
+      filter_html_block(renderer, node->as.literal.data, node->as.literal.len);
     } else {
       cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
     }
@@ -227,7 +273,20 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     if (options & CMARK_OPT_SAFE) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
     } else {
-      cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      filtered = false;
+      for (it = renderer->filter_extensions; it; it = it->next) {
+        ext = it->data;
+        if (!ext->html_filter_func(ext, node->as.literal.data, node->as.literal.len)) {
+          filtered = true;
+          break;
+        }
+      }
+      if (!filtered) {
+        cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      } else {
+        cmark_strbuf_puts(html, "&lt;");
+        cmark_strbuf_put(html, node->as.literal.data + 1, node->as.literal.len - 1);
+      }
     }
     break;
 
@@ -303,19 +362,27 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
   return 1;
 }
 
-char *cmark_render_html(cmark_node *root, int options) {
+char *cmark_render_html(cmark_node *root, int options, cmark_llist *extensions) {
   char *result;
   cmark_strbuf html = CMARK_BUF_INIT(cmark_node_mem(root));
   cmark_event_type ev_type;
   cmark_node *cur;
-  cmark_html_renderer renderer = {&html, NULL, NULL};
+  cmark_html_renderer renderer = {&html, NULL, NULL, NULL};
   cmark_iter *iter = cmark_iter_new(root);
+
+  for (; extensions; extensions = extensions->next)
+    if (((cmark_syntax_extension *) extensions->data)->html_filter_func)
+      renderer.filter_extensions = cmark_llist_append(
+          renderer.filter_extensions,
+          (cmark_syntax_extension *) extensions->data);
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     S_render_node(&renderer, cur, ev_type, options);
   }
   result = (char *)cmark_strbuf_detach(&html);
+
+  cmark_llist_free(renderer.filter_extensions);
 
   cmark_iter_free(iter);
   return result;

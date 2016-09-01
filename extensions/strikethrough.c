@@ -3,17 +3,16 @@
 
 cmark_node_type CMARK_NODE_STRIKETHROUGH;
 
-static cmark_node *strikethrough_match(cmark_syntax_extension *self,
-                                       cmark_parser *parser,
-                                       cmark_node *parent,
-                                       unsigned char character,
-                                       cmark_inline_parser *inline_parser)
+static cmark_node *match(cmark_syntax_extension *self,
+                         cmark_parser *parser,
+                         cmark_node *parent,
+                         unsigned char character,
+                         cmark_inline_parser *inline_parser)
 {
   cmark_node *res = NULL;
   int left_flanking, right_flanking, punct_before, punct_after;
   int num_delims;
 
-  /* Exit early */
   if (character != '~')
     return NULL;
 
@@ -30,11 +29,11 @@ static cmark_node *strikethrough_match(cmark_syntax_extension *self,
   return res;
 }
 
-static delimiter *strikethrough_insert(cmark_syntax_extension *self,
-                                       cmark_parser *parser,
-                                       cmark_inline_parser *inline_parser,
-                                       delimiter *opener,
-                                       delimiter *closer)
+static delimiter *insert(cmark_syntax_extension *self,
+                         cmark_parser *parser,
+                         cmark_inline_parser *inline_parser,
+                         delimiter *opener,
+                         delimiter *closer)
 {
   cmark_node *strikethrough;
   cmark_node *tmp, *next;
@@ -74,22 +73,22 @@ done:
   return res;
 }
 
-const char *strikethrough_get_type_string(cmark_syntax_extension *extension, cmark_node *node) {
+static const char *get_type_string(cmark_syntax_extension *extension, cmark_node *node) {
   return node->type == CMARK_NODE_STRIKETHROUGH ? "strikethrough" : "<unknown>";
 }
 
-static int strikethrough_can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
+static int can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
   if (node->type != CMARK_NODE_STRIKETHROUGH)
     return false;
 
   return CMARK_NODE_TYPE_INLINE_P(child_type);
 }
 
-static void strikethrough_commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
     renderer->out(renderer, cmark_node_get_string_content(node), false, LITERAL);
 }
 
-static void strikethrough_latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
   // requires \usepackage{ulem}
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   if (entering) {
@@ -99,7 +98,7 @@ static void strikethrough_latex_render(cmark_syntax_extension *extension, cmark_
   }
 }
 
-static void strikethrough_man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   if (entering) {
     renderer->cr(renderer);
@@ -110,9 +109,9 @@ static void strikethrough_man_render(cmark_syntax_extension *extension, cmark_re
   }
 }
 
-static void strikethrough_html_render(cmark_syntax_extension *extension,
-                                      cmark_html_renderer *renderer, cmark_node *node,
-                                      cmark_event_type ev_type, int options) {
+static void html_render(cmark_syntax_extension *extension,
+                        cmark_html_renderer *renderer, cmark_node *node,
+                        cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   if (entering) {
     cmark_strbuf_puts(renderer->html, "<del>");
@@ -125,16 +124,16 @@ cmark_syntax_extension *create_strikethrough_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("strikethrough");
   cmark_llist *special_chars = NULL;
 
-  cmark_syntax_extension_set_get_type_string_func(ext, strikethrough_get_type_string);
-  cmark_syntax_extension_set_can_contain_func(ext, strikethrough_can_contain);
-  cmark_syntax_extension_set_commonmark_render_func(ext, strikethrough_commonmark_render);
-  cmark_syntax_extension_set_latex_render_func(ext, strikethrough_latex_render);
-  cmark_syntax_extension_set_man_render_func(ext, strikethrough_man_render);
-  cmark_syntax_extension_set_html_render_func(ext, strikethrough_html_render);
+  cmark_syntax_extension_set_get_type_string_func(ext, get_type_string);
+  cmark_syntax_extension_set_can_contain_func(ext, can_contain);
+  cmark_syntax_extension_set_commonmark_render_func(ext, commonmark_render);
+  cmark_syntax_extension_set_latex_render_func(ext, latex_render);
+  cmark_syntax_extension_set_man_render_func(ext, man_render);
+  cmark_syntax_extension_set_html_render_func(ext, html_render);
   CMARK_NODE_STRIKETHROUGH = cmark_syntax_extension_add_node(1);
 
-  cmark_syntax_extension_set_match_inline_func(ext, strikethrough_match);
-  cmark_syntax_extension_set_inline_from_delim_func(ext, strikethrough_insert);
+  cmark_syntax_extension_set_match_inline_func(ext, match);
+  cmark_syntax_extension_set_inline_from_delim_func(ext, insert);
 
   special_chars = cmark_llist_append(special_chars, (void *) '~');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);

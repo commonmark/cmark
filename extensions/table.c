@@ -25,54 +25,27 @@ typedef struct {
 } node_table_row;
 
 
-static int cmark_node_get_n_table_columns(cmark_node *node) {
-  if (node == NULL) {
+static int get_n_table_columns(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE)
     return -1;
-  }
 
-  if (node->type == CMARK_NODE_TABLE) {
-    return ((node_table *) &node->as.opaque)->n_columns;
-  }
-
-  return -1;
+  return ((node_table *) &node->as.opaque)->n_columns;
 }
 
-static int cmark_node_set_n_table_columns(cmark_node *node, int n_columns) {
-  if (node == NULL) {
+static int set_n_table_columns(cmark_node *node, int n_columns) {
+  if (!node || node->type != CMARK_NODE_TABLE)
     return 0;
-  }
 
-  if (node->type == CMARK_NODE_TABLE) {
-    ((node_table *) &node->as.opaque)->n_columns = n_columns;
-    return 1;
-  }
-
-  return 0;
-}
-
-static int cmark_node_is_table_header(cmark_node *node) {
-  if (node == NULL) {
-    return 0;
-  }
-
-  if (node->type == CMARK_NODE_TABLE_ROW) {
-    return ((node_table_row *) &node->as.opaque)->is_header;
-  }
-
+  ((node_table *) &node->as.opaque)->n_columns = n_columns;
   return 1;
 }
 
-static int cmark_node_set_is_table_header(cmark_node *node, int is_table_header) {
-  if (node == NULL) {
+static int is_table_header(cmark_node *node, int is_table_header) {
+  if (!node || node->type != CMARK_NODE_TABLE_ROW)
     return 0;
-  }
 
-  if (node->type == CMARK_NODE_TABLE_ROW) {
-    ((node_table_row *) &node->as.opaque)->is_header = is_table_header;
-    return 1;
-  }
-
-  return 0;
+  ((node_table_row *) &node->as.opaque)->is_header = is_table_header;
+  return 1;
 }
 
 static void free_table_cell(void *data) {
@@ -89,8 +62,7 @@ static void free_table_row(table_row *row) {
   free(row);
 }
 
-static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len)
-{
+static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len) {
   cmark_strbuf *res = (cmark_strbuf *)malloc(sizeof(cmark_strbuf));
   bufsize_t r, w;
 
@@ -142,9 +114,9 @@ static table_row *row_from_string(cmark_mem *mem, unsigned char *string, int len
 }
 
 static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
-                                            cmark_parser * parser,
-                                            cmark_node   * parent_container,
-                                            unsigned char   * input,
+                                            cmark_parser *parser,
+                                            cmark_node *parent_container,
+                                            unsigned char *input,
                                             int len) {
   bufsize_t matched = scan_table_start(input, len, cmark_parser_get_first_nonspace(parser));
   cmark_node *table_header;
@@ -177,12 +149,12 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   }
 
   cmark_node_set_syntax_extension(parent_container, self);
-  cmark_node_set_n_table_columns(parent_container, header_row->n_columns);
+  set_n_table_columns(parent_container, header_row->n_columns);
 
   table_header = cmark_parser_add_child(parser, parent_container,
       CMARK_NODE_TABLE_ROW, cmark_parser_get_offset(parser));
   cmark_node_set_syntax_extension(table_header, self);
-  cmark_node_set_is_table_header(table_header, true);
+  is_table_header(table_header, true);
 
   {
     cmark_llist *tmp;
@@ -206,9 +178,9 @@ done:
 }
 
 static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
-                                         cmark_parser * parser,
-                                         cmark_node   * parent_container,
-                                         unsigned char   * input,
+                                         cmark_parser *parser,
+                                         cmark_node *parent_container,
+                                         unsigned char *input,
                                          int len) {
   cmark_node *table_row_block;
   table_row *row;
@@ -247,11 +219,11 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
   return table_row_block;
 }
 
-static cmark_node *try_opening_table_block(cmark_syntax_extension * syntax_extension,
-                                           int               indented,
-                                           cmark_parser    * parser,
-                                           cmark_node      * parent_container,
-                                           unsigned char      * input,
+static cmark_node *try_opening_table_block(cmark_syntax_extension *syntax_extension,
+                                           int indented,
+                                           cmark_parser *parser,
+                                           cmark_node *parent_container,
+                                           unsigned char *input,
                                            int len) {
   cmark_node_type parent_type = cmark_node_get_type(parent_container);
 
@@ -264,18 +236,18 @@ static cmark_node *try_opening_table_block(cmark_syntax_extension * syntax_exten
   return NULL;
 }
 
-static int table_matches(cmark_syntax_extension *self,
-                          cmark_parser * parser,
-                          unsigned char   * input,
-                          int len,
-                          cmark_node   * parent_container) {
+static int matches(cmark_syntax_extension *self,
+                   cmark_parser *parser,
+                   unsigned char *input,
+                   int len,
+                   cmark_node *parent_container) {
   int res = 0;
 
   if (cmark_node_get_type(parent_container) == CMARK_NODE_TABLE) {
     table_row *new_row = row_from_string(parser->mem, input + cmark_parser_get_first_nonspace(parser),
         len - cmark_parser_get_first_nonspace(parser));
     if (new_row) {
-        if (new_row->n_columns == cmark_node_get_n_table_columns(parent_container))
+        if (new_row->n_columns == get_n_table_columns(parent_container))
           res = 1;
     }
     free_table_row(new_row);
@@ -284,7 +256,7 @@ static int table_matches(cmark_syntax_extension *self,
   return res;
 }
 
-static const char *table_get_type_string(cmark_syntax_extension *ext, cmark_node *node) {
+static const char *get_type_string(cmark_syntax_extension *ext, cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE) {
     return "table";
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
@@ -299,7 +271,7 @@ static const char *table_get_type_string(cmark_syntax_extension *ext, cmark_node
   return "<unknown>";
 }
 
-static int table_can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
+static int can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
   if (node->type == CMARK_NODE_TABLE) {
     return child_type == CMARK_NODE_TABLE_ROW;
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
@@ -316,11 +288,11 @@ static int table_can_contain(cmark_syntax_extension *extension, cmark_node *node
   return false;
 }
 
-static int table_contains_inlines(cmark_syntax_extension *extension, cmark_node *node) {
+static int contains_inlines(cmark_syntax_extension *extension, cmark_node *node) {
   return node->type == CMARK_NODE_TABLE_CELL;
 }
 
-static void table_commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
 
   if (node->type == CMARK_NODE_TABLE) {
@@ -350,7 +322,7 @@ static void table_commonmark_render(cmark_syntax_extension *extension, cmark_ren
   }
 }
 
-static void table_latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
 
   if (node->type == CMARK_NODE_TABLE) {
@@ -390,7 +362,7 @@ static void table_latex_render(cmark_syntax_extension *extension, cmark_renderer
   }
 }
 
-static void table_man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+static void man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
 
   if (node->type == CMARK_NODE_TABLE) {
@@ -434,7 +406,7 @@ struct html_table_state {
   int in_table_header : 1;
 };
 
-static void table_html_render(cmark_syntax_extension *extension,
+static void html_render(cmark_syntax_extension *extension,
                               cmark_html_renderer *renderer, cmark_node *node,
                               cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
@@ -504,15 +476,15 @@ static void table_html_render(cmark_syntax_extension *extension,
 cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("table");
 
-  cmark_syntax_extension_set_match_block_func(ext, table_matches);
+  cmark_syntax_extension_set_match_block_func(ext, matches);
   cmark_syntax_extension_set_open_block_func(ext, try_opening_table_block);
-  cmark_syntax_extension_set_get_type_string_func(ext, table_get_type_string);
-  cmark_syntax_extension_set_can_contain_func(ext, table_can_contain);
-  cmark_syntax_extension_set_contains_inlines_func(ext, table_contains_inlines);
-  cmark_syntax_extension_set_commonmark_render_func(ext, table_commonmark_render);
-  cmark_syntax_extension_set_latex_render_func(ext, table_latex_render);
-  cmark_syntax_extension_set_man_render_func(ext, table_man_render);
-  cmark_syntax_extension_set_html_render_func(ext, table_html_render);
+  cmark_syntax_extension_set_get_type_string_func(ext, get_type_string);
+  cmark_syntax_extension_set_can_contain_func(ext, can_contain);
+  cmark_syntax_extension_set_contains_inlines_func(ext, contains_inlines);
+  cmark_syntax_extension_set_commonmark_render_func(ext, commonmark_render);
+  cmark_syntax_extension_set_latex_render_func(ext, latex_render);
+  cmark_syntax_extension_set_man_render_func(ext, man_render);
+  cmark_syntax_extension_set_html_render_func(ext, html_render);
   CMARK_NODE_TABLE = cmark_syntax_extension_add_node(0);
   CMARK_NODE_TABLE_ROW = cmark_syntax_extension_add_node(0);
   CMARK_NODE_TABLE_CELL = cmark_syntax_extension_add_node(0);

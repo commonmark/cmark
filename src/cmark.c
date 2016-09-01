@@ -36,7 +36,7 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options) {
 
   doc = cmark_parse_document(text, len, options);
 
-  result = cmark_render_html(doc, options);
+  result = cmark_render_html(doc, options, NULL);
   cmark_node_free(doc);
 
   return result;

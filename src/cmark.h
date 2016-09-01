@@ -564,7 +564,7 @@ char *cmark_render_xml(cmark_node *root, int options);
  * responsibility to free the returned buffer.
  */
 CMARK_EXPORT
-char *cmark_render_html(cmark_node *root, int options);
+char *cmark_render_html(cmark_node *root, int options, cmark_llist *extensions);
 
 /** Render a 'node' tree as a groff man page, without the header.
  * It is the caller's responsibility to free the returned buffer.

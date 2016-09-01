@@ -153,8 +153,8 @@ $(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart" "--normalize"; do \
-	     echo "cmark -t $$format -e table -e strikethrough $$opts" ; \
-	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough $$opts $(ALLTESTS) >/dev/null || exit 1;\
+	     echo "cmark -t $$format -e table -e strikethrough -e whitelist $$opts" ; \
+	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough -e whitelist $$opts $(ALLTESTS) >/dev/null || exit 1;\
 	  done; \
 	done;
 

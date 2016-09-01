@@ -92,6 +92,11 @@ void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extensi
   extension->html_render_func = func;
 }
 
+void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extension,
+                                                 cmark_html_filter_func func) {
+  extension->html_filter_func = func;
+}
+
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func) {

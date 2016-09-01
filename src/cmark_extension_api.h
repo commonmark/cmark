@@ -238,6 +238,10 @@ typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
                                         cmark_event_type ev_type,
                                         int options);
 
+typedef int (*cmark_html_filter_func) (cmark_syntax_extension *extension,
+                                       const unsigned char *tag,
+                                       size_t tag_len);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
@@ -322,6 +326,12 @@ void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extensio
 CMARK_EXPORT
 void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extension,
                                                  cmark_html_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extension,
+                                                 cmark_html_filter_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */

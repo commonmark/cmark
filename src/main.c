@@ -7,6 +7,7 @@
 #include "cmark.h"
 #include "cmark_extension_api.h"
 #include "syntax_extension.h"
+#include "parser.h"
 #include "registry.h"
 
 #include "../extensions/core-extensions.h"
@@ -44,12 +45,12 @@ void print_usage() {
 }
 
 static bool print_document(cmark_node *document, writer_format writer,
-                           int options, int width) {
+                           int options, int width, cmark_parser *parser) {
   char *result;
 
   switch (writer) {
   case FORMAT_HTML:
-    result = cmark_render_html(document, options);
+    result = cmark_render_html(document, options, parser->syntax_extensions);
     break;
   case FORMAT_XML:
     result = cmark_render_xml(document, options);
@@ -231,7 +232,7 @@ int main(int argc, char *argv[]) {
 
   document = cmark_parser_finish(parser);
 
-  if (!print_document(document, writer, options, width))
+  if (!print_document(document, writer, options, width, parser))
     goto failure;
 
 

@@ -35,6 +35,7 @@ typedef struct cmark_renderer cmark_renderer;
 struct cmark_html_renderer {
   cmark_strbuf *html;
   cmark_node *plain;
+  cmark_llist *filter_extensions;
   void *opaque;
 };
 
