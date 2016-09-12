@@ -32,3 +32,27 @@ Repeatedly solving
 <li>how techniques</li>
 </ul>
 ````````````````````````````````
+
+Issue jgm/CommonMark#430:  h2..h6 not recognized as block tags.
+
+```````````````````````````````` example
+<h1>lorem</h1>
+
+<h2>lorem</h2>
+
+<h3>lorem</h3>
+
+<h4>lorem</h4>
+
+<h5>lorem</h5>
+
+<h6>lorem</h6>
+.
+<h1>lorem</h1>
+<h2>lorem</h2>
+<h3>lorem</h3>
+<h4>lorem</h4>
+<h5>lorem</h5>
+<h6>lorem</h6>
+````````````````````````````````
+
