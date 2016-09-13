@@ -6,6 +6,7 @@ set(LIBRARY_SOURCES
     table.c
     strikethrough.c
     whitelist.c
+    autolink.c
     ext_scanners.c
     ext_scanners.h
    )

@@ -553,6 +553,30 @@ void cmark_inline_parser_advance_offset(cmark_inline_parser *parser);
 CMARK_EXPORT
 int cmark_inline_parser_get_offset(cmark_inline_parser *parser);
 
+/** Set the offset in bytes in the chunk being processed by the given inline parser.
+ */
+CMARK_EXPORT
+void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset);
+
+/** Gets the cmark_chunk being operated on by the given inline parser.
+ * Use cmark_inline_parser_get_offset to get our current position in the chunk.
+ */
+CMARK_EXPORT
+cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
+
+/** Returns 1 if the inline parser is currently in a bracket; pass 1 for 'image'
+ * if you want to know about an image-type bracket, 0 for link-type. */
+CMARK_EXPORT
+int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image);
+
+/** Remove the last n characters from the last child of the given node.
+ * This only works where all n characters are in the single last child, and the last
+ * child is CMARK_NODE_TEXT.
+ */
+CMARK_EXPORT
+void cmark_node_unput(cmark_node *node, int n);
+
+
 /** Get the character located at the current inline parsing offset
  */
 CMARK_EXPORT

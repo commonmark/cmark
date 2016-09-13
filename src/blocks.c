@@ -84,7 +84,7 @@ static cmark_node *make_document(cmark_mem *mem) {
 int cmark_parser_attach_syntax_extension(cmark_parser *parser,
                                          cmark_syntax_extension *extension) {
   parser->syntax_extensions = cmark_llist_append(parser->syntax_extensions, extension);
-  if (extension->match_inline && extension->insert_inline_from_delim) {
+  if (extension->match_inline || extension->insert_inline_from_delim) {
     parser->inline_syntax_extensions = cmark_llist_append(
         parser->inline_syntax_extensions, extension);
   }
