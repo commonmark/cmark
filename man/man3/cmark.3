@@ -1,4 +1,4 @@
-.TH cmark 3 "June 23, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "September 13, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -103,9 +103,9 @@ Custom memory allocator support
 \fC
 .RS 0n
 typedef struct cmark_mem {
-	void *(*calloc)(size_t, size_t);
-	void *(*realloc)(void *, size_t);
-	void (*free)(void *);
+  void *(*calloc)(size_t, size_t);
+  void *(*realloc)(void *, size_t);
+  void (*free)(void *);
 } cmark_mem;
 .RE
 \f[]
@@ -785,7 +785,7 @@ dashes.
 Version information
 
 .PP
-\fIint\f[] \fBcmark_version\f[](\fI\f[])
+\fIint\f[] \fBcmark_version\f[](\fIvoid\f[])
 
 .PP
 The library version as integer for runtime checks. Also available as
@@ -800,7 +800,7 @@ Bits 0\-7 contain the patchlevel.
 In hexadecimal format, the number 0x010203 represents version 1.2.3.
 
 .PP
-\fIconst char *\f[] \fBcmark_version_string\f[](\fI\f[])
+\fIconst char *\f[] \fBcmark_version_string\f[](\fIvoid\f[])
 
 .PP
 The library version string for runtime checks. Also available as macro
