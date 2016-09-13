@@ -71,7 +71,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   in_single_quotes = ['] (escaped_char|[^'\x00])* ['];
   in_parens        = [(] (escaped_char|[^)\x00])* [)];
 
-  scheme           = [A-Za-z ][A-Za-z0-9.+-]{1,31};
+  scheme           = [A-Za-z][A-Za-z0-9.+-]{1,31};
 */
 
 // Try to match a scheme including colon.
