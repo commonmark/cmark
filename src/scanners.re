@@ -263,8 +263,8 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
-  [=]+ [ ]* [\r\n] { return 1; }
-  [-]+ [ ]* [\r\n] { return 2; }
+  [=]+ [ \t]* [\r\n] { return 1; }
+  [-]+ [ \t]* [\r\n] { return 2; }
   .? { return 0; }
 */
 }

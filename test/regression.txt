@@ -56,3 +56,13 @@ Issue jgm/CommonMark#430:  h2..h6 not recognized as block tags.
 <h6>lorem</h6>
 ````````````````````````````````
 
+Issue jgm/commonmark.js#109 - tabs after setext header line
+
+
+```````````````````````````````` example
+hi
+--→
+.
+<h2>hi</h2>
+````````````````````````````````
+

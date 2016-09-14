@@ -18338,18 +18338,18 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
   {
     unsigned char yych;
     static const unsigned char yybm[] = {
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
-        0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 32, 0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  32, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 64, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0,
+        0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0,
     };
     yych = *(marker = p);
     if (yych <= 0xC1) {
@@ -18394,30 +18394,34 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
       goto yy1201;
     }
     if (yych <= '\f') {
-      if (yych == '\n')
-        goto yy1199;
+      if (yych <= 0x08)
+        goto yy1179;
+      if (yych <= '\n')
+        goto yy1198;
       goto yy1179;
     } else {
       if (yych <= '\r')
-        goto yy1199;
+        goto yy1198;
       if (yych == ' ')
-        goto yy1197;
+        goto yy1198;
       goto yy1179;
     }
   yy1181:
     yych = *(marker = ++p);
-    if (yybm[0 + yych] & 32) {
-      goto yy1191;
+    if (yybm[0 + yych] & 64) {
+      goto yy1195;
     }
     if (yych <= '\f') {
-      if (yych == '\n')
-        goto yy1193;
+      if (yych <= 0x08)
+        goto yy1179;
+      if (yych <= '\n')
+        goto yy1192;
       goto yy1179;
     } else {
       if (yych <= '\r')
-        goto yy1193;
-      if (yych == '-')
-        goto yy1195;
+        goto yy1192;
+      if (yych == ' ')
+        goto yy1192;
       goto yy1179;
     }
   yy1182:
@@ -18477,10 +18481,13 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
   yy1191:
     ++p;
     yych = *p;
+  yy1192:
     if (yybm[0 + yych] & 32) {
       goto yy1191;
     }
-    if (yych == '\n')
+    if (yych <= 0x08)
+      goto yy1184;
+    if (yych <= '\n')
       goto yy1193;
     if (yych != '\r')
       goto yy1184;
@@ -18494,7 +18501,9 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
       goto yy1191;
     }
     if (yych <= '\f') {
-      if (yych == '\n')
+      if (yych <= 0x08)
+        goto yy1184;
+      if (yych <= '\n')
         goto yy1193;
       goto yy1184;
     } else {
@@ -18507,8 +18516,13 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
   yy1197:
     ++p;
     yych = *p;
+  yy1198:
     if (yych <= '\f') {
-      if (yych != '\n')
+      if (yych <= 0x08)
+        goto yy1184;
+      if (yych <= '\t')
+        goto yy1197;
+      if (yych >= '\v')
         goto yy1184;
     } else {
       if (yych <= '\r')
@@ -18527,7 +18541,11 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p) {
       goto yy1201;
     }
     if (yych <= '\f') {
-      if (yych == '\n')
+      if (yych <= 0x08)
+        goto yy1184;
+      if (yych <= '\t')
+        goto yy1197;
+      if (yych <= '\n')
         goto yy1199;
       goto yy1184;
     } else {
