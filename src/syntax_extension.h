@@ -21,6 +21,7 @@ struct cmark_syntax_extension {
   cmark_common_render_func        man_render_func;
   cmark_html_render_func          html_render_func;
   cmark_html_filter_func          html_filter_func;
+  cmark_postprocess_func          postprocess_func;
 };
 
 #endif

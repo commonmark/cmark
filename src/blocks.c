@@ -1284,6 +1284,7 @@ finished:
 
 cmark_node *cmark_parser_finish(cmark_parser *parser) {
   cmark_node *res;
+  cmark_llist *extensions;
 
   /* Parser was already finished once */
   if (parser->root == NULL)
@@ -1313,6 +1314,15 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
   parser->root = NULL;
 
   cmark_parser_reset(parser);
+
+  for (extensions = parser->syntax_extensions; extensions; extensions = extensions->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) extensions->data;
+    if (ext->postprocess_func) {
+      cmark_node *processed = ext->postprocess_func(ext, res);
+      if (processed)
+        res = processed;
+    }
+  }
 
   return res;
 }

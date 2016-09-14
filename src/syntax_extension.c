@@ -97,6 +97,11 @@ void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extensi
   extension->html_filter_func = func;
 }
 
+void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
+                                                 cmark_postprocess_func func) {
+  extension->postprocess_func = func;
+}
+
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func) {

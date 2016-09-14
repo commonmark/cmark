@@ -242,6 +242,9 @@ typedef int (*cmark_html_filter_func) (cmark_syntax_extension *extension,
                                        const unsigned char *tag,
                                        size_t tag_len);
 
+typedef cmark_node *(*cmark_postprocess_func) (cmark_syntax_extension *extension,
+                                               cmark_node *root);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
@@ -339,6 +342,12 @@ CMARK_EXPORT
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
+                                                 cmark_postprocess_func func);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
