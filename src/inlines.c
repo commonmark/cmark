@@ -799,7 +799,7 @@ noMatch:
 
 // Return a link, an image, or a literal close bracket.
 static cmark_node *handle_close_bracket(subject *subj) {
-  bufsize_t initial_pos;
+  bufsize_t initial_pos, after_link_text_pos;
   bufsize_t starturl, endurl, starttitle, endtitle, endall;
   bufsize_t n;
   bufsize_t sps;
@@ -833,6 +833,8 @@ static cmark_node *handle_close_bracket(subject *subj) {
   // Now we check to see if it's a link/image.
   is_image = opener->image;
 
+  after_link_text_pos = subj->pos;
+
   // First, look for an inline link.
   if (peek_char(subj) == '(' &&
       ((sps = scan_spacechars(&subj->input, subj->pos + 1)) > -1) &&
@@ -863,7 +865,8 @@ static cmark_node *handle_close_bracket(subject *subj) {
       goto match;
 
     } else {
-      goto noMatch;
+      // it could still be a shortcut reference link
+      subj->pos = after_link_text_pos;
     }
   }
 
