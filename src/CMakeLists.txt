@@ -79,8 +79,8 @@ add_compiler_export_flags()
 
 target_link_libraries(${PROGRAM} libcmark)
 
-add_dependencies(${PROGRAM} libcmarkextensions)
-target_link_libraries(${PROGRAM} libcmarkextensions)
+add_dependencies(${PROGRAM} libcmarkextensions_static)
+target_link_libraries(${PROGRAM} libcmarkextensions_static)
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES

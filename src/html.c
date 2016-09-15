@@ -25,7 +25,7 @@ static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size
   uint8_t *match;
 
   while (len) {
-    match = memchr(data, '<', len);
+    match = (uint8_t *) memchr(data, '<', len);
     if (!match)
       break;
 
@@ -275,7 +275,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     } else {
       filtered = false;
       for (it = renderer->filter_extensions; it; it = it->next) {
-        ext = it->data;
+        ext = (cmark_syntax_extension *) it->data;
         if (!ext->html_filter_func(ext, node->as.literal.data, node->as.literal.len)) {
           filtered = true;
           break;

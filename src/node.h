@@ -95,7 +95,7 @@ static CMARK_INLINE bool CMARK_NODE_TYPE_BLOCK_P(cmark_node_type node_type) {
 }
 
 static CMARK_INLINE bool CMARK_NODE_BLOCK_P(cmark_node *node) {
-	return node != NULL && CMARK_NODE_TYPE_BLOCK_P(node->type);
+	return node != NULL && CMARK_NODE_TYPE_BLOCK_P((cmark_node_type) node->type);
 }
 
 static CMARK_INLINE bool CMARK_NODE_TYPE_INLINE_P(cmark_node_type node_type) {
@@ -103,7 +103,7 @@ static CMARK_INLINE bool CMARK_NODE_TYPE_INLINE_P(cmark_node_type node_type) {
 }
 
 static CMARK_INLINE bool CMARK_NODE_INLINE_P(cmark_node *node) {
-	return node != NULL && CMARK_NODE_TYPE_INLINE_P(node->type);
+	return node != NULL && CMARK_NODE_TYPE_INLINE_P((cmark_node_type) node->type);
 }
 
 CMARK_EXPORT bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type);

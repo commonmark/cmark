@@ -65,7 +65,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     cur = cur->parent;
   } while (cur != NULL);
 
-  return cmark_node_can_contain_type(node, child->type);
+  return cmark_node_can_contain_type(node, (cmark_node_type) child->type);
 }
 
 cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
@@ -167,7 +167,7 @@ int cmark_node_set_type(cmark_node * node, cmark_node_type type) {
   if (type == node->type)
     return 1;
 
-  initial_type = node->type;
+  initial_type = (cmark_node_type) node->type;
   node->type = type;
 
   if (!S_can_contain(node->parent, node)) {

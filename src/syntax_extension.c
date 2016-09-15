@@ -26,10 +26,10 @@ cmark_node_type cmark_syntax_extension_add_node(int is_inline) {
 
   if ((*ref & CMARK_NODE_VALUE_MASK) == CMARK_NODE_VALUE_MASK) {
     assert(false);
-    return 0;
+    return (cmark_node_type) 0;
   }
 
-  return ++*ref;
+  return *ref = (cmark_node_type) ((int) *ref + 1);
 }
 
 void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extension,

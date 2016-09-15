@@ -87,7 +87,7 @@ static table_row *row_from_string(cmark_mem *mem, unsigned char *string, int len
   bufsize_t cell_matched = 0;
   bufsize_t cell_offset = 0;
 
-  row = malloc(sizeof(table_row));
+  row = (table_row *) malloc(sizeof(table_row));
   row->n_columns = 0;
   row->cells = NULL;
 

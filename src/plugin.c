@@ -10,7 +10,7 @@ int cmark_plugin_register_syntax_extension(cmark_plugin    * plugin,
 
 cmark_plugin *
 cmark_plugin_new(void) {
-  cmark_plugin *res = malloc(sizeof(cmark_plugin));
+  cmark_plugin *res = (cmark_plugin *) malloc(sizeof(cmark_plugin));
 
   res->syntax_extensions = NULL;
 
