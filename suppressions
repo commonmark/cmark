@@ -1,0 +1,28 @@
+{
+   .
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc_zone_malloc
+   fun:_objc_copyClassNamesForImage
+   fun:_ZL9protocolsv
+   fun:_Z9readClassP10objc_classbb
+   fun:gc_init
+   fun:_ZL33objc_initializeClassPair_internalP10objc_classPKcS0_S0_
+   fun:layout_string_create
+   fun:_ZL12realizeClassP10objc_class
+   fun:_ZL22copySwiftV1MangledNamePKcb
+   fun:_ZL22copySwiftV1MangledNamePKcb
+   fun:_ZL22copySwiftV1MangledNamePKcb
+   fun:_ZL22copySwiftV1MangledNamePKcb
+}
+{
+   .
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__smakebuf
+   fun:__srefill0
+   fun:__fread
+   fun:fread
+   fun:main
+}
