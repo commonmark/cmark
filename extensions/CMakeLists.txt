@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-set(LIBRARY "cmarkextensions")
+set(LIBRARY "libcmarkextensions")
+set(STATICLIBRARY "libcmarkextensions_static")
 set(LIBRARY_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/buffer.c
-    ${PROJECT_SOURCE_DIR}/src/cmark_ctype.c
     core-extensions.c
     ext_scanners.c
     ext_scanners.h
@@ -28,5 +27,23 @@ set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
 
 add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
 
-target_link_libraries(cmarkextensions libcmark)
+set_property(TARGET ${LIBRARY}
+  APPEND PROPERTY MACOSX_RPATH true)
+
+set_target_properties(${STATICLIBRARY} PROPERTIES
+  COMPILE_FLAGS -DCMARK_STATIC_DEFINE
+  POSITION_INDEPENDENT_CODE ON)
+
+if (MSVC)
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmarkextensions_static"
+    VERSION ${PROJECT_VERSION})
+else()
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmarkextensions"
+    VERSION ${PROJECT_VERSION})
+endif(MSVC)
+
+target_link_libraries(${LIBRARY} libcmark)

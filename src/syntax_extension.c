@@ -21,6 +21,17 @@ cmark_syntax_extension *cmark_syntax_extension_new(const char *name) {
   return res;
 }
 
+cmark_node_type cmark_syntax_extension_add_node(int is_inline) {
+  cmark_node_type *ref = !is_inline ? &CMARK_NODE_LAST_BLOCK : &CMARK_NODE_LAST_INLINE;
+
+  if ((*ref & CMARK_NODE_VALUE_MASK) == CMARK_NODE_VALUE_MASK) {
+    assert(false);
+    return 0;
+  }
+
+  return ++*ref;
+}
+
 void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extension,
                                                 cmark_open_block_func func) {
   extension->try_opening_block = func;
@@ -44,6 +55,41 @@ void cmark_syntax_extension_set_inline_from_delim_func(cmark_syntax_extension *e
 void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *extension,
                                                      cmark_llist *special_chars) {
   extension->special_inline_chars = special_chars;
+}
+
+void cmark_syntax_extension_set_get_type_string_func(cmark_syntax_extension *extension,
+                                                     cmark_get_type_string_func func) {
+  extension->get_type_string_func = func;
+}
+
+void cmark_syntax_extension_set_can_contain_func(cmark_syntax_extension *extension,
+                                                 cmark_can_contain_func func) {
+  extension->can_contain_func = func;
+}
+
+void cmark_syntax_extension_set_contains_inlines_func(cmark_syntax_extension *extension,
+                                                      cmark_contains_inlines_func func) {
+  extension->contains_inlines_func = func;
+}
+
+void cmark_syntax_extension_set_commonmark_render_func(cmark_syntax_extension *extension,
+                                                       cmark_common_render_func func) {
+  extension->commonmark_render_func = func;
+}
+
+void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extension,
+                                                  cmark_common_render_func func) {
+  extension->latex_render_func = func;
+}
+
+void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extension,
+                                                cmark_common_render_func func) {
+  extension->man_render_func = func;
+}
+
+void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extension,
+                                                 cmark_html_render_func func) {
+  extension->html_render_func = func;
 }
 
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,

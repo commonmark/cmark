@@ -10,6 +10,7 @@
 #include "utf8.h"
 #include "scanners.h"
 #include "render.h"
+#include "syntax_extension.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
@@ -148,8 +149,7 @@ static bool is_autolink(cmark_node *node) {
 // if there is no block-level ancestor, returns NULL.
 static cmark_node *get_containing_block(cmark_node *node) {
   while (node) {
-    if (node->type >= CMARK_NODE_FIRST_BLOCK &&
-        node->type <= CMARK_NODE_LAST_BLOCK) {
+    if (CMARK_NODE_BLOCK_P(node)) {
       return node;
     } else {
       node = node->parent;
@@ -186,6 +186,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
           cmark_node_get_list_tight(tmp->parent)) ||
          (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&
           cmark_node_get_list_tight(tmp->parent->parent)));
+  }
+
+  if (node->extension && node->extension->commonmark_render_func) {
+    node->extension->commonmark_render_func(node->extension, renderer, node, ev_type, options);
+    return 1;
   }
 
   switch (node->type) {
@@ -332,33 +337,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
-  case CMARK_NODE_TABLE:
-    BLANKLINE();
-    break;
-
-  case CMARK_NODE_TABLE_ROW:
-    if (entering) {
-      CR();
-      LIT("|");
-    }
-    break;
-  case CMARK_NODE_TABLE_CELL:
-    if (entering) {
-    } else {
-      LIT(" |");
-      if (node->parent->as.table_row.is_header && !node->next) {
-        int i;
-        int n_cols = node->parent->parent->as.table.n_columns;
-        CR();
-        LIT("|");
-        for (i = 0; i < n_cols; i++) {
-          LIT(" --- |");
-        }
-        CR();
-      }
-    }
-    break;
-
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;
@@ -479,10 +457,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       }
       LIT(")");
     }
-    break;
-
-  case CMARK_NODE_STRIKETHROUGH:
-    OUT(cmark_node_get_string_content(node), false, LITERAL);
     break;
 
   default:

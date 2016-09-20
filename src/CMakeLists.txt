@@ -50,7 +50,6 @@ set(LIBRARY_SOURCES
 
 set(PROGRAM "cmark")
 set(PROGRAM_SOURCES
-  ${LIBRARY_SOURCES}
   main.c
   )
 
@@ -77,6 +76,11 @@ include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
+
+target_link_libraries(${PROGRAM} libcmark)
+
+add_dependencies(${PROGRAM} libcmarkextensions)
+target_link_libraries(${PROGRAM} libcmarkextensions)
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
@@ -118,8 +122,6 @@ else()
     OUTPUT_NAME "cmark"
     VERSION ${PROJECT_VERSION})
 endif(MSVC)
-
-target_link_libraries(cmark ${CMAKE_DL_LIBS})
 
 set_property(TARGET ${LIBRARY}
   APPEND PROPERTY MACOSX_RPATH true)

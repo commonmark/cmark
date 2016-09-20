@@ -1,17 +1,37 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <cmark.h>
-#include <cmark_extension_api.h>
+#include "core-extensions.h"
 
 #include "parser.h"
 #include "buffer.h"
+#include "html.h"
 #include "ext_scanners.h"
+
+static int cmark_node_get_n_table_columns(cmark_node *node);
+static int cmark_node_set_n_table_columns(cmark_node *node, int n_columns);
+static int cmark_node_is_table_header(cmark_node *node);
+static int cmark_node_set_is_table_header(cmark_node *node, int is_table_header);
+
+static cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW, CMARK_NODE_TABLE_CELL;
+static cmark_node_type CMARK_NODE_STRIKETHROUGH;
 
 typedef struct {
   int n_columns;
   cmark_llist *cells;
 } table_row;
+
+// WARNING: if these grow too large they simply won't fit in the union
+// (cmark_node.as).  If you add anything you should probably change it to be
+// heap allocated and store the pointer in cmark_node.as.opaque instead.
+typedef struct {
+  int n_columns;
+} node_table;
+
+typedef struct {
+  bool is_header;
+} node_table_row;
+
 
 static void free_table_cell(void *data) {
   cmark_strbuf_free((cmark_strbuf *) data);
@@ -19,7 +39,6 @@ static void free_table_cell(void *data) {
 }
 
 static void free_table_row(table_row *row) {
-
   if (!row)
     return;
 
@@ -135,8 +154,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     }
   }
 
-  cmark_parser_advance_offset(parser, input,
-                   strlen(input) - 1 - cmark_parser_get_offset(parser),
+  cmark_parser_advance_offset(parser, (char *) input,
+                   strlen((char *) input) - 1 - cmark_parser_get_offset(parser),
                    false);
 done:
   free_table_row(header_row);
@@ -179,7 +198,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
 
   free_table_row(row);
 
-  cmark_parser_advance_offset(parser, input,
+  cmark_parser_advance_offset(parser, (char *) input,
                    len - 1 - cmark_parser_get_offset(parser),
                    false);
 
@@ -223,14 +242,292 @@ static int table_matches(cmark_syntax_extension *self,
   return res;
 }
 
+static const char *table_get_type_string(cmark_syntax_extension *ext, cmark_node *node) {
+  if (node->type == CMARK_NODE_TABLE) {
+    return "table";
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    if (((node_table_row *) &node->as.opaque)->is_header)
+      return "table_header";
+    else
+      return "table_row";
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    return "table_cell";
+  }
+
+  return "<unknown>";
+}
+
+static int table_can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
+  if (node->type == CMARK_NODE_TABLE) {
+    return child_type == CMARK_NODE_TABLE_ROW;
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    return child_type == CMARK_NODE_TABLE_CELL;
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    return child_type == CMARK_NODE_TEXT ||
+           child_type == CMARK_NODE_CODE ||
+           child_type == CMARK_NODE_EMPH ||
+           child_type == CMARK_NODE_STRONG ||
+           child_type == CMARK_NODE_LINK ||
+           child_type == CMARK_NODE_IMAGE ||
+           child_type == CMARK_NODE_STRIKETHROUGH;
+  }
+  return false;
+}
+
+static int table_contains_inlines(cmark_syntax_extension *extension, cmark_node *node) {
+  return node->type == CMARK_NODE_TABLE_CELL;
+}
+
+static void table_commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+
+  if (node->type == CMARK_NODE_TABLE) {
+    renderer->blankline(renderer);
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    if (entering) {
+      renderer->cr(renderer);
+      renderer->out(renderer, "|", false, LITERAL);
+    }
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    if (entering) {
+    } else {
+      renderer->out(renderer, " |", false, LITERAL);
+      if (((node_table_row *) &node->parent->as.opaque)->is_header && !node->next) {
+        int i;
+        int n_cols = ((node_table *) &node->parent->parent->as.opaque)->n_columns;
+        renderer->cr(renderer);
+        renderer->out(renderer, "|", false, LITERAL);
+        for (i = 0; i < n_cols; i++) {
+          renderer->out(renderer, " --- |", false, LITERAL);
+        }
+        renderer->cr(renderer);
+      }
+    }
+  } else {
+    assert(false);
+  }
+}
+
+static void table_latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+
+  if (node->type == CMARK_NODE_TABLE) {
+    if (entering) {
+      int i, n_cols;
+      renderer->cr(renderer);
+      renderer->out(renderer, "\\begin{table}", false, LITERAL);
+      renderer->cr(renderer);
+      renderer->out(renderer, "\\begin{tabular}{", false, LITERAL);
+
+      n_cols = ((node_table *) &node->as.opaque)->n_columns;
+      for (i = 0; i < n_cols; i++) {
+        renderer->out(renderer, "l", false, LITERAL);
+      }
+      renderer->out(renderer, "}", false, LITERAL);
+      renderer->cr(renderer);
+    } else {
+      renderer->out(renderer, "\\end{tabular}", false, LITERAL);
+      renderer->cr(renderer);
+      renderer->out(renderer, "\\end{table}", false, LITERAL);
+      renderer->cr(renderer);
+    }
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    if (!entering) {
+      renderer->cr(renderer);
+    }
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    if (!entering) {
+      if (node->next) {
+        renderer->out(renderer, " & ", false, LITERAL);
+      } else {
+        renderer->out(renderer, " \\\\", false, LITERAL);
+      }
+    }
+  } else {
+    assert(false);
+  }
+}
+
+static void table_man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+
+  if (node->type == CMARK_NODE_TABLE) {
+    if (entering) {
+      int i, n_cols;
+      renderer->cr(renderer);
+      renderer->out(renderer, ".TS", false, LITERAL);
+      renderer->cr(renderer);
+      renderer->out(renderer, "tab(@);", false, LITERAL);
+      renderer->cr(renderer);
+
+      n_cols = ((node_table *) &node->as.opaque)->n_columns;
+
+      for (i = 0; i < n_cols; i++) {
+        renderer->out(renderer, "c", false, LITERAL);
+      }
+
+      if (n_cols) {
+        renderer->out(renderer, ".", false, LITERAL);
+        renderer->cr(renderer);
+      }
+    } else {
+      renderer->out(renderer, ".TE", false, LITERAL);
+      renderer->cr(renderer);
+    }
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    if (!entering) {
+      renderer->cr(renderer);
+    }
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    if (!entering && node->next) {
+      renderer->out(renderer, "@", false, LITERAL);
+    }
+  } else {
+    assert(false);
+  }
+}
+
+struct html_table_state {
+  int need_closing_table_body : 1;
+  int in_table_header : 1;
+};
+
+static void table_html_render(cmark_syntax_extension *extension,
+                              cmark_html_renderer *renderer, cmark_node *node,
+                              cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+  cmark_strbuf *html = renderer->html;
+
+  // XXX: we just monopolise renderer->opaque.
+  struct html_table_state *table_state = (struct html_table_state *) &renderer->opaque;
+
+  if (node->type == CMARK_NODE_TABLE) {
+    if (entering) {
+      cmark_html_render_cr(html);
+      cmark_strbuf_puts(html, "<table");
+      cmark_html_render_sourcepos(node, html, options);
+      cmark_strbuf_putc(html, '>');
+      table_state->need_closing_table_body = false;
+    } else {
+      if (table_state->need_closing_table_body)
+        cmark_strbuf_puts(html, "</tbody>");
+      table_state->need_closing_table_body = false;
+      cmark_strbuf_puts(html, "</table>\n");
+    }
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+   if (entering) {
+     cmark_html_render_cr(html);
+     if (((node_table_row *) &node->as.opaque)->is_header) {
+       table_state->in_table_header = true;
+       cmark_strbuf_puts(html, "<thead>");
+       cmark_html_render_cr(html);
+     }
+     cmark_strbuf_puts(html, "<tr");
+     cmark_html_render_sourcepos(node, html, options);
+     cmark_strbuf_putc(html, '>');
+   } else {
+     cmark_html_render_cr(html);
+     cmark_strbuf_puts(html, "</tr>");
+     if (((node_table_row *) &node->as.opaque)->is_header) {
+       cmark_html_render_cr(html);
+       cmark_strbuf_puts(html, "</thead>");
+       cmark_html_render_cr(html);
+       cmark_strbuf_puts(html, "<tbody>");
+       table_state->need_closing_table_body = true;
+       table_state->in_table_header = false;
+     }
+   }
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+   if (entering) {
+     cmark_html_render_cr(html);
+     if (table_state->in_table_header) {
+       cmark_strbuf_puts(html, "<th");
+     } else {
+       cmark_strbuf_puts(html, "<td");
+     }
+     cmark_html_render_sourcepos(node, html, options);
+     cmark_strbuf_putc(html, '>');
+   } else {
+     if (table_state->in_table_header) {
+       cmark_strbuf_puts(html, "</th>");
+     } else {
+       cmark_strbuf_puts(html, "</td>");
+     }
+   }
+  } else {
+    assert(false);
+  }
+}
+
 static cmark_syntax_extension *register_table_syntax_extension(void) {
-  cmark_syntax_extension *ext = cmark_syntax_extension_new("piped-tables");
+  cmark_syntax_extension *ext = cmark_syntax_extension_new("table");
 
   cmark_syntax_extension_set_match_block_func(ext, table_matches);
   cmark_syntax_extension_set_open_block_func(ext, try_opening_table_block);
+  cmark_syntax_extension_set_get_type_string_func(ext, table_get_type_string);
+  cmark_syntax_extension_set_can_contain_func(ext, table_can_contain);
+  cmark_syntax_extension_set_contains_inlines_func(ext, table_contains_inlines);
+  cmark_syntax_extension_set_commonmark_render_func(ext, table_commonmark_render);
+  cmark_syntax_extension_set_latex_render_func(ext, table_latex_render);
+  cmark_syntax_extension_set_man_render_func(ext, table_man_render);
+  cmark_syntax_extension_set_html_render_func(ext, table_html_render);
+  CMARK_NODE_TABLE = cmark_syntax_extension_add_node(0);
+  CMARK_NODE_TABLE_ROW = cmark_syntax_extension_add_node(0);
+  CMARK_NODE_TABLE_CELL = cmark_syntax_extension_add_node(0);
 
   return ext;
 }
+
+static int cmark_node_get_n_table_columns(cmark_node *node) {
+  if (node == NULL) {
+    return -1;
+  }
+
+  if (node->type == CMARK_NODE_TABLE) {
+    return ((node_table *) &node->as.opaque)->n_columns;
+  }
+
+  return -1;
+}
+
+static int cmark_node_set_n_table_columns(cmark_node *node, int n_columns) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_TABLE) {
+    ((node_table *) &node->as.opaque)->n_columns = n_columns;
+    return 1;
+  }
+
+  return 0;
+}
+
+static int cmark_node_is_table_header(cmark_node *node) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_TABLE_ROW) {
+    return ((node_table_row *) &node->as.opaque)->is_header;
+  }
+
+  return 1;
+}
+
+static int cmark_node_set_is_table_header(cmark_node *node, int is_table_header) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_TABLE_ROW) {
+    ((node_table_row *) &node->as.opaque)->is_header = is_table_header;
+    return 1;
+  }
+
+  return 0;
+}
+
 
 static cmark_node *strikethrough_match(cmark_syntax_extension *self,
                                        cmark_parser *parser,
@@ -249,16 +546,11 @@ static cmark_node *strikethrough_match(cmark_syntax_extension *self,
   num_delims = cmark_inline_parser_scan_delimiters(inline_parser, 1, '~',
       &left_flanking, &right_flanking, &punct_before, &punct_after);
 
-  if (num_delims > 0) { /* Should not be needed */
-    int can_open, can_close;
+  res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+  cmark_node_set_literal(res, "~");
 
-    res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-    cmark_node_set_literal(res, "~");
-
-    can_open = left_flanking;
-    can_close = right_flanking;
-    if (can_open || can_close)
-      cmark_inline_parser_push_delimiter(inline_parser, character, can_open, can_close, res);
+  if (left_flanking || right_flanking) {
+    cmark_inline_parser_push_delimiter(inline_parser, character, left_flanking, right_flanking, res);
   }
 
   return res;
@@ -279,6 +571,8 @@ static delimiter *strikethrough_insert(cmark_syntax_extension *self,
 
   if (!cmark_node_set_type(strikethrough, CMARK_NODE_STRIKETHROUGH))
     goto done;
+
+  cmark_node_set_syntax_extension(strikethrough, self);
 
   cmark_node_set_string_content(strikethrough, "~");
   tmp = cmark_node_next(opener->inl_text);
@@ -306,19 +600,75 @@ done:
   return res;
 }
 
+const char *strikethrough_get_type_string(cmark_syntax_extension *extension, cmark_node *node) {
+  return node->type == CMARK_NODE_STRIKETHROUGH ? "strikethrough" : "<unknown>";
+}
+
+static int strikethrough_can_contain(cmark_syntax_extension *extension, cmark_node *node, cmark_node_type child_type) {
+  if (node->type != CMARK_NODE_STRIKETHROUGH)
+    return false;
+
+  return CMARK_NODE_TYPE_INLINE_P(child_type);
+}
+
+static void strikethrough_commonmark_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+    renderer->out(renderer, cmark_node_get_string_content(node), false, LITERAL);
+}
+
+static void strikethrough_latex_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+  // requires \usepackage{ulem}
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+  if (entering) {
+    renderer->out(renderer, "\\sout{", false, LITERAL);
+  } else {
+    renderer->out(renderer, "}", false, LITERAL);
+  }
+}
+
+static void strikethrough_man_render(cmark_syntax_extension *extension, cmark_renderer *renderer, cmark_node *node, cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+  if (entering) {
+    renderer->cr(renderer);
+    renderer->out(renderer, ".ST \"", false, LITERAL);
+  } else {
+    renderer->out(renderer, "\"", false, LITERAL);
+    renderer->cr(renderer);
+  }
+}
+
+static void strikethrough_html_render(cmark_syntax_extension *extension,
+                                      cmark_html_renderer *renderer, cmark_node *node,
+                                      cmark_event_type ev_type, int options) {
+  bool entering = (ev_type == CMARK_EVENT_ENTER);
+  if (entering) {
+    cmark_strbuf_puts(renderer->html, "<del>");
+  } else {
+    cmark_strbuf_puts(renderer->html, "</del>");
+  }
+}
+
 static cmark_syntax_extension *create_strikethrough_extension(void) {
-  cmark_syntax_extension *ext = cmark_syntax_extension_new("tilde_strikethrough");
+  cmark_syntax_extension *ext = cmark_syntax_extension_new("strikethrough");
   cmark_llist *special_chars = NULL;
+
+  cmark_syntax_extension_set_get_type_string_func(ext, strikethrough_get_type_string);
+  cmark_syntax_extension_set_can_contain_func(ext, strikethrough_can_contain);
+  cmark_syntax_extension_set_commonmark_render_func(ext, strikethrough_commonmark_render);
+  cmark_syntax_extension_set_latex_render_func(ext, strikethrough_latex_render);
+  cmark_syntax_extension_set_man_render_func(ext, strikethrough_man_render);
+  cmark_syntax_extension_set_html_render_func(ext, strikethrough_html_render);
+  CMARK_NODE_STRIKETHROUGH = cmark_syntax_extension_add_node(1);
 
   cmark_syntax_extension_set_match_inline_func(ext, strikethrough_match);
   cmark_syntax_extension_set_inline_from_delim_func(ext, strikethrough_insert);
+
   special_chars = cmark_llist_append(special_chars, (void *) '~');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
 
   return ext;
 }
 
-int init_libcmarkextensions(cmark_plugin *plugin) {
+int core_extensions_registration(cmark_plugin *plugin) {
   cmark_plugin_register_syntax_extension(plugin, register_table_syntax_extension());
   cmark_plugin_register_syntax_extension(plugin, create_strikethrough_extension());
   return 1;

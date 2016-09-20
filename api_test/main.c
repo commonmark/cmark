@@ -24,7 +24,7 @@ static void test_md_to_html(test_batch_runner *runner, const char *markdown,
                             const char *expected_html, const char *msg);
 
 static void test_content(test_batch_runner *runner, cmark_node_type type,
-                         int allowed_content);
+                         int *allowed_content);
 
 static void test_char(test_batch_runner *runner, int valid, const char *utf8,
                       const char *msg);
@@ -434,22 +434,17 @@ void hierarchy(test_batch_runner *runner) {
 
   cmark_node_free(bquote1);
 
-  int max_node_type = CMARK_NODE_LAST_BLOCK > CMARK_NODE_LAST_INLINE
-                          ? CMARK_NODE_LAST_BLOCK
-                          : CMARK_NODE_LAST_INLINE;
-  OK(runner, max_node_type < 32, "all node types < 32");
-
-  int list_item_flag = 1 << CMARK_NODE_ITEM;
-  int top_level_blocks =
-      (1 << CMARK_NODE_BLOCK_QUOTE) | (1 << CMARK_NODE_LIST) |
-      (1 << CMARK_NODE_CODE_BLOCK) | (1 << CMARK_NODE_HTML_BLOCK) |
-      (1 << CMARK_NODE_PARAGRAPH) | (1 << CMARK_NODE_HEADING) |
-      (1 << CMARK_NODE_THEMATIC_BREAK);
-  int all_inlines = (1 << CMARK_NODE_TEXT) | (1 << CMARK_NODE_SOFTBREAK) |
-                    (1 << CMARK_NODE_LINEBREAK) | (1 << CMARK_NODE_CODE) |
-                    (1 << CMARK_NODE_HTML_INLINE) | (1 << CMARK_NODE_EMPH) |
-                    (1 << CMARK_NODE_STRONG) | (1 << CMARK_NODE_LINK) |
-                    (1 << CMARK_NODE_IMAGE);
+  int list_item_flag[] = {CMARK_NODE_ITEM, 0};
+  int top_level_blocks[] =
+      {CMARK_NODE_BLOCK_QUOTE, CMARK_NODE_LIST,
+      CMARK_NODE_CODE_BLOCK, CMARK_NODE_HTML_BLOCK,
+      CMARK_NODE_PARAGRAPH, CMARK_NODE_HEADING,
+      CMARK_NODE_THEMATIC_BREAK, 0};
+  int all_inlines[] = {CMARK_NODE_TEXT, CMARK_NODE_SOFTBREAK,
+                    CMARK_NODE_LINEBREAK, CMARK_NODE_CODE,
+                    CMARK_NODE_HTML_INLINE, CMARK_NODE_EMPH,
+                    CMARK_NODE_STRONG, CMARK_NODE_LINK,
+                    CMARK_NODE_IMAGE, 0};
 
   test_content(runner, CMARK_NODE_DOCUMENT, top_level_blocks);
   test_content(runner, CMARK_NODE_BLOCK_QUOTE, top_level_blocks);
@@ -472,7 +467,7 @@ void hierarchy(test_batch_runner *runner) {
 }
 
 static void test_content(test_batch_runner *runner, cmark_node_type type,
-                         int allowed_content) {
+                         int *allowed_content) {
   cmark_node *node = cmark_node_new(type);
 
   for (int i = 0; i < num_node_types; ++i) {
@@ -480,7 +475,10 @@ static void test_content(test_batch_runner *runner, cmark_node_type type,
     cmark_node *child = cmark_node_new(child_type);
 
     int got = cmark_node_append_child(node, child);
-    int expected = (allowed_content >> child_type) & 1;
+    int expected = 0;
+    if (allowed_content)
+        for (int *p = allowed_content; *p; ++p)
+            expected |= *p == child_type;
 
     INT_EQ(runner, got, expected, "add %d as child of %d", child_type, type);
 

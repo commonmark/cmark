@@ -1,11 +1,12 @@
-#ifndef CMARK_EXTENSION_API_H
-#define CMARK_EXTENSION_API_H
+#ifndef CMARK_CMARK_EXTENSION_API_H
+#define CMARK_CMARK_EXTENSION_API_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <cmark.h>
+#include <render.h>
 
 /**
  * ## Extension Support
@@ -215,6 +216,28 @@ typedef int (*cmark_match_block_func)        (cmark_syntax_extension *extension,
                                        int len,
                                        cmark_node *container);
 
+typedef const char *(*cmark_get_type_string_func) (cmark_syntax_extension *extension,
+                                                   cmark_node *node);
+
+typedef int (*cmark_can_contain_func) (cmark_syntax_extension *extension,
+                                       cmark_node *node,
+                                       cmark_node_type child);
+
+typedef int (*cmark_contains_inlines_func) (cmark_syntax_extension *extension,
+                                            cmark_node *node);
+
+typedef void (*cmark_common_render_func) (cmark_syntax_extension *extension,
+                                          cmark_renderer *renderer,
+                                          cmark_node *node,
+                                          cmark_event_type ev_type,
+                                          int options);
+
+typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
+                                        cmark_html_renderer *renderer,
+                                        cmark_node *node,
+                                        cmark_event_type ev_type,
+                                        int options);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
@@ -224,6 +247,9 @@ void cmark_syntax_extension_free               (cmark_syntax_extension *extensio
  */
 CMARK_EXPORT
 cmark_syntax_extension *cmark_syntax_extension_new (const char *name);
+
+CMARK_EXPORT
+cmark_node_type cmark_syntax_extension_add_node(int is_inline);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
@@ -254,6 +280,48 @@ void cmark_syntax_extension_set_inline_from_delim_func(cmark_syntax_extension *e
 CMARK_EXPORT
 void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *extension,
                                                      cmark_llist *special_chars);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_get_type_string_func(cmark_syntax_extension *extension,
+                                                     cmark_get_type_string_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_can_contain_func(cmark_syntax_extension *extension,
+                                                 cmark_can_contain_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_contains_inlines_func(cmark_syntax_extension *extension,
+                                                      cmark_contains_inlines_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_commonmark_render_func(cmark_syntax_extension *extension,
+                                                       cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extension,
+                                                  cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extension,
+                                                cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extension,
+                                                 cmark_html_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */

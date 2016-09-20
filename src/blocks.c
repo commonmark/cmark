@@ -173,31 +173,19 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
   return true;
 }
 
-static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
-                               cmark_node_type child_type) {
-  if (parent_type == CMARK_NODE_TABLE) {
-    return child_type == CMARK_NODE_TABLE_ROW;
-  }
-
-  if (parent_type == CMARK_NODE_TABLE_ROW)
-    return child_type == CMARK_NODE_TABLE_CELL;
-
-  return (parent_type == CMARK_NODE_DOCUMENT ||
-          parent_type == CMARK_NODE_BLOCK_QUOTE ||
-          parent_type == CMARK_NODE_ITEM ||
-          (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
-}
-
 static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
-  return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADING ||
-          block_type == CMARK_NODE_TABLE_CELL);
+static CMARK_INLINE bool contains_inlines(cmark_node *node) {
+  if (node->extension && node->extension->contains_inlines_func) {
+    return node->extension->contains_inlines_func(node->extension, node);
+  }
+
+  return (node->type == CMARK_NODE_PARAGRAPH ||
+          node->type == CMARK_NODE_HEADING);
 }
 
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
@@ -378,7 +366,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
 
   // if 'parent' isn't the kind of node that can accept this child,
   // then back up til we hit a node that can.
-  while (!can_contain(S_type(parent), block_type)) {
+  while (!cmark_node_can_contain_type(parent, block_type)) {
     parent = finalize(parser, parent);
   }
 
@@ -426,7 +414,7 @@ static void process_inlines(cmark_parser *parser,
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (contains_inlines(cur->type)) {
+      if (contains_inlines(cur)) {
         cmark_parse_inlines(parser, cur, refmap, options);
       }
     }

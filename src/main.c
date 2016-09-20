@@ -9,6 +9,8 @@
 #include "syntax_extension.h"
 #include "registry.h"
 
+#include "../extensions/core-extensions.h"
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
 #include <fcntl.h>
@@ -100,7 +102,7 @@ int main(int argc, char *argv[]) {
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
 
-  cmark_init();
+  cmark_register_plugin(core_extensions_registration);
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
@@ -243,8 +245,9 @@ failure:
   if (document)
     cmark_node_free(document);
 
+  cmark_release_plugins();
+
   free(files);
-  cmark_deinit();
 
   return res;
 }

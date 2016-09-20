@@ -1,3 +1,6 @@
+#ifndef CMARK_SCANNERS_H
+#define CMARK_SCANNERS_H
+
 #include "cmark.h"
 #include "chunk.h"
 
@@ -54,4 +57,6 @@ bufsize_t _scan_dangerous_url(const unsigned char *p);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,9 +1,9 @@
-#ifndef CMARK_H
-#define CMARK_H
+#ifndef CMARK_CMARK_H
+#define CMARK_CMARK_H
 
 #include <stdio.h>
-#include <cmark_export.h>
-#include <cmark_version.h>
+#include "cmark_export.h"
+#include "cmark_version.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,48 +30,43 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options);
 /** ## Node Structure
  */
 
+#define CMARK_NODE_TYPE_PRESENT (0x8000)
+#define CMARK_NODE_TYPE_BLOCK (CMARK_NODE_TYPE_PRESENT | 0x0000)
+#define CMARK_NODE_TYPE_INLINE (CMARK_NODE_TYPE_PRESENT | 0x4000)
+#define CMARK_NODE_TYPE_MASK (0xc000)
+#define CMARK_NODE_VALUE_MASK (0x3fff)
+
 typedef enum {
   /* Error status */
-  CMARK_NODE_NONE,
+  CMARK_NODE_NONE = 0x0000,
 
   /* Block */
-  CMARK_NODE_DOCUMENT,
-  CMARK_NODE_BLOCK_QUOTE,
-  CMARK_NODE_LIST,
-  CMARK_NODE_ITEM,
-  CMARK_NODE_CODE_BLOCK,
-  CMARK_NODE_HTML_BLOCK,
-  CMARK_NODE_CUSTOM_BLOCK,
-  CMARK_NODE_PARAGRAPH,
-  CMARK_NODE_HEADING,
-  CMARK_NODE_THEMATIC_BREAK,
-
-  /* blocks with no syntax rules in the current specification */
-  CMARK_NODE_TABLE,
-  CMARK_NODE_TABLE_ROW,
-  CMARK_NODE_TABLE_CELL,
-
-  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_TABLE_CELL,
+  CMARK_NODE_DOCUMENT       = CMARK_NODE_TYPE_BLOCK | 0x0001,
+  CMARK_NODE_BLOCK_QUOTE    = CMARK_NODE_TYPE_BLOCK | 0x0002,
+  CMARK_NODE_LIST           = CMARK_NODE_TYPE_BLOCK | 0x0003,
+  CMARK_NODE_ITEM           = CMARK_NODE_TYPE_BLOCK | 0x0004,
+  CMARK_NODE_CODE_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0005,
+  CMARK_NODE_HTML_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0006,
+  CMARK_NODE_CUSTOM_BLOCK   = CMARK_NODE_TYPE_BLOCK | 0x0007,
+  CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
+  CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
+  CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
 
   /* Inline */
-  CMARK_NODE_TEXT,
-  CMARK_NODE_SOFTBREAK,
-  CMARK_NODE_LINEBREAK,
-  CMARK_NODE_CODE,
-  CMARK_NODE_HTML_INLINE,
-  CMARK_NODE_CUSTOM_INLINE,
-  CMARK_NODE_EMPH,
-  CMARK_NODE_STRONG,
-  CMARK_NODE_LINK,
-  CMARK_NODE_IMAGE,
-
-  /* inlines with no syntax rules in the current specification */
-  CMARK_NODE_STRIKETHROUGH,
-
-  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_STRIKETHROUGH,
+  CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
+  CMARK_NODE_SOFTBREAK     = CMARK_NODE_TYPE_INLINE | 0x0002,
+  CMARK_NODE_LINEBREAK     = CMARK_NODE_TYPE_INLINE | 0x0003,
+  CMARK_NODE_CODE          = CMARK_NODE_TYPE_INLINE | 0x0004,
+  CMARK_NODE_HTML_INLINE   = CMARK_NODE_TYPE_INLINE | 0x0005,
+  CMARK_NODE_CUSTOM_INLINE = CMARK_NODE_TYPE_INLINE | 0x0006,
+  CMARK_NODE_EMPH          = CMARK_NODE_TYPE_INLINE | 0x0007,
+  CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
+  CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
+  CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
 } cmark_node_type;
+
+extern cmark_node_type CMARK_NODE_LAST_BLOCK;
+extern cmark_node_type CMARK_NODE_LAST_INLINE;
 
 /* For backwards compatibility: */
 #define CMARK_NODE_HEADER CMARK_NODE_HEADING
@@ -147,21 +142,6 @@ void          cmark_llist_free_full (cmark_llist       * head,
  */
 CMARK_EXPORT
 void          cmark_llist_free      (cmark_llist       * head);
-/**
- * ## Initialization
- */
-
-/** Initialize the cmark library. This will discover available plugins.
- *  Returns 'true' if initialization was successful, 'false' otherwise.
- */
-CMARK_EXPORT
-int cmark_init(void);
-
-/** Deinitialize the cmark library. This will release all plugins.
- *  Returns true if deinitialization was successful, 'false' otherwise.
- */
-CMARK_EXPORT
-int cmark_deinit(void);
 
 /**
  * ## Creating and Destroying Nodes
@@ -468,11 +448,6 @@ CMARK_EXPORT int cmark_node_get_end_line(cmark_node *node);
 /** Returns the column at which 'node' ends.
  */
 CMARK_EXPORT int cmark_node_get_end_column(cmark_node *node);
-
-CMARK_EXPORT int cmark_node_get_n_table_columns(cmark_node *node);
-CMARK_EXPORT int cmark_node_set_n_table_columns(cmark_node *node, int n_columns);
-CMARK_EXPORT int cmark_node_is_table_header(cmark_node *node);
-CMARK_EXPORT int cmark_node_set_is_table_header(cmark_node *node, int is_table_header);
 
 /**
  * ## Tree Manipulation
