@@ -27,7 +27,7 @@ static int sd_autolink_issafe(const uint8_t *link, size_t link_len) {
 }
 
 static size_t
-autolink_delim(uint8_t *data, size_t link_end, size_t max_rewind, size_t size)
+autolink_delim(uint8_t *data, size_t link_end)
 {
 	uint8_t cclose, copen;
 	size_t i;
@@ -39,7 +39,7 @@ autolink_delim(uint8_t *data, size_t link_end, size_t max_rewind, size_t size)
 		}
 
 	while (link_end > 0) {
-		if (strchr("?!.,:", data[link_end - 1]) != NULL)
+		if (strchr("?!.,:*_", data[link_end - 1]) != NULL)
 			link_end--;
 
 		else if (data[link_end - 1] == ';') {
@@ -106,7 +106,7 @@ autolink_delim(uint8_t *data, size_t link_end, size_t max_rewind, size_t size)
 
 		if (closing == opening)
 			break;
-		
+
 		link_end--;
 	}
 
@@ -165,7 +165,7 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent, cmark_inl
   while (link_end < size && !cmark_isspace(data[link_end]))
     link_end++;
 
-  link_end = autolink_delim(data, link_end, max_rewind, size);
+  link_end = autolink_delim(data, link_end);
 
   if (link_end == 0)
 		return NULL;
@@ -232,7 +232,7 @@ static cmark_node *email_match(cmark_parser *parser, cmark_node *parent, cmark_i
       (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.'))
 		return 0;
 
-	link_end = autolink_delim(data, link_end, max_rewind, size);
+	link_end = autolink_delim(data, link_end);
 
   if (link_end == 0)
 		return NULL;
@@ -283,7 +283,7 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent, cmark_inl
 	while (link_end < size && !cmark_isspace(data[link_end]))
 		link_end++;
 
-	link_end = autolink_delim(data, link_end, max_rewind, size);
+	link_end = autolink_delim(data, link_end);
 
 	if (link_end == 0)
 		return NULL;
@@ -304,7 +304,8 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent, cmark_inl
 }
 
 static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *parent, unsigned char c, cmark_inline_parser *inline_parser) {
-  if (cmark_inline_parser_in_bracket(inline_parser, false))
+  if (cmark_inline_parser_in_bracket(inline_parser, false) ||
+      cmark_inline_parser_in_bracket(inline_parser, true))
     return NULL;
 
   if (c == ':')
