@@ -353,7 +353,7 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
   if (delim->previous != NULL) {
     delim->previous->next = delim->next;
   }
-  free(delim);
+  subj->mem->free(delim);
 }
 
 static void pop_bracket(subject *subj) {
@@ -362,7 +362,7 @@ static void pop_bracket(subject *subj) {
     return;
   b = subj->last_bracket;
   subj->last_bracket = subj->last_bracket->previous;
-  free(b);
+  subj->mem->free(b);
 }
 
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,

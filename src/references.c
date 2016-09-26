@@ -46,7 +46,7 @@ static unsigned char *normalize_reference(cmark_mem *mem, cmark_chunk *ref) {
   assert(result);
 
   if (result[0] == '\0') {
-    free(result);
+    mem->free(result);
     return NULL;
   }
 
@@ -114,7 +114,7 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
     ref = ref->next;
   }
 
-  free(norm);
+  map->mem->free(norm);
   return ref;
 }
 
@@ -135,7 +135,7 @@ void cmark_reference_map_free(cmark_reference_map *map) {
     }
   }
 
-  free(map);
+  map->mem->free(map);
 }
 
 cmark_reference_map *cmark_reference_map_new(cmark_mem *mem) {
