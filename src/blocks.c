@@ -933,10 +933,10 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
-    } else if ((matched = parse_list_marker(
+    } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
+               (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
-                    (*container)->type == CMARK_NODE_PARAGRAPH, &data)) &&
-               (!indented || cont_type == CMARK_NODE_LIST)) {
+                    (*container)->type == CMARK_NODE_PARAGRAPH, &data))) {
 
       // Note that we can have new list items starting with >= 4
       // spaces indent, as long as the list container is still open.
