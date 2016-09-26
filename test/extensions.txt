@@ -1,0 +1,182 @@
+---
+title: Extensions test
+author: Yuki Izumi
+version: 0.1
+date: '2016-08-31'
+license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
+...
+
+## Tables
+
+Here's a well-formed table, doing everything it should.
+
+```````````````````````````````` example
+| abc | def |
+| --- | --- |
+| ghi | jkl |
+| mno | pqr |
+.
+<table>
+<thead>
+<tr>
+<th> abc</th>
+<th> def</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> ghi</td>
+<td> jkl</td>
+</tr>
+<tr>
+<td> mno</td>
+<td> pqr</td>
+</tr></tbody></table>
+````````````````````````````````
+
+We're going to mix up the table now; we'll demonstrate that inline formatting
+works fine, but block elements don't.  You can also have empty cells, and the
+textual alignment of the columns is shown to be irrelevant.
+
+```````````````````````````````` example
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| 1. Block elements inside cells don't work. | |
+| But **_inline elements do_**. | x |
+
+Hi!
+.
+<p>Hello!</p>
+<table>
+<thead>
+<tr>
+<th> <em>abc</em></th>
+<th> セン</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1. Block elements inside cells don't work.</td>
+<td></td>
+</tr>
+<tr>
+<td> But <strong><em>inline elements do</em></strong>.</td>
+<td> x</td>
+</tr></tbody></table>
+<p>Hi!</p>
+````````````````````````````````
+
+Here we demonstrate some edge cases about what is and isn't a table.
+
+```````````````````````````````` example
+| Not enough table | to be considered table |
+
+| Not enough table | to be considered table |
+| Not enough table | to be considered table |
+
+| Just enough table | to be considered table |
+| ----------------- | ---------------------- |
+
+| ---- | --- |
+
+| x |
+| - |
+.
+<p>| Not enough table | to be considered table |</p>
+<p>| Not enough table | to be considered table |
+| Not enough table | to be considered table |</p>
+<table>
+<thead>
+<tr>
+<th> Just enough table</th>
+<th> to be considered table</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+<p>| ---- | --- |</p>
+<table>
+<thead>
+<tr>
+<th> x</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+````````````````````````````````
+
+
+## Strikethroughs
+
+A well-formed strikethrough.
+
+```````````````````````````````` example
+A proper ~strikethrough~.
+.
+<p>A proper <del>strikethrough</del>.</p>
+````````````````````````````````
+
+Some strikethrough edge cases.
+
+```````````````````````````````` example
+These are ~not strikethroughs.
+
+No, they are not~
+
+This ~is ~ legit~ isn't ~ legit.
+
+This is just ~~~~~one~~~~~ huge strikethrough.
+.
+<p>These are ~not strikethroughs.</p>
+<p>No, they are not~</p>
+<p>This <del>is ~ legit</del> isn't ~ legit.</p>
+<p>This is just <del>one</del> huge strikethrough.</p>
+````````````````````````````````
+
+
+## HTML whitelist
+
+
+```````````````````````````````` example
+This is <xmp> not okay, but **this** <strong>is</strong>.
+
+<p>This is <xmp> not okay, but **this** <strong>is</strong>.</p>
+
+Nope, I won't have <textarea>.
+
+<p>No <textarea> here either.</p>
+.
+<p>This is &lt;xmp> not okay, but <strong>this</strong> <strong>is</strong>.</p>
+<p>This is &lt;xmp> not okay, but **this** <strong>is</strong>.</p>
+<p>Nope, I won't have &lt;textarea>.</p>
+<p>No &lt;textarea> here either.</p>
+````````````````````````````````
+
+
+
+## Autolinks
+
+```````````````````````````````` example
+: http://google.com https://google.com
+
+<http://google.com/å> http://google.com/å
+
+scyther@pokemon.com
+
+www.github.com www.github.com/á
+
+www.google.com/a_b
+
+**Autolink and http://inlines**
+
+![http://inline.com/image](http://inline.com/image)
+
+.
+<p>: <a href="http://google.com">http://google.com</a> <a href="https://google.com">https://google.com</a></p>
+<p><a href="http://google.com/%C3%A5">http://google.com/å</a> <a href="http://google.com/%C3%A5">http://google.com/å</a></p>
+<p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a></p>
+<p><a href="http://www.github.com">www.github.com</a> <a href="http://www.github.com/%C3%A1">www.github.com/á</a></p>
+<p><a href="http://www.google.com/a_b">www.google.com/a_b</a></p>
+<p><strong>Autolink and <a href="http://inlines">http://inlines</a></strong></p>
+<p><img src="http://inline.com/image" alt="http://inline.com/image" /></p>
+````````````````````````````````

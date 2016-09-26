@@ -1,10 +1,14 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include "registry.h"
 #include "node.h"
 #include "houdini.h"
 #include "cmark.h"
 #include "buffer.h"
+
+cmark_node_type CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK;
+cmark_node_type CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE;
 
 int cmark_version() { return CMARK_VERSION; }
 
@@ -32,7 +36,7 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options) {
 
   doc = cmark_parse_document(text, len, options);
 
-  result = cmark_render_html(doc, options);
+  result = cmark_render_html(doc, options, NULL);
   cmark_node_free(doc);
 
   return result;

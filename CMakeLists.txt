@@ -24,6 +24,7 @@ set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 
 add_subdirectory(src)
+add_subdirectory(extensions)
 if(CMARK_TESTS)
   add_subdirectory(api_test)
 endif()

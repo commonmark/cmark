@@ -3,6 +3,7 @@ set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
 set(HEADERS
   cmark.h
+  cmark_extension_api.h
   parser.h
   buffer.h
   node.h
@@ -15,6 +16,9 @@ set(HEADERS
   houdini.h
   cmark_ctype.h
   render.h
+  registry.h
+  syntax_extension.h
+  plugin.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -37,12 +41,15 @@ set(LIBRARY_SOURCES
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  linked_list.c
+  syntax_extension.c
+  registry.c
+  plugin.c
   ${HEADERS}
   )
 
 set(PROGRAM "cmark")
 set(PROGRAM_SOURCES
-  ${LIBRARY_SOURCES}
   main.c
   )
 
@@ -70,6 +77,11 @@ include (GenerateExportHeader)
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
+target_link_libraries(${PROGRAM} libcmark)
+
+add_dependencies(${PROGRAM} libcmarkextensions_static)
+target_link_libraries(${PROGRAM} libcmarkextensions_static)
+
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
   COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
@@ -80,6 +92,8 @@ set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
 
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
+
+add_definitions(-DLIBDIR=\"${CMAKE_BINARY_DIR}\")
 
 if (${CMAKE_MAJOR_VERSION} GREATER 1 AND ${CMAKE_MINOR_VERSION} GREATER 8)
   set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -134,6 +148,7 @@ install(TARGETS ${PROGRAM} ${LIBRARY} ${STATICLIBRARY}
 
 install(FILES
   cmark.h
+  cmark_extension_api.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
   DESTINATION include

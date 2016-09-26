@@ -1,4 +1,4 @@
-.TH cmark 3 "September 13, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "September 20, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -27,37 +27,31 @@ Node Structure
 .RS 0n
 typedef enum {
   /* Error status */
-  CMARK_NODE_NONE,
+  CMARK_NODE_NONE = 0x0000,
 
   /* Block */
-  CMARK_NODE_DOCUMENT,
-  CMARK_NODE_BLOCK_QUOTE,
-  CMARK_NODE_LIST,
-  CMARK_NODE_ITEM,
-  CMARK_NODE_CODE_BLOCK,
-  CMARK_NODE_HTML_BLOCK,
-  CMARK_NODE_CUSTOM_BLOCK,
-  CMARK_NODE_PARAGRAPH,
-  CMARK_NODE_HEADING,
-  CMARK_NODE_THEMATIC_BREAK,
-
-  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_DOCUMENT       = CMARK_NODE_TYPE_BLOCK | 0x0001,
+  CMARK_NODE_BLOCK_QUOTE    = CMARK_NODE_TYPE_BLOCK | 0x0002,
+  CMARK_NODE_LIST           = CMARK_NODE_TYPE_BLOCK | 0x0003,
+  CMARK_NODE_ITEM           = CMARK_NODE_TYPE_BLOCK | 0x0004,
+  CMARK_NODE_CODE_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0005,
+  CMARK_NODE_HTML_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0006,
+  CMARK_NODE_CUSTOM_BLOCK   = CMARK_NODE_TYPE_BLOCK | 0x0007,
+  CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
+  CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
+  CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
 
   /* Inline */
-  CMARK_NODE_TEXT,
-  CMARK_NODE_SOFTBREAK,
-  CMARK_NODE_LINEBREAK,
-  CMARK_NODE_CODE,
-  CMARK_NODE_HTML_INLINE,
-  CMARK_NODE_CUSTOM_INLINE,
-  CMARK_NODE_EMPH,
-  CMARK_NODE_STRONG,
-  CMARK_NODE_LINK,
-  CMARK_NODE_IMAGE,
-
-  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+  CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
+  CMARK_NODE_SOFTBREAK     = CMARK_NODE_TYPE_INLINE | 0x0002,
+  CMARK_NODE_LINEBREAK     = CMARK_NODE_TYPE_INLINE | 0x0003,
+  CMARK_NODE_CODE          = CMARK_NODE_TYPE_INLINE | 0x0004,
+  CMARK_NODE_HTML_INLINE   = CMARK_NODE_TYPE_INLINE | 0x0005,
+  CMARK_NODE_CUSTOM_INLINE = CMARK_NODE_TYPE_INLINE | 0x0006,
+  CMARK_NODE_EMPH          = CMARK_NODE_TYPE_INLINE | 0x0007,
+  CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
+  CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
+  CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
 } cmark_node_type;
 .RE
 \f[]
@@ -114,6 +108,45 @@ typedef struct cmark_mem {
 .PP
 Defines the memory allocation functions to be used by CMark when parsing
 and allocating a document tree
+
+.SS
+Linked list
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef struct _cmark_llist
+{
+  struct _cmark_llist *next;
+  void         *data;
+} cmark_llist;
+.RE
+\f[]
+.fi
+
+.PP
+A generic singly linked list.
+
+.PP
+\fIcmark_llist *\f[] \fBcmark_llist_append\f[](\fIcmark_llist       * head\f[], \fIvoid              * data\f[])
+
+.PP
+Append an element to the linked list, return the possibly modified head
+of the list.
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free_full\f[](\fIcmark_llist       * head\f[], \fIcmark_free_func     free_func\f[])
+
+.PP
+Free the list starting with \f[I]head\f[], calling \f[I]free_func\f[]
+with the data pointer of each of its elements
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free\f[](\fIcmark_llist       * head\f[])
+
+.PP
+Free the list starting with \f[I]head\f[]
 
 .SS
 Creating and Destroying Nodes
@@ -314,6 +347,12 @@ Sets arbitrary user data for \f[I]node\f[]. Returns 1 on success, 0 on
 failure.
 
 .PP
+\fIint\f[] \fBcmark_node_set_user_data_free_func\f[](\fIcmark_node *node\f[], \fIcmark_free_func free_func\f[])
+
+.PP
+Set free function for user data */
+
+.PP
 \fIcmark_node_type\f[] \fBcmark_node_get_type\f[](\fIcmark_node *node\f[])
 
 .PP
@@ -420,6 +459,18 @@ Returns the info string from a fenced code block.
 .PP
 Sets the info string in a fenced code block, returning 1 on success
 and 0 on failure.
+
+.PP
+\fIint\f[] \fBcmark_node_set_fenced\f[](\fIcmark_node * node\f[], \fIint fenced\f[], \fIint length\f[], \fIint offset\f[], \fIchar character\f[])
+
+.PP
+Sets code blocks fencing details
+
+.PP
+\fIint\f[] \fBcmark_node_get_fenced\f[](\fIcmark_node *node\f[], \fIint *length\f[], \fIint *offset\f[], \fIchar *character\f[])
+
+.PP
+Returns code blocks fencing details
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_url\f[](\fIcmark_node *node\f[])
@@ -642,7 +693,7 @@ Render a \f[I]node\f[] tree as XML. It is the caller's responsibility to
 free the returned buffer.
 
 .PP
-\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[])
+\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_llist *extensions\f[])
 
 .PP
 Render a \f[I]node\f[] tree as an HTML fragment. It is up to the user to

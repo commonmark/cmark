@@ -46,11 +46,22 @@ IF (PYTHONINTERP_FOUND)
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
     )
 
-  add_test(roundtriptest_executable
+  add_test(extensions_executable
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark -e table -e strikethrough -e whitelist -e autolink"
+    )
+
+  add_test(roundtriptest_library
     ${PYTHON_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
     "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    )
+
+  add_test(roundtrip_extensions_executable
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark -e table -e strikethrough -e whitelist -e autolink"
     )
 
   add_test(regressiontest_executable

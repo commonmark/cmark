@@ -10,6 +10,7 @@
 #include "utf8.h"
 #include "scanners.h"
 #include "render.h"
+#include "syntax_extension.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
@@ -223,8 +224,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                                   "vi", "vii", "viii", "ix",  "x"};
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options);
 
-  // avoid warning about unused parameter:
-  (void)(options);
+  if (node->extension && node->extension->latex_render_func) {
+    node->extension->latex_render_func(node->extension, renderer, node, ev_type, options);
+    return 1;
+  }
 
   switch (node->type) {
   case CMARK_NODE_DOCUMENT:

@@ -1,10 +1,12 @@
 SRCDIR=src
+EXTDIR=extensions
 DATADIR=data
 BUILDDIR?=build
 GENERATOR?=Unix Makefiles
 MINGW_BUILDDIR?=build-mingw
 MINGW_INSTALLDIR?=windows
 SPEC=test/spec.txt
+EXTENSIONS_SPEC=test/extensions.txt
 SITE=_site
 SPECVERSION=$(shell perl -ne 'print $$1 if /^version: *([0-9.]+)/' $(SPEC))
 FUZZCHARS?=2000000  # for fuzztest
@@ -115,6 +117,19 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 		--encoding-policy substitute -o $@ $<
 	clang-format -style llvm -i $@
 
+# We include scanners.c in the repository, so this shouldn't
+# normally need to be generated.
+$(EXTDIR)/ext_scanners.c: $(EXTDIR)/ext_scanners.re
+	@case "$$(re2c -v)" in \
+	    *\ 0.13.*|*\ 0.14|*\ 0.14.1) \
+		echo "re2c >= 0.14.2 is required"; \
+		false; \
+		;; \
+	esac
+	re2c --case-insensitive -b -i --no-generation-date -8 \
+		--encoding-policy substitute -o $@ $<
+	clang-format -style llvm -i $@
+
 # We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:
 $(SRCDIR)/entities.inc: tools/make_entities_inc.py
@@ -127,15 +142,20 @@ update-spec:
 test: $(SPEC) cmake_build
 	$(MAKE) -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
-$(ALLTESTS): $(SPEC)
-	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
+$(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
+	( \
+	  python3 test/spec_tests.py --spec $(SPEC) --dump-tests | \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))'; \
+	  python3 test/spec_tests.py --spec $(EXTENSIONS_SPEC) --dump-tests | \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))'; \
+	) > $@
 
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart" "--normalize"; do \
-	     echo "cmark -t $$format $$opts" ; \
-	     valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts $(ALLTESTS) >/dev/null || exit 1;\
-          done; \
+	     echo "cmark -t $$format -e table -e strikethrough -e whitelist $$opts" ; \
+	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough -e whitelist $$opts $(ALLTESTS) >/dev/null || exit 1;\
+	  done; \
 	done;
 
 fuzztest:

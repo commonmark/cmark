@@ -32,3 +32,5 @@ bstrlib.txt
 build
 cmark.dSYM/*
 cmark
+
+alltests.md

@@ -9,6 +9,7 @@
 #include "buffer.h"
 #include "utf8.h"
 #include "render.h"
+#include "syntax_extension.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
@@ -77,11 +78,26 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options);
 
-  // avoid unused parameter error:
-  (void)(options);
+  if (node->extension && node->extension->man_render_func) {
+    node->extension->man_render_func(node->extension, renderer, node, ev_type, options);
+    return 1;
+  }
 
   switch (node->type) {
   case CMARK_NODE_DOCUMENT:
+    if (entering) {
+      /* Define a strikethrough macro */
+      /* Commenting out because this makes tests fail
+      LIT(".de ST");
+      CR();
+      LIT(".nr ww \\w'\\\\$1'");
+      CR();
+      LIT("\\Z@\\v'-.25m'\\l'\\\\n[ww]u'@\\\\$1");
+      CR();
+      LIT("..");
+      CR();
+      */
+    }
     break;
 
   case CMARK_NODE_BLOCK_QUOTE:

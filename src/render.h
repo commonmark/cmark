@@ -32,6 +32,15 @@ struct cmark_renderer {
 
 typedef struct cmark_renderer cmark_renderer;
 
+struct cmark_html_renderer {
+  cmark_strbuf *html;
+  cmark_node *plain;
+  cmark_llist *filter_extensions;
+  void *opaque;
+};
+
+typedef struct cmark_html_renderer cmark_html_renderer;
+
 void cmark_render_ascii(cmark_renderer *renderer, const char *s);
 
 void cmark_render_code_point(cmark_renderer *renderer, uint32_t c);
