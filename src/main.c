@@ -5,6 +5,7 @@
 #include "config.h"
 #include "memory.h"
 #include "cmark.h"
+#include "node.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
@@ -61,7 +62,7 @@ static void print_document(cmark_node *document, writer_format writer,
     exit(1);
   }
   printf("%s", result);
-  free(result);
+  cmark_node_mem(document)->free(result);
 }
 
 int main(int argc, char *argv[]) {
