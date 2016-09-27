@@ -435,5 +435,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 }
 
 char *cmark_render_latex(cmark_node *root, int options, int width) {
-  return cmark_render(root, options, width, outc, S_render_node);
+  return cmark_render_latex_with_mem(root, options, width, cmark_node_mem(root));
+}
+
+char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmark_mem *mem) {
+  return cmark_render(mem, root, options, width, outc, S_render_node);
 }

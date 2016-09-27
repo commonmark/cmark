@@ -100,6 +100,24 @@ typedef struct cmark_mem {
   void (*free)(void *);
 } cmark_mem;
 
+/** The default memory allocator; uses the system's calloc,
+ * realloc and free.
+ */
+CMARK_EXPORT
+cmark_mem *cmark_get_default_mem_allocator();
+
+/** An arena allocator; uses system calloc to allocate large
+ * slabs of memory.  Memory in these slabs is not reused at all.
+ */
+CMARK_EXPORT
+cmark_mem *cmark_get_arena_mem_allocator();
+
+/** Resets the arena allocator, quickly returning all used memory
+ * to the operating system.
+ */
+CMARK_EXPORT
+void cmark_arena_reset(void);
+
 /**
  * ## Creating and Destroying Nodes
  */
@@ -502,6 +520,12 @@ cmark_node *cmark_parse_file(FILE *f, int options);
 CMARK_EXPORT
 char *cmark_render_xml(cmark_node *root, int options);
 
+/** As for 'cmark_render_xml', but specifying the allocator to use for
+ * the resulting string.
+ */
+CMARK_EXPORT
+char *cmark_render_xml_with_mem(cmark_node *root, int options, cmark_mem *mem);
+
 /** Render a 'node' tree as an HTML fragment.  It is up to the user
  * to add an appropriate header and footer. It is the caller's
  * responsibility to free the returned buffer.
@@ -509,11 +533,23 @@ char *cmark_render_xml(cmark_node *root, int options);
 CMARK_EXPORT
 char *cmark_render_html(cmark_node *root, int options);
 
+/** As for 'cmark_render_html', but specifying the allocator to use for
+ * the resulting string.
+ */
+CMARK_EXPORT
+char *cmark_render_html_with_mem(cmark_node *root, int options, cmark_mem *mem);
+
 /** Render a 'node' tree as a groff man page, without the header.
  * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_man(cmark_node *root, int options, int width);
+
+/** As for 'cmark_render_man', but specifying the allocator to use for
+ * the resulting string.
+ */
+CMARK_EXPORT
+char *cmark_render_man_with_mem(cmark_node *root, int options, int width, cmark_mem *mem);
 
 /** Render a 'node' tree as a commonmark document.
  * It is the caller's responsibility to free the returned buffer.
@@ -521,11 +557,23 @@ char *cmark_render_man(cmark_node *root, int options, int width);
 CMARK_EXPORT
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 
+/** As for 'cmark_render_commonmark', but specifying the allocator to use for
+ * the resulting string.
+ */
+CMARK_EXPORT
+char *cmark_render_commonmark_with_mem(cmark_node *root, int options, int width, cmark_mem *mem);
+
 /** Render a 'node' tree as a LaTeX document.
  * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_latex(cmark_node *root, int options, int width);
+
+/** As for 'cmark_render_latex', but specifying the allocator to use for
+ * the resulting string.
+ */
+CMARK_EXPORT
+char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmark_mem *mem);
 
 /**
  * ## Options
