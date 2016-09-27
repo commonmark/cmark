@@ -36,45 +36,50 @@ void print_usage() {
   printf("  --version        Print version\n");
 }
 
-static void print_document(cmark_node *document, writer_format writer,
+static bool print_document(cmark_node *document, writer_format writer,
                            int options, int width) {
   char *result;
 
+  cmark_mem *mem = cmark_get_default_mem_allocator();
+
   switch (writer) {
   case FORMAT_HTML:
-    result = cmark_render_html(document, options);
+    result = cmark_render_html_with_mem(document, options, mem);
     break;
   case FORMAT_XML:
-    result = cmark_render_xml(document, options);
+    result = cmark_render_xml_with_mem(document, options, mem);
     break;
   case FORMAT_MAN:
-    result = cmark_render_man(document, options, width);
+    result = cmark_render_man_with_mem(document, options, width, mem);
     break;
   case FORMAT_COMMONMARK:
-    result = cmark_render_commonmark(document, options, width);
+    result = cmark_render_commonmark_with_mem(document, options, width, mem);
     break;
   case FORMAT_LATEX:
-    result = cmark_render_latex(document, options, width);
+    result = cmark_render_latex_with_mem(document, options, width, mem);
     break;
   default:
     fprintf(stderr, "Unknown format %d\n", writer);
-    exit(1);
+    return false;
   }
   printf("%s", result);
-  cmark_node_mem(document)->free(result);
+  mem->free(result);
+
+  return true;
 }
 
 int main(int argc, char *argv[]) {
   int i, numfps = 0;
   int *files;
   char buffer[4096];
-  cmark_parser *parser;
+  cmark_parser *parser = NULL;
   size_t bytes;
-  cmark_node *document;
+  cmark_node *document = NULL;
   int width = 0;
   char *unparsed;
   writer_format writer = FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
+  int res = 1;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
@@ -87,7 +92,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "--version") == 0) {
       printf("cmark %s", CMARK_VERSION_STRING);
       printf(" - CommonMark converter\n(C) 2014-2016 John MacFarlane\n");
-      exit(0);
+      goto success;
     } else if (strcmp(argv[i], "--sourcepos") == 0) {
       options |= CMARK_OPT_SOURCEPOS;
     } else if (strcmp(argv[i], "--hardbreaks") == 0) {
@@ -103,7 +108,7 @@ int main(int argc, char *argv[]) {
     } else if ((strcmp(argv[i], "--help") == 0) ||
                (strcmp(argv[i], "-h") == 0)) {
       print_usage();
-      exit(0);
+      goto success;
     } else if (strcmp(argv[i], "--width") == 0) {
       i += 1;
       if (i < argc) {
@@ -111,11 +116,11 @@ int main(int argc, char *argv[]) {
         if (unparsed && strlen(unparsed) > 0) {
           fprintf(stderr, "failed parsing width '%s' at '%s'\n", argv[i],
                   unparsed);
-          exit(1);
+          goto failure;
         }
       } else {
         fprintf(stderr, "--width requires an argument\n");
-        exit(1);
+        goto failure;
       }
     } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--to") == 0)) {
       i += 1;
@@ -132,27 +137,32 @@ int main(int argc, char *argv[]) {
           writer = FORMAT_LATEX;
         } else {
           fprintf(stderr, "Unknown format %s\n", argv[i]);
-          exit(1);
+          goto failure;
         }
       } else {
         fprintf(stderr, "No argument provided for %s\n", argv[i - 1]);
-        exit(1);
+        goto failure;
       }
     } else if (*argv[i] == '-') {
       print_usage();
-      exit(1);
+      goto failure;
     } else { // treat as file argument
       files[numfps++] = i;
     }
   }
 
+#if DEBUG
   parser = cmark_parser_new(options);
+#else
+  parser = cmark_parser_new_with_mem(options, cmark_get_arena_mem_allocator());
+#endif
+
   for (i = 0; i < numfps; i++) {
     FILE *fp = fopen(argv[files[i]], "rb");
     if (fp == NULL) {
       fprintf(stderr, "Error opening file %s: %s\n", argv[files[i]],
               strerror(errno));
-      exit(1);
+      goto failure;
     }
 
     while ((bytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
@@ -166,7 +176,6 @@ int main(int argc, char *argv[]) {
   }
 
   if (numfps == 0) {
-
     while ((bytes = fread(buffer, 1, sizeof(buffer), stdin)) > 0) {
       cmark_parser_feed(parser, buffer, bytes);
       if (bytes < sizeof(buffer)) {
@@ -176,13 +185,25 @@ int main(int argc, char *argv[]) {
   }
 
   document = cmark_parser_finish(parser);
-  cmark_parser_free(parser);
 
-  print_document(document, writer, options, width);
+  if (!print_document(document, writer, options, width))
+    goto failure;
+
+success:
+  res = 0;
+
+failure:
+
+#if DEBUG
+  if (parser)
+    cmark_parser_free(parser);
 
   cmark_node_free(document);
+#else
+  cmark_arena_reset();
+#endif
 
   free(files);
 
-  return 0;
+  return res;
 }

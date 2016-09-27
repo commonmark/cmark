@@ -40,6 +40,7 @@ set(LIBRARY_SOURCES
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  arena.c
   ${HEADERS}
   )
 
@@ -64,7 +65,7 @@ set_target_properties(${PROGRAM} PROPERTIES
   COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
 
 # Check integrity of node structure when compiled as debug:
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")
 set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
 
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")

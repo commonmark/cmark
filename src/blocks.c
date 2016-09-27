@@ -108,8 +108,8 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
 }
 
 cmark_parser *cmark_parser_new(int options) {
-  extern cmark_mem DEFAULT_MEM_ALLOCATOR;
-  return cmark_parser_new_with_mem(options, &DEFAULT_MEM_ALLOCATOR);
+  extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
+  return cmark_parser_new_with_mem(options, &CMARK_DEFAULT_MEM_ALLOCATOR);
 }
 
 void cmark_parser_free(cmark_parser *parser) {

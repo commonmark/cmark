@@ -98,8 +98,8 @@ cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
 }
 
 cmark_node *cmark_node_new(cmark_node_type type) {
-  extern cmark_mem DEFAULT_MEM_ALLOCATOR;
-  return cmark_node_new_with_mem(type, &DEFAULT_MEM_ALLOCATOR);
+  extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
+  return cmark_node_new_with_mem(type, &CMARK_DEFAULT_MEM_ALLOCATOR);
 }
 
 // Free a cmark_node list and any children.
