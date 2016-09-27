@@ -142,13 +142,12 @@ void cmark_render_code_point(cmark_renderer *renderer, uint32_t c) {
   renderer->column += 1;
 }
 
-char *cmark_render(cmark_node *root, int options, int width,
+char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
                    void (*outc)(cmark_renderer *, cmark_escaping, int32_t,
                                 unsigned char),
                    int (*render_node)(cmark_renderer *renderer,
                                       cmark_node *node,
                                       cmark_event_type ev_type, int options)) {
-  cmark_mem *mem = cmark_node_mem(root);
   cmark_strbuf pref = CMARK_BUF_INIT(mem);
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
   cmark_node *cur;

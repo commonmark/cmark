@@ -36,7 +36,7 @@ void cmark_render_ascii(cmark_renderer *renderer, const char *s);
 
 void cmark_render_code_point(cmark_renderer *renderer, uint32_t c);
 
-char *cmark_render(cmark_node *root, int options, int width,
+char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
                    void (*outc)(cmark_renderer *, cmark_escaping, int32_t,
                                 unsigned char),
                    int (*render_node)(cmark_renderer *renderer,

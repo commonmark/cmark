@@ -463,10 +463,14 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 }
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width) {
+  return cmark_render_commonmark_with_mem(root, options, width, cmark_node_mem(root));
+}
+
+char *cmark_render_commonmark_with_mem(cmark_node *root, int options, int width, cmark_mem *mem) {
   if (options & CMARK_OPT_HARDBREAKS) {
     // disable breaking on width, since it has
     // a different meaning with OPT_HARDBREAKS
     width = 0;
   }
-  return cmark_render(root, options, width, outc, S_render_node);
+  return cmark_render(mem, root, options, width, outc, S_render_node);
 }
