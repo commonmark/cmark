@@ -563,7 +563,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
         cmark_strbuf_put(&parser->linebuf, buffer, chunk_len);
         // add replacement character
         cmark_strbuf_put(&parser->linebuf, repl, 3);
-        chunk_len += 1; // so we advance the buffer past NULL
       } else {
         cmark_strbuf_put(&parser->linebuf, buffer, chunk_len);
       }
@@ -576,7 +575,9 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       if (buffer == end)
         parser->last_buffer_ended_with_cr = true;
     }
-    if (buffer < end && *buffer == '\n')
+    if (buffer < end && *buffer == '\0')
+      buffer++;
+    else if (buffer < end && *buffer == '\n')
       buffer++;
   }
 }
