@@ -569,16 +569,21 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
     }
 
     buffer += chunk_len;
-    // skip over line ending characters:
-    if (buffer < end && *buffer == '\r') {
-      buffer++;
-      if (buffer == end)
-        parser->last_buffer_ended_with_cr = true;
+    if (buffer < end) {
+      if (*buffer == '\0') {
+	// skip over NULL
+	buffer++;
+      } else {
+        // skip over line ending characters
+        if (*buffer == '\r') {
+          buffer++;
+          if (buffer == end)
+            parser->last_buffer_ended_with_cr = true;
+	}
+        if (*buffer == '\n')
+          buffer++;
+      }
     }
-    if (buffer < end && *buffer == '\0')
-      buffer++;
-    else if (buffer < end && *buffer == '\n')
-      buffer++;
   }
 }
 
