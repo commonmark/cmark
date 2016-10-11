@@ -571,15 +571,15 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
     buffer += chunk_len;
     if (buffer < end) {
       if (*buffer == '\0') {
-	// skip over NULL
-	buffer++;
+        // skip over NULL
+        buffer++;
       } else {
         // skip over line ending characters
         if (*buffer == '\r') {
           buffer++;
           if (buffer == end)
             parser->last_buffer_ended_with_cr = true;
-	}
+        }
         if (*buffer == '\n')
           buffer++;
       }

@@ -737,7 +737,8 @@ static void utf8(test_batch_runner *runner) {
   static const char string_with_nul_lf[] = "```\n\0\n```\n";
   html = cmark_markdown_to_html(
       string_with_nul_lf, sizeof(string_with_nul_lf) - 1, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<pre><code>\xef\xbf\xbd\n</code></pre>\n", "utf8 with \\0\\n");
+  STR_EQ(runner, html, "<pre><code>\xef\xbf\xbd\n</code></pre>\n",
+         "utf8 with \\0\\n");
   free(html);
 }
 
