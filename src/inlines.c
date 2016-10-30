@@ -330,9 +330,8 @@ static void print_delimiters(subject *subj)
         delimiter *delim;
         delim = subj->last_delim;
         while (delim != NULL) {
-                printf("Item at stack pos %p, text pos %d: %d %d %d next(%p)
-prev(%p)\n",
-                       (void*)delim, delim->position, delim->delim_char,
+                printf("Item at stack pos %p: %d %d %d next(%p) prev(%p)\n",
+                       (void*)delim, delim->delim_char,
                        delim->can_open, delim->can_close,
                        (void*)delim->next, (void*)delim->previous);
                 delim = delim->previous;
