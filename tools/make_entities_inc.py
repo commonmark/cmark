@@ -20,7 +20,7 @@ struct cmark_entity_node {
 };
 
 #define CMARK_ENTITY_MIN_LENGTH 2
-#define CMARK_ENTITY_MAX_LENGTH 31""")
+#define CMARK_ENTITY_MAX_LENGTH 32""")
 
 print("#define CMARK_NUM_ENTITIES " + str(len(entities)));
 
