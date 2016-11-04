@@ -2,11 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import re
+import os
 import argparse
 import sys
 import platform
 import html
 from cmark import CMark
+
+def get_entities():
+    regex = r'^{\(unsigned char\*\)"([^"]+)", \{([^}]+)\}'
+    with open(os.path.join(os.path.dirname(__file__), '..', 'src', 'entities.inc')) as f:
+        code = f.read()
+    entities = []
+    for entity, utf8 in re.findall(regex, code, re.MULTILINE):
+        utf8 = bytes(map(int, utf8.split(", ")[:-1])).decode('utf-8')
+        entities.append((entity, utf8))
+    return entities
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run cmark tests.')
@@ -18,8 +29,7 @@ if __name__ == "__main__":
 
 cmark = CMark(prog=args.program, library_dir=args.library_dir)
 
-entities5 = html.entities.html5
-entities = sorted([(k[:-1], entities5[k]) for k in entities5.keys() if k[-1] == ';'])
+entities = get_entities()
 
 passed = 0
 errored = 0
