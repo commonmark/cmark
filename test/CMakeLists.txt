@@ -60,6 +60,10 @@ IF (PYTHONINTERP_FOUND)
     "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
 
+  add_test(entity_executable
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
+    "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    )
 
 ELSE(PYTHONINTERP_FOUND)
 
