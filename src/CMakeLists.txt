@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 2.8)
 set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
 set(HEADERS
