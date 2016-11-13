@@ -180,7 +180,7 @@ static link_type get_link_type(cmark_node *node) {
     link_text = node->first_child;
     cmark_consolidate_text_nodes(link_text);
     realurl = (char *)url;
-    realurllen = url_len;
+    realurllen = (int)url_len;
     if (strncmp(realurl, "mailto:", 7) == 0) {
       realurl += 7;
       realurllen -= 7;
