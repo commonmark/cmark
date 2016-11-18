@@ -19,6 +19,7 @@ RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
 CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
+AFL_PATH?=/usr/local/bin
 
 .PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive bench format update-spec afl clang-check
 
@@ -70,7 +71,7 @@ prof:
 afl:
 	@[ -n "$(AFL_PATH)" ] || { echo '$$AFL_PATH not set'; false; }
 	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR) && cmake .. -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-gcc
+	cd $(BUILDDIR) && cmake .. -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-clang
 	$(MAKE)
 	$(AFL_PATH)/afl-fuzz \
 	    -i test/afl_test_cases \
