@@ -1,3 +1,32 @@
+[0.27.0]
+
+  * Update spec to 0.27.
+  * Fix warnings building with MSVC on Windows (#165, Hugh Bellamy).
+  * Fix `CMAKE_C_VISIBILITY_PRESET` for cmake versions greater than 1.8
+    (e.g. 3.6.2) (#162, Hugh Bellamy).  This lets us build swift-cmark
+    on Windows, using clang-cl.
+  * Fix for non-matching entities (#161, Yuki Izumi).
+  * Modified `print_delimiters` (commented out) so it compiles again.
+  * `make format`: don't change order of includes.
+  * Changed logic for null/eol checks (#160).
+    + only check once for "not at end of line"
+    + check for null before we check for newline characters (the
+      previous patch would fail for NULL + CR)
+  * Fix by not advancing past both `\0` and `\n` (Yuki Izumi).
+  * Add test for NUL-LF sequence (Yuki Izumi).
+  * Fix memory leak in list parsing (Yuki Izumi).
+  * Use `cmark_mem` to free where used to alloc (Yuki Izumi).
+  * Allow a shortcut link before a `(` (jgm/CommonMark#427).
+  * Allow tabs after setext header line (jgm/commonmark.js#109).
+  * Don't let URI schemes start with spaces.
+  * Fixed h2..h6 HTML blocks (jgm/CommonMark#430).  Added regression test.
+  * Autolink scheme can contain digits (Gábor Csárdi).
+  * Fix nullary function declarations in cmark.h (Nick Wellnhofer).
+    Fixes strict prototypes warnings.
+  * COPYING: Update file name and remove duplicate section and
+    (Peter Eisentraut).
+  * Fix typo (Pavlo Kapyshin).
+
 [0.26.1]
 
   * Removed unnecessary typedef that caused build failure on
