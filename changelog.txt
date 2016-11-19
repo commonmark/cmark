@@ -1,3 +1,11 @@
+[0.27.1]
+
+  * Set policy for CMP0063 to avoid a warning (#162).
+    Put set_policy under cmake version test.
+    Otherwise we get errors in older versions of cmake.
+  * Use VERSION_GREATER to clean up cmake version test.
+  * Improve afl target.  Use afl-clang by default.  Set default for path.
+
 [0.27.0]
 
   * Update spec to 0.27.
