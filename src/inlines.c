@@ -1124,7 +1124,10 @@ extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
     ;
 
   process_emphasis(&subj, NULL);
-  // free bracket stack
+  // free bracket and delim stack
+  while (subj.last_delim) {
+    pop_bracket(&subj);
+  }
   while (subj.last_bracket) {
     pop_bracket(&subj);
   }
