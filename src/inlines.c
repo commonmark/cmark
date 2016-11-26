@@ -30,6 +30,8 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 #define make_emph(mem) make_simple(mem, CMARK_NODE_EMPH)
 #define make_strong(mem) make_simple(mem, CMARK_NODE_STRONG)
 
+#define MAXBACKTICKS 1000
+
 typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
@@ -56,6 +58,8 @@ typedef struct {
   cmark_reference_map *refmap;
   delimiter *last_delim;
   bracket *last_bracket;
+  bufsize_t backticks[MAXBACKTICKS];
+  bool scanned_for_backticks;
 } subject;
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -145,6 +149,7 @@ static CMARK_INLINE cmark_node *make_autolink(cmark_mem *mem, cmark_chunk url,
 
 static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
                              cmark_reference_map *refmap) {
+  int i;
   e->mem = mem;
   e->input.data = buffer->ptr;
   e->input.len = buffer->size;
@@ -153,6 +158,10 @@ static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
   e->refmap = refmap;
   e->last_delim = NULL;
   e->last_bracket = NULL;
+  for (i=0; i <= MAXBACKTICKS; i++) {
+    e->backticks[i] = 0;
+  }
+  e->scanned_for_backticks = false;
 }
 
 static CMARK_INLINE int isbacktick(int c) { return (c == '`'); }
@@ -219,23 +228,42 @@ static CMARK_INLINE cmark_chunk take_while(subject *subj, int (*f)(int)) {
 // after the closing backticks.
 static bufsize_t scan_to_closing_backticks(subject *subj,
                                            bufsize_t openticklength) {
-  // read non backticks
-  unsigned char c;
-  while ((c = peek_char(subj)) && c != '`') {
-    advance(subj);
+
+  bool found = false;
+  if (openticklength > MAXBACKTICKS) {
+    // we limit backtick string length because of the array subj->backticks:
+    return 0;
   }
-  if (is_eof(subj)) {
-    return 0; // did not find closing ticks, return 0
+  if (subj->scanned_for_backticks &&
+      subj->backticks[openticklength] <= subj->pos) {
+    // return if we already know there's no closer
+    return 0;
   }
-  bufsize_t numticks = 0;
-  while (peek_char(subj) == '`') {
-    advance(subj);
-    numticks++;
+  while (!found) {
+    // read non backticks
+    unsigned char c;
+    while ((c = peek_char(subj)) && c != '`') {
+      advance(subj);
+    }
+    if (is_eof(subj)) {
+      break;
+    }
+    bufsize_t numticks = 0;
+    while (peek_char(subj) == '`') {
+      advance(subj);
+      numticks++;
+    }
+    // store position of ender
+    if (numticks <= MAXBACKTICKS) {
+      subj->backticks[numticks] = subj->pos - numticks;
+    }
+    if (numticks == openticklength) {
+      return (subj->pos);
+    }
   }
-  if (numticks != openticklength) {
-    return (scan_to_closing_backticks(subj, openticklength));
-  }
-  return (subj->pos);
+  // got through whole input without finding closer
+  subj->scanned_for_backticks = true;
+  return 0;
 }
 
 // Parse backtick code section or raw backticks, return an inline.
