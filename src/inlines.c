@@ -58,7 +58,7 @@ typedef struct {
   cmark_reference_map *refmap;
   delimiter *last_delim;
   bracket *last_bracket;
-  bufsize_t backticks[MAXBACKTICKS];
+  bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
 } subject;
 
