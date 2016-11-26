@@ -52,7 +52,10 @@ pathological = {
                   re.compile("(<blockquote>\n){50000}")),
     "U+0000 in input":
                  ("abc\u0000de\u0000",
-                  re.compile("abc\ufffd?de\ufffd?"))
+                  re.compile("abc\ufffd?de\ufffd?")),
+    "backticks":
+                 ("".join(map(lambda x: ("e" + "`" * x), range(1,10000))),
+                  re.compile("^<p>[e`]*</p>\n$"))
     }
 
 whitespace_re = re.compile('/s+/')
