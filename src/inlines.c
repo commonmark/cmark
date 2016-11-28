@@ -31,7 +31,7 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 #define make_emph(mem) make_simple(mem, CMARK_NODE_EMPH)
 #define make_strong(mem) make_simple(mem, CMARK_NODE_STRONG)
 
-#define MAXBACKTICKS 1000
+#define MAXBACKTICKS 80
 
 typedef struct bracket {
   struct bracket *previous;
