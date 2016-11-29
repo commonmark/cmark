@@ -4,6 +4,7 @@ set(LIBRARY_SOURCES
     core-extensions.c
     table.c
     strikethrough.c
+    autolink.c
     ext_scanners.c
     ext_scanners.re
     ext_scanners.h

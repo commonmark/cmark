@@ -38,4 +38,6 @@ cb
 
 google ~~yahoo~~
 
+google.com http://google.com google@google.com
+
 [f]: /u "t"
