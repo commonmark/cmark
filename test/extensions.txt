@@ -1,0 +1,360 @@
+---
+title: Extensions test
+author: Yuki Izumi
+version: 0.1
+date: '2016-08-31'
+license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
+...
+
+## Tables
+
+Here's a well-formed table, doing everything it should.
+
+```````````````````````````````` example
+| abc | def |
+| --- | --- |
+| ghi | jkl |
+| mno | pqr |
+.
+<table>
+<thead>
+<tr>
+<th> abc </th>
+<th> def </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> ghi </td>
+<td> jkl </td>
+</tr>
+<tr>
+<td> mno </td>
+<td> pqr </td>
+</tr></tbody></table>
+````````````````````````````````
+
+We're going to mix up the table now; we'll demonstrate that inline formatting
+works fine, but block elements don't.  You can also have empty cells, and the
+textual alignment of the columns is shown to be irrelevant.
+
+```````````````````````````````` example
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| 1. Block elements inside cells don't work. | |
+| But **_inline elements do_**. | x |
+
+Hi!
+.
+<p>Hello!</p>
+<table>
+<thead>
+<tr>
+<th> <em>abc</em> </th>
+<th> セン </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1. Block elements inside cells don't work. </td>
+<td> </td>
+</tr>
+<tr>
+<td> But <strong><em>inline elements do</em></strong>. </td>
+<td> x </td>
+</tr></tbody></table>
+<p>Hi!</p>
+````````````````````````````````
+
+Here we demonstrate some edge cases about what is and isn't a table.
+
+```````````````````````````````` example
+| Not enough table | to be considered table |
+
+| Not enough table | to be considered table |
+| Not enough table | to be considered table |
+
+| Just enough table | to be considered table |
+| ----------------- | ---------------------- |
+
+| ---- | --- |
+
+|x|
+|-|
+
+| xyz |
+| --- |
+.
+<p>| Not enough table | to be considered table |</p>
+<p>| Not enough table | to be considered table |
+| Not enough table | to be considered table |</p>
+<table>
+<thead>
+<tr>
+<th> Just enough table </th>
+<th> to be considered table </th>
+</tr>
+</thead>
+<tbody></tbody></table>
+<p>| ---- | --- |</p>
+<table>
+<thead>
+<tr>
+<th>x</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+<table>
+<thead>
+<tr>
+<th> xyz </th>
+</tr>
+</thead>
+<tbody></tbody></table>
+````````````````````````````````
+
+A "simpler" table, GFM style:
+
+```````````````````````````````` example
+abc | def
+--- | ---
+xyz | ghi
+.
+<table>
+<thead>
+<tr>
+<th>abc </th>
+<th> def</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>xyz </td>
+<td> ghi</td>
+</tr></tbody></table>
+````````````````````````````````
+
+We are making the parser slighly more lax here. Here is a table with spaces at
+the end:
+
+```````````````````````````````` example
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| this row has a space at the end | | 
+| But **_inline elements do_**. | x |
+
+Hi!
+.
+<p>Hello!</p>
+<table>
+<thead>
+<tr>
+<th> <em>abc</em> </th>
+<th> セン </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> this row has a space at the end </td>
+<td> </td>
+</tr>
+<tr>
+<td> But <strong><em>inline elements do</em></strong>. </td>
+<td> x </td>
+</tr></tbody></table>
+<p>Hi!</p>
+````````````````````````````````
+
+Table alignment:
+
+```````````````````````````````` example
+aaa | bbb | ccc | ddd | eee
+:-- | --- | :-: | --- | --:
+fff | ggg | hhh | iii | jjj
+.
+<table>
+<thead>
+<tr>
+<th align="left">aaa </th>
+<th> bbb </th>
+<th align="center"> ccc </th>
+<th> ddd </th>
+<th align="right"> eee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fff </td>
+<td> ggg </td>
+<td align="center"> hhh </td>
+<td> iii </td>
+<td align="right"> jjj</td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Table cell count mismatches
+
+The header and marker row must match.
+
+```````````````````````````````` example
+| a | b | c |
+| --- | --- |
+| this | isn't | okay |
+.
+<p>| a | b | c |
+| --- | --- |
+| this | isn't | okay |</p>
+````````````````````````````````
+
+But any of the body rows can be shorter. Rows longer
+than the header are truncated.
+
+```````````````````````````````` example
+| a | b | c |
+| --- | --- | ---
+| x
+| a | b
+| 1 | 2 | 3 | 4 | 5 |
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+<th> b </th>
+<th> c </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> x</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td> a </td>
+<td> b</td>
+<td></td>
+</tr>
+<tr>
+<td> 1 </td>
+<td> 2 </td>
+<td> 3 </td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Embedded pipes
+
+Tables with embedded pipes could be tricky.
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+| Escaped pipes are \|okay\|. | Like \| this. |
+| Within `|code| is okay` too. |
+| **_`c|`_** \| complex
+| don't **\_reparse\_**
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+<th> b </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> Escaped pipes are |okay|. </td>
+<td> Like | this. </td>
+</tr>
+<tr>
+<td> Within <code>|code| is okay</code> too. </td>
+<td></td>
+</tr>
+<tr>
+<td> <strong><em><code>c|</code></em></strong> | complex</td>
+<td></td>
+</tr>
+<tr>
+<td> don't <strong>_reparse_</strong></td>
+<td></td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Oddly-formatted markers
+
+This shouldn't assert.
+
+```````````````````````````````` example
+| a |
+--- |
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+</tr>
+</thead>
+<tbody></tbody></table>
+````````````````````````````````
+
+### Escaping
+
+```````````````````````````````` example
+| a |
+| --- |
+| \\ |
+| \\\\ |
+| \_ |
+| \| |
+| \a |
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> \ </td>
+</tr>
+<tr>
+<td> \\ </td>
+</tr>
+<tr>
+<td> _ </td>
+</tr>
+<tr>
+<td> | </td>
+</tr>
+<tr>
+<td> a </td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Embedded HTML
+
+```````````````````````````````` example
+| a |
+| --- |
+| <strong>hello</strong> |
+| ok <br> sure |
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <strong>hello</strong> </td>
+</tr>
+<tr>
+<td> ok <br> sure </td>
+</tr></tbody></table>
+````````````````````````````````
