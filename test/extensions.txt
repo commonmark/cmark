@@ -358,3 +358,31 @@ This shouldn't assert.
 <td> ok <br> sure </td>
 </tr></tbody></table>
 ````````````````````````````````
+
+
+## Strikethroughs
+
+A well-formed strikethrough.
+
+```````````````````````````````` example
+A proper ~strikethrough~.
+.
+<p>A proper <del>strikethrough</del>.</p>
+````````````````````````````````
+
+Some strikethrough edge cases.
+
+```````````````````````````````` example
+These are ~not strikethroughs.
+
+No, they are not~
+
+This ~is ~ legit~ isn't ~ legit.
+
+This is just ~~~~~one~~~~~ huge strikethrough.
+.
+<p>These are ~not strikethroughs.</p>
+<p>No, they are not~</p>
+<p>This <del>is ~ legit</del> isn't ~ legit.</p>
+<p>This is just <del>one</del> huge strikethrough.</p>
+````````````````````````````````
