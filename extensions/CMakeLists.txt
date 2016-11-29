@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 set(STATICLIBRARY "libcmarkextensions_static")
 set(LIBRARY_SOURCES
     core-extensions.c
+    table.c
+    ext_scanners.c
+    ext_scanners.re
+    ext_scanners.h
    )
 
 include_directories(

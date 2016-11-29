@@ -130,6 +130,51 @@ memory. Memory in these slabs is not reused at all.
 Resets the arena allocator, quickly returning all used memory to the
 operating system.
 
+.PP
+\fItypedef\f[] \fBvoid\f[](\fI*cmark_free_func\f[])
+
+.PP
+Callback for freeing user data with a \f[I]cmark_mem\f[] context.
+
+.SS
+Linked list
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef struct _cmark_llist
+{
+  struct _cmark_llist *next;
+  void         *data;
+} cmark_llist;
+.RE
+\f[]
+.fi
+
+.PP
+A generic singly linked list.
+
+.PP
+\fIcmark_llist *\f[] \fBcmark_llist_append\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[], \fIvoid              * data\f[])
+
+.PP
+Append an element to the linked list, return the possibly modified head
+of the list.
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free_full\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[], \fIcmark_free_func     free_func\f[])
+
+.PP
+Free the list starting with \f[I]head\f[], calling \f[I]free_func\f[]
+with the data pointer of each of its elements
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[])
+
+.PP
+Free the list starting with \f[I]head\f[]
+
 .SS
 Creating and Destroying Nodes
 
@@ -329,6 +374,12 @@ Sets arbitrary user data for \f[I]node\f[]. Returns 1 on success, 0 on
 failure.
 
 .PP
+\fIint\f[] \fBcmark_node_set_user_data_free_func\f[](\fIcmark_node *node\f[], \fIcmark_free_func free_func\f[])
+
+.PP
+Set free function for user data */
+
+.PP
 \fIcmark_node_type\f[] \fBcmark_node_get_type\f[](\fIcmark_node *node\f[])
 
 .PP
@@ -436,6 +487,18 @@ Returns the info string from a fenced code block.
 .PP
 Sets the info string in a fenced code block, returning 1 on success
 and 0 on failure.
+
+.PP
+\fIint\f[] \fBcmark_node_set_fenced\f[](\fIcmark_node * node\f[], \fIint fenced\f[], \fIint length\f[], \fIint offset\f[], \fIchar character\f[])
+
+.PP
+Sets code blocks fencing details
+
+.PP
+\fIint\f[] \fBcmark_node_get_fenced\f[](\fIcmark_node *node\f[], \fIint *length\f[], \fIint *offset\f[], \fIchar *character\f[])
+
+.PP
+Returns code blocks fencing details
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_url\f[](\fIcmark_node *node\f[])
@@ -575,6 +638,12 @@ Returns 1 on success, 0 on failure.
 .PP
 Consolidates adjacent text nodes.
 
+.PP
+\fIvoid\f[] \fBcmark_node_own\f[](\fIcmark_node *root\f[])
+
+.PP
+Ensures a node and all its children own their own chunk memory.
+
 .SS
 Parsing
 .PP
@@ -669,7 +738,7 @@ As for \f[I]cmark_render_xml\f[], but specifying the allocator to use
 for the resulting string.
 
 .PP
-\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[])
+\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_llist *extensions\f[])
 
 .PP
 Render a \f[I]node\f[] tree as an HTML fragment. It is up to the user to
@@ -677,7 +746,7 @@ add an appropriate header and footer. It is the caller's responsibility
 to free the returned buffer.
 
 .PP
-\fIchar *\f[] \fBcmark_render_html_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_mem *mem\f[])
+\fIchar *\f[] \fBcmark_render_html_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_llist *extensions\f[], \fIcmark_mem *mem\f[])
 
 .PP
 As for \f[I]cmark_render_html\f[], but specifying the allocator to use
