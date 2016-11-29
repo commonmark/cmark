@@ -40,4 +40,10 @@ google ~~yahoo~~
 
 google.com http://google.com google@google.com
 
+and <xmp> but
+
+<surewhynot>
+sure
+</surewhynot>
+
 [f]: /u "t"
