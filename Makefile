@@ -82,7 +82,7 @@ afl:
 	    -o test/afl_results \
 	    -x test/fuzzing_dictionary \
 	    -t 100 \
-	    $(CMARK) -e table $(CMARK_OPTS)
+	    $(CMARK) -e table -e strikethrough $(CMARK_OPTS)
 
 libFuzzer:
 	@[ -n "$(LIB_FUZZER_PATH)" ] || { echo '$$LIB_FUZZER_PATH not set'; false; }
@@ -164,9 +164,9 @@ $(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart"; do \
-	     echo "cmark -t $$format -e table $$opts" ; \
-	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table $$opts $(ALLTESTS) >/dev/null || exit 1;\
-          done; \
+	     echo "cmark -t $$format -e table -e strikethrough $$opts" ; \
+	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough $$opts $(ALLTESTS) >/dev/null || exit 1;\
+	  done; \
 	done;
 
 fuzztest:
