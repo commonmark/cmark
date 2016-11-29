@@ -5,6 +5,7 @@ set(LIBRARY_SOURCES
     table.c
     strikethrough.c
     autolink.c
+    tagfilter.c
     ext_scanners.c
     ext_scanners.re
     ext_scanners.h
