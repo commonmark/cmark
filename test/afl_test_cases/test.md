@@ -36,4 +36,6 @@ cb
 | --- | --- |
 | c | `d|` \| e |
 
+google ~~yahoo~~
+
 [f]: /u "t"
