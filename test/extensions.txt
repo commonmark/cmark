@@ -386,3 +386,74 @@ This is just ~~~~~one~~~~~ huge strikethrough.
 <p>This <del>is ~ legit</del> isn't ~ legit.</p>
 <p>This is just <del>one</del> huge strikethrough.</p>
 ````````````````````````````````
+
+
+## Autolinks
+
+```````````````````````````````` example
+: http://google.com https://google.com
+
+<http://google.com/å> http://google.com/å
+
+scyther@pokemon.com
+
+www.github.com www.github.com/á
+
+www.google.com/a_b
+
+**Autolink and http://inlines**
+
+![http://inline.com/image](http://inline.com/image)
+
+a.w@b.c
+
+Full stop outside parens shouldn't be included http://google.com/ok.
+
+(Full stop inside parens shouldn't be included http://google.com/ok.)
+.
+<p>: <a href="http://google.com">http://google.com</a> <a href="https://google.com">https://google.com</a></p>
+<p><a href="http://google.com/%C3%A5">http://google.com/å</a> <a href="http://google.com/%C3%A5">http://google.com/å</a></p>
+<p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a></p>
+<p><a href="http://www.github.com">www.github.com</a> <a href="http://www.github.com/%C3%A1">www.github.com/á</a></p>
+<p><a href="http://www.google.com/a_b">www.google.com/a_b</a></p>
+<p><strong>Autolink and <a href="http://inlines">http://inlines</a></strong></p>
+<p><img src="http://inline.com/image" alt="http://inline.com/image" /></p>
+<p><a href="mailto:a.w@b.c">a.w@b.c</a></p>
+<p>Full stop outside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.</p>
+<p>(Full stop inside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.)</p>
+````````````````````````````````
+
+
+## Interop
+
+Autolink and strikethrough.
+
+```````````````````````````````` example
+~~www.google.com~~
+
+~~http://google.com~~
+.
+<p><del><a href="http://www.google.com">www.google.com</a></del></p>
+<p><del><a href="http://google.com">http://google.com</a></del></p>
+````````````````````````````````
+
+Autolink and tables.
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+| https://github.com www.github.com | http://pokemon.com |
+.
+<table>
+<thead>
+<tr>
+<th> a </th>
+<th> b </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <a href="https://github.com">https://github.com</a> <a href="http://www.github.com">www.github.com</a> </td>
+<td> <a href="http://pokemon.com">http://pokemon.com</a> </td>
+</tr></tbody></table>
+````````````````````````````````
