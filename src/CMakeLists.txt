@@ -54,7 +54,6 @@ set(LIBRARY_SOURCES
 
 set(PROGRAM "cmark")
 set(PROGRAM_SOURCES
-  ${LIBRARY_SOURCES}
   main.c
   )
 
@@ -67,6 +66,11 @@ include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
+
+target_link_libraries(${PROGRAM} libcmark)
+
+add_dependencies(${PROGRAM} libcmarkextensions_static)
+target_link_libraries(${PROGRAM} libcmarkextensions_static)
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
@@ -197,7 +201,7 @@ if(MSVC)
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4706 /D_CRT_SECURE_NO_WARNINGS")
 elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -pedantic")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-unused-parameter -std=c99 -pedantic")
 endif()
 
 # Compile as C++ under MSVC older than 12.0

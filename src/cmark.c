@@ -7,6 +7,9 @@
 #include "cmark.h"
 #include "buffer.h"
 
+cmark_node_type CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK;
+cmark_node_type CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE;
+
 int cmark_version() { return CMARK_VERSION; }
 
 const char *cmark_version_string() { return CMARK_VERSION_STRING; }
@@ -37,18 +40,8 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options) {
 
   doc = cmark_parse_document(text, len, options);
 
-  result = cmark_render_html(doc, options);
+  result = cmark_render_html(doc, options, NULL);
   cmark_node_free(doc);
 
   return result;
-}
-
-int cmark_init(void) {
-  cmark_discover_plugins();
-  return 1;
-}
-
-int cmark_deinit(void) {
-  cmark_release_plugins();
-  return 1;
 }

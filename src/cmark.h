@@ -1,9 +1,9 @@
-#ifndef CMARK_H
-#define CMARK_H
+#ifndef CMARK_CMARK_H
+#define CMARK_CMARK_H
 
 #include <stdio.h>
-#include <cmark_export.h>
-#include <cmark_version.h>
+#include "cmark_export.h"
+#include "cmark_version.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,48 +30,43 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options);
 /** ## Node Structure
  */
 
+#define CMARK_NODE_TYPE_PRESENT (0x8000)
+#define CMARK_NODE_TYPE_BLOCK (CMARK_NODE_TYPE_PRESENT | 0x0000)
+#define CMARK_NODE_TYPE_INLINE (CMARK_NODE_TYPE_PRESENT | 0x4000)
+#define CMARK_NODE_TYPE_MASK (0xc000)
+#define CMARK_NODE_VALUE_MASK (0x3fff)
+
 typedef enum {
   /* Error status */
-  CMARK_NODE_NONE,
+  CMARK_NODE_NONE = 0x0000,
 
   /* Block */
-  CMARK_NODE_DOCUMENT,
-  CMARK_NODE_BLOCK_QUOTE,
-  CMARK_NODE_LIST,
-  CMARK_NODE_ITEM,
-  CMARK_NODE_CODE_BLOCK,
-  CMARK_NODE_HTML_BLOCK,
-  CMARK_NODE_CUSTOM_BLOCK,
-  CMARK_NODE_PARAGRAPH,
-  CMARK_NODE_HEADING,
-  CMARK_NODE_THEMATIC_BREAK,
-
-  /* blocks with no syntax rules in the current specification */
-  CMARK_NODE_TABLE,
-  CMARK_NODE_TABLE_ROW,
-  CMARK_NODE_TABLE_CELL,
-
-  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_TABLE_CELL,
+  CMARK_NODE_DOCUMENT       = CMARK_NODE_TYPE_BLOCK | 0x0001,
+  CMARK_NODE_BLOCK_QUOTE    = CMARK_NODE_TYPE_BLOCK | 0x0002,
+  CMARK_NODE_LIST           = CMARK_NODE_TYPE_BLOCK | 0x0003,
+  CMARK_NODE_ITEM           = CMARK_NODE_TYPE_BLOCK | 0x0004,
+  CMARK_NODE_CODE_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0005,
+  CMARK_NODE_HTML_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0006,
+  CMARK_NODE_CUSTOM_BLOCK   = CMARK_NODE_TYPE_BLOCK | 0x0007,
+  CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
+  CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
+  CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
 
   /* Inline */
-  CMARK_NODE_TEXT,
-  CMARK_NODE_SOFTBREAK,
-  CMARK_NODE_LINEBREAK,
-  CMARK_NODE_CODE,
-  CMARK_NODE_HTML_INLINE,
-  CMARK_NODE_CUSTOM_INLINE,
-  CMARK_NODE_EMPH,
-  CMARK_NODE_STRONG,
-  CMARK_NODE_LINK,
-  CMARK_NODE_IMAGE,
-
-  /* inlines with no syntax rules in the current specification */
-  CMARK_NODE_STRIKETHROUGH,
-
-  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_STRIKETHROUGH,
+  CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
+  CMARK_NODE_SOFTBREAK     = CMARK_NODE_TYPE_INLINE | 0x0002,
+  CMARK_NODE_LINEBREAK     = CMARK_NODE_TYPE_INLINE | 0x0003,
+  CMARK_NODE_CODE          = CMARK_NODE_TYPE_INLINE | 0x0004,
+  CMARK_NODE_HTML_INLINE   = CMARK_NODE_TYPE_INLINE | 0x0005,
+  CMARK_NODE_CUSTOM_INLINE = CMARK_NODE_TYPE_INLINE | 0x0006,
+  CMARK_NODE_EMPH          = CMARK_NODE_TYPE_INLINE | 0x0007,
+  CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
+  CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
+  CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
 } cmark_node_type;
+
+extern cmark_node_type CMARK_NODE_LAST_BLOCK;
+extern cmark_node_type CMARK_NODE_LAST_INLINE;
 
 /* For backwards compatibility: */
 #define CMARK_NODE_HEADER CMARK_NODE_HEADING
@@ -94,8 +89,6 @@ typedef enum {
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
-
-typedef void (*cmark_free_func) (void *user_data);
 
 /**
  * ## Custom memory allocator support
@@ -128,6 +121,10 @@ cmark_mem *cmark_get_arena_mem_allocator();
 CMARK_EXPORT
 void cmark_arena_reset(void);
 
+/** Callback for freeing user data with a 'cmark_mem' context.
+ */
+typedef void (*cmark_free_func) (cmark_mem *mem, void *user_data);
+
 
 /*
  * ## Basic data structures
@@ -152,21 +149,23 @@ typedef struct _cmark_llist
  * head of the list.
  */
 CMARK_EXPORT
-cmark_llist * cmark_llist_append    (cmark_llist       * head,
+cmark_llist * cmark_llist_append    (cmark_mem         * mem,
+                                     cmark_llist       * head,
                                      void              * data);
 
 /** Free the list starting with 'head', calling 'free_func' with the
  *  data pointer of each of its elements
  */
 CMARK_EXPORT
-void          cmark_llist_free_full (cmark_llist       * head,
+void          cmark_llist_free_full (cmark_mem         * mem,
+                                     cmark_llist       * head,
                                      cmark_free_func     free_func);
 
 /** Free the list starting with 'head'
  */
 CMARK_EXPORT
-void          cmark_llist_free      (cmark_llist * head);
-
+void          cmark_llist_free      (cmark_mem         * mem,
+                                     cmark_llist       * head);
 
 /**
  * ## Creating and Destroying Nodes
@@ -474,11 +473,6 @@ CMARK_EXPORT int cmark_node_get_end_line(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_get_end_column(cmark_node *node);
 
-CMARK_EXPORT int cmark_node_get_n_table_columns(cmark_node *node);
-CMARK_EXPORT int cmark_node_set_n_table_columns(cmark_node *node, int n_columns);
-CMARK_EXPORT int cmark_node_is_table_header(cmark_node *node);
-CMARK_EXPORT int cmark_node_set_is_table_header(cmark_node *node, int is_table_header);
-
 /**
  * ## Tree Manipulation
  */
@@ -516,6 +510,10 @@ CMARK_EXPORT int cmark_node_append_child(cmark_node *node, cmark_node *child);
 /** Consolidates adjacent text nodes.
  */
 CMARK_EXPORT void cmark_consolidate_text_nodes(cmark_node *root);
+
+/** Ensures a node and all its children own their own chunk memory.
+ */
+CMARK_EXPORT void cmark_node_own(cmark_node *root);
 
 /**
  * ## Parsing
@@ -600,13 +598,13 @@ char *cmark_render_xml_with_mem(cmark_node *root, int options, cmark_mem *mem);
  * responsibility to free the returned buffer.
  */
 CMARK_EXPORT
-char *cmark_render_html(cmark_node *root, int options);
+char *cmark_render_html(cmark_node *root, int options, cmark_llist *extensions);
 
 /** As for 'cmark_render_html', but specifying the allocator to use for
  * the resulting string.
  */
 CMARK_EXPORT
-char *cmark_render_html_with_mem(cmark_node *root, int options, cmark_mem *mem);
+char *cmark_render_html_with_mem(cmark_node *root, int options, cmark_llist *extensions, cmark_mem *mem);
 
 /** Render a 'node' tree as a groff man page, without the header.
  * It is the caller's responsibility to free the returned buffer.

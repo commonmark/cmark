@@ -1,5 +1,5 @@
-#ifndef SYNTAX_EXTENSION_H
-#define SYNTAX_EXTENSION_H
+#ifndef CMARK_SYNTAX_EXTENSION_H
+#define CMARK_SYNTAX_EXTENSION_H
 
 #include "cmark.h"
 #include "cmark_extension_api.h"
@@ -13,6 +13,15 @@ struct cmark_syntax_extension {
   char                          * name;
   void                          * priv;
   cmark_free_func                 free_function;
+  cmark_get_type_string_func      get_type_string_func;
+  cmark_can_contain_func          can_contain_func;
+  cmark_contains_inlines_func     contains_inlines_func;
+  cmark_common_render_func        commonmark_render_func;
+  cmark_common_render_func        latex_render_func;
+  cmark_common_render_func        man_render_func;
+  cmark_html_render_func          html_render_func;
+  cmark_html_filter_func          html_filter_func;
+  cmark_postprocess_func          postprocess_func;
 };
 
 #endif

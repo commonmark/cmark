@@ -1,12 +1,13 @@
-#ifndef CMARK_EXTENSION_API_H
-#define CMARK_EXTENSION_API_H
+#ifndef CMARK_CMARK_EXTENSION_API_H
+#define CMARK_CMARK_EXTENSION_API_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <cmark.h>
-#include "buffer.h"
+#include <render.h>
+#include <buffer.h>
 
 /**
  * ## Extension Support
@@ -217,15 +218,47 @@ typedef int (*cmark_match_block_func)        (cmark_syntax_extension *extension,
                                        int len,
                                        cmark_node *container);
 
+typedef const char *(*cmark_get_type_string_func) (cmark_syntax_extension *extension,
+                                                   cmark_node *node);
+
+typedef int (*cmark_can_contain_func) (cmark_syntax_extension *extension,
+                                       cmark_node *node,
+                                       cmark_node_type child);
+
+typedef int (*cmark_contains_inlines_func) (cmark_syntax_extension *extension,
+                                            cmark_node *node);
+
+typedef void (*cmark_common_render_func) (cmark_syntax_extension *extension,
+                                          cmark_renderer *renderer,
+                                          cmark_node *node,
+                                          cmark_event_type ev_type,
+                                          int options);
+
+typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
+                                        cmark_html_renderer *renderer,
+                                        cmark_node *node,
+                                        cmark_event_type ev_type,
+                                        int options);
+
+typedef int (*cmark_html_filter_func) (cmark_syntax_extension *extension,
+                                       const unsigned char *tag,
+                                       size_t tag_len);
+
+typedef cmark_node *(*cmark_postprocess_func) (cmark_syntax_extension *extension,
+                                               cmark_node *root);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
-void cmark_syntax_extension_free               (cmark_syntax_extension *extension);
+void cmark_syntax_extension_free               (cmark_mem *mem, cmark_syntax_extension *extension);
 
 /** Return a newly-constructed cmark_syntax_extension, named 'name'.
  */
 CMARK_EXPORT
 cmark_syntax_extension *cmark_syntax_extension_new (const char *name);
+
+CMARK_EXPORT
+cmark_node_type cmark_syntax_extension_add_node(int is_inline);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
@@ -260,9 +293,63 @@ void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *ext
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_EXPORT
+void cmark_syntax_extension_set_get_type_string_func(cmark_syntax_extension *extension,
+                                                     cmark_get_type_string_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_can_contain_func(cmark_syntax_extension *extension,
+                                                 cmark_can_contain_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_contains_inlines_func(cmark_syntax_extension *extension,
+                                                      cmark_contains_inlines_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_commonmark_render_func(cmark_syntax_extension *extension,
+                                                       cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extension,
+                                                  cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extension,
+                                                cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extension,
+                                                 cmark_html_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extension,
+                                                 cmark_html_filter_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
+                                                 cmark_postprocess_func func);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
@@ -477,6 +564,30 @@ void cmark_inline_parser_advance_offset(cmark_inline_parser *parser);
 CMARK_EXPORT
 int cmark_inline_parser_get_offset(cmark_inline_parser *parser);
 
+/** Set the offset in bytes in the chunk being processed by the given inline parser.
+ */
+CMARK_EXPORT
+void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset);
+
+/** Gets the cmark_chunk being operated on by the given inline parser.
+ * Use cmark_inline_parser_get_offset to get our current position in the chunk.
+ */
+CMARK_EXPORT
+cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
+
+/** Returns 1 if the inline parser is currently in a bracket; pass 1 for 'image'
+ * if you want to know about an image-type bracket, 0 for link-type. */
+CMARK_EXPORT
+int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image);
+
+/** Remove the last n characters from the last child of the given node.
+ * This only works where all n characters are in the single last child, and the last
+ * child is CMARK_NODE_TEXT.
+ */
+CMARK_EXPORT
+void cmark_node_unput(cmark_node *node, int n);
+
+
 /** Get the character located at the current inline parsing offset
  */
 CMARK_EXPORT
@@ -539,6 +650,10 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
                                   int *right_flanking,
                                   int *punct_before,
                                   int *punct_after);
+
+CMARK_EXPORT
+void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add);
+
 #ifdef __cplusplus
 }
 #endif
