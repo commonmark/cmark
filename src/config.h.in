@@ -69,6 +69,8 @@ CMARK_INLINE int c99_snprintf(char *outBuf, size_t size, const char *format, ...
 
 #endif
 
+#define EXTENSION_DIR LIBDIR "/extensions"
+
 #ifdef __cplusplus
 }
 #endif

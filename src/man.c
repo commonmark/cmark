@@ -82,6 +82,19 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   switch (node->type) {
   case CMARK_NODE_DOCUMENT:
+    if (entering) {
+      /* Define a strikethrough macro */
+      /* Commenting out because this makes tests fail
+      LIT(".de ST");
+      CR();
+      LIT(".nr ww \\w'\\\\$1'");
+      CR();
+      LIT("\\Z@\\v'-.25m'\\l'\\\\n[ww]u'@\\\\$1");
+      CR();
+      LIT("..");
+      CR();
+      */
+    }
     break;
 
   case CMARK_NODE_BLOCK_QUOTE:
@@ -173,6 +186,40 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_TABLE:
+    if (entering) {
+      int i, n_cols;
+      CR();
+      LIT(".TS");
+      CR();
+      LIT("tab(@);");
+      CR();
+
+      n_cols = node->as.table.n_columns;
+
+      for (i = 0; i < n_cols; i++) {
+        LIT("c");
+      }
+
+      if (n_cols) {
+        LIT(".");
+        CR();
+      }
+    } else {
+      LIT(".TE");
+      CR();
+    }
+    break;
+  case CMARK_NODE_TABLE_ROW:
+    if (!entering) {
+      CR();
+    }
+    break;
+  case CMARK_NODE_TABLE_CELL:
+    if (!entering && node->next) {
+      LIT("@");
+    }
+    break;
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;
@@ -236,6 +283,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("[IMAGE: ");
     } else {
       LIT("]");
+    }
+    break;
+
+  case CMARK_NODE_STRIKETHROUGH:
+    if (entering) {
+      CR();
+      LIT(".ST \"");
+    } else {
+      LIT("\"");
+      CR();
     }
     break;
 
