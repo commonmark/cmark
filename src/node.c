@@ -3,25 +3,47 @@
 
 #include "config.h"
 #include "node.h"
+#include "syntax_extension.h"
 
 static void S_node_unlink(cmark_node *node);
 
 #define NODE_MEM(node) cmark_node_mem(node)
 
-static CMARK_INLINE bool S_is_block(cmark_node *node) {
-  if (node == NULL) {
-    return false;
-  }
-  return node->type >= CMARK_NODE_FIRST_BLOCK &&
-         node->type <= CMARK_NODE_LAST_BLOCK;
-}
+bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
+  if (child_type == CMARK_NODE_DOCUMENT) {
+      return false;
+    }
 
-static CMARK_INLINE bool S_is_inline(cmark_node *node) {
-  if (node == NULL) {
-    return false;
+  if (node->extension && node->extension->can_contain_func) {
+    return node->extension->can_contain_func(node->extension, node, child_type);
   }
-  return node->type >= CMARK_NODE_FIRST_INLINE &&
-         node->type <= CMARK_NODE_LAST_INLINE;
+
+  switch (node->type) {
+  case CMARK_NODE_DOCUMENT:
+  case CMARK_NODE_BLOCK_QUOTE:
+  case CMARK_NODE_ITEM:
+    return CMARK_NODE_TYPE_BLOCK_P(child_type) && child_type != CMARK_NODE_ITEM;
+
+  case CMARK_NODE_LIST:
+    return child_type == CMARK_NODE_ITEM;
+
+  case CMARK_NODE_CUSTOM_BLOCK:
+    return true;
+
+  case CMARK_NODE_PARAGRAPH:
+  case CMARK_NODE_HEADING:
+  case CMARK_NODE_EMPH:
+  case CMARK_NODE_STRONG:
+  case CMARK_NODE_LINK:
+  case CMARK_NODE_IMAGE:
+  case CMARK_NODE_CUSTOM_INLINE:
+    return CMARK_NODE_TYPE_INLINE_P(child_type);
+
+  default:
+    break;
+  }
+
+  return false;
 }
 
 static bool S_can_contain(cmark_node *node, cmark_node *child) {
@@ -29,6 +51,9 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
 
   if (node == NULL || child == NULL) {
     return false;
+  }
+  if (NODE_MEM(node) != NODE_MEM(child)) {
+    return 0;
   }
 
   // Verify that child is not an ancestor of node or equal to node.
@@ -40,49 +65,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     cur = cur->parent;
   } while (cur != NULL);
 
-  if (child->type == CMARK_NODE_DOCUMENT) {
-    return false;
-  }
-
-  switch (node->type) {
-  case CMARK_NODE_DOCUMENT:
-  case CMARK_NODE_BLOCK_QUOTE:
-  case CMARK_NODE_ITEM:
-    return S_is_block(child) && child->type != CMARK_NODE_ITEM;
-
-  case CMARK_NODE_LIST:
-    return child->type == CMARK_NODE_ITEM;
-
-  case CMARK_NODE_CUSTOM_BLOCK:
-    return true;
-
-  case CMARK_NODE_PARAGRAPH:
-  case CMARK_NODE_HEADING:
-  case CMARK_NODE_EMPH:
-  case CMARK_NODE_STRONG:
-  case CMARK_NODE_LINK:
-  case CMARK_NODE_IMAGE:
-  case CMARK_NODE_STRIKETHROUGH:
-  case CMARK_NODE_CUSTOM_INLINE:
-    return S_is_inline(child);
-  case CMARK_NODE_TABLE:
-    return child->type == CMARK_NODE_TABLE_ROW;
-  case CMARK_NODE_TABLE_ROW:
-    return child->type == CMARK_NODE_TABLE_CELL;
-  case CMARK_NODE_TABLE_CELL:
-    return child->type == CMARK_NODE_TEXT ||
-           child->type == CMARK_NODE_CODE ||
-           child->type == CMARK_NODE_EMPH ||
-           child->type == CMARK_NODE_STRONG ||
-           child->type == CMARK_NODE_LINK ||
-           child->type == CMARK_NODE_IMAGE ||
-           child->type == CMARK_NODE_STRIKETHROUGH;
-
-  default:
-    break;
-  }
-
-  return false;
+  return cmark_node_can_contain_type(node, (cmark_node_type) child->type);
 }
 
 cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
@@ -117,29 +100,29 @@ cmark_node *cmark_node_new(cmark_node_type type) {
 
 static void free_node_as(cmark_node *node) {
   switch (node->type) {
-  case CMARK_NODE_CODE_BLOCK:
+    case CMARK_NODE_CODE_BLOCK:
     cmark_chunk_free(NODE_MEM(node), &node->as.code.info);
     cmark_chunk_free(NODE_MEM(node), &node->as.code.literal);
-    break;
-  case CMARK_NODE_TEXT:
-  case CMARK_NODE_HTML_INLINE:
-  case CMARK_NODE_CODE:
-  case CMARK_NODE_HTML_BLOCK:
+      break;
+    case CMARK_NODE_TEXT:
+    case CMARK_NODE_HTML_INLINE:
+    case CMARK_NODE_CODE:
+    case CMARK_NODE_HTML_BLOCK:
     cmark_chunk_free(NODE_MEM(node), &node->as.literal);
-    break;
-  case CMARK_NODE_LINK:
-  case CMARK_NODE_IMAGE:
+      break;
+    case CMARK_NODE_LINK:
+    case CMARK_NODE_IMAGE:
     cmark_chunk_free(NODE_MEM(node), &node->as.link.url);
     cmark_chunk_free(NODE_MEM(node), &node->as.link.title);
-    break;
-  case CMARK_NODE_CUSTOM_BLOCK:
-  case CMARK_NODE_CUSTOM_INLINE:
+      break;
+    case CMARK_NODE_CUSTOM_BLOCK:
+    case CMARK_NODE_CUSTOM_INLINE:
     cmark_chunk_free(NODE_MEM(node), &node->as.custom.on_enter);
     cmark_chunk_free(NODE_MEM(node), &node->as.custom.on_exit);
-    break;
-  default:
-    break;
-  }
+      break;
+    default:
+      break;
+    }
 }
 
 // Free a cmark_node list and any children.
@@ -149,7 +132,7 @@ static void S_free_nodes(cmark_node *e) {
     cmark_strbuf_free(&e->content);
 
     if (e->user_data && e->user_data_free_func)
-      e->user_data_free_func(e->user_data);
+      e->user_data_free_func(NODE_MEM(e), e->user_data);
 
     free_node_as(e);
 
@@ -184,7 +167,7 @@ int cmark_node_set_type(cmark_node * node, cmark_node_type type) {
   if (type == node->type)
     return 1;
 
-  initial_type = node->type;
+  initial_type = (cmark_node_type) node->type;
   node->type = type;
 
   if (!S_can_contain(node->parent, node)) {
@@ -206,6 +189,10 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "NONE";
   }
 
+  if (node->extension && node->extension->get_type_string_func) {
+    return node->extension->get_type_string_func(node->extension, node);
+  }
+
   switch (node->type) {
   case CMARK_NODE_NONE:
     return "none";
@@ -223,15 +210,6 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "html_block";
   case CMARK_NODE_CUSTOM_BLOCK:
     return "custom_block";
-  case CMARK_NODE_TABLE:
-    return "table";
-  case CMARK_NODE_TABLE_ROW:
-    if (node->as.table_row.is_header)
-      return "table_header";
-    else
-      return "table_row";
-  case CMARK_NODE_TABLE_CELL:
-    return "table_cell";
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
   case CMARK_NODE_HEADING:
@@ -258,8 +236,6 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
-  case CMARK_NODE_STRIKETHROUGH:
-    return "strikethrough";
   }
 
   return "<unknown>";
@@ -758,68 +734,6 @@ int cmark_node_get_end_column(cmark_node *node) {
     return 0;
   }
   return node->end_column;
-}
-
-int cmark_node_get_n_table_columns(cmark_node *node) {
-  if (node == NULL) {
-    return -1;
-  }
-
-  switch (node->type) {
-  case CMARK_NODE_TABLE:
-    return node->as.table.n_columns;
-  default:
-    break;
-  }
-
-  return -1;
-}
-
-int cmark_node_set_n_table_columns(cmark_node *node, int n_columns) {
-  if (node == NULL) {
-    return 0;
-  }
-
-  switch (node->type) {
-    case CMARK_NODE_TABLE:
-      node->as.table.n_columns = n_columns;
-      return 1;
-    default:
-      break;
-  }
-
-  return 0;
-}
-
-int cmark_node_is_table_header(cmark_node *node) {
-  if (node == NULL) {
-    return 0;
-  }
-
-  switch (node->type) {
-  case CMARK_NODE_TABLE_ROW:
-    return node->as.table_row.is_header;
-  default:
-    break;
-  }
-
-  return 1;
-}
-
-int cmark_node_set_is_table_header(cmark_node *node, int is_table_header) {
-  if (node == NULL) {
-    return 0;
-  }
-
-  switch (node->type) {
-    case CMARK_NODE_TABLE_ROW:
-      node->as.table_row.is_header = is_table_header;
-      return 1;
-    default:
-      break;
-  }
-
-  return 0;
 }
 
 // Unlink a node without adjusting its next, prev, and parent pointers.

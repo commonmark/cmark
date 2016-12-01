@@ -82,11 +82,11 @@ static cmark_node *make_document(cmark_mem *mem) {
 }
 
 int cmark_parser_attach_syntax_extension(cmark_parser *parser,
-                                      cmark_syntax_extension *extension) {
-  parser->syntax_extensions = cmark_llist_append(parser->syntax_extensions, extension);
-  if (extension->match_inline && extension->insert_inline_from_delim) {
+                                         cmark_syntax_extension *extension) {
+  parser->syntax_extensions = cmark_llist_append(parser->mem, parser->syntax_extensions, extension);
+  if (extension->match_inline || extension->insert_inline_from_delim) {
     parser->inline_syntax_extensions = cmark_llist_append(
-        parser->inline_syntax_extensions, extension);
+      parser->mem, parser->inline_syntax_extensions, extension);
   }
 
   return 1;
@@ -145,8 +145,8 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_parser_dispose(parser);
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
-  cmark_llist_free(parser->syntax_extensions);
-  cmark_llist_free(parser->inline_syntax_extensions);
+  cmark_llist_free(parser->mem, parser->syntax_extensions);
+  cmark_llist_free(parser->mem, parser->inline_syntax_extensions);
   mem->free(parser);
 }
 
@@ -173,31 +173,19 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
   return true;
 }
 
-static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
-                               cmark_node_type child_type) {
-  if (parent_type == CMARK_NODE_TABLE) {
-    return child_type == CMARK_NODE_TABLE_ROW;
-  }
-
-  if (parent_type == CMARK_NODE_TABLE_ROW)
-    return child_type == CMARK_NODE_TABLE_CELL;
-
-  return (parent_type == CMARK_NODE_DOCUMENT ||
-          parent_type == CMARK_NODE_BLOCK_QUOTE ||
-          parent_type == CMARK_NODE_ITEM ||
-          (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
-}
-
 static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
-  return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADING ||
-          block_type == CMARK_NODE_TABLE_CELL);
+static CMARK_INLINE bool contains_inlines(cmark_node *node) {
+  if (node->extension && node->extension->contains_inlines_func) {
+    return node->extension->contains_inlines_func(node->extension, node);
+  }
+
+  return (node->type == CMARK_NODE_PARAGRAPH ||
+          node->type == CMARK_NODE_HEADING);
 }
 
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
@@ -378,7 +366,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
 
   // if 'parent' isn't the kind of node that can accept this child,
   // then back up til we hit a node that can.
-  while (!can_contain(S_type(parent), block_type)) {
+  while (!cmark_node_can_contain_type(parent, block_type)) {
     parent = finalize(parser, parent);
   }
 
@@ -397,7 +385,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   return child;
 }
 
-static void manage_extensions_special_characters(cmark_parser *parser, bool add) {
+void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add) {
   cmark_llist *tmp_ext;
 
   for (tmp_ext = parser->inline_syntax_extensions; tmp_ext; tmp_ext=tmp_ext->next) {
@@ -421,18 +409,18 @@ static void process_inlines(cmark_parser *parser,
   cmark_node *cur;
   cmark_event_type ev_type;
 
-  manage_extensions_special_characters(parser, true);
+  cmark_manage_extensions_special_characters(parser, true);
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (contains_inlines(cur->type)) {
+      if (contains_inlines(cur)) {
         cmark_parse_inlines(parser, cur, refmap, options);
       }
     }
   }
 
-  manage_extensions_special_characters(parser, false);
+  cmark_manage_extensions_special_characters(parser, false);
 
   cmark_iter_free(iter);
 }
@@ -1287,7 +1275,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   /* parser->current might have changed if feed_reentrant was called */
   if (current == parser->current)
-    add_text_to_container(parser, container, last_matched_container, &input);
+  add_text_to_container(parser, container, last_matched_container, &input);
 
 finished:
   parser->last_line_length = input.len;
@@ -1303,6 +1291,7 @@ finished:
 
 cmark_node *cmark_parser_finish(cmark_parser *parser) {
   cmark_node *res;
+  cmark_llist *extensions;
 
   /* Parser was already finished once */
   if (parser->root == NULL)
@@ -1332,6 +1321,15 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
   parser->root = NULL;
 
   cmark_parser_reset(parser);
+
+  for (extensions = parser->syntax_extensions; extensions; extensions = extensions->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) extensions->data;
+    if (ext->postprocess_func) {
+      cmark_node *processed = ext->postprocess_func(ext, res);
+      if (processed)
+        res = processed;
+    }
+  }
 
   return res;
 }
