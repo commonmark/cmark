@@ -10,6 +10,7 @@
 #include "utf8.h"
 #include "scanners.h"
 #include "render.h"
+#include "syntax_extension.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
@@ -226,8 +227,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   cmark_list_type list_type;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options);
 
-  // avoid warning about unused parameter:
-  (void)(options);
+  if (node->extension && node->extension->latex_render_func) {
+    node->extension->latex_render_func(node->extension, renderer, node, ev_type, options);
+    return 1;
+  }
 
   switch (node->type) {
   case CMARK_NODE_DOCUMENT:
@@ -346,44 +349,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
-  case CMARK_NODE_TABLE:
-    if (entering) {
-      int i, n_cols;
-      CR();
-      LIT("\\begin{table}");
-      CR();
-      LIT("\\begin{tabular}{");
-
-      n_cols = node->as.table.n_columns;
-      for (i = 0; i < n_cols; i++) {
-        LIT("l");
-      }
-      LIT("}");
-      CR();
-    } else {
-      LIT("\\end{tabular}");
-      CR();
-      LIT("\\end{table}");
-      CR();
-    }
-    break;
-
-  case CMARK_NODE_TABLE_ROW:
-    if (!entering) {
-      CR();
-    }
-    break;
-
-  case CMARK_NODE_TABLE_CELL:
-    if (!entering) {
-      if (node->next) {
-        LIT(" & ");
-      } else {
-        LIT(" \\\\");
-      }
-    }
-    break;
-
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;
@@ -475,15 +440,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       OUT(cmark_node_get_url(node), false, URL);
       LIT("}");
       return 0;
-    }
-    break;
-
-  case CMARK_NODE_STRIKETHROUGH:
-    /* requires \usepackage{ulem} */
-    if (entering) {
-      LIT("\\sout{");
-    } else {
-      LIT("}");
     }
     break;
 

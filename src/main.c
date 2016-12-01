@@ -8,7 +8,10 @@
 #include "node.h"
 #include "cmark_extension_api.h"
 #include "syntax_extension.h"
+#include "parser.h"
 #include "registry.h"
+
+#include "../extensions/core-extensions.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
@@ -42,14 +45,14 @@ void print_usage() {
 }
 
 static bool print_document(cmark_node *document, writer_format writer,
-                           int options, int width) {
+                           int options, int width, cmark_parser *parser) {
   char *result;
 
   cmark_mem *mem = cmark_get_default_mem_allocator();
 
   switch (writer) {
   case FORMAT_HTML:
-    result = cmark_render_html_with_mem(document, options, mem);
+    result = cmark_render_html_with_mem(document, options, parser->syntax_extensions, mem);
     break;
   case FORMAT_XML:
     result = cmark_render_xml_with_mem(document, options, mem);
@@ -68,7 +71,7 @@ static bool print_document(cmark_node *document, writer_format writer,
     return false;
   }
   printf("%s", result);
-  cmark_node_mem(document)->free(result);
+  mem->free(result);
 
   return true;
 }
@@ -79,13 +82,14 @@ static void print_extensions(void) {
 
   printf ("Available extensions:\n");
 
-  syntax_extensions = cmark_list_syntax_extensions();
+  cmark_mem *mem = cmark_get_default_mem_allocator();
+  syntax_extensions = cmark_list_syntax_extensions(mem);
   for (tmp = syntax_extensions; tmp; tmp=tmp->next) {
     cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp->data;
     printf("%s\n", ext->name);
   }
 
-  cmark_llist_free(syntax_extensions);
+  cmark_llist_free(mem, syntax_extensions);
 }
 
 int main(int argc, char *argv[]) {
@@ -100,6 +104,8 @@ int main(int argc, char *argv[]) {
   writer_format writer = FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
+
+  cmark_register_plugin(core_extensions_registration);
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
@@ -229,9 +235,8 @@ int main(int argc, char *argv[]) {
 
   document = cmark_parser_finish(parser);
 
-  if (!print_document(document, writer, options, width))
+  if (!print_document(document, writer, options, width, parser))
     goto failure;
-
 
 success:
   res = 0;
@@ -246,6 +251,8 @@ failure:
 #else
   cmark_arena_reset();
 #endif
+
+  cmark_release_plugins();
 
   free(files);
 

@@ -47,14 +47,6 @@ typedef struct {
   cmark_chunk on_exit;
 } cmark_custom;
 
-typedef struct {
-  int n_columns;
-} cmark_table;
-
-typedef struct {
-  bool is_header;
-} cmark_table_row;
-
 enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
   CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
@@ -88,9 +80,8 @@ struct cmark_node {
     cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
-    cmark_table table;
-    cmark_table_row table_row;
     int html_block_type;
+    void *opaque;
   } as;
 };
 
@@ -98,6 +89,24 @@ static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
   return node->content.mem;
 }
 CMARK_EXPORT int cmark_node_check(cmark_node *node, FILE *out);
+
+static CMARK_INLINE bool CMARK_NODE_TYPE_BLOCK_P(cmark_node_type node_type) {
+	return (node_type & CMARK_NODE_TYPE_MASK) == CMARK_NODE_TYPE_BLOCK;
+}
+
+static CMARK_INLINE bool CMARK_NODE_BLOCK_P(cmark_node *node) {
+	return node != NULL && CMARK_NODE_TYPE_BLOCK_P((cmark_node_type) node->type);
+}
+
+static CMARK_INLINE bool CMARK_NODE_TYPE_INLINE_P(cmark_node_type node_type) {
+	return (node_type & CMARK_NODE_TYPE_MASK) == CMARK_NODE_TYPE_INLINE;
+}
+
+static CMARK_INLINE bool CMARK_NODE_INLINE_P(cmark_node *node) {
+	return node != NULL && CMARK_NODE_TYPE_INLINE_P((cmark_node_type) node->type);
+}
+
+CMARK_EXPORT bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type);
 
 #ifdef __cplusplus
 }

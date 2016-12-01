@@ -1105,7 +1105,6 @@ static cmark_node *try_extensions(cmark_parser *parser,
 
   for (tmp = parser->inline_syntax_extensions; tmp; tmp = tmp->next) {
     cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp->data;
-
     res = ext->match_inline(ext, parser, parent, c, subj);
 
     if (res)
@@ -1197,10 +1196,10 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_parser *parser,
-                                cmark_node *parent,
-                                cmark_reference_map *refmap,
-                                int options) {
+void cmark_parse_inlines(cmark_parser *parser,
+                         cmark_node *parent,
+                         cmark_reference_map *refmap,
+                         int options) {
   subject subj;
   subject_from_buf(parser->mem, &subj, &parent->content, refmap);
   cmark_chunk_rtrim(&subj.input);
@@ -1407,6 +1406,35 @@ void cmark_inline_parser_advance_offset(cmark_inline_parser *parser) {
 
 int cmark_inline_parser_get_offset(cmark_inline_parser *parser) {
   return parser->pos;
+}
+
+void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset) {
+  parser->pos = offset;
+}
+
+cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser) {
+  return &parser->input;
+}
+
+int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image) {
+  for (bracket *b = parser->last_bracket; b; b = b->previous)
+    if (b->active && b->image == image)
+      return 1;
+  return 0;
+}
+
+void cmark_node_unput(cmark_node *node, int n) {
+	node = node->last_child;
+	while (n > 0 && node && node->type == CMARK_NODE_TEXT) {
+		if (node->as.literal.len < n) {
+			n -= node->as.literal.len;
+			node->as.literal.len = 0;
+		} else {
+			node->as.literal.len -= n;
+			n = 0;
+		}
+		node = node->prev;
+	}
 }
 
 delimiter *cmark_inline_parser_get_last_delimiter(cmark_inline_parser *parser) {
