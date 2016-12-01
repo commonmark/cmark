@@ -205,21 +205,6 @@ bufsize_t _scan_html_block_end_5(const unsigned char *p)
 */
 }
 
-// Try to match a URL in a link or reference, return number of chars matched.
-// This may optionally be contained in <..>; otherwise
-// whitespace and unbalanced right parentheses aren't allowed.
-// Newlines aren't ever allowed.
-bufsize_t _scan_link_url(const unsigned char *p)
-{
-  const unsigned char *marker = NULL;
-  const unsigned char *start = p;
-/*!re2c
-  [ \r\n]* [<] ([^<> \t\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
-  [ \r\n]* (reg_char+ | escaped_char | [\\] [^() \t\v\f\r\n] | in_parens_nosp)* [\\]? { return (bufsize_t)(p - start); }
-  .? { return 0; }
-*/
-}
-
 // Try to match a link title (in single quotes, in double quotes, or
 // in parentheses), returning number of chars matched.  Allow one
 // level of internal nesting (quotes within quotes).
