@@ -6,6 +6,9 @@
 #include "memory.h"
 #include "cmark.h"
 #include "node.h"
+#include "cmark_extension_api.h"
+#include "syntax_extension.h"
+#include "registry.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
@@ -33,6 +36,8 @@ void print_usage() {
   printf("  --safe           Suppress raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
   printf("  --normalize      Consolidate adjacent text nodes\n");
+  printf("  -e, --extension EXTENSION_NAME Specify an extension name to use\n");
+  printf("  --list-extensions              List available extensions and quit\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -64,9 +69,24 @@ static bool print_document(cmark_node *document, writer_format writer,
     return false;
   }
   printf("%s", result);
-  mem->free(result);
+  cmark_node_mem(document)->free(result);
 
   return true;
+}
+
+static void print_extensions(void) {
+  cmark_llist *syntax_extensions;
+  cmark_llist *tmp;
+
+  printf ("Available extensions:\n");
+
+  syntax_extensions = cmark_list_syntax_extensions();
+  for (tmp = syntax_extensions; tmp; tmp=tmp->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp->data;
+    printf("%s\n", ext->name);
+  }
+
+  cmark_llist_free(syntax_extensions);
 }
 
 int main(int argc, char *argv[]) {
@@ -93,6 +113,9 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "--version") == 0) {
       printf("cmark %s", CMARK_VERSION_STRING);
       printf(" - CommonMark converter\n(C) 2014-2016 John MacFarlane\n");
+      goto success;
+    } else if (strcmp(argv[i], "--list-extensions") == 0) {
+      print_extensions();
       goto success;
     } else if (strcmp(argv[i], "--sourcepos") == 0) {
       options |= CMARK_OPT_SOURCEPOS;
@@ -146,6 +169,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "No argument provided for %s\n", argv[i - 1]);
         goto failure;
       }
+    } else if ((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--extension") == 0)) {
+      i += 1; // Simpler to handle extensions in a second pass, as we can directly register
+              // them with the parser.
     } else if (*argv[i] == '-') {
       print_usage();
       goto failure;
@@ -159,6 +185,23 @@ int main(int argc, char *argv[]) {
 #else
   parser = cmark_parser_new_with_mem(options, cmark_get_arena_mem_allocator());
 #endif
+
+  for (i = 1; i < argc; i++) {
+    if ((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--extension") == 0)) {
+      i += 1;
+      if (i < argc) {
+        cmark_syntax_extension *syntax_extension = cmark_find_syntax_extension(argv[i]);
+        if (!syntax_extension) {
+          fprintf(stderr, "Unknown extension %s\n", argv[i]);
+          goto failure;
+        }
+        cmark_parser_attach_syntax_extension(parser, syntax_extension);
+      } else {
+        fprintf(stderr, "No argument provided for %s\n", argv[i - 1]);
+        goto failure;
+      }
+    }
+  }
 
   for (i = 0; i < numfps; i++) {
     FILE *fp = fopen(argv[files[i]], "rb");
@@ -192,6 +235,7 @@ int main(int argc, char *argv[]) {
   if (!print_document(document, writer, options, width))
     goto failure;
 
+
 success:
   res = 0;
 
@@ -199,7 +243,7 @@ failure:
 
 #if DEBUG
   if (parser)
-    cmark_parser_free(parser);
+  cmark_parser_free(parser);
 
   cmark_node_free(document);
 #else

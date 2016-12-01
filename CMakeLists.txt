@@ -26,6 +26,7 @@ option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 
 add_subdirectory(src)
+add_subdirectory(extensions)
 if(CMARK_TESTS AND CMARK_SHARED)
   add_subdirectory(api_test)
 endif()

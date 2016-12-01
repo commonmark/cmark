@@ -62,8 +62,21 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_STRONG:
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
+  case CMARK_NODE_STRIKETHROUGH:
   case CMARK_NODE_CUSTOM_INLINE:
     return S_is_inline(child);
+  case CMARK_NODE_TABLE:
+    return child->type == CMARK_NODE_TABLE_ROW;
+  case CMARK_NODE_TABLE_ROW:
+    return child->type == CMARK_NODE_TABLE_CELL;
+  case CMARK_NODE_TABLE_CELL:
+    return child->type == CMARK_NODE_TEXT ||
+           child->type == CMARK_NODE_CODE ||
+           child->type == CMARK_NODE_EMPH ||
+           child->type == CMARK_NODE_STRONG ||
+           child->type == CMARK_NODE_LINK ||
+           child->type == CMARK_NODE_IMAGE ||
+           child->type == CMARK_NODE_STRIKETHROUGH;
 
   default:
     break;
@@ -102,35 +115,44 @@ cmark_node *cmark_node_new(cmark_node_type type) {
   return cmark_node_new_with_mem(type, &CMARK_DEFAULT_MEM_ALLOCATOR);
 }
 
+static void free_node_as(cmark_node *node) {
+  switch (node->type) {
+  case CMARK_NODE_CODE_BLOCK:
+    cmark_chunk_free(NODE_MEM(node), &node->as.code.info);
+    cmark_chunk_free(NODE_MEM(node), &node->as.code.literal);
+    break;
+  case CMARK_NODE_TEXT:
+  case CMARK_NODE_HTML_INLINE:
+  case CMARK_NODE_CODE:
+  case CMARK_NODE_HTML_BLOCK:
+    cmark_chunk_free(NODE_MEM(node), &node->as.literal);
+    break;
+  case CMARK_NODE_LINK:
+  case CMARK_NODE_IMAGE:
+    cmark_chunk_free(NODE_MEM(node), &node->as.link.url);
+    cmark_chunk_free(NODE_MEM(node), &node->as.link.title);
+    break;
+  case CMARK_NODE_CUSTOM_BLOCK:
+  case CMARK_NODE_CUSTOM_INLINE:
+    cmark_chunk_free(NODE_MEM(node), &node->as.custom.on_enter);
+    cmark_chunk_free(NODE_MEM(node), &node->as.custom.on_exit);
+    break;
+  default:
+    break;
+  }
+}
+
 // Free a cmark_node list and any children.
 static void S_free_nodes(cmark_node *e) {
   cmark_node *next;
   while (e != NULL) {
     cmark_strbuf_free(&e->content);
-    switch (e->type) {
-    case CMARK_NODE_CODE_BLOCK:
-      cmark_chunk_free(NODE_MEM(e), &e->as.code.info);
-      cmark_chunk_free(NODE_MEM(e), &e->as.code.literal);
-      break;
-    case CMARK_NODE_TEXT:
-    case CMARK_NODE_HTML_INLINE:
-    case CMARK_NODE_CODE:
-    case CMARK_NODE_HTML_BLOCK:
-      cmark_chunk_free(NODE_MEM(e), &e->as.literal);
-      break;
-    case CMARK_NODE_LINK:
-    case CMARK_NODE_IMAGE:
-      cmark_chunk_free(NODE_MEM(e), &e->as.link.url);
-      cmark_chunk_free(NODE_MEM(e), &e->as.link.title);
-      break;
-    case CMARK_NODE_CUSTOM_BLOCK:
-    case CMARK_NODE_CUSTOM_INLINE:
-      cmark_chunk_free(NODE_MEM(e), &e->as.custom.on_enter);
-      cmark_chunk_free(NODE_MEM(e), &e->as.custom.on_exit);
-      break;
-    default:
-      break;
-    }
+
+    if (e->user_data && e->user_data_free_func)
+      e->user_data_free_func(e->user_data);
+
+    free_node_as(e);
+
     if (e->last_child) {
       // Splice children into list
       e->last_child->next = e->next;
@@ -156,6 +178,29 @@ cmark_node_type cmark_node_get_type(cmark_node *node) {
   }
 }
 
+int cmark_node_set_type(cmark_node * node, cmark_node_type type) {
+  cmark_node_type initial_type;
+
+  if (type == node->type)
+    return 1;
+
+  initial_type = node->type;
+  node->type = type;
+
+  if (!S_can_contain(node->parent, node)) {
+    node->type = initial_type;
+    return 0;
+  }
+
+  /* We rollback the type to free the union members appropriately */
+  node->type = initial_type;
+  free_node_as(node);
+
+  node->type = type;
+
+  return 1;
+}
+
 const char *cmark_node_get_type_string(cmark_node *node) {
   if (node == NULL) {
     return "NONE";
@@ -178,6 +223,15 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "html_block";
   case CMARK_NODE_CUSTOM_BLOCK:
     return "custom_block";
+  case CMARK_NODE_TABLE:
+    return "table";
+  case CMARK_NODE_TABLE_ROW:
+    if (node->as.table_row.is_header)
+      return "table_header";
+    else
+      return "table_row";
+  case CMARK_NODE_TABLE_CELL:
+    return "table_cell";
   case CMARK_NODE_PARAGRAPH:
     return "paragraph";
   case CMARK_NODE_HEADING:
@@ -204,6 +258,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
+  case CMARK_NODE_STRIKETHROUGH:
+    return "strikethrough";
   }
 
   return "<unknown>";
@@ -265,6 +321,15 @@ int cmark_node_set_user_data(cmark_node *node, void *user_data) {
   return 1;
 }
 
+int cmark_node_set_user_data_free_func(cmark_node *node,
+                                        cmark_free_func free_func) {
+  if (node == NULL) {
+    return 0;
+  }
+  node->user_data_free_func = free_func;
+  return 1;
+}
+
 const char *cmark_node_get_literal(cmark_node *node) {
   if (node == NULL) {
     return NULL;
@@ -309,6 +374,15 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   }
 
   return 0;
+}
+
+const char *cmark_node_get_string_content(cmark_node *node) {
+  return (char *) node->content.ptr;
+}
+
+int cmark_node_set_string_content(cmark_node *node, const char *content) {
+  cmark_strbuf_sets(&node->content, content);
+  return true;
 }
 
 int cmark_node_get_heading_level(cmark_node *node) {
@@ -477,6 +551,38 @@ int cmark_node_set_fence_info(cmark_node *node, const char *info) {
   }
 }
 
+int cmark_node_get_fenced(cmark_node *node, int *length, int *offset, char *character) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_CODE_BLOCK) {
+    *length = node->as.code.fence_length;
+    *offset = node->as.code.fence_offset;
+    *character = node->as.code.fence_char;
+    return node->as.code.fenced;
+  } else {
+    return 0;
+  }
+}
+
+int cmark_node_set_fenced(cmark_node * node, int fenced,
+    int length, int offset, char character) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_CODE_BLOCK) {
+    node->as.code.fenced = fenced;
+    node->as.code.fence_length = length;
+    node->as.code.fence_offset = offset;
+    node->as.code.fence_char = character;
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 const char *cmark_node_get_url(cmark_node *node) {
   if (node == NULL) {
     return NULL;
@@ -609,6 +715,23 @@ int cmark_node_set_on_exit(cmark_node *node, const char *on_exit) {
   return 0;
 }
 
+cmark_syntax_extension *cmark_node_get_syntax_extension(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  }
+
+  return node->extension;
+}
+
+int cmark_node_set_syntax_extension(cmark_node *node, cmark_syntax_extension *extension) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  node->extension = extension;
+  return 1;
+}
+
 int cmark_node_get_start_line(cmark_node *node) {
   if (node == NULL) {
     return 0;
@@ -635,6 +758,68 @@ int cmark_node_get_end_column(cmark_node *node) {
     return 0;
   }
   return node->end_column;
+}
+
+int cmark_node_get_n_table_columns(cmark_node *node) {
+  if (node == NULL) {
+    return -1;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_TABLE:
+    return node->as.table.n_columns;
+  default:
+    break;
+  }
+
+  return -1;
+}
+
+int cmark_node_set_n_table_columns(cmark_node *node, int n_columns) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+    case CMARK_NODE_TABLE:
+      node->as.table.n_columns = n_columns;
+      return 1;
+    default:
+      break;
+  }
+
+  return 0;
+}
+
+int cmark_node_is_table_header(cmark_node *node) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_TABLE_ROW:
+    return node->as.table_row.is_header;
+  default:
+    break;
+  }
+
+  return 1;
+}
+
+int cmark_node_set_is_table_header(cmark_node *node, int is_table_header) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+    case CMARK_NODE_TABLE_ROW:
+      node->as.table_row.is_header = is_table_header;
+      return 1;
+    default:
+      break;
+  }
+
+  return 0;
 }
 
 // Unlink a node without adjusting its next, prev, and parent pointers.

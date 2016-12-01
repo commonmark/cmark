@@ -6,5 +6,5 @@ includedir=@CMAKE_INSTALL_PREFIX@/include
 Name: libcmark
 Description: CommonMark parsing, rendering, and manipulation
 Version: @PROJECT_VERSION@
-Libs: -L${libdir} -lcmark
+Libs: -L${libdir} -lcmark -ldl
 Cflags: -I${includedir}

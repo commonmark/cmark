@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cmark.h"
+#include "cmark_extension_api.h"
 #include "buffer.h"
 #include "chunk.h"
 
@@ -46,6 +47,14 @@ typedef struct {
   cmark_chunk on_exit;
 } cmark_custom;
 
+typedef struct {
+  int n_columns;
+} cmark_table;
+
+typedef struct {
+  bool is_header;
+} cmark_table_row;
+
 enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
   CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
@@ -61,6 +70,7 @@ struct cmark_node {
   struct cmark_node *last_child;
 
   void *user_data;
+  cmark_free_func user_data_free_func;
 
   int start_line;
   int start_column;
@@ -69,6 +79,8 @@ struct cmark_node {
   uint16_t type;
   uint16_t flags;
 
+  cmark_syntax_extension *extension;
+
   union {
     cmark_chunk literal;
     cmark_list list;
@@ -76,6 +88,8 @@ struct cmark_node {
     cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
+    cmark_table table;
+    cmark_table_row table_row;
     int html_block_type;
   } as;
 };
