@@ -46,8 +46,13 @@ typedef enum {
   CMARK_NODE_HEADING,
   CMARK_NODE_THEMATIC_BREAK,
 
+  /* blocks with no syntax rules in the current specification */
+  CMARK_NODE_TABLE,
+  CMARK_NODE_TABLE_ROW,
+  CMARK_NODE_TABLE_CELL,
+
   CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_TABLE_CELL,
 
   /* Inline */
   CMARK_NODE_TEXT,
@@ -61,8 +66,11 @@ typedef enum {
   CMARK_NODE_LINK,
   CMARK_NODE_IMAGE,
 
+  /* inlines with no syntax rules in the current specification */
+  CMARK_NODE_STRIKETHROUGH,
+
   CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+  CMARK_NODE_LAST_INLINE = CMARK_NODE_STRIKETHROUGH,
 } cmark_node_type;
 
 /* For backwards compatibility: */
@@ -86,6 +94,8 @@ typedef enum {
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
+
+typedef void (*cmark_free_func) (void *user_data);
 
 /**
  * ## Custom memory allocator support
@@ -117,6 +127,46 @@ cmark_mem *cmark_get_arena_mem_allocator();
  */
 CMARK_EXPORT
 void cmark_arena_reset(void);
+
+
+/*
+ * ## Basic data structures
+ *
+ * To keep dependencies to the strict minimum, libcmark implements
+ * its own versions of "classic" data structures.
+ */
+
+/**
+ * ### Linked list
+ */
+
+/** A generic singly linked list.
+ */
+typedef struct _cmark_llist
+{
+  struct _cmark_llist *next;
+  void         *data;
+} cmark_llist;
+
+/** Append an element to the linked list, return the possibly modified
+ * head of the list.
+ */
+CMARK_EXPORT
+cmark_llist * cmark_llist_append    (cmark_llist       * head,
+                                     void              * data);
+
+/** Free the list starting with 'head', calling 'free_func' with the
+ *  data pointer of each of its elements
+ */
+CMARK_EXPORT
+void          cmark_llist_free_full (cmark_llist       * head,
+                                     cmark_free_func     free_func);
+
+/** Free the list starting with 'head'
+ */
+CMARK_EXPORT
+void          cmark_llist_free      (cmark_llist * head);
+
 
 /**
  * ## Creating and Destroying Nodes
@@ -272,6 +322,11 @@ CMARK_EXPORT void *cmark_node_get_user_data(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_user_data(cmark_node *node, void *user_data);
 
+/** Set free function for user data */
+CMARK_EXPORT
+int cmark_node_set_user_data_free_func(cmark_node *node,
+                                        cmark_free_func free_func);
+
 /** Returns the type of 'node', or `CMARK_NODE_NONE` on error.
  */
 CMARK_EXPORT cmark_node_type cmark_node_get_type(cmark_node *node);
@@ -352,6 +407,15 @@ CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_fence_info(cmark_node *node, const char *info);
 
+/** Sets code blocks fencing details
+ */
+CMARK_EXPORT int cmark_node_set_fenced(cmark_node * node, int fenced,
+    int length, int offset, char character);
+
+/** Returns code blocks fencing details
+ */
+CMARK_EXPORT int cmark_node_get_fenced(cmark_node *node, int *length, int *offset, char *character);
+
 /** Returns the URL of a link or image 'node', or an empty string
     if no URL is set.  Returns NULL if called on a node that is
     not a link or image.
@@ -414,6 +478,11 @@ CMARK_EXPORT int cmark_node_get_end_line(cmark_node *node);
 /** Returns the column at which 'node' ends.
  */
 CMARK_EXPORT int cmark_node_get_end_column(cmark_node *node);
+
+CMARK_EXPORT int cmark_node_get_n_table_columns(cmark_node *node);
+CMARK_EXPORT int cmark_node_set_n_table_columns(cmark_node *node, int n_columns);
+CMARK_EXPORT int cmark_node_is_table_header(cmark_node *node);
+CMARK_EXPORT int cmark_node_set_is_table_header(cmark_node *node, int is_table_header);
 
 /**
  * ## Tree Manipulation

@@ -335,6 +335,33 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_TABLE:
+    BLANKLINE();
+    break;
+
+  case CMARK_NODE_TABLE_ROW:
+    if (entering) {
+      CR();
+      LIT("|");
+    }
+    break;
+  case CMARK_NODE_TABLE_CELL:
+    if (entering) {
+    } else {
+      LIT(" |");
+      if (node->parent->as.table_row.is_header && !node->next) {
+        int i;
+        int n_cols = node->parent->parent->as.table.n_columns;
+        CR();
+        LIT("|");
+        for (i = 0; i < n_cols; i++) {
+          LIT(" --- |");
+        }
+        CR();
+      }
+    }
+    break;
+
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;
@@ -455,6 +482,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       }
       LIT(")");
     }
+    break;
+
+  case CMARK_NODE_STRIKETHROUGH:
+    OUT(cmark_node_get_string_content(node), false, LITERAL);
     break;
 
   default:

@@ -1,4 +1,5 @@
 SRCDIR=src
+EXTDIR=extensions
 DATADIR=data
 BUILDDIR?=build
 GENERATOR?=Unix Makefiles
@@ -125,6 +126,19 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	re2c -W -Werror --case-insensitive -b -i --no-generation-date -8 \
 		--encoding-policy substitute -o $@ $<
 	$(CLANG_FORMAT) $@
+
+# We include scanners.c in the repository, so this shouldn't
+# normally need to be generated.
+$(EXTDIR)/ext_scanners.c: $(EXTDIR)/ext_scanners.re
+	@case "$$(re2c -v)" in \
+	    *\ 0.13.*|*\ 0.14|*\ 0.14.1) \
+		echo "re2c >= 0.14.2 is required"; \
+		false; \
+		;; \
+	esac
+	re2c --case-insensitive -b -i --no-generation-date -8 \
+		--encoding-policy substitute -o $@ $<
+	clang-format -style llvm -i $@
 
 # We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:

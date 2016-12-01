@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include "registry.h"
 #include "node.h"
 #include "houdini.h"
 #include "cmark.h"
@@ -44,4 +45,14 @@ char *cmark_markdown_to_html(const char *text, size_t len, int options) {
   cmark_node_free(doc);
 
   return result;
+}
+
+int cmark_init(void) {
+  cmark_discover_plugins();
+  return 1;
+}
+
+int cmark_deinit(void) {
+  cmark_release_plugins();
+  return 1;
 }

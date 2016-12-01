@@ -27,6 +27,7 @@ option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
 add_subdirectory(src)
+add_subdirectory(extensions)
 if(CMARK_TESTS AND CMARK_SHARED)
   add_subdirectory(api_test)
 endif()

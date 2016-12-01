@@ -6,6 +6,7 @@ set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
 set(HEADERS
   cmark.h
+  cmark_extension_api.h
   parser.h
   buffer.h
   node.h
@@ -18,6 +19,9 @@ set(HEADERS
   houdini.h
   cmark_ctype.h
   render.h
+  registry.h
+  syntax_extension.h
+  plugin.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -41,6 +45,10 @@ set(LIBRARY_SOURCES
   houdini_html_u.c
   cmark_ctype.c
   arena.c
+  linked_list.c
+  syntax_extension.c
+  registry.c
+  plugin.c
   ${HEADERS}
   )
 
@@ -71,6 +79,8 @@ set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
 
+add_definitions(-DLIBDIR=\"${CMAKE_BINARY_DIR}\")
+
 if (${CMAKE_VERSION} VERSION_GREATER "1.8")
   set(CMAKE_C_VISIBILITY_PRESET hidden)
   set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -82,9 +92,9 @@ if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   # Include minor version and patch level in soname for now.
   set_target_properties(${LIBRARY} PROPERTIES
-    OUTPUT_NAME "cmark"
-    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    VERSION ${PROJECT_VERSION})
+  OUTPUT_NAME "cmark"
+  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+  VERSION ${PROJECT_VERSION})
 
   set_property(TARGET ${LIBRARY}
     APPEND PROPERTY MACOSX_RPATH true)
@@ -101,21 +111,31 @@ endif()
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
   set_target_properties(${STATICLIBRARY} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE
-    POSITION_INDEPENDENT_CODE ON)
+  COMPILE_FLAGS -DCMARK_STATIC_DEFINE
+  POSITION_INDEPENDENT_CODE ON)
 
   if (MSVC)
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark_static"
-      VERSION ${PROJECT_VERSION})
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmark_static"
+    VERSION ${PROJECT_VERSION})
   else()
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark"
-      VERSION ${PROJECT_VERSION})
-  endif(MSVC)
+  set_target_properties(${STATICLIBRARY} PROPERTIES
+    OUTPUT_NAME "cmark"
+    VERSION ${PROJECT_VERSION})
+endif(MSVC)
+
+target_link_libraries(cmark ${CMAKE_DL_LIBS})
 
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
+set_property(TARGET ${LIBRARY}
+  APPEND PROPERTY MACOSX_RPATH true)
+
+# Avoid name clash between PROGRAM and LIBRARY pdb files.
+set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark_dll)
+
+generate_export_header(${LIBRARY}
+    BASE_NAME ${PROJECT_NAME})
 
 if (MSVC)
   set_property(TARGET ${PROGRAM}
@@ -139,11 +159,12 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION lib${LIB_SUFFIX}/pkgconfig)
 
   install(FILES
-    cmark.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
-    DESTINATION include
-    )
+  cmark.h
+  cmark_extension_api.h
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
+  DESTINATION include
+  )
 
   install(EXPORT cmark DESTINATION lib${LIB_SUFFIX}/cmake)
 endif()
