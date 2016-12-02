@@ -73,6 +73,7 @@ static void S_outc(cmark_renderer *renderer, cmark_escaping escape, int32_t c,
 
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
+  const char *ent;
   cmark_node *tmp;
   int list_number;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
@@ -179,8 +180,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_ENTITY:
-    OUT((const char *)cmark_lookup_entity(node->as.literal.data,
-          node->as.literal.len), allow_wrap, NORMAL);
+    ent = (const char *)cmark_lookup_entity(node->as.literal.data,
+          node->as.literal.len);
+    if (ent == NULL) {
+      OUT("?", allow_wrap, NORMAL);
+    } else {
+      OUT(ent, allow_wrap, NORMAL);
+    }
     break;
 
   case CMARK_NODE_LINEBREAK:

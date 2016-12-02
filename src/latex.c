@@ -217,6 +217,7 @@ static int S_get_enumlevel(cmark_node *node) {
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   int list_number;
+  const char *ent;
   char list_number_string[LIST_NUMBER_STRING_SIZE];
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   cmark_list_type list_type;
@@ -338,8 +339,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_ENTITY:
-    OUT((const char *)cmark_lookup_entity(node->as.literal.data,
-          node->as.literal.len), allow_wrap, NORMAL);
+    ent = (const char *)cmark_lookup_entity(node->as.literal.data,
+          node->as.literal.len);
+    if (ent == NULL) {
+      OUT("?", allow_wrap, NORMAL);
+    } else {
+      OUT(ent, allow_wrap, NORMAL);
+    }
     break;
 
   case CMARK_NODE_LINEBREAK:
