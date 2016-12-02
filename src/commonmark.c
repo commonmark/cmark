@@ -336,6 +336,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     break;
 
+  case CMARK_NODE_ENTITY:
+    LIT("&");
+    OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
+    LIT(";");
+    break;
+
   case CMARK_NODE_LINEBREAK:
     if (!(CMARK_OPT_HARDBREAKS & options)) {
       LIT("  ");
