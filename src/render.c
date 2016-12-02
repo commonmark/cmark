@@ -20,6 +20,10 @@ static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
 
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                   cmark_escaping escape) {
+  if (source == NULL) {
+    return;
+  }
+
   int length = strlen(source);
   unsigned char nextc;
   int32_t c;
