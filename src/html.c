@@ -64,6 +64,12 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       escape_html(html, node->as.literal.data, node->as.literal.len);
       break;
 
+    case CMARK_NODE_ENTITY:
+      cmark_strbuf_putc(html, '&');
+      cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_putc(html, ';');
+      break;
+
     case CMARK_NODE_LINEBREAK:
     case CMARK_NODE_SOFTBREAK:
       cmark_strbuf_putc(html, ' ');
@@ -219,6 +225,12 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
 
   case CMARK_NODE_TEXT:
     escape_html(html, node->as.literal.data, node->as.literal.len);
+    break;
+
+  case CMARK_NODE_ENTITY:
+    cmark_strbuf_putc(html, '&');
+    cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+    cmark_strbuf_putc(html, ';');
     break;
 
   case CMARK_NODE_LINEBREAK:
