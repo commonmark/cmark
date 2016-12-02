@@ -4,6 +4,10 @@
 #include "entity.h"
 #include "chunk.h"
 
+#define CMARK_ENTITY_MIN_LENGTH 2
+#define CMARK_ENTITY_MAX_LENGTH 32
+#define CMARK_NUM_ENTITIES 2125
+
 #ifdef __cplusplus
 extern "C" {
 #endif
