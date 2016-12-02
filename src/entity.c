@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include "utf8.h"
 #include "chunk.h"
 #include "buffer.h"
