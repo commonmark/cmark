@@ -27,6 +27,7 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 
 // Macros for creating various kinds of simple.
 #define make_str(mem, s) make_literal(mem, CMARK_NODE_TEXT, s)
+#define make_entity(mem, s) make_literal(mem, CMARK_NODE_ENTITY, s)
 #define make_code(mem, s) make_literal(mem, CMARK_NODE_CODE, s)
 #define make_raw_html(mem, s) make_literal(mem, CMARK_NODE_HTML_INLINE, s)
 #define make_linebreak(mem) make_simple(mem, CMARK_NODE_LINEBREAK)
@@ -714,19 +715,19 @@ static cmark_node *handle_backslash(subject *subj) {
 // Parse an entity or a regular "&" string.
 // Assumes the subject has an '&' character at the current position.
 static cmark_node *handle_entity(subject *subj) {
-  cmark_strbuf ent = CMARK_BUF_INIT(subj->mem);
   bufsize_t len;
+  cmark_chunk contents;
 
-  advance(subj);
+  len = scan_entity(&subj->input, subj->pos);
 
-  len = houdini_unescape_ent(&ent, subj->input.data + subj->pos,
-                             subj->input.len - subj->pos);
-
-  if (len == 0)
+  if (len < 3) {
+    subj->pos += 1;
     return make_str(subj->mem, cmark_chunk_literal("&"));
-
-  subj->pos += len;
-  return make_str(subj->mem, cmark_chunk_buf_detach(&ent));
+  } else {
+    contents = cmark_chunk_dup(&subj->input, subj->pos + 1, len - 2);
+    subj->pos += len;
+    return make_entity(subj->mem, contents);
+  }
 }
 
 // Clean a URL: remove surrounding whitespace and surrounding <>,

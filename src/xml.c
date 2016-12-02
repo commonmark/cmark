@@ -57,6 +57,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       cmark_strbuf_puts(xml, " xmlns=\"http://commonmark.org/xml/1.0\"");
       break;
     case CMARK_NODE_TEXT:
+    case CMARK_NODE_ENTITY:
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_HTML_INLINE:
