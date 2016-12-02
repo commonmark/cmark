@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "entity.h"
 #include "config.h"
 #include "cmark.h"
 #include "node.h"
@@ -334,6 +335,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_TEXT:
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
+    break;
+
+  case CMARK_NODE_ENTITY:
+    OUT((const char *)cmark_lookup_entity(node->as.literal.data,
+          node->as.literal.len), allow_wrap, NORMAL);
     break;
 
   case CMARK_NODE_LINEBREAK:
