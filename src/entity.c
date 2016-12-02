@@ -1,10 +1,68 @@
+#include <stdbool.h>
 #include "entities.inc"
 #include "utf8.h"
+#include "chunk.h"
 #include "buffer.h"
 #include "cmark_ctype.h"
 
-#define _isxdigit(c) (strchr("0123456789ABCDEFabcdef", (c)) != NULL)
-#define _isdigit(c) ((c) >= '0' && (c) <= '9')
+#define MAX_ENTITY_LENGTH 47
+
+#ifndef MIN
+#define MIN(x, y) ((x < y) ? x : y)
+#endif
+
+int scan_entity(cmark_chunk *chunk, bufsize_t offset) {
+  bufsize_t limit = MIN(offset + MAX_ENTITY_LENGTH, chunk->len);
+  bufsize_t i = offset;
+  const unsigned char *data = chunk->data;
+  bool numerical = false;
+  bool hex = false;
+
+  if (data == NULL || offset > chunk->len) {
+    return 0;
+  }
+
+  if (data[i] == '&') {
+    i++;
+  } else {
+    return 0;
+  }
+
+  if (data[i] == '#') { // numerical
+    i++;
+    numerical = true;
+    if (data[i+1] == 'X' || data[i+1] == 'x') {
+      i++;
+      hex = true;
+    }
+  } else {
+    if (cmark_isalpha(data[i])) {
+      i++;
+    } else {
+      return 0;
+    }
+  }
+
+  while (i <= limit && data[i]) {
+    if (numerical) {
+      if (!((hex && cmark_ishexdigit(data[i])) || cmark_isdigit(data[i]))) {
+	return 0;
+      }
+    } else {
+      if (!(cmark_isalnum(data[i]))) {
+	return 0;
+      }
+    }
+    i++;
+  }
+
+  if (data[i] == ';') {
+    return (i - offset);
+  }
+
+  return 0;
+
+}
 
 /* Binary tree lookup code for entities added by JGM */
 
@@ -42,8 +100,8 @@ bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
     int codepoint = 0;
     int num_digits = 0;
 
-    if (_isdigit(src[1])) {
-      for (i = 1; i < size && _isdigit(src[i]); ++i) {
+    if (cmark_isdigit(src[1])) {
+      for (i = 1; i < size && cmark_isdigit(src[i]); ++i) {
         codepoint = (codepoint * 10) + (src[i] - '0');
 
         if (codepoint >= 0x110000) {
@@ -57,7 +115,7 @@ bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
     }
 
     else if (src[1] == 'x' || src[1] == 'X') {
-      for (i = 2; i < size && _isxdigit(src[i]); ++i) {
+      for (i = 2; i < size && cmark_ishexdigit(src[i]); ++i) {
         codepoint = (codepoint * 16) + ((src[i] | 32) % 39 - 9);
 
         if (codepoint >= 0x110000) {
