@@ -113,6 +113,7 @@ static void S_free_nodes(cmark_node *e) {
       cmark_chunk_free(NODE_MEM(e), &e->as.code.literal);
       break;
     case CMARK_NODE_TEXT:
+    case CMARK_NODE_ENTITY:
     case CMARK_NODE_HTML_INLINE:
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:
@@ -186,6 +187,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "thematic_break";
   case CMARK_NODE_TEXT:
     return "text";
+  case CMARK_NODE_ENTITY:
+    return "entity";
   case CMARK_NODE_SOFTBREAK:
     return "softbreak";
   case CMARK_NODE_LINEBREAK:
@@ -273,6 +276,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
   switch (node->type) {
   case CMARK_NODE_HTML_BLOCK:
   case CMARK_NODE_TEXT:
+  case CMARK_NODE_ENTITY:
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.literal);
@@ -295,6 +299,7 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   switch (node->type) {
   case CMARK_NODE_HTML_BLOCK:
   case CMARK_NODE_TEXT:
+  case CMARK_NODE_ENTITY:
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
     cmark_chunk_set_cstr(NODE_MEM(node), &node->as.literal, content);
