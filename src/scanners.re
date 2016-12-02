@@ -292,19 +292,6 @@ bufsize_t _scan_close_code_fence(const unsigned char *p)
 */
 }
 
-// Scans an entity.
-// Returns number of chars matched.
-bufsize_t _scan_entity(const unsigned char *p)
-{
-  const unsigned char *marker = NULL;
-  const unsigned char *start = p;
-/*!re2c
-  [&] ([#] ([Xx][A-Fa-f0-9]{1,8}|[0-9]{1,8}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
-     { return (bufsize_t)(p - start); }
-  * { return 0; }
-*/
-}
-
 // Returns positive value if a URL begins in a way that is potentially
 // dangerous, with javascript:, vbscript:, file:, or data:, otherwise 0.
 bufsize_t _scan_dangerous_url(const unsigned char *p)

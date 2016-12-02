@@ -11,6 +11,7 @@
 #include "houdini.h"
 #include "utf8.h"
 #include "scanners.h"
+#include "entity.h"
 #include "inlines.h"
 
 #ifndef MIN
