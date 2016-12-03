@@ -867,8 +867,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     indented = parser->indent >= CODE_INDENT;
 
     if (!indented && peek_at(input, parser->first_nonspace) == '>') {
-
-      bufsize_t blockquote_startpos = parser->first_nonspace;
+      *container = add_child(parser, *container, CMARK_NODE_BLOCK_QUOTE,
+                             parser->first_nonspace + 1);
 
       S_advance_offset(parser, input,
                        parser->first_nonspace + 1 - parser->offset, false);
@@ -876,20 +876,17 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       if (S_is_space_or_tab(peek_at(input, parser->offset))) {
         S_advance_offset(parser, input, 1, true);
       }
-      *container = add_child(parser, *container, CMARK_NODE_BLOCK_QUOTE,
-                             blockquote_startpos + 1);
 
     } else if (!indented && (matched = scan_atx_heading_start(
                                  input, parser->first_nonspace))) {
       bufsize_t hashpos;
       int level = 0;
-      bufsize_t heading_startpos = parser->first_nonspace;
 
+      *container = add_child(parser, *container, CMARK_NODE_HEADING,
+                             parser->first_nonspace + 1);
       S_advance_offset(parser, input,
                        parser->first_nonspace + matched - parser->offset,
                        false);
-      *container = add_child(parser, *container, CMARK_NODE_HEADING,
-                             heading_startpos + 1);
 
       hashpos = cmark_chunk_strchr(input, '#', parser->first_nonspace);
 
@@ -936,9 +933,9 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
                (matched = scan_thematic_break(input, parser->first_nonspace))) {
       // it's only now that we know the line is not part of a setext heading:
+      S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
-      S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
@@ -946,7 +943,22 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       // Note that we can have new list items starting with >= 4
       // spaces indent, as long as the list container is still open.
+      cmark_node *list = NULL;
+      cmark_node *item = NULL;
       int i = 0;
+
+      if (cont_type != CMARK_NODE_LIST ||
+          !lists_match(&((*container)->as.list), data)) {
+        *container = add_child(parser, *container, CMARK_NODE_LIST,
+                               parser->first_nonspace + 1);
+        list = *container;
+
+      }
+
+      // add the list item
+      *container = add_child(parser, *container, CMARK_NODE_ITEM,
+                             parser->first_nonspace + 1);
+      item = *container;
 
       // compute padding:
       S_advance_offset(parser, input,
@@ -982,22 +994,14 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       data->marker_offset = parser->indent;
 
-      if (cont_type != CMARK_NODE_LIST ||
-          !lists_match(&((*container)->as.list), data)) {
-        *container = add_child(parser, *container, CMARK_NODE_LIST,
-                               parser->first_nonspace + 1);
-
-        memcpy(&((*container)->as.list), data, sizeof(*data));
-      }
-
-      // add the list item
-      *container = add_child(parser, *container, CMARK_NODE_ITEM,
-                             parser->first_nonspace + 1);
       /* TODO: static */
-      memcpy(&((*container)->as.list), data, sizeof(*data));
+      if (list)
+        memcpy(&(list->as.list), data, sizeof(*data));
+      if (item)
+        memcpy(&(item->as.list), data, sizeof(*data));
+
       parser->mem->free(data);
     } else if (indented && !maybe_lazy && !parser->blank) {
-      S_advance_offset(parser, input, CODE_INDENT, true);
       *container = add_child(parser, *container, CMARK_NODE_CODE_BLOCK,
                              parser->offset + 1);
       (*container)->as.code.fenced = false;
@@ -1006,6 +1010,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.code.fence_offset = 0;
       (*container)->as.code.info = cmark_chunk_literal("");
 
+      S_advance_offset(parser, input, CODE_INDENT, true);
     } else {
       break;
     }
