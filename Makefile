@@ -101,7 +101,7 @@ clean:
 
 # We include case_fold_switch.inc in the repository, so this shouldn't
 # normally need to be generated.
-$(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding-3.2.0.txt
+$(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding.txt
 	perl tools/mkcasefold.pl < $< > $@
 
 # We include scanners.c in the repository, so this shouldn't
