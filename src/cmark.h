@@ -2,6 +2,7 @@
 #define CMARK_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include <cmark_export.h>
 #include <cmark_version.h>
 
@@ -86,6 +87,7 @@ typedef enum {
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
+typedef struct cmark_source_extent cmark_source_extent;
 
 /**
  * ## Custom memory allocator support
@@ -477,6 +479,11 @@ void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
 
+/** Return a pointer to the first extent of the parser's source map
+ */
+CMARK_EXPORT
+cmark_source_extent *cmark_parser_get_first_source_extent(cmark_parser *parser);
+
 /** Parse a CommonMark document in 'buffer' of length 'len'.
  * Returns a pointer to a tree of nodes.  The memory allocated for
  * the node tree should be released using 'cmark_node_free'
@@ -491,6 +498,31 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
+
+/** 
+ * ## Source map API
+ */
+
+/* Return the index, in bytes, of the start of this extent */
+CMARK_EXPORT
+uint64_t cmark_source_extent_get_start(cmark_source_extent *extent);
+
+/* Return the index, in bytes, of the stop of this extent. This 
+ * index is not included in the extent*/
+CMARK_EXPORT
+uint64_t cmark_source_extent_get_stop(cmark_source_extent *extent);
+
+/* Return the extent immediately following 'extent' */
+CMARK_EXPORT
+cmark_source_extent *cmark_source_extent_get_next(cmark_source_extent *extent);
+
+/* Return the extent immediately preceding 'extent' */
+CMARK_EXPORT
+cmark_source_extent *cmark_source_extent_get_previous(cmark_source_extent *extent);
+
+/* Return the node 'extent' maps to */
+CMARK_EXPORT
+cmark_node *cmark_source_extent_get_node(cmark_source_extent *extent);
 
 /**
  * ## Rendering

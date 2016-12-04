@@ -13,6 +13,10 @@
 #include "scanners.h"
 #include "inlines.h"
 
+#ifndef MIN
+#define MIN(x, y) ((x < y) ? x : y)
+#endif
+
 static const char *EMDASH = "\xE2\x80\x94";
 static const char *ENDASH = "\xE2\x80\x93";
 static const char *ELLIPSES = "\xE2\x80\xA6";
@@ -39,6 +43,7 @@ typedef struct delimiter {
   unsigned char delim_char;
   bool can_open;
   bool can_close;
+  cmark_source_extent *extent;
 } delimiter;
 
 typedef struct bracket {
@@ -49,6 +54,7 @@ typedef struct bracket {
   bool image;
   bool active;
   bool bracket_after;
+  cmark_source_extent *extent;
 } bracket;
 
 typedef struct {
@@ -60,6 +66,7 @@ typedef struct {
   bracket *last_bracket;
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
+  cmark_source_map *source_map;
 } subject;
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -72,7 +79,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 static int parse_inline(subject *subj, cmark_node *parent, int options);
 
 static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
-                             cmark_reference_map *refmap);
+                             cmark_reference_map *refmap, cmark_source_map *source_map);
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
@@ -148,7 +155,7 @@ static CMARK_INLINE cmark_node *make_autolink(cmark_mem *mem, cmark_chunk url,
 }
 
 static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
-                             cmark_reference_map *refmap) {
+                             cmark_reference_map *refmap, cmark_source_map *source_map) {
   int i;
   e->mem = mem;
   e->input.data = buffer->ptr;
@@ -158,6 +165,8 @@ static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
   e->refmap = refmap;
   e->last_delim = NULL;
   e->last_bracket = NULL;
+  e->source_map = source_map;
+
   for (i=0; i <= MAXBACKTICKS; i++) {
     e->backticks[i] = 0;
   }
@@ -404,6 +413,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   if (delim->previous != NULL) {
     delim->previous->next = delim;
   }
+  delim->extent = NULL;
   subj->last_delim = delim;
 }
 
@@ -419,11 +429,12 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   b->previous_delimiter = subj->last_delim;
   b->position = subj->pos;
   b->bracket_after = false;
+  b->extent = NULL;
   subj->last_bracket = b;
 }
 
 // Assumes the subject has a c at the current position.
-static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart) {
+static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart, bool *pushed) {
   bufsize_t numdelims;
   cmark_node *inl_text;
   bool can_open, can_close;
@@ -444,6 +455,9 @@ static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart) {
 
   if ((can_open || can_close) && (!(c == '\'' || c == '"') || smart)) {
     push_delimiter(subj, c, can_open, can_close, inl_text);
+    *pushed = true;
+  } else {
+    *pushed = false;
   }
 
   return inl_text;
@@ -607,6 +621,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   bufsize_t opener_num_chars = opener_inl->as.literal.len;
   bufsize_t closer_num_chars = closer_inl->as.literal.len;
   cmark_node *tmp, *tmpnext, *emph;
+  cmark_source_extent *tmp_extent;
 
   // calculate the actual number of characters used from this closer
   if (closer_num_chars < 3 || opener_num_chars < 3) {
@@ -642,9 +657,18 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   }
   cmark_node_insert_after(opener_inl, emph);
 
+  tmp_extent = closer->extent->prev;
+
+  source_map_insert_extent(subj->source_map, opener->extent, opener->extent->stop - use_delims, opener->extent->stop, emph);
+  opener->extent->stop -= use_delims;
+
+  source_map_insert_extent(subj->source_map, tmp_extent, closer->extent->start, closer->extent->start + use_delims, emph);
+  closer->extent->start += use_delims;
+
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
     cmark_node_free(opener_inl);
+    source_map_free_extent(subj->source_map, opener->extent);
     remove_delimiter(subj, opener);
   }
 
@@ -654,6 +678,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
     cmark_node_free(closer_inl);
     // remove closer from list
     tmp_delim = closer->next;
+    source_map_free_extent(subj->source_map, closer->extent);
     remove_delimiter(subj, closer);
     closer = tmp_delim;
   }
@@ -876,6 +901,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   int found_label;
   cmark_node *tmp, *tmpnext;
   bool is_image;
+  bool is_inline = false;
 
   advance(subj); // advance past ]
   initial_pos = subj->pos;
@@ -926,6 +952,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
       title = cmark_clean_title(subj->mem, &title_chunk);
       cmark_chunk_free(subj->mem, &url_chunk);
       cmark_chunk_free(subj->mem, &title_chunk);
+      is_inline = true;
       goto match;
 
     } else {
@@ -977,6 +1004,25 @@ match:
   cmark_node_insert_before(opener->inl_text, inl);
   // Add link text:
   tmp = opener->inl_text->next;
+  assert(opener->extent);
+
+  opener->extent->node = inl;
+
+  source_map_splice_extent(subj->source_map, initial_pos - 1, initial_pos, inl);
+  if (is_inline) {
+    source_map_splice_extent(subj->source_map, after_link_text_pos, starturl, inl);
+    source_map_splice_extent(subj->source_map, starturl, endurl, inl);
+    if (endtitle != starttitle) {
+      source_map_splice_extent(subj->source_map, endurl, starttitle, inl);
+      source_map_splice_extent(subj->source_map, starttitle, endtitle, inl);
+      source_map_splice_extent(subj->source_map, endtitle, subj->pos, inl);
+    } else {
+      source_map_splice_extent(subj->source_map, endurl, subj->pos, inl);
+    }
+  } else {
+    source_map_splice_extent(subj->source_map, initial_pos, subj->pos, inl);
+  }
+
   while (tmp) {
     tmpnext = tmp->next;
     cmark_node_append_child(inl, tmp);
@@ -1080,6 +1126,10 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   cmark_chunk contents;
   unsigned char c;
   bufsize_t endpos;
+	bufsize_t startpos = subj->pos;
+  bool add_extent_to_last_bracket = false;
+  bool add_extent_to_last_delimiter = false;
+
   c = peek_char(subj);
   if (c == 0) {
     return 0;
@@ -1105,7 +1155,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   case '_':
   case '\'':
   case '"':
-    new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0);
+    new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0, &add_extent_to_last_delimiter);
     break;
   case '-':
     new_inl = handle_hyphen(subj, (options & CMARK_OPT_SMART) != 0);
@@ -1117,6 +1167,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     advance(subj);
     new_inl = make_str(subj->mem, cmark_chunk_literal("["));
     push_bracket(subj, false, new_inl);
+    add_extent_to_last_bracket = true;
     break;
   case ']':
     new_inl = handle_close_bracket(subj);
@@ -1127,6 +1178,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
       advance(subj);
       new_inl = make_str(subj->mem, cmark_chunk_literal("!["));
       push_bracket(subj, true, new_inl);
+      add_extent_to_last_bracket = true;
     } else {
       new_inl = make_str(subj->mem, cmark_chunk_literal("!"));
     }
@@ -1143,7 +1195,17 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 
     new_inl = make_str(subj->mem, contents);
   }
+
   if (new_inl != NULL) {
+    cmark_source_extent *extent;
+
+    extent = source_map_splice_extent(subj->source_map, startpos, subj->pos, new_inl);
+
+    if (add_extent_to_last_bracket)
+      subj->last_bracket->extent = extent;
+    else if (add_extent_to_last_delimiter)
+      subj->last_delim->extent = extent;
+
     cmark_node_append_child(parent, new_inl);
   }
 
@@ -1152,9 +1214,11 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 
 // Parse inlines from parent's string_content, adding as children of parent.
 extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
-                                cmark_reference_map *refmap, int options) {
+                                cmark_reference_map *refmap, int options,
+                                cmark_source_map *source_map, uint64_t total_length) {
   subject subj;
-  subject_from_buf(mem, &subj, &parent->content, refmap);
+  subject_from_buf(mem, &subj, &parent->content, refmap, source_map);
+  bufsize_t initial_len = subj.input.len;
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))
@@ -1168,6 +1232,12 @@ extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
   while (subj.last_bracket) {
     pop_bracket(&subj);
   }
+
+  source_map_insert_extent(source_map,
+                           source_map->cursor,
+                           source_map->cursor->stop,
+                           MIN(source_map->cursor->stop + initial_len - subj.input.len, total_length),
+                           parent);
 }
 
 // Parse zero or more space characters, including at most one newline.
@@ -1183,8 +1253,12 @@ static void spnl(subject *subj) {
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
 bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
-                                       cmark_reference_map *refmap) {
+                                       cmark_reference_map *refmap,
+                                       cmark_node *root,
+                                       cmark_source_map *source_map) {
   subject subj;
+  cmark_node *container = source_map->cursor->node;
+  cmark_source_extent *tmp_extent = source_map->cursor;
 
   cmark_chunk lab;
   cmark_chunk url;
@@ -1193,7 +1267,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   bufsize_t matchlen = 0;
   bufsize_t beforetitle;
 
-  subject_from_buf(mem, &subj, input, NULL);
+  subject_from_buf(mem, &subj, input, NULL, source_map);
 
   // parse label:
   if (!link_label(&subj, &lab) || lab.len == 0)
@@ -1243,5 +1317,14 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   }
   // insert reference into refmap
   cmark_reference_create(refmap, &lab, &url, &title);
+
+  // Mark the extent of the reference
+  source_map_splice_extent(source_map, 0, subj.pos, root);
+  while (tmp_extent != source_map->cursor) {
+    if (tmp_extent->node == container)
+      tmp_extent->node = root;
+    tmp_extent = tmp_extent->next;
+  }
+
   return subj.pos;
 }
