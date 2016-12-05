@@ -113,7 +113,7 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 		false; \
 		;; \
 	esac
-	re2c --case-insensitive -b -i --no-generation-date -8 \
+	re2c -W -Werror --case-insensitive -b -i --no-generation-date -8 \
 		--encoding-policy substitute -o $@ $<
 	$(CLANG_FORMAT) $@
 
