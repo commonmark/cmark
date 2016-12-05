@@ -41,9 +41,9 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 
   attributename = [a-zA-Z_:][a-zA-Z0-9:._-]*;
 
-  unquotedvalue = [^\"'=<>`\x00]+;
+  unquotedvalue = [^"'=<>`\x00]+;
   singlequotedvalue = ['][^'\x00]*['];
-  doublequotedvalue = [\"][^\"\x00]*[\"];
+  doublequotedvalue = ["][^"\x00]*["];
 
   attributevalue = unquotedvalue | singlequotedvalue | doublequotedvalue;
 
