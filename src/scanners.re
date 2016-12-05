@@ -81,7 +81,7 @@ bufsize_t _scan_scheme(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   scheme [:] { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -92,7 +92,7 @@ bufsize_t _scan_autolink_uri(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   scheme [:][^\x00-\x20<>]*[>]  { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -107,7 +107,7 @@ bufsize_t _scan_autolink_email(const unsigned char *p)
     [a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?
     ([.][a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*
     [>] { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -118,7 +118,7 @@ bufsize_t _scan_html_tag(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   htmltag { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -135,7 +135,7 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
   '<!' [A-Z] { return 4; }
   '<![CDATA[' { return 5; }
   [<] [/]? blocktagname (spacechar | [/]? [>])  { return 6; }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -146,7 +146,7 @@ bufsize_t _scan_html_block_start_7(const unsigned char *p)
   const unsigned char *marker = NULL;
 /*!re2c
   [<] (opentag | closetag) [\t\n\f ]* [\r\n] { return 7; }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -157,7 +157,7 @@ bufsize_t _scan_html_block_end_1(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   .* [<] [/] ('script'|'pre'|'style') [>] { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -168,7 +168,7 @@ bufsize_t _scan_html_block_end_2(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   .* '-->' { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -179,7 +179,7 @@ bufsize_t _scan_html_block_end_3(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   .* '?>' { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -190,7 +190,7 @@ bufsize_t _scan_html_block_end_4(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   .* '>' { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -201,7 +201,7 @@ bufsize_t _scan_html_block_end_5(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   .* ']]>' { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -216,18 +216,17 @@ bufsize_t _scan_link_title(const unsigned char *p)
   ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
   ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
   [(] (escaped_char|[^)\x00])* [)]  { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
 // Match space characters, including newlines.
 bufsize_t _scan_spacechars(const unsigned char *p)
 {
-  const unsigned char *marker = NULL;
   const unsigned char *start = p; \
 /*!re2c
-  [ \t\v\f\r\n]* { return (bufsize_t)(p - start); }
-  . { return 0; }
+  [ \t\v\f\r\n]+ { return (bufsize_t)(p - start); }
+  * { return 0; }
 */
 }
 
@@ -238,7 +237,7 @@ bufsize_t _scan_atx_heading_start(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   [#]{1,6} ([ \t]+|[\r\n])  { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -250,7 +249,7 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p)
 /*!re2c
   [=]+ [ \t]* [\r\n] { return 1; }
   [-]+ [ \t]* [\r\n] { return 2; }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -265,7 +264,7 @@ bufsize_t _scan_thematic_break(const unsigned char *p)
   ([*][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
   ([_][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
   ([-][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -277,7 +276,7 @@ bufsize_t _scan_open_code_fence(const unsigned char *p)
 /*!re2c
   [`]{3,} / [^`\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
   [~]{3,} / [^~\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
-  .?                        { return 0; }
+  * { return 0; }
 */
 }
 
@@ -289,7 +288,7 @@ bufsize_t _scan_close_code_fence(const unsigned char *p)
 /*!re2c
   [`]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
   [~]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -302,7 +301,7 @@ bufsize_t _scan_entity(const unsigned char *p)
 /*!re2c
   [&] ([#] ([Xx][A-Fa-f0-9]{1,8}|[0-9]{1,8}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
      { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
@@ -315,7 +314,7 @@ bufsize_t _scan_dangerous_url(const unsigned char *p)
 /*!re2c
   'data:image/' ('png'|'gif'|'jpeg'|'webp') { return 0; }
   'javascript:' | 'vbscript:' | 'file:' | 'data:' { return (bufsize_t)(p - start); }
-  .? { return 0; }
+  * { return 0; }
 */
 }
 
