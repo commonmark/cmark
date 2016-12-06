@@ -9,6 +9,7 @@ SITE=_site
 SPECVERSION=$(shell perl -ne 'print $$1 if /^version: *([0-9.]+)/' $(SPEC))
 FUZZCHARS?=2000000  # for fuzztest
 BENCHDIR=bench
+BENCHSAMPLES=$(wildcard $(BENCHDIR)/samples/*.md)
 BENCHFILE=$(BENCHDIR)/benchinput.md
 ALLTESTS=alltests.md
 NUMRUNS?=10
@@ -21,7 +22,7 @@ CLANG_CHECK?=clang-check
 CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
 AFL_PATH?=/usr/local/bin
 
-.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive bench format update-spec afl clang-check
+.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check
 
 all: cmake_build man/man3/cmark.3
 
@@ -165,6 +166,17 @@ bench: $(BENCHFILE)
 		/usr/bin/env time -p $(PROG) $< >/dev/null ; \
 		done \
 	} 2>&1  | grep 'real' | awk '{print $$2}' | python3 'bench/stats.py'
+
+newbench:
+	for f in $(BENCHSAMPLES) ; do \
+	  printf "%26s  " `basename $$f` ; \
+	  { for x in `seq 1 $(NUMRUNS)` ; do \
+		/usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
+		for x in `seq 1 200` ; do cat $$f ; done | \
+		  /usr/bin/env time -p $(PROG) > /dev/null; \
+		done \
+	  } 2>&1  | grep 'real' | awk '{print $$2}' | \
+	    python3 'bench/stats.py'; done
 
 format:
 	$(CLANG_FORMAT) src/*.c src/*.h api_test/*.c api_test/*.h

@@ -100,6 +100,10 @@ To run a benchmark:
 
     make bench
 
+For more detailed benchmarks:
+
+    make newbench
+
 To run a test for memory leaks using `valgrind`:
 
     make leakcheck
