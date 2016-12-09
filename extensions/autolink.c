@@ -75,7 +75,7 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
     } else if (copen != 0) {
       size_t closing = 0;
       size_t opening = 0;
-      size_t i = 0;
+      i = 0;
 
       /* Try to close the final punctuation sign in this same line;
        * if we managed to close it outside of the URL, that means that it's
@@ -176,18 +176,19 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   if (link_end == 0)
     return NULL;
 
-  cmark_inline_parser_set_offset(inline_parser, max_rewind + link_end);
+  cmark_inline_parser_set_offset(inline_parser, (int)(max_rewind + link_end));
 
   cmark_node *node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
 
   cmark_strbuf buf;
   cmark_strbuf_init(parser->mem, &buf, 10);
   cmark_strbuf_puts(&buf, "http://");
-  cmark_strbuf_put(&buf, data, link_end);
+  cmark_strbuf_put(&buf, data, (bufsize_t)link_end);
   node->as.link.url = cmark_chunk_buf_detach(&buf);
 
   cmark_node *text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  text->as.literal = cmark_chunk_dup(chunk, max_rewind, link_end);
+  text->as.literal =
+      cmark_chunk_dup(chunk, (bufsize_t)max_rewind, (bufsize_t)link_end);
   cmark_node_append_child(node, text);
 
   return node;
@@ -195,11 +196,12 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
 
 static cmark_node *email_match(cmark_parser *parser, cmark_node *parent,
                                cmark_inline_parser *inline_parser) {
-  size_t link_end, rewind;
+  size_t link_end;
+  int rewind;
   int nb = 0, np = 0, ns = 0;
 
   cmark_chunk *chunk = cmark_inline_parser_get_chunk(inline_parser);
-  size_t max_rewind = cmark_inline_parser_get_offset(inline_parser);
+  int max_rewind = cmark_inline_parser_get_offset(inline_parser);
   uint8_t *data = chunk->data + max_rewind;
   size_t size = chunk->len - max_rewind;
 
@@ -244,7 +246,7 @@ static cmark_node *email_match(cmark_parser *parser, cmark_node *parent,
   if (link_end == 0)
     return NULL;
 
-  cmark_inline_parser_set_offset(inline_parser, max_rewind + link_end);
+  cmark_inline_parser_set_offset(inline_parser, (int)(max_rewind + link_end));
   cmark_node_unput(parent, rewind);
 
   cmark_node *node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
@@ -252,12 +254,12 @@ static cmark_node *email_match(cmark_parser *parser, cmark_node *parent,
   cmark_strbuf buf;
   cmark_strbuf_init(parser->mem, &buf, 10);
   cmark_strbuf_puts(&buf, "mailto:");
-  cmark_strbuf_put(&buf, data - rewind, link_end + rewind);
+  cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
   node->as.link.url = cmark_chunk_buf_detach(&buf);
 
   cmark_node *text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  text->as.literal =
-      cmark_chunk_dup(chunk, max_rewind - rewind, link_end + rewind);
+  text->as.literal = cmark_chunk_dup(chunk, max_rewind - rewind,
+                                     (bufsize_t)(link_end + rewind));
   cmark_node_append_child(node, text);
 
   return node;
@@ -265,10 +267,11 @@ static cmark_node *email_match(cmark_parser *parser, cmark_node *parent,
 
 static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
                              cmark_inline_parser *inline_parser) {
-  size_t link_end, rewind = 0, domain_len;
+  size_t link_end, domain_len;
+  int rewind = 0;
 
   cmark_chunk *chunk = cmark_inline_parser_get_chunk(inline_parser);
-  size_t max_rewind = cmark_inline_parser_get_offset(inline_parser);
+  int max_rewind = cmark_inline_parser_get_offset(inline_parser);
   uint8_t *data = chunk->data + max_rewind;
   size_t size = chunk->len - max_rewind;
 
@@ -297,13 +300,13 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
   if (link_end == 0)
     return NULL;
 
-  cmark_inline_parser_set_offset(inline_parser, max_rewind + link_end);
+  cmark_inline_parser_set_offset(inline_parser, (int)(max_rewind + link_end));
   cmark_node_unput(parent, rewind);
 
   cmark_node *node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
 
-  cmark_chunk url =
-      cmark_chunk_dup(chunk, max_rewind - rewind, link_end + rewind);
+  cmark_chunk url = cmark_chunk_dup(chunk, max_rewind - rewind,
+                                    (bufsize_t)(link_end + rewind));
   node->as.link.url = url;
 
   cmark_node *text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
