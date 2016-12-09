@@ -20,7 +20,7 @@ static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
 
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                   cmark_escaping escape) {
-  int length = strlen(source);
+  int length = (int)strlen(source);
   unsigned char nextc;
   int32_t c;
   int i = 0;
@@ -95,12 +95,12 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       // we need to escape a potential list marker after
       // a digit:
       renderer->begin_content =
-          renderer->begin_content && cmark_isdigit(c) == 1;
+          renderer->begin_content && cmark_isdigit((char)c) == 1;
     } else {
       (renderer->outc)(renderer, escape, c, nextc);
       renderer->begin_line = false;
       renderer->begin_content =
-          renderer->begin_content && cmark_isdigit(c) == 1;
+          renderer->begin_content && cmark_isdigit((char)c) == 1;
     }
 
     // If adding the character went beyond width, look for an

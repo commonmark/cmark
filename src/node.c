@@ -15,7 +15,7 @@ bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
     }
 
   if (node->extension && node->extension->can_contain_func) {
-    return node->extension->can_contain_func(node->extension, node, child_type);
+    return node->extension->can_contain_func(node->extension, node, child_type) != 0;
   }
 
   switch (node->type) {
@@ -168,18 +168,18 @@ int cmark_node_set_type(cmark_node * node, cmark_node_type type) {
     return 1;
 
   initial_type = (cmark_node_type) node->type;
-  node->type = type;
+  node->type = (uint16_t)type;
 
   if (!S_can_contain(node->parent, node)) {
-    node->type = initial_type;
+    node->type = (uint16_t)initial_type;
     return 0;
   }
 
   /* We rollback the type to free the union members appropriately */
-  node->type = initial_type;
+  node->type = (uint16_t)initial_type;
   free_node_as(node);
 
-  node->type = type;
+  node->type = (uint16_t)type;
 
   return 1;
 }
@@ -549,9 +549,9 @@ int cmark_node_set_fenced(cmark_node * node, int fenced,
   }
 
   if (node->type == CMARK_NODE_CODE_BLOCK) {
-    node->as.code.fenced = fenced;
-    node->as.code.fence_length = length;
-    node->as.code.fence_offset = offset;
+    node->as.code.fenced = (int8_t)fenced;
+    node->as.code.fence_length = (uint8_t)length;
+    node->as.code.fence_offset = (uint8_t)offset;
     node->as.code.fence_char = character;
     return 1;
   } else {

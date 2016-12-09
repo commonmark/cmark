@@ -181,7 +181,7 @@ static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
 
 static CMARK_INLINE bool contains_inlines(cmark_node *node) {
   if (node->extension && node->extension->contains_inlines_func) {
-    return node->extension->contains_inlines_func(node->extension, node);
+    return node->extension->contains_inlines_func(node->extension, node) != 0;
   }
 
   return (node->type == CMARK_NODE_PARAGRAPH ||
@@ -392,7 +392,7 @@ void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add) 
     cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp_ext->data;
     cmark_llist *tmp_char;
     for (tmp_char = ext->special_inline_chars; tmp_char; tmp_char=tmp_char->next) {
-      unsigned char c = (unsigned char) (unsigned long) tmp_char->data;
+      unsigned char c = (unsigned char)(size_t)tmp_char->data;
       if (add)
         cmark_inlines_add_special_character(c);
       else
@@ -607,7 +607,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
-    chunk_len = (eol - buffer);
+    chunk_len = (bufsize_t)(eol - buffer);
     if (process) {
       if (parser->linebuf.size > 0) {
         cmark_strbuf_put(&parser->linebuf, buffer, chunk_len);
@@ -987,7 +987,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       (*container)->as.code.fenced = true;
       (*container)->as.code.fence_char = peek_at(input, parser->first_nonspace);
-      (*container)->as.code.fence_length = (matched > 255) ? 255 : matched;
+      (*container)->as.code.fence_length = (matched > 255) ? 255 : (uint8_t)matched;
       (*container)->as.code.fence_offset =
           (int8_t)(parser->first_nonspace - parser->offset);
       (*container)->as.code.info = cmark_chunk_literal("");
@@ -1383,5 +1383,5 @@ void cmark_parser_advance_offset(cmark_parser *parser,
                                  int columns) {
   cmark_chunk input_chunk = cmark_chunk_literal(input);
 
-  S_advance_offset(parser, &input_chunk, count, columns);
+  S_advance_offset(parser, &input_chunk, count, columns != 0);
 }

@@ -479,7 +479,7 @@ static void test_content(test_batch_runner *runner, cmark_node_type type,
     int expected = 0;
     if (allowed_content)
         for (unsigned int *p = allowed_content; *p; ++p)
-            expected |= *p == child_type;
+            expected |= *p == (unsigned int)child_type;
 
     INT_EQ(runner, got, expected, "add %d as child of %d", child_type, type);
 
