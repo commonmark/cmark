@@ -30,18 +30,18 @@ typedef enum {
 typedef struct { bool is_header; } node_table_row;
 
 static void free_node_table(cmark_mem *mem, void *ptr) {
-  node_table *t = ptr;
+  node_table *t = (node_table *)ptr;
   mem->free(t->alignments);
   mem->free(t);
 }
 
 static void free_node_table_row(cmark_mem *mem, void *ptr) { mem->free(ptr); }
 
-static uint16_t get_n_table_columns(cmark_node *node) {
+static int get_n_table_columns(cmark_node *node) {
   if (!node || node->type != CMARK_NODE_TABLE)
     return -1;
 
-  return ((node_table *)node->user_data)->n_columns;
+  return (int)((node_table *)node->user_data)->n_columns;
 }
 
 static int set_n_table_columns(cmark_node *node, uint16_t n_columns) {
@@ -71,7 +71,7 @@ static int is_table_header(cmark_node *node, int is_table_header) {
   if (!node || node->type != CMARK_NODE_TABLE_ROW)
     return 0;
 
-  ((node_table_row *)node->user_data)->is_header = is_table_header;
+  ((node_table_row *)node->user_data)->is_header = (is_table_header != 0);
   return 1;
 }
 
@@ -159,7 +159,7 @@ static cmark_node *consume_until_pipe_or_eol(cmark_syntax_extension *self,
                                             (*n)->as.literal.len - *offset);
         cmark_node_own(child);
       } else {
-        int len = pipe - cstr - *offset;
+        int len = (int)(pipe - cstr - *offset);
         child->as.literal = cmark_chunk_dup(&(*n)->as.literal, *offset, len);
         cmark_node_own(child);
         *offset += len + 1;
@@ -245,7 +245,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   parent_string = cmark_node_get_string_content(parent_container);
 
   header_row = row_from_string(self, parser, (unsigned char *)parent_string,
-                               strlen(parent_string));
+                               (int)strlen(parent_string));
 
   if (!header_row) {
     goto done;
@@ -274,10 +274,10 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   set_n_table_columns(parent_container, header_row->n_columns);
 
   uint8_t *alignments =
-      parser->mem->calloc(header_row->n_columns, sizeof(uint8_t));
+      (uint8_t *)parser->mem->calloc(header_row->n_columns, sizeof(uint8_t));
   cmark_llist *it = marker_row->cells;
   for (i = 0; it; it = it->next, ++i) {
-    cmark_node *node = it->data;
+    cmark_node *node = (cmark_node *)it->data;
     assert(node->type == CMARK_NODE_TABLE_CELL);
 
     cmark_strbuf strbuf;
@@ -315,7 +315,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     cmark_llist *tmp, *next;
 
     for (tmp = header_row->cells; tmp; tmp = next) {
-      cmark_node *header_cell = tmp->data;
+      cmark_node *header_cell = (cmark_node *)tmp->data;
       cmark_node_append_child(table_header, header_cell);
       next = header_row->cells = tmp->next;
       parser->mem->free(tmp);
@@ -324,7 +324,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
 
   cmark_parser_advance_offset(
       parser, (char *)input,
-      strlen((char *)input) - 1 - cmark_parser_get_offset(parser), false);
+      (int)strlen((char *)input) - 1 - cmark_parser_get_offset(parser), false);
 done:
   free_table_row(parser->mem, header_row);
   free_table_row(parser->mem, marker_row);
@@ -362,7 +362,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
     int table_columns = get_n_table_columns(parent_container);
 
     for (tmp = row->cells, i = 0; tmp && i < table_columns; tmp = next, ++i) {
-      cmark_node *cell = tmp->data;
+      cmark_node *cell = (cmark_node *)tmp->data;
       assert(cell->type == CMARK_NODE_TABLE_CELL);
       cmark_node_append_child(table_row_block, cell);
       row->cells = next = tmp->next;

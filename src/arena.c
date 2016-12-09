@@ -10,7 +10,7 @@ static struct arena_chunk {
 } *A = NULL;
 
 static struct arena_chunk *alloc_arena_chunk(size_t sz, struct arena_chunk *prev) {
-  struct arena_chunk *c = calloc(1, sizeof(*c));
+  struct arena_chunk *c = (struct arena_chunk *)calloc(1, sizeof(*c));
   if (!c)
     abort();
   c->sz = sz;

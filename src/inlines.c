@@ -72,7 +72,7 @@ static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t,
                                              cmark_chunk s) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
-  e->type = t;
+  e->type = (uint16_t)t;
   e->as.literal = s;
   return e;
 }
@@ -81,7 +81,7 @@ static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t,
 static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
-  e->type = t;
+  e->type = (uint16_t)t;
   return e;
 }
 
@@ -508,7 +508,7 @@ static cmark_syntax_extension *get_extension_for_special_char(cmark_parser *pars
     cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp_ext->data;
     cmark_llist *tmp_char;
     for (tmp_char = ext->special_inline_chars; tmp_char; tmp_char=tmp_char->next) {
-      unsigned char tmp_c = (unsigned char) (unsigned long) tmp_char->data;
+      unsigned char tmp_c = (unsigned char)(size_t)tmp_char->data;
 
       if (tmp_c == c) {
         return ext;
@@ -1338,7 +1338,7 @@ void cmark_inline_parser_push_delimiter(cmark_inline_parser *parser,
                                   int can_open,
                                   int can_close,
                                   cmark_node *inl_text) {
-  push_delimiter(parser, c, can_open, can_close, inl_text);
+  push_delimiter(parser, c, can_open != 0, can_close != 0, inl_text);
 }
 
 void cmark_inline_parser_remove_delimiter(cmark_inline_parser *parser, delimiter *delim) {
@@ -1387,8 +1387,8 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
 
   *punct_before = cmark_utf8proc_is_punctuation(before_char);
   *punct_after = cmark_utf8proc_is_punctuation(after_char);
-  space_before = cmark_utf8proc_is_space(before_char);
-  space_after = cmark_utf8proc_is_space(after_char);
+  space_before = cmark_utf8proc_is_space(before_char) != 0;
+  space_after = cmark_utf8proc_is_space(after_char) != 0;
 
   *left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
                   !(*punct_after && !space_before && !*punct_before);
@@ -1416,7 +1416,7 @@ cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser) {
 
 int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image) {
   for (bracket *b = parser->last_bracket; b; b = b->previous)
-    if (b->active && b->image == image)
+    if (b->active && b->image == (image != 0))
       return 1;
   return 0;
 }

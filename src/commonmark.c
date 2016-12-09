@@ -42,13 +42,13 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
           (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL &&
-        (c == '`' || c == '<' || c == '>' || cmark_isspace(c) || c == '\\' ||
+        (c == '`' || c == '<' || c == '>' || cmark_isspace((char)c) || c == '\\' ||
          c == ')' || c == '(')) ||
        (escape == TITLE &&
         (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
 
   if (needs_escaping) {
-    if (cmark_isspace(c)) {
+    if (cmark_isspace((char)c)) {
       // use percent encoding for spaces
       snprintf(encoded, ENCODED_SIZE, "%%%2x", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
@@ -236,7 +236,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
                list_delim == CMARK_PAREN_DELIM ? ")" : ".",
                list_number < 10 ? "  " : " ");
-      marker_width = strlen(listmarker);
+      marker_width = (bufsize_t)strlen(listmarker);
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {

@@ -30,7 +30,7 @@ static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size
       break;
 
     if (match != data) {
-      cmark_strbuf_put(html, data, match - data);
+      cmark_strbuf_put(html, data, (bufsize_t)(match - data));
       len -= (match - data);
       data = match;
     }
@@ -55,7 +55,7 @@ static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size
   }
 
   if (len)
-    cmark_strbuf_put(html, data, len);
+    cmark_strbuf_put(html, data, (bufsize_t)len);
 }
 
 static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
