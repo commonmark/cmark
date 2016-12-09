@@ -1157,6 +1157,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   input.data = parser->curline.ptr;
   input.len = parser->curline.size;
+  input.alloc = 0;
 
   parser->line_number++;
 
