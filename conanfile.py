@@ -2,12 +2,11 @@ from conans import ConanFile, CMake
 
 import os
 
-
 class CMark(ConanFile):
     name = 'cmark'
     url = 'https://github.com/sztomi/cmark'
     settings = 'os', 'compiler', 'build_type', 'arch'
-    license = 'MIT'
+    license = 'BSD2'
     version = '0.27.1'
     exports = '*'
     generators = 'cmake'
