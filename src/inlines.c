@@ -673,11 +673,11 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 }
 
 // Parse backslash-escape or just a backslash, returning an inline.
-static cmark_node *handle_backslash(subject *subj) {
+static cmark_node *handle_backslash(cmark_parser *parser, subject *subj) {
   advance(subj);
   unsigned char nextchar = peek_char(subj);
-  if (cmark_ispunct(
-          nextchar)) { // only ascii symbols and newline can be escaped
+  if ((parser->backslash_ispunct ? parser->backslash_ispunct : cmark_ispunct)(nextchar)) {
+    // only ascii symbols and newline can be escaped
     advance(subj);
     return make_str(subj->mem, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
   } else if (!is_eof(subj) && skip_line_end(subj)) {
@@ -1132,7 +1132,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_backticks(subj);
     break;
   case '\\':
-    new_inl = handle_backslash(subj);
+    new_inl = handle_backslash(parser, subj);
     break;
   case '&':
     new_inl = handle_entity(subj);

@@ -47,6 +47,7 @@ struct cmark_parser {
   bool last_buffer_ended_with_cr;
   cmark_llist *syntax_extensions;
   cmark_llist *inline_syntax_extensions;
+  cmark_ispunct_func backslash_ispunct;
 };
 
 #ifdef __cplusplus
