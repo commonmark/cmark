@@ -247,6 +247,8 @@ typedef int (*cmark_html_filter_func) (cmark_syntax_extension *extension,
 typedef cmark_node *(*cmark_postprocess_func) (cmark_syntax_extension *extension,
                                                cmark_node *root);
 
+typedef int (*cmark_ispunct_func) (char c);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
@@ -350,6 +352,12 @@ void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
 CMARK_EXPORT
 void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
                                                  cmark_postprocess_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_parser_set_backslash_ispunct_func(cmark_parser *extension,
+                                             cmark_ispunct_func func);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
