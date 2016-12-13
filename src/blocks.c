@@ -1385,3 +1385,8 @@ void cmark_parser_advance_offset(cmark_parser *parser,
 
   S_advance_offset(parser, &input_chunk, count, columns != 0);
 }
+
+void cmark_parser_set_backslash_ispunct_func(cmark_parser *parser,
+                                             cmark_ispunct_func func) {
+  parser->backslash_ispunct = func;
+}

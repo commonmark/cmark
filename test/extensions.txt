@@ -19,18 +19,18 @@ Here's a well-formed table, doing everything it should.
 <table>
 <thead>
 <tr>
-<th> abc </th>
-<th> def </th>
+<th>abc</th>
+<th>def</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> ghi </td>
-<td> jkl </td>
+<td>ghi</td>
+<td>jkl</td>
 </tr>
 <tr>
-<td> mno </td>
-<td> pqr </td>
+<td>mno</td>
+<td>pqr</td>
 </tr></tbody></table>
 ````````````````````````````````
 
@@ -52,18 +52,18 @@ Hi!
 <table>
 <thead>
 <tr>
-<th> <em>abc</em> </th>
-<th> セン </th>
+<th><em>abc</em></th>
+<th>セン</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> 1. Block elements inside cells don't work. </td>
-<td> </td>
+<td>1. Block elements inside cells don't work.</td>
+<td></td>
 </tr>
 <tr>
-<td> But <strong><em>inline elements do</em></strong>. </td>
-<td> x </td>
+<td>But <strong><em>inline elements do</em></strong>.</td>
+<td>x</td>
 </tr></tbody></table>
 <p>Hi!</p>
 ````````````````````````````````
@@ -93,8 +93,8 @@ Here we demonstrate some edge cases about what is and isn't a table.
 <table>
 <thead>
 <tr>
-<th> Just enough table </th>
-<th> to be considered table </th>
+<th>Just enough table</th>
+<th>to be considered table</th>
 </tr>
 </thead>
 <tbody></tbody></table>
@@ -109,7 +109,7 @@ Here we demonstrate some edge cases about what is and isn't a table.
 <table>
 <thead>
 <tr>
-<th> xyz </th>
+<th>xyz</th>
 </tr>
 </thead>
 <tbody></tbody></table>
@@ -125,14 +125,14 @@ xyz | ghi
 <table>
 <thead>
 <tr>
-<th>abc </th>
-<th> def</th>
+<th>abc</th>
+<th>def</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>xyz </td>
-<td> ghi</td>
+<td>xyz</td>
+<td>ghi</td>
 </tr></tbody></table>
 ````````````````````````````````
 
@@ -153,18 +153,18 @@ Hi!
 <table>
 <thead>
 <tr>
-<th> <em>abc</em> </th>
-<th> セン </th>
+<th><em>abc</em></th>
+<th>セン</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> this row has a space at the end </td>
-<td> </td>
+<td>this row has a space at the end</td>
+<td></td>
 </tr>
 <tr>
-<td> But <strong><em>inline elements do</em></strong>. </td>
-<td> x </td>
+<td>But <strong><em>inline elements do</em></strong>.</td>
+<td>x</td>
 </tr></tbody></table>
 <p>Hi!</p>
 ````````````````````````````````
@@ -179,20 +179,20 @@ fff | ggg | hhh | iii | jjj
 <table>
 <thead>
 <tr>
-<th align="left">aaa </th>
-<th> bbb </th>
-<th align="center"> ccc </th>
-<th> ddd </th>
-<th align="right"> eee</th>
+<th align="left">aaa</th>
+<th>bbb</th>
+<th align="center">ccc</th>
+<th>ddd</th>
+<th align="right">eee</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">fff </td>
-<td> ggg </td>
-<td align="center"> hhh </td>
-<td> iii </td>
-<td align="right"> jjj</td>
+<td align="left">fff</td>
+<td>ggg</td>
+<td align="center">hhh</td>
+<td>iii</td>
+<td align="right">jjj</td>
 </tr></tbody></table>
 ````````````````````````````````
 
@@ -223,26 +223,26 @@ than the header are truncated.
 <table>
 <thead>
 <tr>
-<th> a </th>
-<th> b </th>
-<th> c </th>
+<th>a</th>
+<th>b</th>
+<th>c</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> x</td>
+<td>x</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
-<td> a </td>
-<td> b</td>
+<td>a</td>
+<td>b</td>
 <td></td>
 </tr>
 <tr>
-<td> 1 </td>
-<td> 2 </td>
-<td> 3 </td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
 </tr></tbody></table>
 ````````````````````````````````
 
@@ -261,25 +261,25 @@ Tables with embedded pipes could be tricky.
 <table>
 <thead>
 <tr>
-<th> a </th>
-<th> b </th>
+<th>a</th>
+<th>b</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> Escaped pipes are |okay|. </td>
-<td> Like | this. </td>
+<td>Escaped pipes are |okay|.</td>
+<td>Like | this.</td>
 </tr>
 <tr>
-<td> Within <code>|code| is okay</code> too. </td>
+<td>Within <code>|code| is okay</code> too.</td>
 <td></td>
 </tr>
 <tr>
-<td> <strong><em><code>c|</code></em></strong> | complex</td>
+<td><strong><em><code>c|</code></em></strong> | complex</td>
 <td></td>
 </tr>
 <tr>
-<td> don't <strong>_reparse_</strong></td>
+<td>don't <strong>_reparse_</strong></td>
 <td></td>
 </tr></tbody></table>
 ````````````````````````````````
@@ -295,7 +295,7 @@ This shouldn't assert.
 <table>
 <thead>
 <tr>
-<th> a </th>
+<th>a</th>
 </tr>
 </thead>
 <tbody></tbody></table>
@@ -304,36 +304,57 @@ This shouldn't assert.
 ### Escaping
 
 ```````````````````````````````` example
-| a |
-| --- |
-| \\ |
-| \\\\ |
-| \_ |
-| \| |
-| \a |
+| a | b |
+| --- | --- |
+| \\ | `\\` |
+| \\\\ | `\\\\` |
+| \_ | `\_` |
+| \| | `\|` |
+| \a | `\a` |
+
+\\ `\\`
+
+\\\\ `\\\\`
+
+\_ `\_`
+
+\| `\|`
+
+\a `\a`
 .
 <table>
 <thead>
 <tr>
-<th> a </th>
+<th>a</th>
+<th>b</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> \ </td>
+<td>\</td>
+<td><code>\\</code></td>
 </tr>
 <tr>
-<td> \\ </td>
+<td>\\</td>
+<td><code>\\\\</code></td>
 </tr>
 <tr>
-<td> _ </td>
+<td>_</td>
+<td><code>\_</code></td>
 </tr>
 <tr>
-<td> | </td>
+<td>|</td>
+<td><code>\|</code></td>
 </tr>
 <tr>
-<td> a </td>
+<td>\a</td>
+<td><code>\a</code></td>
 </tr></tbody></table>
+<p>\ <code>\\</code></p>
+<p>\\ <code>\\\\</code></p>
+<p>_ <code>\_</code></p>
+<p>| <code>\|</code></p>
+<p>\a <code>\a</code></p>
 ````````````````````````````````
 
 ### Embedded HTML
@@ -347,15 +368,15 @@ This shouldn't assert.
 <table>
 <thead>
 <tr>
-<th> a </th>
+<th>a</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> <strong>hello</strong> </td>
+<td><strong>hello</strong></td>
 </tr>
 <tr>
-<td> ok <br> sure </td>
+<td>ok <br> sure</td>
 </tr></tbody></table>
 ````````````````````````````````
 
@@ -491,13 +512,13 @@ Autolink and tables.
 <table>
 <thead>
 <tr>
-<th> a </th>
-<th> b </th>
+<th>a</th>
+<th>b</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td> <a href="https://github.com">https://github.com</a> <a href="http://www.github.com">www.github.com</a> </td>
-<td> <a href="http://pokemon.com">http://pokemon.com</a> </td>
+<td><a href="https://github.com">https://github.com</a> <a href="http://www.github.com">www.github.com</a></td>
+<td><a href="http://pokemon.com">http://pokemon.com</a></td>
 </tr></tbody></table>
 ````````````````````````````````
