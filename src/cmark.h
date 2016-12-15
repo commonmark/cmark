@@ -66,6 +66,21 @@ typedef enum {
   CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
 } cmark_node_type;
 
+typedef enum {
+  CMARK_EXTENT_NONE,
+  CMARK_EXTENT_OPENER,
+  CMARK_EXTENT_CLOSER,
+  CMARK_EXTENT_BLANK,
+  CMARK_EXTENT_CONTENT,
+  CMARK_EXTENT_PUNCTUATION,
+  CMARK_EXTENT_LINK_DESTINATION,
+  CMARK_EXTENT_LINK_TITLE,
+  CMARK_EXTENT_LINK_LABEL,
+  CMARK_EXTENT_REFERENCE_DESTINATION,
+  CMARK_EXTENT_REFERENCE_LABEL,
+  CMARK_EXTENT_REFERENCE_TITLE,
+} cmark_extent_type;
+
 /* For backwards compatibility: */
 #define CMARK_NODE_HEADER CMARK_NODE_HEADING
 #define CMARK_NODE_HRULE CMARK_NODE_THEMATIC_BREAK
@@ -523,6 +538,14 @@ cmark_source_extent *cmark_source_extent_get_previous(cmark_source_extent *exten
 /* Return the node 'extent' maps to */
 CMARK_EXPORT
 cmark_node *cmark_source_extent_get_node(cmark_source_extent *extent);
+
+/* Return the type of 'extent' */
+CMARK_EXPORT
+cmark_extent_type cmark_source_extent_get_type(cmark_source_extent *extent);
+
+/* Return a string representation of 'extent' */
+CMARK_EXPORT
+const char *cmark_source_extent_get_type_string(cmark_source_extent *extent);
 
 /**
  * ## Rendering

@@ -659,10 +659,20 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 
   tmp_extent = closer->extent->prev;
 
-  source_map_insert_extent(subj->source_map, opener->extent, opener->extent->stop - use_delims, opener->extent->stop, emph);
+  source_map_insert_extent(subj->source_map,
+                           opener->extent,
+                           opener->extent->stop - use_delims,
+                           opener->extent->stop,
+                           emph,
+                           CMARK_EXTENT_OPENER);
   opener->extent->stop -= use_delims;
 
-  source_map_insert_extent(subj->source_map, tmp_extent, closer->extent->start, closer->extent->start + use_delims, emph);
+  source_map_insert_extent(subj->source_map,
+                           tmp_extent,
+                           closer->extent->start,
+                           closer->extent->start + use_delims,
+                           emph,
+                           CMARK_EXTENT_CLOSER);
   closer->extent->start += use_delims;
 
   // if opener has 0 characters, remove it and its associated inline
@@ -902,6 +912,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   cmark_node *tmp, *tmpnext;
   bool is_image;
   bool is_inline = false;
+  bool is_shortcut = false;
 
   advance(subj); // advance past ]
   initial_pos = subj->pos;
@@ -975,6 +986,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
     cmark_chunk_free(subj->mem, &raw_label);
     raw_label = cmark_chunk_dup(&subj->input, opener->position,
                                 initial_pos - opener->position - 1);
+    is_shortcut = true;
     found_label = true;
   }
 
@@ -1007,20 +1019,23 @@ match:
   assert(opener->extent);
 
   opener->extent->node = inl;
+  opener->extent->type = CMARK_EXTENT_PUNCTUATION;
 
-  source_map_splice_extent(subj->source_map, initial_pos - 1, initial_pos, inl);
+  source_map_splice_extent(subj->source_map, initial_pos - 1, initial_pos, inl, CMARK_EXTENT_PUNCTUATION);
   if (is_inline) {
-    source_map_splice_extent(subj->source_map, after_link_text_pos, starturl, inl);
-    source_map_splice_extent(subj->source_map, starturl, endurl, inl);
+    source_map_splice_extent(subj->source_map, after_link_text_pos, starturl, inl, CMARK_EXTENT_PUNCTUATION);
+    source_map_splice_extent(subj->source_map, starturl, endurl, inl, CMARK_EXTENT_LINK_DESTINATION);
     if (endtitle != starttitle) {
-      source_map_splice_extent(subj->source_map, endurl, starttitle, inl);
-      source_map_splice_extent(subj->source_map, starttitle, endtitle, inl);
-      source_map_splice_extent(subj->source_map, endtitle, subj->pos, inl);
+      source_map_splice_extent(subj->source_map, endurl, starttitle, inl, CMARK_EXTENT_BLANK);
+      source_map_splice_extent(subj->source_map, starttitle, endtitle, inl, CMARK_EXTENT_LINK_TITLE);
+      source_map_splice_extent(subj->source_map, endtitle, subj->pos, inl, CMARK_EXTENT_BLANK);
     } else {
-      source_map_splice_extent(subj->source_map, endurl, subj->pos, inl);
+      source_map_splice_extent(subj->source_map, endurl, subj->pos, inl, CMARK_EXTENT_BLANK);
     }
-  } else {
-    source_map_splice_extent(subj->source_map, initial_pos, subj->pos, inl);
+  } else if (!is_shortcut) {
+    source_map_splice_extent(subj->source_map, initial_pos, initial_pos + 1, inl, CMARK_EXTENT_PUNCTUATION);
+    source_map_splice_extent(subj->source_map, initial_pos + 1, subj->pos - 1, inl, CMARK_EXTENT_LINK_LABEL);
+    source_map_splice_extent(subj->source_map, subj->pos - 1, subj->pos, inl, CMARK_EXTENT_PUNCTUATION);
   }
 
   while (tmp) {
@@ -1199,7 +1214,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   if (new_inl != NULL) {
     cmark_source_extent *extent;
 
-    extent = source_map_splice_extent(subj->source_map, startpos, subj->pos, new_inl);
+    extent = source_map_splice_extent(subj->source_map, startpos, subj->pos, new_inl, CMARK_EXTENT_CONTENT);
 
     if (add_extent_to_last_bracket)
       subj->last_bracket->extent = extent;
@@ -1237,7 +1252,8 @@ extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                            source_map->cursor,
                            source_map->cursor->stop,
                            MIN(source_map->cursor->stop + initial_len - subj.input.len, total_length),
-                           parent);
+                           parent,
+                           CMARK_EXTENT_BLANK);
 }
 
 // Parse zero or more space characters, including at most one newline.
@@ -1265,13 +1281,17 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   cmark_chunk title;
 
   bufsize_t matchlen = 0;
-  bufsize_t beforetitle;
+  bufsize_t starttitle, endtitle;
+  bufsize_t endlabel;
+  bufsize_t starturl, endurl;
 
   subject_from_buf(mem, &subj, input, NULL, source_map);
 
   // parse label:
   if (!link_label(&subj, &lab) || lab.len == 0)
     return 0;
+
+  endlabel = subj.pos - 1;
 
   // colon:
   if (peek_char(&subj) == ':') {
@@ -1282,6 +1302,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
 
   // parse link url:
   spnl(&subj);
+  starturl = subj.pos;
   matchlen = manual_scan_link_url(&subj.input, subj.pos);
   if (matchlen > 0) {
     url = cmark_chunk_dup(&subj.input, subj.pos, matchlen);
@@ -1291,22 +1312,29 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   }
 
   // parse optional link_title
-  beforetitle = subj.pos;
+  endurl = subj.pos;
   spnl(&subj);
+  starttitle = subj.pos;
   matchlen = scan_link_title(&subj.input, subj.pos);
   if (matchlen) {
     title = cmark_chunk_dup(&subj.input, subj.pos, matchlen);
     subj.pos += matchlen;
   } else {
-    subj.pos = beforetitle;
+    subj.pos = endurl;
+    starttitle = endurl;
+    endtitle = endurl;
     title = cmark_chunk_literal("");
   }
+
+  endtitle = subj.pos;
 
   // parse final spaces and newline:
   skip_spaces(&subj);
   if (!skip_line_end(&subj)) {
     if (matchlen) { // try rewinding before title
-      subj.pos = beforetitle;
+      subj.pos = endurl;
+      starttitle = endurl;
+      endtitle = endurl;
       skip_spaces(&subj);
       if (!skip_line_end(&subj)) {
         return 0;
@@ -1318,8 +1346,16 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   // insert reference into refmap
   cmark_reference_create(refmap, &lab, &url, &title);
 
-  // Mark the extent of the reference
-  source_map_splice_extent(source_map, 0, subj.pos, root);
+  // Mark the extents of the reference
+  source_map_splice_extent(source_map, 0, 1, root, CMARK_EXTENT_PUNCTUATION);
+  source_map_splice_extent(source_map, 1, endlabel, root, CMARK_EXTENT_REFERENCE_LABEL);
+  source_map_splice_extent(source_map, endlabel, endlabel + 2, root, CMARK_EXTENT_PUNCTUATION);
+  source_map_splice_extent(source_map, endlabel + 2, starturl, root, CMARK_EXTENT_BLANK);
+  source_map_splice_extent(source_map, starturl, endurl, root, CMARK_EXTENT_REFERENCE_DESTINATION);
+  source_map_splice_extent(source_map, endurl, starttitle, root, CMARK_EXTENT_BLANK);
+  source_map_splice_extent(source_map, starttitle, endtitle, root, CMARK_EXTENT_REFERENCE_TITLE);
+  source_map_splice_extent(source_map, endtitle, subj.pos, root, CMARK_EXTENT_BLANK);
+
   while (tmp_extent != source_map->cursor) {
     if (tmp_extent->node == container)
       tmp_extent->node = root;

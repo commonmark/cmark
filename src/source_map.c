@@ -19,7 +19,7 @@ source_map_free(cmark_source_map *self)
 }
 
 cmark_source_extent *
-source_map_append_extent(cmark_source_map *self, uint64_t start, uint64_t stop, cmark_node *node)
+source_map_append_extent(cmark_source_map *self, uint64_t start, uint64_t stop, cmark_node *node, cmark_extent_type type)
 {
   assert (start <= stop);
   assert (!self->tail || self->tail->stop <= start);
@@ -29,6 +29,7 @@ source_map_append_extent(cmark_source_map *self, uint64_t start, uint64_t stop, 
   res->start = start;
   res->stop = stop;
   res->node = node;
+  res->type = type;
 
   res->next = NULL;
   res->prev = self->tail;
@@ -44,7 +45,8 @@ source_map_append_extent(cmark_source_map *self, uint64_t start, uint64_t stop, 
 }
 
 cmark_source_extent *
-source_map_insert_extent(cmark_source_map *self, cmark_source_extent *previous, uint64_t start, uint64_t stop, cmark_node *node)
+source_map_insert_extent(cmark_source_map *self, cmark_source_extent *previous,
+                         uint64_t start, uint64_t stop, cmark_node *node, cmark_extent_type type)
 {
   if (start == stop)
     return previous;
@@ -54,6 +56,7 @@ source_map_insert_extent(cmark_source_map *self, cmark_source_extent *previous, 
   extent->start = start;
   extent->stop = stop;
   extent->node = node;
+  extent->type = type;
   extent->next = previous->next;
   extent->prev = previous;
   previous->next = extent;
@@ -97,7 +100,8 @@ source_map_free_extent(cmark_source_map *self, cmark_source_extent *extent)
 }
 
 cmark_source_extent *
-source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent, cmark_node *node, uint64_t total_length)
+source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent,
+                         cmark_node *node, uint64_t total_length)
 {
   cmark_source_extent *next_extent = extent->next;
   cmark_source_extent *res;
@@ -113,13 +117,15 @@ source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent, cm
                                    extent,
                                    extent->stop,
                                    extent->next->start,
-                                   node);
+                                   node,
+                                   CMARK_EXTENT_BLANK);
   } else {
     res = source_map_insert_extent(self,
                                    extent,
                                    extent->stop,
                                    total_length,
-                                   node);
+                                   node,
+                                   CMARK_EXTENT_BLANK);
   }
 
   if (extent->start == extent->stop)
@@ -129,13 +135,14 @@ source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent, cm
 }
 
 cmark_source_extent *
-source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop, cmark_node *node)
+source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop,
+                         cmark_node *node, cmark_extent_type type)
 {
   if (!self->next_cursor) {
     self->cursor = source_map_insert_extent(self,
                                             self->cursor,
                                             start + self->cursor_offset,
-                                            stop + self->cursor_offset, node);
+                                            stop + self->cursor_offset, node, type);
 
     return self->cursor;
   } else if (start + self->cursor_offset < self->next_cursor->start &&
@@ -143,7 +150,7 @@ source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop, 
     self->cursor = source_map_insert_extent(self,
                                             self->cursor,
                                             start + self->cursor_offset,
-                                            stop + self->cursor_offset, node);
+                                            stop + self->cursor_offset, node, type);
 
     return self->cursor;
   } else if (start + self->cursor_offset < self->next_cursor->start) {
@@ -153,7 +160,7 @@ source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop, 
                                             self->cursor,
                                             start + self->cursor_offset,
                                             self->next_cursor->start,
-                                            node);
+                                            node, type);
 
     if (new_start == stop)
       return self->cursor;
@@ -167,7 +174,7 @@ source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop, 
     self->next_cursor = self->cursor->next;
   }
 
-  return source_map_splice_extent(self, start, stop, node);
+  return source_map_splice_extent(self, start, stop, node, type);
 }
 
 bool
@@ -189,8 +196,10 @@ source_map_pretty_print(cmark_source_map *self) {
   cmark_source_extent *tmp;
 
   for (tmp = self->head; tmp; tmp = tmp->next) {
-    printf ("%lu:%lu - %s (%p)\n", tmp->start, tmp->stop,
-						cmark_node_get_type_string(tmp->node), (void *) tmp->node);
+    printf ("%lu:%lu - %s, %s (%p)\n", tmp->start, tmp->stop,
+						cmark_node_get_type_string(tmp->node), 
+            cmark_source_extent_get_type_string(tmp),
+            (void *) tmp->node);
   }
 }
 
@@ -243,4 +252,42 @@ cmark_source_extent *
 cmark_source_extent_get_previous(cmark_source_extent *extent)
 {
   return extent->prev;
+}
+
+cmark_extent_type
+cmark_source_extent_get_type(cmark_source_extent *extent)
+{
+  return extent->type;
+}
+
+const char *
+cmark_source_extent_get_type_string(cmark_source_extent *extent)
+{
+  switch (extent->type) {
+    case CMARK_EXTENT_NONE:
+      return "unknown";
+    case CMARK_EXTENT_OPENER:
+      return "opener";
+    case CMARK_EXTENT_CLOSER:
+      return "closer";
+    case CMARK_EXTENT_BLANK:
+      return "blank";
+    case CMARK_EXTENT_CONTENT:
+      return "content";
+    case CMARK_EXTENT_PUNCTUATION:
+      return "punctuation";
+    case CMARK_EXTENT_LINK_DESTINATION:
+      return "link_destination";
+    case CMARK_EXTENT_LINK_TITLE:
+      return "link_title";
+    case CMARK_EXTENT_LINK_LABEL:
+      return "link_label";
+    case CMARK_EXTENT_REFERENCE_DESTINATION:
+      return "reference_destination";
+    case CMARK_EXTENT_REFERENCE_LABEL:
+      return "reference_label";
+    case CMARK_EXTENT_REFERENCE_TITLE:
+      return "reference_title";
+  }
+  return "unknown";
 }
