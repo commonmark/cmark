@@ -5,6 +5,7 @@
 #include "node.h"
 #include "buffer.h"
 #include "memory.h"
+#include "source_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,9 +28,12 @@ struct cmark_parser {
   bool partially_consumed_tab;
   cmark_strbuf curline;
   bufsize_t last_line_length;
+  bufsize_t line_offset;
   cmark_strbuf linebuf;
   int options;
   bool last_buffer_ended_with_cr;
+  cmark_source_map *source_map;
+  cmark_source_extent *last_paragraph_extent;
 };
 
 #ifdef __cplusplus
