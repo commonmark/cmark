@@ -1,7 +1,17 @@
 #include <assert.h>
 #include <inttypes.h>
 
+// get proper format specifier for uint64_t
+#if !defined(_MSC_VER) || _MSC_VER >= 1800
 #include "source_map.h"
+#else
+// MSVC has __int64 type, which ought to be the same type as uint64_t
+// format specifier documented here:
+// https://msdn.microsoft.com/en-us/library/aa261215(v=vs.60).aspx
+#ifndef PRIu64
+#define PRIu64 I64u
+#endif
+#endif
 
 cmark_source_map *
 source_map_new(cmark_mem *mem)
