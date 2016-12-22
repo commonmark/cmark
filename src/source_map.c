@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <inttypes.h>
 
 #include "source_map.h"
 
@@ -196,8 +197,8 @@ source_map_pretty_print(cmark_source_map *self) {
   cmark_source_extent *tmp;
 
   for (tmp = self->head; tmp; tmp = tmp->next) {
-    printf ("%lu:%lu - %s, %s (%p)\n", tmp->start, tmp->stop,
-						cmark_node_get_type_string(tmp->node), 
+    printf ("%" PRIu64 ":%" PRIu64 " - %s, %s (%p)\n", tmp->start, tmp->stop,
+            cmark_node_get_type_string(tmp->node),
             cmark_source_extent_get_type_string(tmp),
             (void *) tmp->node);
   }
