@@ -8,7 +8,7 @@
 // format specifier documented here:
 // https://msdn.microsoft.com/en-us/library/aa261215(v=vs.60).aspx
 #ifndef PRIu64
-#define PRIu64 I64u
+#define PRIu64 "I64u"
 #endif
 #endif
 
