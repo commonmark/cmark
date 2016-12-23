@@ -6,13 +6,6 @@ import platform
 
 c_object_p = POINTER(c_void_p)
 
-sysname = platform.system()
-
-if sysname == 'Windows':
-    libc = CDLL('msvcrt.dll')
-else:
-    libc = CDLL('libc.so.6')
-
 if sys.version_info[0] > 2:
     def bytes_and_length(text):
         if type(text) == str:
