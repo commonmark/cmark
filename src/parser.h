@@ -18,6 +18,7 @@ struct cmark_parser {
   struct cmark_reference_map *refmap;
   struct cmark_node *root;
   struct cmark_node *current;
+  bufsize_t total_bytes;
   int line_number;
   bufsize_t offset;
   bufsize_t column;

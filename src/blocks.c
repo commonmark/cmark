@@ -96,6 +96,7 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->refmap = cmark_reference_map_new(mem);
   parser->root = document;
   parser->current = document;
+  parser->total_bytes = 0;
   parser->line_number = 0;
   parser->line_offset = 0;
   parser->offset = 0;
@@ -549,6 +550,16 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   const unsigned char *end = buffer + len;
   const unsigned char *skipped;
   static const uint8_t repl[] = {239, 191, 189};
+
+  // Limit maximum document size to BUFSIZE_MAX. This makes sure that we
+  // never create strbufs larger than BUFSIZE_MAX. Unfortunately, the
+  // public API doesn't have an error reporting mechanism, so all we can
+  // do is to abort.
+  if (len > (size_t)(BUFSIZE_MAX - parser->total_bytes)) {
+    fprintf(stderr, "Maximum cmark document size exceeded\n");
+    abort();
+  }
+  parser->total_bytes += (bufsize_t)len;
 
   if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
     // skip NL if last buffer ended with CR ; see #117
