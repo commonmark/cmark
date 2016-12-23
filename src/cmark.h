@@ -2,7 +2,6 @@
 #define CMARK_H
 
 #include <stdio.h>
-#include <stdint.h>
 #include <cmark_export.h>
 #include <cmark_version.h>
 
@@ -519,18 +518,18 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
 
-/** 
+/**
  * ## Source map API
  */
 
 /* Return the index, in bytes, of the start of this extent */
 CMARK_EXPORT
-uint64_t cmark_source_extent_get_start(cmark_source_extent *extent);
+size_t cmark_source_extent_get_start(cmark_source_extent *extent);
 
-/* Return the index, in bytes, of the stop of this extent. This 
+/* Return the index, in bytes, of the stop of this extent. This
  * index is not included in the extent*/
 CMARK_EXPORT
-uint64_t cmark_source_extent_get_stop(cmark_source_extent *extent);
+size_t cmark_source_extent_get_stop(cmark_source_extent *extent);
 
 /* Return the extent immediately following 'extent' */
 CMARK_EXPORT

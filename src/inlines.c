@@ -1230,7 +1230,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 // Parse inlines from parent's string_content, adding as children of parent.
 extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                                 cmark_reference_map *refmap, int options,
-                                cmark_source_map *source_map, uint64_t total_length) {
+                                cmark_source_map *source_map, bufsize_t total_length) {
   subject subj;
   subject_from_buf(mem, &subj, &parent->content, refmap, source_map);
   bufsize_t initial_len = subj.input.len;
