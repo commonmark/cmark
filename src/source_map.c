@@ -1,5 +1,17 @@
 #include <assert.h>
 
+// get proper format specifier for uint64_t
+#if !defined(_MSC_VER) || _MSC_VER >= 1800
+#include <inttypes.h>
+#else
+// MSVC has __int64 type, which ought to be the same type as uint64_t
+// format specifier documented here:
+// https://msdn.microsoft.com/en-us/library/aa261215(v=vs.60).aspx
+#ifndef PRIu64
+#define PRIu64 "I64u"
+#endif
+#endif
+
 #include "source_map.h"
 
 cmark_source_map *
@@ -196,8 +208,8 @@ source_map_pretty_print(cmark_source_map *self) {
   cmark_source_extent *tmp;
 
   for (tmp = self->head; tmp; tmp = tmp->next) {
-    printf ("%lu:%lu - %s, %s (%p)\n", tmp->start, tmp->stop,
-						cmark_node_get_type_string(tmp->node), 
+    printf ("%" PRIu64 ":%" PRIu64 " - %s, %s (%p)\n", tmp->start, tmp->stop,
+            cmark_node_get_type_string(tmp->node),
             cmark_source_extent_get_type_string(tmp),
             (void *) tmp->node);
   }
