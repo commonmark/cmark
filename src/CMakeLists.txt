@@ -56,6 +56,9 @@ include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-format.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark-format)
+
 include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})

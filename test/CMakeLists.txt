@@ -90,6 +90,13 @@ IF (PYTHONINTERP_FOUND)
     "${CMAKE_CURRENT_SOURCE_DIR}/test_cmark.py"
     "${CMAKE_CURRENT_BINARY_DIR}/../src"
     )
+
+  add_test(remarkor
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_remarkor.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
+    )
 ELSE(PYTHONINTERP_FOUND)
   message("\n*** A python 3 interpreter is required to run the python binding tests.\n")
   add_test(skipping_python_binding_tests
