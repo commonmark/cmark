@@ -124,12 +124,13 @@ NodeType.TEXT = NodeType(11)
 NodeType.SOFTBREAK = NodeType(12)
 NodeType.LINEBREAK = NodeType(13)
 NodeType.CODE = NodeType(14)
-NodeType.HTML_INLINE = NodeType(15)
-NodeType.CUSTOM_INLINE = NodeType(16)
-NodeType.EMPH = NodeType(17)
-NodeType.STRONG = NodeType(18)
-NodeType.LINK = NodeType(19)
-NodeType.IMAGE = NodeType(20)
+NodeType.ENTITY = NodeType(15)
+NodeType.HTML_INLINE = NodeType(16)
+NodeType.CUSTOM_INLINE = NodeType(17)
+NodeType.EMPH = NodeType(18)
+NodeType.STRONG = NodeType(19)
+NodeType.LINK = NodeType(20)
+NodeType.IMAGE = NodeType(21)
 
 class ListType(BaseEnumeration):
     _kinds = []
@@ -440,6 +441,13 @@ class Code(Literal):
         self._owned = True
         self.literal = literal
 
+class Entity(Literal):
+    _node_type = NodeType.ENTITY
+
+    def __init__(self, literal=''):
+        self._node = conf.lib.cmark_node_new(self.__class__._node_type.value)
+        self._owned = True
+        self.literal = literal
 
 class HtmlInline(Literal):
     _node_type = NodeType.HTML_INLINE
