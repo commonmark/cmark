@@ -62,8 +62,6 @@ int scan_entity(cmark_chunk *chunk, bufsize_t offset) {
 
 }
 
-/* Binary tree lookup code for entities added by JGM */
-
 static const unsigned char *S_lookup(int i, int low, int hi,
                                      const unsigned char *s, int len) {
   int j;
