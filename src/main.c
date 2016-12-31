@@ -181,6 +181,11 @@ int main(int argc, char *argv[]) {
   document = cmark_parser_finish(parser);
   cmark_parser_free(parser);
 
+  if (document == NULL) {
+    fprintf(stderr, "%s", cmark_parser_get_error_message(parser));
+    exit(1);
+  }
+
   print_document(document, writer, options, width);
 
   cmark_node_free(document);

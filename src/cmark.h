@@ -2,7 +2,6 @@
 #define CMARK_H
 
 #include <stdio.h>
-#include <stdint.h>
 #include <cmark_export.h>
 #include <cmark_version.h>
 
@@ -23,7 +22,7 @@ extern "C" {
 /** Convert 'text' (assumed to be a UTF-8 encoded string with length
  * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
  * UTF-8-encoded string. It is the caller's responsibility
- * to free the returned buffer.
+ * to free the returned buffer. Returns NULL on error.
  */
 CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
@@ -98,6 +97,12 @@ typedef enum {
   CMARK_PERIOD_DELIM,
   CMARK_PAREN_DELIM
 } cmark_delim_type;
+
+typedef enum {
+  CMARK_ERR_NONE,
+  CMARK_ERR_OUT_OF_MEMORY,
+  CMARK_ERR_INPUT_TOO_LARGE
+} cmark_err_type;
 
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
@@ -489,12 +494,22 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem);
 CMARK_EXPORT
 void cmark_parser_free(cmark_parser *parser);
 
+/** Return the error code after a failed operation.
+ */
+CMARK_EXPORT
+cmark_err_type cmark_parser_get_error(cmark_parser *parser);
+
+/** Return the error code after a failed operation.
+ */
+CMARK_EXPORT
+const char *cmark_parser_get_error_message(cmark_parser *parser);
+
 /** Feeds a string of length 'len' to 'parser'.
  */
 CMARK_EXPORT
 void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 
-/** Finish parsing and return a pointer to a tree of nodes.
+/** Finish parsing and return a pointer to a tree of nodes or NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
@@ -507,7 +522,7 @@ cmark_source_extent *cmark_parser_get_first_source_extent(cmark_parser *parser);
 /** Parse a CommonMark document in 'buffer' of length 'len'.
  * Returns a pointer to a tree of nodes.  The memory allocated for
  * the node tree should be released using 'cmark_node_free'
- * when it is no longer needed.
+ * when it is no longer needed.  Returns NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
@@ -515,22 +530,23 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 /** Parse a CommonMark document in file 'f', returning a pointer to
  * a tree of nodes.  The memory allocated for the node tree should be
  * released using 'cmark_node_free' when it is no longer needed.
+ * Returns NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
 
-/** 
+/**
  * ## Source map API
  */
 
 /* Return the index, in bytes, of the start of this extent */
 CMARK_EXPORT
-uint64_t cmark_source_extent_get_start(cmark_source_extent *extent);
+size_t cmark_source_extent_get_start(cmark_source_extent *extent);
 
-/* Return the index, in bytes, of the stop of this extent. This 
+/* Return the index, in bytes, of the stop of this extent. This
  * index is not included in the extent*/
 CMARK_EXPORT
-uint64_t cmark_source_extent_get_stop(cmark_source_extent *extent);
+size_t cmark_source_extent_get_stop(cmark_source_extent *extent);
 
 /* Return the extent immediately following 'extent' */
 CMARK_EXPORT

@@ -33,6 +33,11 @@ void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
 }
 
 static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
+  // Safety check for overflow.
+  if (add > BUFSIZE_MAX - buf->size) {
+    fprintf(stderr, "Internal cmark_strbuf overflow");
+    abort();
+  }
   cmark_strbuf_grow(buf, buf->size + add);
 }
 
@@ -42,18 +47,25 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   if (target_size < buf->asize)
     return;
 
-  if (target_size > (bufsize_t)(INT32_MAX / 2))
-    abort();
+  // Oversize the buffer by 50% to guarantee amortized linear time
+  // complexity on append operations.
+  bufsize_t add = target_size / 2;
+  // Account for terminating NUL byte.
+  add += 1;
+  // Round up to multiple of eight.
+  add = (add + 7) & ~7;
 
-  /* Oversize the buffer by 50% to guarantee amortized linear time
-   * complexity on append operations. */
-  bufsize_t new_size = target_size + target_size / 2;
-  new_size += 1;
-  new_size = (new_size + 7) & ~7;
+  // Check for overflow but allow an additional NUL byte.
+  if (target_size + add > BUFSIZE_MAX + 1) {
+    target_size = BUFSIZE_MAX + 1;
+  }
+  else {
+    target_size += add;
+  }
 
   buf->ptr = (unsigned char *)buf->mem->realloc(buf->asize ? buf->ptr : NULL,
-                                                new_size);
-  buf->asize = new_size;
+                                                target_size);
+  buf->asize = target_size;
 }
 
 bufsize_t cmark_strbuf_len(const cmark_strbuf *buf) { return buf->size; }
