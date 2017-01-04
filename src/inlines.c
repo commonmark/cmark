@@ -516,13 +516,16 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   delimiter *old_closer;
   bool opener_found;
   bool odd_match;
-  delimiter *openers_bottom[128];
+  delimiter *openers_bottom[3][128];
+  int i;
 
   // initialize openers_bottom:
-  openers_bottom['*'] = stack_bottom;
-  openers_bottom['_'] = stack_bottom;
-  openers_bottom['\''] = stack_bottom;
-  openers_bottom['"'] = stack_bottom;
+  for (i=0; i < 3; i++) {
+    openers_bottom[i]['*'] = stack_bottom;
+    openers_bottom[i]['_'] = stack_bottom;
+    openers_bottom[i]['\''] = stack_bottom;
+    openers_bottom[i]['"'] = stack_bottom;
+  }
 
   // move back to first relevant delim.
   while (closer != NULL && closer->previous != stack_bottom) {
@@ -537,7 +540,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       opener_found = false;
       odd_match = false;
       while (opener != NULL && opener != stack_bottom &&
-             opener != openers_bottom[closer->delim_char]) {
+             opener != openers_bottom[closer->length % 3][closer->delim_char]) {
 	if (opener->can_open && opener->delim_char == closer->delim_char) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
@@ -574,13 +577,10 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
         }
         closer = closer->next;
       }
-      if (!opener_found && !odd_match) {
+      if (!opener_found) {
         // set lower bound for future searches for openers
-        // (we don't do this with 'odd_match' set because
-        // a ** that didn't match an earlier * might turn into
-        // an opener, and the * might be matched by something
-        // else.
-        openers_bottom[old_closer->delim_char] = old_closer->previous;
+        openers_bottom[old_closer->length % 3][old_closer->delim_char] =
+		old_closer->previous;
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
