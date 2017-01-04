@@ -538,15 +538,16 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       odd_match = false;
       while (opener != NULL && opener != stack_bottom &&
              opener != openers_bottom[closer->delim_char]) {
-        // interior closer of size 2 can't match opener of size 1
-        // or of size 1 can't match 2
-        odd_match = (closer->can_open || opener->can_close) &&
-                    ((opener->length + closer->length) % 3 == 0);
-        if (opener->delim_char == closer->delim_char && opener->can_open &&
-            !odd_match) {
-          opener_found = true;
-          break;
-        }
+	if (opener->can_open && opener->delim_char == closer->delim_char) {
+          // interior closer of size 2 can't match opener of size 1
+          // or of size 1 can't match 2
+          odd_match = (closer->can_open || opener->can_close) &&
+                      ((opener->length + closer->length) % 3 == 0);
+          if (!odd_match) {
+            opener_found = true;
+            break;
+          }
+	}
         opener = opener->previous;
       }
       old_closer = closer;
