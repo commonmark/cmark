@@ -40,6 +40,7 @@ typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
   cmark_node *inl_text;
+  bufsize_t length;
   unsigned char delim_char;
   bool can_open;
   bool can_close;
@@ -408,6 +409,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   delim->can_open = can_open;
   delim->can_close = can_close;
   delim->inl_text = inl_text;
+  delim->length = inl_text->as.literal.len;
   delim->previous = subj->last_delim;
   delim->next = NULL;
   if (delim->previous != NULL) {
@@ -553,10 +555,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
         // interior closer of size 2 can't match opener of size 1
         // or of size 1 can't match 2
         odd_match = (closer->can_open || opener->can_close) &&
-                    ((opener->inl_text->as.literal.len +
-                      closer->inl_text->as.literal.len) %
-                         3 ==
-                     0);
+                    ((opener->length + closer->length) % 3 == 0);
         if (opener->delim_char == closer->delim_char && opener->can_open &&
             !odd_match) {
           opener_found = true;
