@@ -19,7 +19,7 @@ source_map_free(cmark_source_map *self)
 }
 
 cmark_source_extent *
-source_map_append_extent(cmark_source_map *self, bufsize_t start, bufsize_t stop, cmark_node *node, cmark_extent_type type)
+source_map_append_extent(cmark_source_map *self, uint64_t start, uint64_t stop, cmark_node *node, cmark_extent_type type)
 {
   assert (start <= stop);
   assert (!self->tail || self->tail->stop <= start);
@@ -46,7 +46,7 @@ source_map_append_extent(cmark_source_map *self, bufsize_t start, bufsize_t stop
 
 cmark_source_extent *
 source_map_insert_extent(cmark_source_map *self, cmark_source_extent *previous,
-                         bufsize_t start, bufsize_t stop, cmark_node *node, cmark_extent_type type)
+                         uint64_t start, uint64_t stop, cmark_node *node, cmark_extent_type type)
 {
   if (start == stop)
     return previous;
@@ -101,7 +101,7 @@ source_map_free_extent(cmark_source_map *self, cmark_source_extent *extent)
 
 cmark_source_extent *
 source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent,
-                         cmark_node *node, bufsize_t total_length)
+                         cmark_node *node, uint64_t total_length)
 {
   cmark_source_extent *next_extent = extent->next;
   cmark_source_extent *res;
@@ -135,7 +135,7 @@ source_map_stitch_extent(cmark_source_map *self, cmark_source_extent *extent,
 }
 
 cmark_source_extent *
-source_map_splice_extent(cmark_source_map *self, bufsize_t start, bufsize_t stop,
+source_map_splice_extent(cmark_source_map *self, uint64_t start, uint64_t stop,
                          cmark_node *node, cmark_extent_type type)
 {
   if (!self->next_cursor) {
@@ -154,7 +154,7 @@ source_map_splice_extent(cmark_source_map *self, bufsize_t start, bufsize_t stop
 
     return self->cursor;
   } else if (start + self->cursor_offset < self->next_cursor->start) {
-    bufsize_t new_start = self->next_cursor->start - self->cursor_offset;
+    uint64_t new_start = self->next_cursor->start - self->cursor_offset;
 
     self->cursor = source_map_insert_extent(self,
                                             self->cursor,
@@ -196,17 +196,17 @@ source_map_pretty_print(cmark_source_map *self) {
   cmark_source_extent *tmp;
 
   for (tmp = self->head; tmp; tmp = tmp->next) {
-    printf ("%d:%d - %s, %s (%p)\n", tmp->start, tmp->stop,
-						cmark_node_get_type_string(tmp->node),
+    printf ("%lu:%lu - %s, %s (%p)\n", tmp->start, tmp->stop,
+						cmark_node_get_type_string(tmp->node), 
             cmark_source_extent_get_type_string(tmp),
             (void *) tmp->node);
   }
 }
 
 bool
-source_map_check(cmark_source_map *self, bufsize_t total_length)
+source_map_check(cmark_source_map *self, uint64_t total_length)
 {
-  bufsize_t last_stop = 0;
+  uint64_t last_stop = 0;
   cmark_source_extent *tmp;
 
   for (tmp = self->head; tmp; tmp = tmp->next) {
@@ -224,13 +224,13 @@ source_map_check(cmark_source_map *self, bufsize_t total_length)
 }
 
 
-size_t
+uint64_t
 cmark_source_extent_get_start(cmark_source_extent *extent)
 {
   return extent->start;
 }
 
-size_t
+uint64_t
 cmark_source_extent_get_stop(cmark_source_extent *extent)
 {
   return extent->stop;

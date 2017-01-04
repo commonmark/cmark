@@ -13,27 +13,7 @@
 extern "C" {
 #endif
 
-#ifndef CMARK_HUGE_DOCS
-
-// Maximum strbuf size without terminating NUL byte.
-#define BUFSIZE_MAX (INT32_MAX - 1)
-
 typedef int32_t bufsize_t;
-
-#else // CMARK_HUGE_DOCS
-
-// This is an untested proof of concept of how to handle multi-gigabyte
-// documents on 64-bit platforms at the expense of internal struct sizes.
-
-#ifdef PTRDIFF_MAX
-  #define BUFSIZE_MAX (PTRDIFF_MAX - 1)
-#else
-  #define BUFSIZE_MAX (ptrdiff_t)((size_t)-1 / 2)
-#endif
-
-typedef ptrdiff_t bufsize_t;
-
-#endif // CMARK_HUGE_DOCS
 
 typedef struct {
   cmark_mem *mem;

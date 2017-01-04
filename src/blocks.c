@@ -96,8 +96,6 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->refmap = cmark_reference_map_new(mem);
   parser->root = document;
   parser->current = document;
-  parser->error_code = CMARK_ERR_NONE;
-  parser->total_bytes = 0;
   parser->line_number = 0;
   parser->line_offset = 0;
   parser->offset = 0;
@@ -551,20 +549,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   const unsigned char *end = buffer + len;
   const unsigned char *skipped;
   static const uint8_t repl[] = {239, 191, 189};
-
-  if (parser->error_code) {
-    return;
-  }
-
-  // Limit maximum document size to BUFSIZE_MAX. This makes sure that we
-  // never create strbufs larger than BUFSIZE_MAX. Unfortunately, the
-  // public API doesn't have an error reporting mechanism, so all we can
-  // do is to abort.
-  if (len > (size_t)(BUFSIZE_MAX - parser->total_bytes)) {
-    parser->error_code = CMARK_ERR_INPUT_TOO_LARGE;
-    return;
-  }
-  parser->total_bytes += (bufsize_t)len;
 
   if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
     // skip NL if last buffer ended with CR ; see #117
@@ -1282,18 +1266,13 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
     cmark_strbuf_clear(&parser->linebuf);
   }
 
-  cmark_strbuf_clear(&parser->curline);
-
-  if (parser->error_code) {
-    cmark_node_free(parser->root);
-    return NULL;
-  }
-
   finalize_document(parser);
 
   if (parser->options & CMARK_OPT_NORMALIZE) {
     cmark_consolidate_text_nodes(parser->root);
   }
+
+  cmark_strbuf_free(&parser->curline);
 
 #if CMARK_DEBUG_NODES
   if (cmark_node_check(parser->root, stderr)) {
@@ -1308,26 +1287,3 @@ cmark_parser_get_first_source_extent(cmark_parser *parser)
 {
   return parser->source_map->head;
 }
-
-cmark_err_type cmark_parser_get_error(cmark_parser *parser) {
-  return parser->error_code;
-}
-
-const char *cmark_parser_get_error_message(cmark_parser *parser) {
-  const char *str = NULL;
-
-  switch (parser->error_code) {
-    case CMARK_ERR_OUT_OF_MEMORY:
-      str = "Out of memory";
-      break;
-    case CMARK_ERR_INPUT_TOO_LARGE:
-      str = "Input too large";
-      break;
-    default:
-      str = "Unknown error";
-      break;
-  }
-
-  return str;
-}
-
