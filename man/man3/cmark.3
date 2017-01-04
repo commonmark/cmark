@@ -1,4 +1,4 @@
-.TH cmark 3 "December 30, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "November 18, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -16,7 +16,7 @@ Simple Interface
 Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
 \f[I]len\f[]) from CommonMark Markdown to HTML, returning a
 null\-terminated, UTF\-8\-encoded string. It is the caller's
-responsibility to free the returned buffer. Returns NULL on error.
+responsibility to free the returned buffer.
 
 .SS
 Node Structure
@@ -70,30 +70,6 @@ typedef enum {
 \fC
 .RS 0n
 typedef enum {
-  CMARK_EXTENT_NONE,
-  CMARK_EXTENT_OPENER,
-  CMARK_EXTENT_CLOSER,
-  CMARK_EXTENT_BLANK,
-  CMARK_EXTENT_CONTENT,
-  CMARK_EXTENT_PUNCTUATION,
-  CMARK_EXTENT_LINK_DESTINATION,
-  CMARK_EXTENT_LINK_TITLE,
-  CMARK_EXTENT_LINK_LABEL,
-  CMARK_EXTENT_REFERENCE_DESTINATION,
-  CMARK_EXTENT_REFERENCE_LABEL,
-  CMARK_EXTENT_REFERENCE_TITLE,
-} cmark_extent_type;
-.RE
-\f[]
-.fi
-
-
-
-.PP
-.nf
-\fC
-.RS 0n
-typedef enum {
   CMARK_NO_LIST,
   CMARK_BULLET_LIST,
   CMARK_ORDERED_LIST
@@ -119,21 +95,6 @@ typedef enum {
 
 
 
-.PP
-.nf
-\fC
-.RS 0n
-typedef enum {
-  CMARK_ERR_NONE,
-  CMARK_ERR_OUT_OF_MEMORY,
-  CMARK_ERR_INPUT_TOO_LARGE
-} cmark_err_type;
-.RE
-\f[]
-.fi
-
-
-
 .SS
 Custom memory allocator support
 
@@ -153,12 +114,6 @@ typedef struct cmark_mem {
 .PP
 Defines the memory allocation functions to be used by CMark when parsing
 and allocating a document tree
-
-.PP
-\fIvoid\f[] \fBcmark_default_mem_free\f[](\fIvoid *ptr\f[])
-
-.PP
-Convenience function for bindings.
 
 .SS
 Creating and Destroying Nodes
@@ -648,18 +603,6 @@ Creates a new parser object with the given memory allocator
 Frees memory allocated for a parser object.
 
 .PP
-\fIcmark_err_type\f[] \fBcmark_parser_get_error\f[](\fIcmark_parser *parser\f[])
-
-.PP
-Return the error code after a failed operation.
-
-.PP
-\fIconst char *\f[] \fBcmark_parser_get_error_message\f[](\fIcmark_parser *parser\f[])
-
-.PP
-Return the error code after a failed operation.
-
-.PP
 \fIvoid\f[] \fBcmark_parser_feed\f[](\fIcmark_parser *parser\f[], \fIconst char *buffer\f[], \fIsize_t len\f[])
 
 .PP
@@ -669,13 +612,7 @@ Feeds a string of length \f[I]len\f[] to \f[I]parser\f[].
 \fIcmark_node *\f[] \fBcmark_parser_finish\f[](\fIcmark_parser *parser\f[])
 
 .PP
-Finish parsing and return a pointer to a tree of nodes or NULL on error.
-
-.PP
-\fIcmark_source_extent *\f[] \fBcmark_parser_get_first_source_extent\f[](\fIcmark_parser *parser\f[])
-
-.PP
-Return a pointer to the first extent of the parser's source map
+Finish parsing and return a pointer to a tree of nodes.
 
 .PP
 \fIcmark_node *\f[] \fBcmark_parse_document\f[](\fIconst char *buffer\f[], \fIsize_t len\f[], \fIint options\f[])
@@ -684,7 +621,7 @@ Return a pointer to the first extent of the parser's source map
 Parse a CommonMark document in \f[I]buffer\f[] of length \f[I]len\f[].
 Returns a pointer to a tree of nodes. The memory allocated for the node
 tree should be released using \f[I]cmark_node_free\f[] when it is no
-longer needed. Returns NULL on error.
+longer needed.
 
 .PP
 \fIcmark_node *\f[] \fBcmark_parse_file\f[](\fIFILE *f\f[], \fIint options\f[])
@@ -692,11 +629,7 @@ longer needed. Returns NULL on error.
 .PP
 Parse a CommonMark document in file \f[I]f\f[], returning a pointer to a
 tree of nodes. The memory allocated for the node tree should be released
-using \f[I]cmark_node_free\f[] when it is no longer needed. Returns NULL
-on error.
-
-.SS
-Source map API
+using \f[I]cmark_node_free\f[] when it is no longer needed.
 
 .SS
 Rendering
