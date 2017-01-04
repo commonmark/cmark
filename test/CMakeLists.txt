@@ -78,3 +78,20 @@ ELSE(PYTHONINTERP_FOUND)
 
 ENDIF(PYTHONINTERP_FOUND)
 
+if (PYTHON_BINDING_TESTS)
+  find_package(PythonInterp 3 REQUIRED)
+else(PYTHON_BINDING_TESTS)
+  find_package(PythonInterp 3)
+endif(PYTHON_BINDING_TESTS)
+
+IF (PYTHONINTERP_FOUND)
+  add_test(python3_bindings
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_cmark.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    )
+ELSE(PYTHONINTERP_FOUND)
+  message("\n*** A python 3 interpreter is required to run the python binding tests.\n")
+  add_test(skipping_python_binding_tests
+    echo "Skipping python binding tests, because no python 3 interpreter is available.")
+ENDIF(PYTHONINTERP_FOUND)

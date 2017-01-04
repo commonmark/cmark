@@ -123,6 +123,11 @@ typedef struct cmark_mem {
   void (*free)(void *);
 } cmark_mem;
 
+/** Convenience function for bindings.
+ */
+CMARK_EXPORT
+void cmark_default_mem_free(void *ptr);
+
 /**
  * ## Creating and Destroying Nodes
  */
