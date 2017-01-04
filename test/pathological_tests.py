@@ -38,6 +38,9 @@ pathological = {
     "mismatched openers and closers":
                  (("*a_ " * 50000),
                   re.compile("([*]a[_] ){49999}[*]a_")),
+    "openers and closers multiple of 3":
+                 (("a**b" + ("c* " * 50000)),
+                  re.compile("a[*][*]b(c[*] ){49999}c[*]")),
     "link openers and emph closers":
                  (("[ a_" * 50000),
                   re.compile("(\[ a_){50000}")),
