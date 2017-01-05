@@ -42,7 +42,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
     break;
   case 45:             // '-'
     if (nextc == 45) { // prevent ligature
-      cmark_render_ascii(renderer, "\\-");
+      cmark_render_ascii(renderer, "-{}");
     } else {
       cmark_render_ascii(renderer, "-");
     }
