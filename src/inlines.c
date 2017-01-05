@@ -520,6 +520,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   int i;
 
   // initialize openers_bottom:
+  memset(&openers_bottom, 0, sizeof(openers_bottom));
   for (i=0; i < 3; i++) {
     openers_bottom[i]['*'] = stack_bottom;
     openers_bottom[i]['_'] = stack_bottom;
