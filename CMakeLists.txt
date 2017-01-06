@@ -22,9 +22,11 @@ set(PROJECT_VERSION_PATCH 1)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
+option(CMARK_STATIC "Build static libcmark library" ON)
+option(CMARK_SHARED "Build shared libcmark library" ON)
 
 add_subdirectory(src)
-if(CMARK_TESTS)
+if(CMARK_TESTS AND CMARK_SHARED)
   add_subdirectory(api_test)
 endif()
 add_subdirectory(man)
