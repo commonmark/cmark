@@ -30,6 +30,8 @@ def to_commonmark(lib, text):
     render_commonmark.restype = c_char_p
     render_commonmark.argtypes = [c_void_p, c_int, c_int]
     node = parse_document(textbytes, textlen, 0)
+    if node is None:
+      raise Exception("parse_document failed")
     result = render_commonmark(node, 0, 0).decode('utf-8')
     return [0, result, '']
 
