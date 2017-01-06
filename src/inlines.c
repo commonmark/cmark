@@ -1190,7 +1190,8 @@ static void spnl(subject *subj) {
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
 bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
-                                       cmark_reference_map *refmap) {
+                                       cmark_reference_map *refmap,
+                                       cmark_node *root) {
   subject subj;
 
   cmark_chunk lab;
@@ -1199,18 +1200,20 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
 
   bufsize_t matchlen = 0;
   bufsize_t beforetitle;
+  cmark_reference *ref;
+  cmark_node *reference = cmark_node_new(CMARK_NODE_REFERENCE);
 
   subject_from_buf(mem, &subj, input, NULL);
 
   // parse label:
   if (!link_label(&subj, &lab) || lab.len == 0)
-    return 0;
+    goto nomatch;
 
   // colon:
   if (peek_char(&subj) == ':') {
     advance(&subj);
   } else {
-    return 0;
+    goto nomatch;
   }
 
   // parse link url:
@@ -1220,7 +1223,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
     url = cmark_chunk_dup(&subj.input, subj.pos, matchlen);
     subj.pos += matchlen;
   } else {
-    return 0;
+    goto nomatch;
   }
 
   // parse optional link_title
@@ -1241,14 +1244,29 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
     if (matchlen) { // try rewinding before title
       subj.pos = beforetitle;
       skip_spaces(&subj);
+      title = cmark_chunk_literal("");
       if (!skip_line_end(&subj)) {
-        return 0;
+        goto nomatch;
       }
     } else {
-      return 0;
+      goto nomatch;
     }
   }
   // insert reference into refmap
-  cmark_reference_create(refmap, &lab, &url, &title);
+  ref = cmark_reference_create(refmap, &lab, &url, &title);
+
+  if (ref) {
+    cmark_chunk_set_cstr(mem, &reference->as.reference.label, (char *) ref->label);
+    cmark_chunk_set_cstr(mem, &reference->as.reference.url, cmark_chunk_to_cstr(mem, &ref->url));
+    cmark_chunk_set_cstr(mem, &reference->as.reference.title, cmark_chunk_to_cstr(mem, &ref->title));
+    cmark_node_append_child(root, reference);
+
+    cmark_reference_add(refmap, ref);
+  }
+
   return subj.pos;
+
+nomatch:
+  cmark_node_free(reference);
+  return 0;
 }

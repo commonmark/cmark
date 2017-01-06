@@ -53,7 +53,7 @@ static unsigned char *normalize_reference(cmark_mem *mem, cmark_chunk *ref) {
   return result;
 }
 
-static void add_reference(cmark_reference_map *map, cmark_reference *ref) {
+void cmark_reference_add(cmark_reference_map *map, cmark_reference *ref) {
   cmark_reference *t = ref->next = map->table[ref->hash % REFMAP_SIZE];
 
   while (t) {
@@ -68,14 +68,14 @@ static void add_reference(cmark_reference_map *map, cmark_reference *ref) {
   map->table[ref->hash % REFMAP_SIZE] = ref;
 }
 
-void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
+cmark_reference *cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
                             cmark_chunk *url, cmark_chunk *title) {
   cmark_reference *ref;
   unsigned char *reflabel = normalize_reference(map->mem, label);
 
   /* empty reference name, or composed from only whitespace */
   if (reflabel == NULL)
-    return;
+    return NULL;
 
   ref = (cmark_reference *)map->mem->calloc(1, sizeof(*ref));
   ref->label = reflabel;
@@ -84,7 +84,7 @@ void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
   ref->title = cmark_clean_title(map->mem, title);
   ref->next = NULL;
 
-  add_reference(map, ref);
+  return ref;
 }
 
 // Returns reference if refmap contains a reference with matching

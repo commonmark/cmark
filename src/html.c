@@ -217,6 +217,9 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     }
     break;
 
+  case CMARK_NODE_REFERENCE:
+    break;
+
   case CMARK_NODE_TEXT:
     escape_html(html, node->as.literal.data, node->as.literal.len);
     break;

@@ -12,7 +12,8 @@ void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                          cmark_reference_map *refmap, int options);
 
 bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
-                                       cmark_reference_map *refmap);
+                                       cmark_reference_map *refmap,
+                                       cmark_node *root);
 
 #ifdef __cplusplus
 }

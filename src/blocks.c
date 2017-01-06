@@ -257,7 +257,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   case CMARK_NODE_PARAGRAPH:
     while (cmark_strbuf_at(node_content, 0) == '[' &&
            (pos = cmark_parse_reference_inline(parser->mem, node_content,
-                                               parser->refmap))) {
+                                               parser->refmap, parser->root))) {
 
       cmark_strbuf_drop(node_content, pos);
     }

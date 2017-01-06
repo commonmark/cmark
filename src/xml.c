@@ -126,6 +126,17 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       escape_xml(xml, node->as.link.title.data, node->as.link.title.len);
       cmark_strbuf_putc(xml, '"');
       break;
+    case CMARK_NODE_REFERENCE:
+      cmark_strbuf_puts(xml, " label=\"");
+      escape_xml(xml, node->as.reference.label.data, node->as.reference.label.len);
+      cmark_strbuf_putc(xml, '"');
+      cmark_strbuf_puts(xml, " destination=\"");
+      escape_xml(xml, node->as.reference.url.data, node->as.reference.url.len);
+      cmark_strbuf_putc(xml, '"');
+      cmark_strbuf_puts(xml, " title=\"");
+      escape_xml(xml, node->as.reference.title.data, node->as.reference.title.len);
+      cmark_strbuf_putc(xml, '"');
+      break;
     default:
       break;
     }

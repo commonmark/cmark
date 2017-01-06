@@ -45,9 +45,10 @@ typedef enum {
   CMARK_NODE_PARAGRAPH,
   CMARK_NODE_HEADING,
   CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_REFERENCE,
 
   CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_REFERENCE,
 
   /* Inline */
   CMARK_NODE_TEXT,
@@ -333,25 +334,35 @@ CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_fence_info(cmark_node *node, const char *info);
 
-/** Returns the URL of a link or image 'node', or an empty string
+/** Returns the URL of a link, image or reference 'node', or an empty string
     if no URL is set.
  */
 CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
 
-/** Sets the URL of a link or image 'node'. Returns 1 on success,
+/** Sets the URL of a link, image or reference 'node'. Returns 1 on success,
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_url(cmark_node *node, const char *url);
 
-/** Returns the title of a link or image 'node', or an empty
+/** Returns the title of a link, image or reference 'node', or an empty
     string if no title is set.
  */
 CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
 
-/** Sets the title of a link or image 'node'. Returns 1 on success,
+/** Sets the title of a link, image or reference 'node'. Returns 1 on success,
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
+
+/** Returns the label of a reference 'node', or an empty
+    string if no label is set.
+ */
+CMARK_EXPORT const char *cmark_node_get_label(cmark_node *node);
+
+/** Sets the label of a reference 'node'. Returns 1 on success,
+ * 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_set_label(cmark_node *node, const char *label);
 
 /** Returns the literal "on enter" text for a custom 'node', or
     an empty string if no on_enter is set.
