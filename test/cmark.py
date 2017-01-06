@@ -6,6 +6,8 @@ from subprocess import *
 import platform
 import os
 
+OPT_SOURCEPOS = 1 << 1
+
 def pipe_through_prog(prog, text):
     p1 = Popen(prog.split(), stdout=PIPE, stdin=PIPE, stderr=PIPE)
     [result, err] = p1.communicate(input=text.encode('utf-8'))
@@ -29,7 +31,8 @@ def to_commonmark(lib, text):
     render_commonmark = lib.cmark_render_commonmark
     render_commonmark.restype = c_char_p
     render_commonmark.argtypes = [c_void_p, c_int, c_int]
-    node = parse_document(textbytes, textlen, 0)
+    # We want tests to go through the source map code
+    node = parse_document(textbytes, textlen, OPT_SOURCEPOS)
     if node is None:
       raise Exception("parse_document failed")
     result = render_commonmark(node, 0, 0).decode('utf-8')
