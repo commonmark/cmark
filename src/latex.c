@@ -389,7 +389,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       switch (get_link_type(node)) {
       case URL_AUTOLINK:
         LIT("\\url{");
-        break;
+        OUT(url, false, URL);
+        LIT("}");
+        return 0;
       case EMAIL_AUTOLINK:
         LIT("\\href{");
         OUT(url, false, URL);
