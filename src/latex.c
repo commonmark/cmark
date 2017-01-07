@@ -42,7 +42,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
     break;
   case 45:             // '-'
     if (nextc == 45) { // prevent ligature
-      cmark_render_ascii(renderer, "\\-");
+      cmark_render_ascii(renderer, "-{}");
     } else {
       cmark_render_ascii(renderer, "-");
     }
@@ -390,7 +390,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       case URL_AUTOLINK:
         LIT("\\url{");
         OUT(url, false, URL);
-        break;
+        LIT("}");
+        return 0; // Don't process further nodes to avoid double-rendering artefacts
       case EMAIL_AUTOLINK:
         LIT("\\href{");
         OUT(url, false, URL);
