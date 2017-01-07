@@ -614,12 +614,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   cmark_node *tmp, *tmpnext, *emph;
 
   // calculate the actual number of characters used from this closer
-  if (closer_num_chars < 3 || opener_num_chars < 3) {
-    use_delims = closer_num_chars <= opener_num_chars ? closer_num_chars
-                                                      : opener_num_chars;
-  } else { // closer and opener both have >= 3 characters
-    use_delims = closer_num_chars % 2 == 0 ? 2 : 1;
-  }
+  use_delims = (closer_num_chars >= 2 && opener_num_chars >=2) ? 2 : 1;
 
   // remove used characters from associated inlines.
   opener_num_chars -= use_delims;
