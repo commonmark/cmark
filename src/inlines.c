@@ -81,7 +81,7 @@ static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t,
                                              cmark_chunk s) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
-  e->type = t;
+  e->type = (uint16_t)t;
   e->as.literal = s;
   return e;
 }
@@ -90,7 +90,7 @@ static CMARK_INLINE cmark_node *make_literal(cmark_mem *mem, cmark_node_type t,
 static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
-  e->type = t;
+  e->type = (uint16_t)t;
   return e;
 }
 
