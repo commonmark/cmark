@@ -542,6 +542,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
         break;
       default:
         assert(false);
+        openers_bottom_index = 0; // silence warning
       }
 
       // Now look backwards for first matching opener:
