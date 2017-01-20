@@ -580,7 +580,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
           if (buffer == end)
             parser->last_buffer_ended_with_cr = true;
         }
-        if (*buffer == '\n')
+        if (buffer < end && *buffer == '\n')
           buffer++;
       }
     }
