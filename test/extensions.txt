@@ -44,7 +44,7 @@ Hello!
 | _abc_ | セン |
 | ----- | ---- |
 | 1. Block elements inside cells don't work. | |
-| But **_inline elements do_**. | x |
+| But _**inline elements do**_. | x |
 
 Hi!
 .
@@ -62,7 +62,7 @@ Hi!
 <td></td>
 </tr>
 <tr>
-<td>But <strong><em>inline elements do</em></strong>.</td>
+<td>But <em><strong>inline elements do</strong></em>.</td>
 <td>x</td>
 </tr></tbody></table>
 <p>Hi!</p>
@@ -145,7 +145,7 @@ Hello!
 | _abc_ | セン |
 | ----- | ---- |
 | this row has a space at the end | | 
-| But **_inline elements do_**. | x |
+| But _**inline elements do**_. | x |
 
 Hi!
 .
@@ -163,7 +163,7 @@ Hi!
 <td></td>
 </tr>
 <tr>
-<td>But <strong><em>inline elements do</em></strong>.</td>
+<td>But <em><strong>inline elements do</strong></em>.</td>
 <td>x</td>
 </tr></tbody></table>
 <p>Hi!</p>
@@ -255,7 +255,7 @@ Tables with embedded pipes could be tricky.
 | --- | --- |
 | Escaped pipes are \|okay\|. | Like \| this. |
 | Within `|code| is okay` too. |
-| **_`c|`_** \| complex
+| _**`c|`**_ \| complex
 | don't **\_reparse\_**
 .
 <table>
@@ -275,7 +275,7 @@ Tables with embedded pipes could be tricky.
 <td></td>
 </tr>
 <tr>
-<td><strong><em><code>c|</code></em></strong> | complex</td>
+<td><em><strong><code>c|</code></strong></em> | complex</td>
 <td></td>
 </tr>
 <tr>
