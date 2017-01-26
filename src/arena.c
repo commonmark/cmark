@@ -15,6 +15,8 @@ static struct arena_chunk *alloc_arena_chunk(size_t sz, struct arena_chunk *prev
     abort();
   c->sz = sz;
   c->ptr = calloc(1, sz);
+  if (!c->ptr)
+    abort();
   c->prev = prev;
   return c;
 }

@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
 
   document = cmark_parser_finish(parser);
 
-  if (!print_document(document, writer, options, width, parser))
+  if (!document || !print_document(document, writer, options, width, parser))
     goto failure;
 
 success:
@@ -247,7 +247,8 @@ failure:
   if (parser)
     cmark_parser_free(parser);
 
-  cmark_node_free(document);
+  if (document)
+    cmark_node_free(document);
 #else
   cmark_arena_reset();
 #endif
