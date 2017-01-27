@@ -43,7 +43,9 @@ def do_test(converter, test, normalize, result_counts):
     if retcode == 0:
         expected_html = test['html']
         unicode_error = None
-        if normalize:
+        if expected_html.strip() == '<IGNORE>':
+            passed = True
+        elif normalize:
             try:
                 passed = normalize_html(actual_html) == normalize_html(expected_html)
             except UnicodeDecodeError as e:
