@@ -444,6 +444,11 @@ Full stop outside parens shouldn't be included http://google.com/ok.
 <p>(Full stop inside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.)</p>
 ````````````````````````````````
 
+```````````````````````````````` example
+This shouldn't crash everything: (_A_@_.A
+.
+<IGNORE>
+````````````````````````````````
 
 ## HTML tag filter
 
