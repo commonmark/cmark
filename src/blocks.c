@@ -1317,19 +1317,19 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
   }
 #endif
 
+  for (extensions = parser->syntax_extensions; extensions; extensions = extensions->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) extensions->data;
+    if (ext->postprocess_func) {
+      cmark_node *processed = ext->postprocess_func(ext, parser, parser->root);
+      if (processed)
+        parser->root = processed;
+    }
+  }
+
   res = parser->root;
   parser->root = NULL;
 
   cmark_parser_reset(parser);
-
-  for (extensions = parser->syntax_extensions; extensions; extensions = extensions->next) {
-    cmark_syntax_extension *ext = (cmark_syntax_extension *) extensions->data;
-    if (ext->postprocess_func) {
-      cmark_node *processed = ext->postprocess_func(ext, res);
-      if (processed)
-        res = processed;
-    }
-  }
 
   return res;
 }

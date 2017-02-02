@@ -156,9 +156,9 @@ test: $(SPEC) cmake_build
 $(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
 	( \
 	  python3 test/spec_tests.py --spec $(SPEC) --dump-tests | \
-	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))'; \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); u8s = open(1, "w", encoding="utf-8", closefd=False); print("\n".join([test["markdown"] for test in tests]), file=u8s)'; \
 	  python3 test/spec_tests.py --spec $(EXTENSIONS_SPEC) --dump-tests | \
-	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))'; \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); u8s = open(1, "w", encoding="utf-8", closefd=False); print("\n".join([test["markdown"] for test in tests]), file=u8s)'; \
 	) > $@
 
 leakcheck: $(ALLTESTS)

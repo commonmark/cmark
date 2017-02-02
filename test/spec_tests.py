@@ -133,7 +133,7 @@ if __name__ == "__main__":
         pattern_re = re.compile('.')
     tests = [ test for test in all_tests if re.search(pattern_re, test['section']) and (not args.number or test['example'] == args.number) ]
     if args.dump_tests:
-        out(json.dumps(tests, ensure_ascii=False, indent=2))
+        out(json.dumps(tests, indent=2))
         exit(0)
     else:
         skipped = len(all_tests) - len(tests)
