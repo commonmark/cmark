@@ -245,6 +245,7 @@ typedef int (*cmark_html_filter_func) (cmark_syntax_extension *extension,
                                        size_t tag_len);
 
 typedef cmark_node *(*cmark_postprocess_func) (cmark_syntax_extension *extension,
+                                               cmark_parser *parser,
                                                cmark_node *root);
 
 typedef int (*cmark_ispunct_func) (char c);

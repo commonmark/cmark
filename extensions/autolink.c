@@ -194,77 +194,6 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   return node;
 }
 
-static cmark_node *email_match(cmark_parser *parser, cmark_node *parent,
-                               cmark_inline_parser *inline_parser) {
-  size_t link_end;
-  int rewind;
-  int nb = 0, np = 0, ns = 0;
-
-  cmark_chunk *chunk = cmark_inline_parser_get_chunk(inline_parser);
-  int max_rewind = cmark_inline_parser_get_offset(inline_parser);
-  uint8_t *data = chunk->data + max_rewind;
-  size_t size = chunk->len - max_rewind;
-
-  for (rewind = 0; rewind < max_rewind; ++rewind) {
-    uint8_t c = data[-rewind - 1];
-
-    if (cmark_isalnum(c))
-      continue;
-
-    if (strchr(".+-_", c) != NULL)
-      continue;
-
-    if (c == '/')
-      ns++;
-
-    break;
-  }
-
-  if (rewind == 0 || ns > 0)
-    return 0;
-
-  for (link_end = 0; link_end < size; ++link_end) {
-    uint8_t c = data[link_end];
-
-    if (cmark_isalnum(c))
-      continue;
-
-    if (c == '@')
-      nb++;
-    else if (c == '.' && link_end < size - 1)
-      np++;
-    else if (c != '-' && c != '_')
-      break;
-  }
-
-  if (link_end < 2 || nb != 1 || np == 0 ||
-      (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.'))
-    return 0;
-
-  link_end = autolink_delim(data, link_end);
-
-  if (link_end == 0)
-    return NULL;
-
-  cmark_inline_parser_set_offset(inline_parser, (int)(max_rewind + link_end));
-  cmark_node_unput(parent, rewind);
-
-  cmark_node *node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
-
-  cmark_strbuf buf;
-  cmark_strbuf_init(parser->mem, &buf, 10);
-  cmark_strbuf_puts(&buf, "mailto:");
-  cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
-  node->as.link.url = cmark_chunk_buf_detach(&buf);
-
-  cmark_node *text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  text->as.literal = cmark_chunk_dup(chunk, max_rewind - rewind,
-                                     (bufsize_t)(link_end + rewind));
-  cmark_node_append_child(node, text);
-
-  return node;
-}
-
 static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
                              cmark_inline_parser *inline_parser) {
   size_t link_end, domain_len;
@@ -326,9 +255,6 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   if (c == ':')
     return url_match(parser, parent, inline_parser);
 
-  if (c == '@')
-    return email_match(parser, parent, inline_parser);
-
   if (c == 'w')
     return www_match(parser, parent, inline_parser);
 
@@ -339,15 +265,151 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
+static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset) {
+  size_t link_end;
+  uint8_t *data = text->as.literal.data,
+    *at;
+  size_t size = text->as.literal.len;
+  int rewind, max_rewind,
+      nb = 0, np = 0, ns = 0;
+
+  if (offset >= size)
+    return;
+
+  data += offset;
+  size -= offset;
+
+  at = (uint8_t *)memchr(data, '@', size);
+  if (!at)
+    return;
+
+  max_rewind = (int)(at - data);
+  data += max_rewind;
+  size -= max_rewind;
+
+  for (rewind = 0; rewind < max_rewind; ++rewind) {
+    uint8_t c = data[-rewind - 1];
+
+    if (cmark_isalnum(c))
+      continue;
+
+    if (strchr(".+-_", c) != NULL)
+      continue;
+
+    if (c == '/')
+      ns++;
+
+    break;
+  }
+
+  if (rewind == 0 || ns > 0) {
+    postprocess_text(parser, text, max_rewind + 1 + offset);
+    return;
+  }
+
+  for (link_end = 0; link_end < size; ++link_end) {
+    uint8_t c = data[link_end];
+
+    if (cmark_isalnum(c))
+      continue;
+
+    if (c == '@')
+      nb++;
+    else if (c == '.' && link_end < size - 1)
+      np++;
+    else if (c != '-' && c != '_')
+      break;
+  }
+
+  if (link_end < 2 || nb != 1 || np == 0 ||
+      (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
+    postprocess_text(parser, text, max_rewind + 1 + offset);
+    return;
+  }
+
+  link_end = autolink_delim(data, link_end);
+
+  if (link_end == 0) {
+    postprocess_text(parser, text, max_rewind + 1 + offset);
+    return;
+  }
+
+  cmark_chunk_to_cstr(parser->mem, &text->as.literal);
+
+  cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
+  cmark_strbuf buf;
+  cmark_strbuf_init(parser->mem, &buf, 10);
+  cmark_strbuf_puts(&buf, "mailto:");
+  cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
+  link_node->as.link.url = cmark_chunk_buf_detach(&buf);
+
+  cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+  cmark_chunk email = cmark_chunk_dup(
+      &text->as.literal,
+      offset + max_rewind - rewind,
+      (bufsize_t)(link_end + rewind));
+  cmark_chunk_to_cstr(parser->mem, &email);
+  link_text->as.literal = email;
+  cmark_node_append_child(link_node, link_text);
+
+  cmark_node_insert_after(text, link_node);
+
+  cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+  post->as.literal = cmark_chunk_dup(&text->as.literal,
+    (bufsize_t)(offset + max_rewind + link_end),
+    (bufsize_t)(size - link_end));
+  cmark_chunk_to_cstr(parser->mem, &post->as.literal);
+
+  cmark_node_insert_after(link_node, post);
+
+  text->as.literal.len = offset + max_rewind - rewind;
+  text->as.literal.data[text->as.literal.len] = 0;
+
+  postprocess_text(parser, post, 0);
+}
+
+static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *root) {
+  cmark_iter *iter;
+  cmark_event_type ev;
+  cmark_node *node;
+  bool in_link = false;
+
+  cmark_consolidate_text_nodes(root);
+  iter = cmark_iter_new(root);
+
+  while ((ev = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
+    node = cmark_iter_get_node(iter);
+    if (in_link) {
+      if (ev == CMARK_EVENT_EXIT && node->type == CMARK_NODE_LINK) {
+        in_link = false;
+      }
+      continue;
+    }
+
+    if (ev == CMARK_EVENT_ENTER && node->type == CMARK_NODE_LINK) {
+      in_link = true;
+      continue;
+    }
+
+    if (ev == CMARK_EVENT_ENTER && node->type == CMARK_NODE_TEXT) {
+      postprocess_text(parser, node, 0);
+    }
+  }
+
+  cmark_iter_free(iter);
+
+  return root;
+}
+
 cmark_syntax_extension *create_autolink_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("autolink");
   cmark_llist *special_chars = NULL;
 
   cmark_syntax_extension_set_match_inline_func(ext, match);
+  cmark_syntax_extension_set_postprocess_func(ext, postprocess);
 
   cmark_mem *mem = cmark_get_default_mem_allocator();
   special_chars = cmark_llist_append(mem, special_chars, (void *)':');
-  special_chars = cmark_llist_append(mem, special_chars, (void *)'@');
   special_chars = cmark_llist_append(mem, special_chars, (void *)'w');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
 
