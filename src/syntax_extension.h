@@ -23,6 +23,7 @@ struct cmark_syntax_extension {
   cmark_html_filter_func          html_filter_func;
   cmark_postprocess_func          postprocess_func;
   cmark_opaque_free_func          opaque_free_func;
+  cmark_commonmark_escape_func    commonmark_escape_func;
 };
 
 #endif

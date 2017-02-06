@@ -24,10 +24,10 @@ struct cmark_renderer {
   bool begin_content;
   bool no_linebreaks;
   bool in_tight_list_item;
-  void (*outc)(struct cmark_renderer *, cmark_escaping, int32_t, unsigned char);
+  void (*outc)(struct cmark_renderer *, cmark_node *, cmark_escaping, int32_t, unsigned char);
   void (*cr)(struct cmark_renderer *);
   void (*blankline)(struct cmark_renderer *);
-  void (*out)(struct cmark_renderer *, const char *, bool, cmark_escaping);
+  void (*out)(struct cmark_renderer *, cmark_node *, const char *, bool, cmark_escaping);
 };
 
 typedef struct cmark_renderer cmark_renderer;
@@ -46,7 +46,8 @@ void cmark_render_ascii(cmark_renderer *renderer, const char *s);
 void cmark_render_code_point(cmark_renderer *renderer, uint32_t c);
 
 char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
-                   void (*outc)(cmark_renderer *, cmark_escaping, int32_t,
+                   void (*outc)(cmark_renderer *, cmark_node *,
+                                cmark_escaping, int32_t,
                                 unsigned char),
                    int (*render_node)(cmark_renderer *renderer,
                                       cmark_node *node,

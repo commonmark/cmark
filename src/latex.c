@@ -12,13 +12,14 @@
 #include "render.h"
 #include "syntax_extension.h"
 
-#define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
-#define LIT(s) renderer->out(renderer, s, false, LITERAL)
+#define OUT(s, wrap, escaping) renderer->out(renderer, node, s, wrap, escaping)
+#define LIT(s) renderer->out(renderer, node, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
 #define LIST_NUMBER_STRING_SIZE 20
 
-static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
+static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
+                              cmark_escaping escape,
                               int32_t c, unsigned char nextc) {
   if (escape == LITERAL) {
     cmark_render_code_point(renderer, c);
