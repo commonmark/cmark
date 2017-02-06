@@ -249,6 +249,10 @@ typedef cmark_node *(*cmark_postprocess_func) (cmark_syntax_extension *extension
 
 typedef int (*cmark_ispunct_func) (char c);
 
+typedef void (*cmark_opaque_free_func) (cmark_syntax_extension *extension,
+                                        cmark_mem *mem,
+                                        cmark_node *node);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_EXPORT
@@ -356,7 +360,13 @@ void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extensi
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_EXPORT
-void cmark_parser_set_backslash_ispunct_func(cmark_parser *extension,
+void cmark_syntax_extension_set_opaque_free_func(cmark_syntax_extension *extension,
+                                                 cmark_opaque_free_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_parser_set_backslash_ispunct_func(cmark_parser *parser,
                                              cmark_ispunct_func func);
 
 /** Return the index of the line currently being parsed, starting with 1.
