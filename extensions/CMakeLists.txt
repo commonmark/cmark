@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+set(LIBRARY "libcmarkextensions")
 set(STATICLIBRARY "libcmarkextensions_static")
 set(LIBRARY_SOURCES
     core-extensions.c
@@ -30,21 +31,44 @@ include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
 
-add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+if (CMARK_SHARED)
+  add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
 
-set_target_properties(${STATICLIBRARY} PROPERTIES
-  COMPILE_FLAGS -DCMARK_STATIC_DEFINE
-  POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(${LIBRARY} PROPERTIES
+  OUTPUT_NAME "cmarkextensions"
+  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+  VERSION ${PROJECT_VERSION})
 
-if (MSVC)
+  set_property(TARGET ${LIBRARY}
+    APPEND PROPERTY MACOSX_RPATH true)
+
+  # Avoid name clash between PROGRAM and LIBRARY pdb files.
+  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmarkextensions_dll)
+
+  #generate_export_header(${LIBRARY}
+  #BASE_NAME ${PROJECT_NAME})
+
+  list(APPEND CMARK_INSTALL ${LIBRARY})
+  target_link_libraries(${LIBRARY} libcmark)
+endif()
+
+if (CMARK_STATIC)
+  add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+
   set_target_properties(${STATICLIBRARY} PROPERTIES
-    OUTPUT_NAME "cmarkextensions_static"
-    VERSION ${PROJECT_VERSION})
-else()
-  set_target_properties(${STATICLIBRARY} PROPERTIES
-    OUTPUT_NAME "cmarkextensions"
-    VERSION ${PROJECT_VERSION})
-endif(MSVC)
+    COMPILE_FLAGS -DCMARK_STATIC_DEFINE
+    POSITION_INDEPENDENT_CODE ON)
+
+  if (MSVC)
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME "cmarkextensions_static"
+      VERSION ${PROJECT_VERSION})
+  else()
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME "cmarkextensions"
+      VERSION ${PROJECT_VERSION})
+  endif(MSVC)
+endif()
 
 # Feature tests
 include(CheckIncludeFile)
