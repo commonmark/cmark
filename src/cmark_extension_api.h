@@ -673,6 +673,9 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
 CMARK_EXPORT
 void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add);
 
+CMARK_EXPORT
+cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser);
+
 #ifdef __cplusplus
 }
 #endif

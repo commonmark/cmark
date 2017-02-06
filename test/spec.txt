@@ -5322,6 +5322,28 @@ Here the outer list is loose, the inner list tight:
 ````````````````````````````````
 
 
+## Tables (extension)
+
+```````````````````````````````` example table
+| hello | okay |
+| ----- | ---- |
+| hi    | yes  |
+.
+<table>
+<thead>
+<tr>
+<th>hello</th>
+<th>okay</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hi</td>
+<td>yes</td>
+</tr></tbody></table>
+````````````````````````````````
+
+
 # Inlines
 
 Inlines are parsed sequentially from the beginning of the character

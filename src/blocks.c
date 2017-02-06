@@ -1390,3 +1390,7 @@ void cmark_parser_set_backslash_ispunct_func(cmark_parser *parser,
                                              cmark_ispunct_func func) {
   parser->backslash_ispunct = func;
 }
+
+cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser) {
+  return parser->syntax_extensions;
+}
