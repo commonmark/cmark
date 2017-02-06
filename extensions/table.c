@@ -482,13 +482,13 @@ static void commonmark_render(cmark_syntax_extension *extension,
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
     if (entering) {
       renderer->cr(renderer);
-      renderer->out(renderer, "|", false, LITERAL);
+      renderer->out(renderer, node, "|", false, LITERAL);
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
     if (entering) {
-      renderer->out(renderer, " ", false, LITERAL);
+      renderer->out(renderer, node, " ", false, LITERAL);
     } else {
-      renderer->out(renderer, " |", false, LITERAL);
+      renderer->out(renderer, node, " |", false, LITERAL);
       if (((node_table_row *)node->parent->as.opaque)->is_header &&
           !node->next) {
         int i;
@@ -496,13 +496,13 @@ static void commonmark_render(cmark_syntax_extension *extension,
         uint16_t n_cols =
             ((node_table *)node->parent->parent->as.opaque)->n_columns;
         renderer->cr(renderer);
-        renderer->out(renderer, "|", false, LITERAL);
+        renderer->out(renderer, node, "|", false, LITERAL);
         for (i = 0; i < n_cols; i++) {
           switch (alignments[i]) {
-          case 0:   renderer->out(renderer, " --- |", false, LITERAL); break;
-          case 'l': renderer->out(renderer, " :-- |", false, LITERAL); break;
-          case 'c': renderer->out(renderer, " :-: |", false, LITERAL); break;
-          case 'r': renderer->out(renderer, " --: |", false, LITERAL); break;
+          case 0:   renderer->out(renderer, node, " --- |", false, LITERAL); break;
+          case 'l': renderer->out(renderer, node, " :-- |", false, LITERAL); break;
+          case 'c': renderer->out(renderer, node, " :-: |", false, LITERAL); break;
+          case 'r': renderer->out(renderer, node, " --: |", false, LITERAL); break;
           }
         }
         renderer->cr(renderer);
@@ -525,31 +525,31 @@ static void latex_render(cmark_syntax_extension *extension,
       uint8_t *alignments = get_table_alignments(node);
 
       renderer->cr(renderer);
-      renderer->out(renderer, "\\begin{table}", false, LITERAL);
+      renderer->out(renderer, node, "\\begin{table}", false, LITERAL);
       renderer->cr(renderer);
-      renderer->out(renderer, "\\begin{tabular}{", false, LITERAL);
+      renderer->out(renderer, node, "\\begin{tabular}{", false, LITERAL);
 
       n_cols = ((node_table *)node->as.opaque)->n_columns;
       for (i = 0; i < n_cols; i++) {
         switch(alignments[i]) {
         case 0:
         case 'l':
-          renderer->out(renderer, "l", false, LITERAL);
+          renderer->out(renderer, node, "l", false, LITERAL);
           break;
         case 'c':
-          renderer->out(renderer, "c", false, LITERAL);
+          renderer->out(renderer, node, "c", false, LITERAL);
           break;
         case 'r':
-          renderer->out(renderer, "r", false, LITERAL);
+          renderer->out(renderer, node, "r", false, LITERAL);
           break;
         }
       }
-      renderer->out(renderer, "}", false, LITERAL);
+      renderer->out(renderer, node, "}", false, LITERAL);
       renderer->cr(renderer);
     } else {
-      renderer->out(renderer, "\\end{tabular}", false, LITERAL);
+      renderer->out(renderer, node, "\\end{tabular}", false, LITERAL);
       renderer->cr(renderer);
-      renderer->out(renderer, "\\end{table}", false, LITERAL);
+      renderer->out(renderer, node, "\\end{table}", false, LITERAL);
       renderer->cr(renderer);
     }
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
@@ -559,9 +559,9 @@ static void latex_render(cmark_syntax_extension *extension,
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
     if (!entering) {
       if (node->next) {
-        renderer->out(renderer, " & ", false, LITERAL);
+        renderer->out(renderer, node, " & ", false, LITERAL);
       } else {
-        renderer->out(renderer, " \\\\", false, LITERAL);
+        renderer->out(renderer, node, " \\\\", false, LITERAL);
       }
     }
   } else {
@@ -581,9 +581,9 @@ static void man_render(cmark_syntax_extension *extension,
       uint8_t *alignments = get_table_alignments(node);
 
       renderer->cr(renderer);
-      renderer->out(renderer, ".TS", false, LITERAL);
+      renderer->out(renderer, node, ".TS", false, LITERAL);
       renderer->cr(renderer);
-      renderer->out(renderer, "tab(@);", false, LITERAL);
+      renderer->out(renderer, node, "tab(@);", false, LITERAL);
       renderer->cr(renderer);
 
       n_cols = ((node_table *)node->as.opaque)->n_columns;
@@ -591,24 +591,24 @@ static void man_render(cmark_syntax_extension *extension,
       for (i = 0; i < n_cols; i++) {
         switch (alignments[i]) {
         case 'l':
-          renderer->out(renderer, "l", false, LITERAL);
+          renderer->out(renderer, node, "l", false, LITERAL);
           break;
         case 0:
         case 'c':
-          renderer->out(renderer, "c", false, LITERAL);
+          renderer->out(renderer, node, "c", false, LITERAL);
           break;
         case 'r':
-          renderer->out(renderer, "r", false, LITERAL);
+          renderer->out(renderer, node, "r", false, LITERAL);
           break;
         }
       }
 
       if (n_cols) {
-        renderer->out(renderer, ".", false, LITERAL);
+        renderer->out(renderer, node, ".", false, LITERAL);
         renderer->cr(renderer);
       }
     } else {
-      renderer->out(renderer, ".TE", false, LITERAL);
+      renderer->out(renderer, node, ".TE", false, LITERAL);
       renderer->cr(renderer);
     }
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
@@ -617,7 +617,7 @@ static void man_render(cmark_syntax_extension *extension,
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
     if (!entering && node->next) {
-      renderer->out(renderer, "@", false, LITERAL);
+      renderer->out(renderer, node, "@", false, LITERAL);
     }
   } else {
     assert(false);
@@ -719,6 +719,10 @@ static void opaque_free(cmark_syntax_extension *ext, cmark_mem *mem, cmark_node 
   }
 }
 
+static int escape(cmark_syntax_extension *ext, cmark_node *node, int c) {
+  return c == '|';
+}
+
 cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("table");
 
@@ -732,6 +736,7 @@ cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension_set_man_render_func(ext, man_render);
   cmark_syntax_extension_set_html_render_func(ext, html_render);
   cmark_syntax_extension_set_opaque_free_func(ext, opaque_free);
+  cmark_syntax_extension_set_commonmark_escape_func(ext, escape);
   CMARK_NODE_TABLE = cmark_syntax_extension_add_node(0);
   CMARK_NODE_TABLE_ROW = cmark_syntax_extension_add_node(0);
   CMARK_NODE_TABLE_CELL = cmark_syntax_extension_add_node(0);

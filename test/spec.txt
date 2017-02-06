@@ -5322,25 +5322,76 @@ Here the outer list is loose, the inner list tight:
 
 ## Tables (extension)
 
+A [table](@) is an arrangement of data with rows and columns, consisting of a
+single header row, a [delimiter row] separating the header from the data, and zero or more data rows. 
+
+Each row consists of cells containing arbitrary text, in which [inlines] are parsed, separated by pipes (`|`).  A leading and trailing pipe is also recommended for clarity of reading, and if there's otherwise parsing ambiguity.  Spaces between pipes and cell content are trimmed.
+
+The [delimiter row](@) consists of cells whose only content are hyphens (`-`), and optionally, a leading or trailing colon (`:`), or both, to indicate left, right, or center alignment respectively.
+
 ```````````````````````````````` example table
-| hello | okay |
-| ----- | ---- |
-| hi    | yes  |
+| foo | bar |
+| --- | --- |
+| baz | bim |
 .
 <table>
 <thead>
 <tr>
-<th>hello</th>
-<th>okay</th>
+<th>foo</th>
+<th>bar</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>hi</td>
-<td>yes</td>
+<td>baz</td>
+<td>bim</td>
 </tr></tbody></table>
 ````````````````````````````````
 
+Cells in one column don't need to match length, though it's easier to read if
+they are. Likewise, use of leading and trailing pipes can be inconsistent:
+
+```````````````````````````````` example table
+| abc | defghi |
+:-: | -----------:
+hi | ok
+.
+<table>
+<thead>
+<tr>
+<th align="center">abc</th>
+<th align="right">defghi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">hi</td>
+<td align="right">ok</td>
+</tr></tbody></table>
+````````````````````````````````
+
+Include a pipe in a cell's content by escaping it. Pipes inside other inline spans (such as emphasis, code, etc.) will not break a cell:
+
+```````````````````````````````` example table
+| f\|oo  |
+| ------ |
+| b`|`az |
+| b **|** im |
+.
+<table>
+<thead>
+<tr>
+<th>f|oo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>b<code>|</code>az</td>
+</tr>
+<tr>
+<td>b <strong>|</strong> im</td>
+</tr></tbody></table>
+````````````````````````````````
 
 # Inlines
 
