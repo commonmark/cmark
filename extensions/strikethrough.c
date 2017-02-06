@@ -84,7 +84,7 @@ static int can_contain(cmark_syntax_extension *extension, cmark_node *node,
 static void commonmark_render(cmark_syntax_extension *extension,
                               cmark_renderer *renderer, cmark_node *node,
                               cmark_event_type ev_type, int options) {
-  renderer->out(renderer, cmark_node_get_string_content(node), false, LITERAL);
+  renderer->out(renderer, node, cmark_node_get_string_content(node), false, LITERAL);
 }
 
 static void latex_render(cmark_syntax_extension *extension,
@@ -93,9 +93,9 @@ static void latex_render(cmark_syntax_extension *extension,
   // requires \usepackage{ulem}
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   if (entering) {
-    renderer->out(renderer, "\\sout{", false, LITERAL);
+    renderer->out(renderer, node, "\\sout{", false, LITERAL);
   } else {
-    renderer->out(renderer, "}", false, LITERAL);
+    renderer->out(renderer, node, "}", false, LITERAL);
   }
 }
 
@@ -105,9 +105,9 @@ static void man_render(cmark_syntax_extension *extension,
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   if (entering) {
     renderer->cr(renderer);
-    renderer->out(renderer, ".ST \"", false, LITERAL);
+    renderer->out(renderer, node, ".ST \"", false, LITERAL);
   } else {
-    renderer->out(renderer, "\"", false, LITERAL);
+    renderer->out(renderer, node, "\"", false, LITERAL);
     renderer->cr(renderer);
   }
 }

@@ -234,6 +234,10 @@ typedef void (*cmark_common_render_func) (cmark_syntax_extension *extension,
                                           cmark_event_type ev_type,
                                           int options);
 
+typedef int (*cmark_commonmark_escape_func) (cmark_syntax_extension *extension,
+                                              cmark_node *node,
+                                              int c);
+
 typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
                                         cmark_html_renderer *renderer,
                                         cmark_node *node,
@@ -344,6 +348,12 @@ void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extensi
 CMARK_EXPORT
 void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extension,
                                                  cmark_html_filter_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
+void cmark_syntax_extension_set_commonmark_escape_func(cmark_syntax_extension *extension,
+                                                       cmark_commonmark_escape_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
