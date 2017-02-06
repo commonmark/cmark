@@ -134,6 +134,9 @@ static void S_free_nodes(cmark_node *e) {
     if (e->user_data && e->user_data_free_func)
       e->user_data_free_func(NODE_MEM(e), e->user_data);
 
+    if (e->as.opaque && e->extension && e->extension->opaque_free_func)
+      e->extension->opaque_free_func(e->extension, NODE_MEM(e), e);
+
     free_node_as(e);
 
     if (e->last_child) {
