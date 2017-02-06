@@ -42,6 +42,12 @@ typedef struct {
 } cmark_link;
 
 typedef struct {
+  cmark_chunk label;
+  cmark_chunk url;
+  cmark_chunk title;
+} cmark_reference_node;
+
+typedef struct {
   cmark_chunk on_enter;
   cmark_chunk on_exit;
 } cmark_custom;
@@ -75,6 +81,7 @@ struct cmark_node {
     cmark_code code;
     cmark_heading heading;
     cmark_link link;
+    cmark_reference_node reference;
     cmark_custom custom;
     int html_block_type;
   } as;

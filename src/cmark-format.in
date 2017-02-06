@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+
+HERE = "@CMAKE_CURRENT_SOURCE_DIR@"
+sys.path.append(HERE)
+sys.path.append(os.path.join(HERE, os.pardir, 'wrappers'))
+
+from remarkor import *
+from wrapper import conf
+
+conf.set_library_path("@CMAKE_CURRENT_BINARY_DIR@")
+
+if __name__=='__main__':
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('input')
+    arg_parser.add_argument('--width', type=int, default=80)
+    args = arg_parser.parse_args()
+
+    remarkor = Remarkor.from_filename(args.input)
+    res = remarkor.remark(width=args.width)
+    sys.stdout.write(res)

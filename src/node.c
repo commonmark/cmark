@@ -65,6 +65,9 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_CUSTOM_INLINE:
     return S_is_inline(child);
 
+  case CMARK_NODE_REFERENCE:
+    return false;
+
   default:
     break;
   }
@@ -122,6 +125,11 @@ static void S_free_nodes(cmark_node *e) {
     case CMARK_NODE_IMAGE:
       cmark_chunk_free(NODE_MEM(e), &e->as.link.url);
       cmark_chunk_free(NODE_MEM(e), &e->as.link.title);
+      break;
+    case CMARK_NODE_REFERENCE:
+      cmark_chunk_free(NODE_MEM(e), &e->as.reference.url);
+      cmark_chunk_free(NODE_MEM(e), &e->as.reference.title);
+      cmark_chunk_free(NODE_MEM(e), &e->as.reference.label);
       break;
     case CMARK_NODE_CUSTOM_BLOCK:
     case CMARK_NODE_CUSTOM_INLINE:
@@ -182,6 +190,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "paragraph";
   case CMARK_NODE_HEADING:
     return "heading";
+  case CMARK_NODE_REFERENCE:
+    return "reference";
   case CMARK_NODE_THEMATIC_BREAK:
     return "thematic_break";
   case CMARK_NODE_TEXT:
@@ -486,6 +496,8 @@ const char *cmark_node_get_url(cmark_node *node) {
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.link.url);
+  case CMARK_NODE_REFERENCE:
+    return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.reference.url);
   default:
     break;
   }
@@ -503,6 +515,9 @@ int cmark_node_set_url(cmark_node *node, const char *url) {
   case CMARK_NODE_IMAGE:
     cmark_chunk_set_cstr(NODE_MEM(node), &node->as.link.url, url);
     return 1;
+  case CMARK_NODE_REFERENCE:
+    cmark_chunk_set_cstr(NODE_MEM(node), &node->as.reference.url, url);
+    return 1;
   default:
     break;
   }
@@ -519,6 +534,8 @@ const char *cmark_node_get_title(cmark_node *node) {
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.link.title);
+  case CMARK_NODE_REFERENCE:
+    return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.reference.title);
   default:
     break;
   }
@@ -535,6 +552,40 @@ int cmark_node_set_title(cmark_node *node, const char *title) {
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
     cmark_chunk_set_cstr(NODE_MEM(node), &node->as.link.title, title);
+    return 1;
+  case CMARK_NODE_REFERENCE:
+    cmark_chunk_set_cstr(NODE_MEM(node), &node->as.reference.title, title);
+    return 1;
+  default:
+    break;
+  }
+
+  return 0;
+}
+
+const char *cmark_node_get_label(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_REFERENCE:
+    return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.reference.label);
+  default:
+    break;
+  }
+
+  return NULL;
+}
+
+int cmark_node_set_label(cmark_node *node, const char *label) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  switch (node->type) {
+  case CMARK_NODE_REFERENCE:
+    cmark_chunk_set_cstr(NODE_MEM(node), &node->as.reference.label, label);
     return 1;
   default:
     break;

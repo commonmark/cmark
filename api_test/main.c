@@ -5,6 +5,7 @@
 #define CMARK_NO_SHORT_NAMES
 #include "cmark.h"
 #include "node.h"
+#include "parser.h"
 
 #include "harness.h"
 #include "cplusplus.h"
@@ -90,7 +91,10 @@ static void accessors(test_batch_runner *runner) {
                                  "\n"
                                  "<div>html</div>\n"
                                  "\n"
-                                 "[link](url 'title')\n";
+                                 "[link](url 'title')\n"
+                                 "\n"
+                                 "[foo]: /bar 'title'\n"
+                                 "\n";
 
   cmark_node *doc =
       cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
@@ -140,6 +144,11 @@ static void accessors(test_batch_runner *runner) {
   cmark_node *string = cmark_node_first_child(link);
   STR_EQ(runner, cmark_node_get_literal(string), "link", "get_literal string");
 
+  cmark_node *reference = cmark_node_next(paragraph);
+  STR_EQ(runner, cmark_node_get_url(reference), "/bar", "get_reference_url");
+  STR_EQ(runner, cmark_node_get_title(reference), "title", "get_reference_title");
+  STR_EQ(runner, cmark_node_get_label(reference), "foo", "get_reference_label");
+
   // Setters
 
   OK(runner, cmark_node_set_heading_level(heading, 3), "set_heading_level");
@@ -168,6 +177,10 @@ static void accessors(test_batch_runner *runner) {
 
   OK(runner, cmark_node_set_url(link, "URL"), "set_url");
   OK(runner, cmark_node_set_title(link, "TITLE"), "set_title");
+
+  OK(runner, cmark_node_set_url(reference, "URL"), "set_reference_url");
+  OK(runner, cmark_node_set_title(reference, "TITLE"), "set_reference_title");
+  OK(runner, cmark_node_set_label(reference, "LABEL"), "set_reference_label");
 
   OK(runner, cmark_node_set_literal(string, "prefix-LINK"),
      "set_literal string");
@@ -214,6 +227,7 @@ static void accessors(test_batch_runner *runner) {
      "get_fence_info error");
   OK(runner, cmark_node_get_url(html) == NULL, "get_url error");
   OK(runner, cmark_node_get_title(heading) == NULL, "get_title error");
+  OK(runner, cmark_node_get_label(link) == NULL, "get_label error");
 
   // Setter errors
 
@@ -229,6 +243,7 @@ static void accessors(test_batch_runner *runner) {
      "set_fence_info error");
   OK(runner, !cmark_node_set_url(html, "url"), "set_url error");
   OK(runner, !cmark_node_set_title(heading, "title"), "set_title error");
+  OK(runner, !cmark_node_set_label(link, "label"), "set_label error");
 
   OK(runner, !cmark_node_set_heading_level(heading, 0),
      "set_heading_level too small");
@@ -883,6 +898,41 @@ static void test_feed_across_line_ending(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
+static cmark_node *S_parse_with_fake_total(bufsize_t fake_total,
+                                           const char *str,
+                                           cmark_err_type *err) {
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  parser->total_bytes = fake_total;
+  cmark_parser_feed(parser, str, strlen(str));
+  cmark_node *doc = cmark_parser_finish(parser);
+  *err = cmark_parser_get_error(parser);
+  cmark_parser_free(parser);
+  return doc;
+}
+
+static void test_bufsize_overflow(test_batch_runner *runner) {
+  cmark_node *doc;
+  cmark_err_type err;
+
+  doc = S_parse_with_fake_total(BUFSIZE_MAX, "a", &err);
+  OK(runner, doc == NULL, "parse 1 byte after BUFSIZE_MAX bytes fails");
+  INT_EQ(runner, err, CMARK_ERR_INPUT_TOO_LARGE,
+         "parse 1 byte after BUFSIZE_MAX bytes error code");
+
+  doc = S_parse_with_fake_total(BUFSIZE_MAX - 9, "0123456789", &err);
+  OK(runner, doc == NULL, "parse 10 byte after BUFSIZE_MAX-9 bytes fails");
+  INT_EQ(runner, err, CMARK_ERR_INPUT_TOO_LARGE,
+         "parse 10 byte after BUFSIZE_MAX-9 bytes error code");
+
+  doc = S_parse_with_fake_total(BUFSIZE_MAX - 1, "a", &err);
+  OK(runner, doc != NULL, "parse 1 byte after BUFSIZE_MAX-1 bytes");
+  cmark_node_free(doc);
+
+  doc = S_parse_with_fake_total(BUFSIZE_MAX - 10, "0123456789", &err);
+  OK(runner, doc != NULL, "parse 10 byte after BUFSIZE_MAX-10 bytes");
+  cmark_node_free(doc);
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -908,6 +958,7 @@ int main() {
   test_cplusplus(runner);
   test_safe(runner);
   test_feed_across_line_ending(runner);
+  test_bufsize_overflow(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

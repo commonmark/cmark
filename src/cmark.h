@@ -22,7 +22,7 @@ extern "C" {
 /** Convert 'text' (assumed to be a UTF-8 encoded string with length
  * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
  * UTF-8-encoded string. It is the caller's responsibility
- * to free the returned buffer.
+ * to free the returned buffer. Returns NULL on error.
  */
 CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
@@ -45,9 +45,10 @@ typedef enum {
   CMARK_NODE_PARAGRAPH,
   CMARK_NODE_HEADING,
   CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_REFERENCE,
 
   CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_REFERENCE,
 
   /* Inline */
   CMARK_NODE_TEXT,
@@ -64,6 +65,21 @@ typedef enum {
   CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
   CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
 } cmark_node_type;
+
+typedef enum {
+  CMARK_EXTENT_NONE,
+  CMARK_EXTENT_OPENER,
+  CMARK_EXTENT_CLOSER,
+  CMARK_EXTENT_BLANK,
+  CMARK_EXTENT_CONTENT,
+  CMARK_EXTENT_PUNCTUATION,
+  CMARK_EXTENT_LINK_DESTINATION,
+  CMARK_EXTENT_LINK_TITLE,
+  CMARK_EXTENT_LINK_LABEL,
+  CMARK_EXTENT_REFERENCE_DESTINATION,
+  CMARK_EXTENT_REFERENCE_LABEL,
+  CMARK_EXTENT_REFERENCE_TITLE,
+} cmark_extent_type;
 
 /* For backwards compatibility: */
 #define CMARK_NODE_HEADER CMARK_NODE_HEADING
@@ -83,9 +99,16 @@ typedef enum {
   CMARK_PAREN_DELIM
 } cmark_delim_type;
 
+typedef enum {
+  CMARK_ERR_NONE,
+  CMARK_ERR_OUT_OF_MEMORY,
+  CMARK_ERR_INPUT_TOO_LARGE
+} cmark_err_type;
+
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
+typedef struct cmark_source_extent cmark_source_extent;
 
 /**
  * ## Custom memory allocator support
@@ -99,6 +122,11 @@ typedef struct cmark_mem {
   void *(*realloc)(void *, size_t);
   void (*free)(void *);
 } cmark_mem;
+
+/** Convenience function for bindings.
+ */
+CMARK_EXPORT
+void cmark_default_mem_free(void *ptr);
 
 /**
  * ## Creating and Destroying Nodes
@@ -333,25 +361,35 @@ CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_fence_info(cmark_node *node, const char *info);
 
-/** Returns the URL of a link or image 'node', or an empty string
+/** Returns the URL of a link, image or reference 'node', or an empty string
     if no URL is set.
  */
 CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
 
-/** Sets the URL of a link or image 'node'. Returns 1 on success,
+/** Sets the URL of a link, image or reference 'node'. Returns 1 on success,
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_url(cmark_node *node, const char *url);
 
-/** Returns the title of a link or image 'node', or an empty
+/** Returns the title of a link, image or reference 'node', or an empty
     string if no title is set.
  */
 CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
 
-/** Sets the title of a link or image 'node'. Returns 1 on success,
+/** Sets the title of a link, image or reference 'node'. Returns 1 on success,
  * 0 on failure.
  */
 CMARK_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
+
+/** Returns the label of a reference 'node', or an empty
+    string if no label is set.
+ */
+CMARK_EXPORT const char *cmark_node_get_label(cmark_node *node);
+
+/** Sets the label of a reference 'node'. Returns 1 on success,
+ * 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_set_label(cmark_node *node, const char *label);
 
 /** Returns the literal "on enter" text for a custom 'node', or
     an empty string if no on_enter is set.
@@ -467,20 +505,35 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem);
 CMARK_EXPORT
 void cmark_parser_free(cmark_parser *parser);
 
+/** Return the error code after a failed operation.
+ */
+CMARK_EXPORT
+cmark_err_type cmark_parser_get_error(cmark_parser *parser);
+
+/** Return the error code after a failed operation.
+ */
+CMARK_EXPORT
+const char *cmark_parser_get_error_message(cmark_parser *parser);
+
 /** Feeds a string of length 'len' to 'parser'.
  */
 CMARK_EXPORT
 void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 
-/** Finish parsing and return a pointer to a tree of nodes.
+/** Finish parsing and return a pointer to a tree of nodes or NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
 
+/** Return a pointer to the first extent of the parser's source map
+ */
+CMARK_EXPORT
+cmark_source_extent *cmark_parser_get_first_source_extent(cmark_parser *parser);
+
 /** Parse a CommonMark document in 'buffer' of length 'len'.
  * Returns a pointer to a tree of nodes.  The memory allocated for
  * the node tree should be released using 'cmark_node_free'
- * when it is no longer needed.
+ * when it is no longer needed.  Returns NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
@@ -488,9 +541,43 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 /** Parse a CommonMark document in file 'f', returning a pointer to
  * a tree of nodes.  The memory allocated for the node tree should be
  * released using 'cmark_node_free' when it is no longer needed.
+ * Returns NULL on error.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
+
+/**
+ * ## Source map API
+ */
+
+/* Return the index, in bytes, of the start of this extent */
+CMARK_EXPORT
+size_t cmark_source_extent_get_start(cmark_source_extent *extent);
+
+/* Return the index, in bytes, of the stop of this extent. This
+ * index is not included in the extent*/
+CMARK_EXPORT
+size_t cmark_source_extent_get_stop(cmark_source_extent *extent);
+
+/* Return the extent immediately following 'extent' */
+CMARK_EXPORT
+cmark_source_extent *cmark_source_extent_get_next(cmark_source_extent *extent);
+
+/* Return the extent immediately preceding 'extent' */
+CMARK_EXPORT
+cmark_source_extent *cmark_source_extent_get_previous(cmark_source_extent *extent);
+
+/* Return the node 'extent' maps to */
+CMARK_EXPORT
+cmark_node *cmark_source_extent_get_node(cmark_source_extent *extent);
+
+/* Return the type of 'extent' */
+CMARK_EXPORT
+cmark_extent_type cmark_source_extent_get_type(cmark_source_extent *extent);
+
+/* Return a string representation of 'extent' */
+CMARK_EXPORT
+const char *cmark_source_extent_get_type_string(cmark_source_extent *extent);
 
 /**
  * ## Rendering

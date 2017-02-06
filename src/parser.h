@@ -2,9 +2,11 @@
 #define CMARK_AST_H
 
 #include <stdio.h>
+#include "cmark.h"
 #include "node.h"
 #include "buffer.h"
 #include "memory.h"
+#include "source_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +19,8 @@ struct cmark_parser {
   struct cmark_reference_map *refmap;
   struct cmark_node *root;
   struct cmark_node *current;
+  cmark_err_type error_code;
+  bufsize_t total_bytes;
   int line_number;
   bufsize_t offset;
   bufsize_t column;
@@ -27,9 +31,12 @@ struct cmark_parser {
   bool partially_consumed_tab;
   cmark_strbuf curline;
   bufsize_t last_line_length;
+  bufsize_t line_offset;
   cmark_strbuf linebuf;
   int options;
   bool last_buffer_ended_with_cr;
+  cmark_source_map *source_map;
+  cmark_source_extent *last_paragraph_extent;
 };
 
 #ifdef __cplusplus

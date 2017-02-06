@@ -18,6 +18,7 @@ set(HEADERS
   houdini.h
   cmark_ctype.h
   render.h
+  source_map.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -40,6 +41,7 @@ set(LIBRARY_SOURCES
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  source_map.c
   ${HEADERS}
   )
 
@@ -53,6 +55,9 @@ include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-format.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark-format)
 
 include (GenerateExportHeader)
 
