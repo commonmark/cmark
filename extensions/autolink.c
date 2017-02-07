@@ -273,7 +273,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
   int rewind, max_rewind,
       nb = 0, np = 0, ns = 0;
 
-  if (offset >= size)
+  if (offset < 0 || (size_t)offset >= size)
     return;
 
   data += offset;
