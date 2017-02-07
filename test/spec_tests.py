@@ -42,8 +42,9 @@ def print_test_header(headertext, example_number, start_line, end_line):
 
 def do_test(converter, test, normalize, result_counts):
     [retcode, actual_html, err] = converter(test['markdown'], test['extensions'])
+    actual_html = re.sub(r'\r\n', '\n', actual_html)
     if retcode == 0:
-        expected_html = test['html']
+        expected_html = re.sub(r'\r\n', '\n', test['html'])
         unicode_error = None
         if expected_html.strip() == '<IGNORE>':
             passed = True
