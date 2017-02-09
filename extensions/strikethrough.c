@@ -7,17 +7,22 @@ static cmark_node *match(cmark_syntax_extension *self, cmark_parser *parser,
                          cmark_node *parent, unsigned char character,
                          cmark_inline_parser *inline_parser) {
   cmark_node *res = NULL;
-  int left_flanking, right_flanking, punct_before, punct_after;
+  int left_flanking, right_flanking, punct_before, punct_after, delims;
+  char buffer[101];
 
   if (character != '~')
     return NULL;
 
-  cmark_inline_parser_scan_delimiters(inline_parser, 100, '~', &left_flanking,
-                                      &right_flanking, &punct_before,
-                                      &punct_after);
+  delims = cmark_inline_parser_scan_delimiters(
+      inline_parser, sizeof(buffer) - 1, '~',
+      &left_flanking,
+      &right_flanking, &punct_before, &punct_after);
+
+  memset(buffer, '~', delims);
+  buffer[delims] = 0;
 
   res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  cmark_node_set_literal(res, "~");
+  cmark_node_set_literal(res, buffer);
 
   if (left_flanking || right_flanking) {
     cmark_inline_parser_push_delimiter(inline_parser, character, left_flanking,
