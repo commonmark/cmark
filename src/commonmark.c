@@ -12,8 +12,8 @@
 #include "render.h"
 #include "syntax_extension.h"
 
-#define OUT(s, wrap, escaping) renderer->out(renderer, s, wrap, escaping)
-#define LIT(s) renderer->out(renderer, s, false, LITERAL)
+#define OUT(s, wrap, escaping) renderer->out(renderer, node, s, wrap, escaping)
+#define LIT(s) renderer->out(renderer, node, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
 #define ENCODED_SIZE 20
@@ -21,7 +21,8 @@
 
 // Functions to convert cmark_nodes to commonmark strings.
 
-static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
+static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node, 
+                              cmark_escaping escape,
                               int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   bool follows_digit =
@@ -32,8 +33,9 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
   needs_escaping =
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
-        (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
-         c == '>' || c == '\\' || c == '`' || c == '!' || c == '|' ||
+        ((node->parent && node->parent->extension && node->parent->extension->commonmark_escape_func && node->parent->extension->commonmark_escape_func(node->extension, node->parent, c)) ||
+         c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
+         c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
           // begin_content doesn't get set to false til we've passed digits

@@ -58,6 +58,9 @@ set(PROGRAM_SOURCES
   )
 
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(
+  ${PROJECT_BINARY_DIR}/extensions
+)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
@@ -74,7 +77,7 @@ target_link_libraries(${PROGRAM} libcmarkextensions_static)
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+  COMPILE_FLAGS "-DCMARK_STATIC_DEFINE -DCMARKEXTENSIONS_STATIC_DEFINE")
 
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")

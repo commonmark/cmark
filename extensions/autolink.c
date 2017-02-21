@@ -9,9 +9,8 @@
 #endif
 
 static int sd_autolink_issafe(const uint8_t *link, size_t link_len) {
-  static const size_t valid_uris_count = 5;
-  static const char *valid_uris[] = {"/", "http://", "https://", "ftp://",
-                                     "mailto:"};
+  static const size_t valid_uris_count = 3;
+  static const char *valid_uris[] = {"http://", "https://", "ftp://"};
 
   size_t i;
 
@@ -40,20 +39,8 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
     cclose = data[link_end - 1];
 
     switch (cclose) {
-    case '"':
-      copen = '"';
-      break;
-    case '\'':
-      copen = '\'';
-      break;
     case ')':
       copen = '(';
-      break;
-    case ']':
-      copen = '[';
-      break;
-    case '}':
-      copen = '{';
       break;
     default:
       copen = 0;
@@ -77,24 +64,24 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
       size_t opening = 0;
       i = 0;
 
-      /* Try to close the final punctuation sign in this same line;
-       * if we managed to close it outside of the URL, that means that it's
-       * not part of the URL. If it closes inside the URL, that means it
-       * is part of the URL.
+      /* Allow any number of matching brackets (as recognised in copen/cclose)
+       * at the end of the URL.  If there is a greater number of closing
+       * brackets than opening ones, we remove one character from the end of
+       * the link.
        *
-       * Examples:
+       * Examples (input text => output linked portion):
        *
-       *	foo http://www.pokemon.com/Pikachu_(Electric) bar
+       *	http://www.pokemon.com/Pikachu_(Electric)
        *		=> http://www.pokemon.com/Pikachu_(Electric)
        *
-       *	foo (http://www.pokemon.com/Pikachu_(Electric)) bar
+       *	http://www.pokemon.com/Pikachu_((Electric)
+       *		=> http://www.pokemon.com/Pikachu_((Electric)
+       *
+       *	http://www.pokemon.com/Pikachu_(Electric))
        *		=> http://www.pokemon.com/Pikachu_(Electric)
        *
-       *	foo http://www.pokemon.com/Pikachu_(Electric)) bar
-       *		=> http://www.pokemon.com/Pikachu_(Electric)
-       *
-       *	(foo http://www.pokemon.com/Pikachu_(Electric)) bar
-       *		=> foo http://www.pokemon.com/Pikachu_(Electric)
+       *	http://www.pokemon.com/Pikachu_((Electric))
+       *		=> http://www.pokemon.com/Pikachu_((Electric))
        */
 
       while (i < link_end) {
@@ -106,7 +93,7 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
         i++;
       }
 
-      if (closing == opening)
+      if (closing <= opening)
         break;
 
       link_end--;
@@ -273,7 +260,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
   int rewind, max_rewind,
       nb = 0, np = 0, ns = 0;
 
-  if (offset >= size)
+  if (offset < 0 || (size_t)offset >= size)
     return;
 
   data += offset;

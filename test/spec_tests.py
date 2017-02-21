@@ -19,6 +19,8 @@ if __name__ == "__main__":
             default=None, help='limit to sections matching regex pattern')
     parser.add_argument('--library-dir', dest='library_dir', nargs='?',
             default=None, help='directory containing dynamic library')
+    parser.add_argument('--extensions', dest='extensions', nargs='?',
+            default=None, help='space separated list of extensions to enable')
     parser.add_argument('--no-normalize', dest='normalize',
             action='store_const', const=False, default=True,
             help='do not normalize HTML')
@@ -39,9 +41,10 @@ def print_test_header(headertext, example_number, start_line, end_line):
     out("Example %d (lines %d-%d) %s\n" % (example_number,start_line,end_line,headertext))
 
 def do_test(converter, test, normalize, result_counts):
-    [retcode, actual_html, err] = converter(test['markdown'])
+    [retcode, actual_html, err] = converter(test['markdown'], test['extensions'])
+    actual_html = re.sub(r'\r\n', '\n', actual_html)
     if retcode == 0:
-        expected_html = test['html']
+        expected_html = re.sub(r'\r\n', '\n', test['html'])
         unicode_error = None
         if expected_html.strip() == '<IGNORE>':
             passed = True
@@ -84,6 +87,7 @@ def get_tests(specfile):
     markdown_lines = []
     html_lines = []
     state = 0  # 0 regular text, 1 markdown example, 2 html output
+    extensions = []
     headertext = ''
     tests = []
 
@@ -93,8 +97,9 @@ def get_tests(specfile):
         for line in specf:
             line_number = line_number + 1
             l = line.strip()
-            if l == "`" * 32 + " example":
+            if l.startswith("`" * 32 + " example"):
                 state = 1
+                extensions = l[32 + len(" example"):].split()
             elif l == "`" * 32:
                 state = 0
                 example_number = example_number + 1
@@ -105,7 +110,8 @@ def get_tests(specfile):
                     "example": example_number,
                     "start_line": start_line,
                     "end_line": end_line,
-                    "section": headertext})
+                    "section": headertext,
+                    "extensions": extensions})
                 start_line = 0
                 markdown_lines = []
                 html_lines = []
@@ -137,7 +143,7 @@ if __name__ == "__main__":
         exit(0)
     else:
         skipped = len(all_tests) - len(tests)
-        converter = CMark(prog=args.program, library_dir=args.library_dir).to_html
+        converter = CMark(prog=args.program, library_dir=args.library_dir, extensions=args.extensions).to_html
         result_counts = {'pass': 0, 'fail': 0, 'error': 0, 'skip': skipped}
         for test in tests:
             do_test(converter, test, args.normalize, result_counts)
