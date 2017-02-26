@@ -3,75 +3,72 @@
 #include <string.h>
 
 #include "buffer.h"
+#include "chunk.h"
 #include "houdini.h"
 #include "utf8.h"
 #include "entity.h"
 
 bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
-                               bufsize_t size) {
+                               bufsize_t size, int convert_entities) {
+  int ent_length;
+  int hex = 0;
   bufsize_t i = 0;
+  int codepoint = 0;
+  cmark_chunk chunk = {(unsigned char *)src, size, 0};
 
-  if (size >= 3 && src[0] == '#') {
-    int codepoint = 0;
-    int num_digits = 0;
+  ent_length = scan_entity(&chunk, 0);
 
-    if (cmark_isdigit(src[1])) {
-      for (i = 1; i < size && cmark_isdigit(src[i]); ++i) {
-        codepoint = (codepoint * 10) + (src[i] - '0');
+  if (ent_length == 0) {
 
-        if (codepoint >= 0x110000) {
-          // Keep counting digits but
-          // avoid integer overflow.
-          codepoint = 0x110000;
-        }
-      }
+    return 0;
 
-      num_digits = i - 1;
+  } else if (!convert_entities) {
+
+    cmark_strbuf_put(ob, (const unsigned char *)src, ent_length);
+    return ent_length;
+
+  } else if (src[1] == '#') {
+
+    if (src[2] == 'x' || src[2] == 'X') {
+      i = 3;
+      hex = 1;
+    } else {
+      i = 2;
+      hex = 0;
     }
 
-    else if (src[1] == 'x' || src[1] == 'X') {
-      for (i = 2; i < size && cmark_ishexdigit(src[i]); ++i) {
+    while (i < ent_length) {
+      if (hex) {
         codepoint = (codepoint * 16) + ((src[i] | 32) % 39 - 9);
-
-        if (codepoint >= 0x110000) {
-          // Keep counting digits but
-          // avoid integer overflow.
-          codepoint = 0x110000;
-        }
+      } else {
+        codepoint = (codepoint * 10) + (src[i] - '0');
       }
-
-      num_digits = i - 2;
+      if (codepoint >= 0x110000) {
+        // Keep counting digits but
+        // avoid integer overflow.
+        codepoint = 0x110000;
+      }
+      i++;
     }
 
-    if (num_digits >= 1 && num_digits <= 8 && i < size && src[i] == ';') {
-      if (codepoint == 0 || (codepoint >= 0xD800 && codepoint < 0xE000) ||
-          codepoint >= 0x110000) {
-        codepoint = 0xFFFD;
-      }
-      cmark_utf8proc_encode_char(codepoint, ob);
-      return i + 1;
+    if (codepoint == 0 || (codepoint >= 0xD800 && codepoint < 0xE000) ||
+        codepoint >= 0x110000) {
+      codepoint = 0xFFFD;
     }
-  }
 
-  else {
-    if (size > CMARK_ENTITY_MAX_LENGTH)
-      size = CMARK_ENTITY_MAX_LENGTH;
+    cmark_utf8proc_encode_char(codepoint, ob);
+    return ent_length;
 
-    for (i = CMARK_ENTITY_MIN_LENGTH; i < size; ++i) {
-      if (src[i] == ' ')
-        break;
+  } else if (ent_length > 3) {
+    const unsigned char *entity = cmark_lookup_entity(src + 1, ent_length - 2);
 
-      if (src[i] == ';') {
-        const unsigned char *entity = cmark_lookup_entity(src, i);
-
-        if (entity != NULL) {
-          cmark_strbuf_puts(ob, (const char *)entity);
-          return i + 1;
-        }
-
-        break;
-      }
+    if (entity == NULL) {
+      return 0;
+    } else {
+      cmark_strbuf_puts(ob, (const char *)entity);
+      return ent_length;
     }
+
   }
 
   return 0;
@@ -102,14 +99,14 @@ int houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src,
     if (i >= size)
       break;
 
-    i++;
-
-    ent = houdini_unescape_ent(ob, src + i, size - i);
+    ent = houdini_unescape_ent(ob, src + i, size - i, 0);
     i += ent;
 
     /* not really an entity */
-    if (ent == 0)
+    if (ent == 0) {
+      i++;
       cmark_strbuf_putc(ob, '&');
+    }
   }
 
   return 1;

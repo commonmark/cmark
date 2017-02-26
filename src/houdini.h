@@ -21,7 +21,7 @@ extern "C" {
 #define HOUDINI_UNESCAPED_SIZE(x) (x)
 
 extern bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
-                                      bufsize_t size);
+                                      bufsize_t size, int convert_entities);
 extern int houdini_escape_html(cmark_strbuf *ob, const uint8_t *src,
                                bufsize_t size);
 extern int houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src,
