@@ -15,6 +15,7 @@ int scan_entity(cmark_chunk *chunk, bufsize_t offset) {
   const unsigned char *data = chunk->data;
   bool numerical = false;
   bool hex = false;
+  bool nonempty = false;
 
   if (data == NULL || offset > chunk->len) {
     return 0;
@@ -29,33 +30,34 @@ int scan_entity(cmark_chunk *chunk, bufsize_t offset) {
   if (data[i] == '#') { // numerical
     i++;
     numerical = true;
-    if (data[i+1] == 'X' || data[i+1] == 'x') {
+    if (data[i] == 'X' || data[i] == 'x') {
       i++;
       hex = true;
     }
+    limit = i + 7;
   } else {
     if (cmark_isalpha(data[i])) {
       i++;
+      nonempty = true;
     } else {
       return 0;
     }
   }
 
   while (i <= limit && data[i]) {
-    if (numerical) {
-      if (!((hex && cmark_ishexdigit(data[i])) || cmark_isdigit(data[i]))) {
-	return 0;
-      }
-    } else {
-      if (!(cmark_isalnum(data[i]))) {
-	return 0;
-      }
+    if (hex && !cmark_ishexdigit(data[i])) {
+        break;
+    } else if (numerical && !hex && !cmark_isdigit(data[i])) {
+        break;
+    } else if (!cmark_isalnum(data[i])) {
+      break;
     }
     i++;
+    nonempty = true;
   }
 
-  if (data[i] == ';') {
-    return (i - offset);
+  if (data[i] == ';' && nonempty) {
+    return (i - offset + 1);
   }
 
   return 0;
