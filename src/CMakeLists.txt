@@ -70,7 +70,7 @@ include (GenerateExportHeader)
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
-target_link_libraries(${PROGRAM} libcmark)
+target_link_libraries(${PROGRAM} libcmark_static)
 
 add_dependencies(${PROGRAM} libcmarkextensions_static)
 target_link_libraries(${PROGRAM} libcmarkextensions_static)
