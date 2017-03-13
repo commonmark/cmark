@@ -55,7 +55,7 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
       copen = 0;
     }
 
-    if (strchr("?!.,:*_~", data[link_end - 1]) != NULL)
+    if (strchr("?!.,:*_~'\"", data[link_end - 1]) != NULL)
       link_end--;
 
     else if (data[link_end - 1] == ';') {

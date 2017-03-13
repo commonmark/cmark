@@ -432,6 +432,10 @@ Full stop outside parens shouldn't be included http://google.com/ok.
 
 (Full stop inside parens shouldn't be included http://google.com/ok.)
 
+"http://google.com"
+
+'http://google.com'
+
 http://🍄.ga/ http://x🍄.ga/
 .
 <p>: <a href="http://google.com">http://google.com</a> <a href="https://google.com">https://google.com</a></p>
@@ -444,6 +448,8 @@ http://🍄.ga/ http://x🍄.ga/
 <p><a href="mailto:a.w@b.c">a.w@b.c</a></p>
 <p>Full stop outside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.</p>
 <p>(Full stop inside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.)</p>
+<p>&quot;<a href="http://google.com">http://google.com</a>&quot;</p>
+<p>'<a href="http://google.com">http://google.com</a>'</p>
 <p><a href="http://%F0%9F%8D%84.ga/">http://🍄.ga/</a> <a href="http://x%F0%9F%8D%84.ga/">http://x🍄.ga/</a></p>
 ````````````````````````````````
 
