@@ -1,12 +1,21 @@
 #include "autolink.h"
 #include <parser.h>
 #include <string.h>
+#include <utf8.h>
 
 #if defined(_WIN32)
 #define strncasecmp _strnicmp
 #else
 #include <strings.h>
 #endif
+
+static int is_valid_hostchar(const uint8_t *link, size_t link_len) {
+  int32_t ch;
+  int r = cmark_utf8proc_iterate(link, (bufsize_t)link_len, &ch);
+  if (r < 0)
+    return 0;
+  return !cmark_utf8proc_is_space(ch) && !cmark_utf8proc_is_punctuation(ch);
+}
 
 static int sd_autolink_issafe(const uint8_t *link, size_t link_len) {
   static const size_t valid_uris_count = 3;
@@ -18,7 +27,7 @@ static int sd_autolink_issafe(const uint8_t *link, size_t link_len) {
     size_t len = strlen(valid_uris[i]);
 
     if (link_len > len && strncasecmp((char *)link, valid_uris[i], len) == 0 &&
-        cmark_isalnum(link[len]))
+        is_valid_hostchar(link + len, link_len - len))
       return 1;
   }
 
@@ -114,7 +123,7 @@ static size_t check_domain(uint8_t *data, size_t size, int allow_short) {
       uscore1 = uscore2;
       uscore2 = 0;
       np++;
-    } else if (!cmark_isalnum(data[i]) && data[i] != '-')
+    } else if (!is_valid_hostchar(data + i, size - i) && data[i] != '-')
       break;
   }
 
