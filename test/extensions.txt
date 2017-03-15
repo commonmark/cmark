@@ -380,6 +380,30 @@ This shouldn't assert.
 </tr></tbody></table>
 ````````````````````````````````
 
+### Reference-style links
+
+```````````````````````````````` example
+Here's a link to [Freedom Planet 2][].
+
+| Here's a link to [Freedom Planet 2][] in a table header. |
+| --- |
+| Here's a link to [Freedom Planet 2][] in a table row. |
+
+[Freedom Planet 2]: http://www.freedomplanet2.com/
+.
+<p>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a> in a table header.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a> in a table row.</td>
+</tr></tbody></table>
+````````````````````````````````
+
 
 ## Strikethroughs
 
