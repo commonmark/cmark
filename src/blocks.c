@@ -1262,6 +1262,12 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   input.len = parser->curline.size;
   input.alloc = 0;
 
+  // Skip UTF-8 BOM.
+  if (parser->line_number == 0 &&
+      input.len >= 3 &&
+      memcmp(input.data, "\xef\xbb\xbf", 3) == 0)
+    parser->offset += 3;
+
   parser->line_number++;
 
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
