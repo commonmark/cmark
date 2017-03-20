@@ -739,6 +739,13 @@ static void utf8(test_batch_runner *runner) {
   STR_EQ(runner, html, "<pre><code>\xef\xbf\xbd\n</code></pre>\n",
          "utf8 with \\0\\n");
   free(html);
+
+  // Test byte-order marker
+  static const char string_with_bom[] = "\xef\xbb\xbf# Hello\n";
+  html = cmark_markdown_to_html(
+      string_with_bom, sizeof(string_with_bom) - 1, CMARK_OPT_DEFAULT);
+  STR_EQ(runner, html, "<h1>Hello</h1>\n", "utf8 with BOM");
+  free(html);
 }
 
 static void test_char(test_batch_runner *runner, int valid, const char *utf8,
