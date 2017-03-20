@@ -1261,7 +1261,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   input.alloc = 0;
 
   // Skip UTF-8 BOM.
-  if (input.len >= 3 &&
+  if (parser->line_number == 0 &&
+      input.len >= 3 &&
       memcmp(input.data, "\xef\xbb\xbf", 3) == 0)
     parser->offset += 3;
 
