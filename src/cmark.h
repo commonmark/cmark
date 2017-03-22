@@ -696,6 +696,11 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_SMART (1 << 10)
 
+/** Use GitHub-style <pre lang="x"> tags for code blocks instead of <pre><code
+ * class="language-x">.
+ */
+#define CMARK_OPT_GITHUB_PRE_LANG (1 << 11)
+
 /**
  * ## Version information
  */

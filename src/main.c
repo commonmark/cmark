@@ -38,6 +38,7 @@ void print_usage() {
   printf("  --nobreaks       Render soft line breaks as spaces\n");
   printf("  --safe           Suppress raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
+  printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
   printf("  -e, --extension EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
   printf("  --help, -h       Print usage information\n");
@@ -130,6 +131,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_NOBREAKS;
     } else if (strcmp(argv[i], "--smart") == 0) {
       options |= CMARK_OPT_SMART;
+    } else if (strcmp(argv[i], "--github-pre-lang") == 0) {
+      options |= CMARK_OPT_GITHUB_PRE_LANG;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
     } else if (strcmp(argv[i], "--validate-utf8") == 0) {
