@@ -1,4 +1,4 @@
-.TH cmark 3 "November 29, 2016" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 22, 2017" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -899,6 +899,18 @@ with the replacement character U+FFFD.
 .PP
 Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
 dashes.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_GITHUB_PRE_LANG (1 << 11)
+.RE
+\f[]
+.fi
+
+.PP
+Use GitHub\-style  tags for code blocks instead of .
 
 .SS
 Version information

@@ -30,19 +30,20 @@ typedef enum {
 void print_usage() {
   printf("Usage:   cmark [FILE*]\n");
   printf("Options:\n");
-  printf("  --to, -t FORMAT  Specify output format (html, xml, man, "
+  printf("  --to, -t FORMAT   Specify output format (html, xml, man, "
          "commonmark, latex)\n");
-  printf("  --width WIDTH    Specify wrap width (default 0 = nowrap)\n");
-  printf("  --sourcepos      Include source position attribute\n");
-  printf("  --hardbreaks     Treat newlines as hard line breaks\n");
-  printf("  --nobreaks       Render soft line breaks as spaces\n");
-  printf("  --safe           Suppress raw HTML and dangerous URLs\n");
-  printf("  --smart          Use smart punctuation\n");
-  printf("  --normalize      Consolidate adjacent text nodes\n");
+  printf("  --width WIDTH     Specify wrap width (default 0 = nowrap)\n");
+  printf("  --sourcepos       Include source position attribute\n");
+  printf("  --hardbreaks      Treat newlines as hard line breaks\n");
+  printf("  --nobreaks        Render soft line breaks as spaces\n");
+  printf("  --safe            Suppress raw HTML and dangerous URLs\n");
+  printf("  --smart           Use smart punctuation\n");
+  printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
+  printf("  --normalize       Consolidate adjacent text nodes\n");
   printf("  -e, --extension EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
-  printf("  --help, -h       Print usage information\n");
-  printf("  --version        Print version\n");
+  printf("  --help, -h        Print usage information\n");
+  printf("  --version         Print version\n");
 }
 
 static bool print_document(cmark_node *document, writer_format writer,
@@ -131,6 +132,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_NOBREAKS;
     } else if (strcmp(argv[i], "--smart") == 0) {
       options |= CMARK_OPT_SMART;
+    } else if (strcmp(argv[i], "--github-pre-lang") == 0) {
+      options |= CMARK_OPT_GITHUB_PRE_LANG;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
     } else if (strcmp(argv[i], "--normalize") == 0) {
