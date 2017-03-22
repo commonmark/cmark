@@ -188,7 +188,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
         cmark_html_render_sourcepos(node, html, options);
         cmark_strbuf_puts(html, " lang=\"");
         escape_html(html, node->as.code.info.data, first_tag);
-        cmark_strbuf_puts(html, "\">");
+        cmark_strbuf_puts(html, "\"><code>");
       } else {
         cmark_strbuf_puts(html, "<pre");
         cmark_html_render_sourcepos(node, html, options);
@@ -199,11 +199,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     }
 
     escape_html(html, node->as.code.literal.data, node->as.code.literal.len);
-    if (options & CMARK_OPT_GITHUB_PRE_LANG) {
-      cmark_strbuf_puts(html, "</pre>\n");
-    } else {
-      cmark_strbuf_puts(html, "</code></pre>\n");
-    }
+    cmark_strbuf_puts(html, "</code></pre>\n");
     break;
 
   case CMARK_NODE_HTML_BLOCK:
