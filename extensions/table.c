@@ -151,11 +151,8 @@ static cmark_node *consume_until_pipe_or_eol(cmark_syntax_extension *self,
       } else {
         pipe -= *offset;
 
-        if (pipe) {
-          child->as.literal = cmark_chunk_dup(&node->as.literal, *offset, pipe);
-          cmark_node_own(child);
-        } else
-          cmark_node_free(child);
+        child->as.literal = cmark_chunk_dup(&node->as.literal, *offset, pipe);
+        cmark_node_own(child);
 
         *offset += pipe + 1;
         if (*offset >= node->as.literal.len) {
@@ -181,6 +178,8 @@ static cmark_node *consume_until_pipe_or_eol(cmark_syntax_extension *self,
     return NULL;
   }
 
+  cmark_consolidate_text_nodes(result);
+
   if (result->first_child->type == CMARK_NODE_TEXT) {
     cmark_chunk c = cmark_chunk_ltrim_new(parser->mem, &result->first_child->as.literal);
     cmark_chunk_free(parser->mem, &result->first_child->as.literal);
@@ -193,7 +192,6 @@ static cmark_node *consume_until_pipe_or_eol(cmark_syntax_extension *self,
     result->last_child->as.literal = c;
   }
 
-  cmark_consolidate_text_nodes(result);
   return result;
 }
 
