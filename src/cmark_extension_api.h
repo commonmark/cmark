@@ -686,6 +686,12 @@ void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add);
 CMARK_EXPORT
 cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser);
 
+CMARK_EXPORT
+void cmark_arena_push(void);
+
+CMARK_EXPORT
+int cmark_arena_pop(void);
+
 #ifdef __cplusplus
 }
 #endif
