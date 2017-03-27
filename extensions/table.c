@@ -1,3 +1,4 @@
+#include <cmark_extension_api.h>
 #include <html.h>
 #include <inlines.h>
 #include <parser.h>
@@ -253,15 +254,19 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   uint16_t i;
 
   if (!matched)
-    goto done;
+    return parent_container;
 
   parent_string = cmark_node_get_string_content(parent_container);
+
+  cmark_arena_push();
 
   header_row = row_from_string(self, parser, (unsigned char *)parent_string,
                                (int)strlen(parent_string));
 
   if (!header_row) {
-    goto done;
+    free_table_row(parser->mem, header_row);
+    cmark_arena_pop();
+    return parent_container;
   }
 
   marker_row = row_from_string(self, parser,
@@ -271,11 +276,24 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   assert(marker_row);
 
   if (header_row->n_columns != marker_row->n_columns) {
-    goto done;
+    free_table_row(parser->mem, header_row);
+    free_table_row(parser->mem, marker_row);
+    cmark_arena_pop();
+    return parent_container;
+  }
+
+  if (cmark_arena_pop()) {
+    header_row = row_from_string(self, parser, (unsigned char *)parent_string,
+                                 (int)strlen(parent_string));
+    marker_row = row_from_string(self, parser,
+                                 input + cmark_parser_get_first_nonspace(parser),
+                                 len - cmark_parser_get_first_nonspace(parser));
   }
 
   if (!cmark_node_set_type(parent_container, CMARK_NODE_TABLE)) {
-    goto done;
+    free_table_row(parser->mem, header_row);
+    free_table_row(parser->mem, marker_row);
+    return parent_container;
   }
 
   cmark_node_set_syntax_extension(parent_container, self);
@@ -325,7 +343,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   cmark_parser_advance_offset(
       parser, (char *)input,
       (int)strlen((char *)input) - 1 - cmark_parser_get_offset(parser), false);
-done:
+
   free_table_row(parser->mem, header_row);
   free_table_row(parser->mem, marker_row);
   return parent_container;
@@ -379,12 +397,14 @@ static int matches(cmark_syntax_extension *self, cmark_parser *parser,
   int res = 0;
 
   if (cmark_node_get_type(parent_container) == CMARK_NODE_TABLE) {
+    cmark_arena_push();
     table_row *new_row = row_from_string(
         self, parser, input + cmark_parser_get_first_nonspace(parser),
         len - cmark_parser_get_first_nonspace(parser));
     if (new_row && new_row->n_columns)
       res = 1;
     free_table_row(parser->mem, new_row);
+    cmark_arena_pop();
   }
 
   return res;
