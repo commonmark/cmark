@@ -24,7 +24,7 @@ CLANG_CHECK?=clang-check
 CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
 AFL_PATH?=/usr/local/bin
 
-.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check
+.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check docker
 
 all: cmake_build man/man3/cmark.3
 
@@ -211,3 +211,7 @@ distclean: clean
 	-rm -rf *.dSYM
 	-rm -f README.html
 	-rm -rf $(BENCHFILE) $(ALLTESTS) progit
+
+docker:
+	docker build -t cmark $(CURDIR)/tools
+	docker run --privileged -t -i -v $(CURDIR):/src/cmark -w /src/cmark cmark /bin/bash
