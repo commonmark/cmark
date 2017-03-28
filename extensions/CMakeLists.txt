@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-set(LIBRARY "libcmarkextensions")
-set(STATICLIBRARY "libcmarkextensions_static")
+set(LIBRARY "libcmark-gfmextensions")
+set(STATICLIBRARY "libcmark-gfmextensions_static")
 set(LIBRARY_SOURCES
     core-extensions.c
     table.c
@@ -38,7 +38,7 @@ if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
 
   set_target_properties(${LIBRARY} PROPERTIES
-  OUTPUT_NAME "cmarkextensions"
+  OUTPUT_NAME "cmark-gfmextensions"
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
   VERSION ${PROJECT_VERSION})
 
@@ -46,10 +46,10 @@ if (CMARK_SHARED)
     APPEND PROPERTY MACOSX_RPATH true)
 
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
-  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmarkextensions_dll)
+  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfmextensions_dll)
 
   list(APPEND CMARK_INSTALL ${LIBRARY})
-  target_link_libraries(${LIBRARY} libcmark)
+  target_link_libraries(${LIBRARY} libcmark-gfm)
 
   generate_export_header(${LIBRARY} BASE_NAME cmarkextensions)
 endif()
@@ -63,11 +63,11 @@ if (CMARK_STATIC)
 
   if (MSVC)
     set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmarkextensions_static"
+      OUTPUT_NAME "cmark-gfmextensions_static"
       VERSION ${PROJECT_VERSION})
   else()
     set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmarkextensions"
+      OUTPUT_NAME "cmark-gfmextensions"
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
 endif()

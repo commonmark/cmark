@@ -15,7 +15,7 @@ BENCHSAMPLES=$(wildcard $(BENCHDIR)/samples/*.md)
 BENCHFILE=$(BENCHDIR)/benchinput.md
 ALLTESTS=alltests.md
 NUMRUNS?=20
-CMARK=$(BUILDDIR)/src/cmark
+CMARK=$(BUILDDIR)/src/cmark-gfm
 PROG?=$(CMARK)
 VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
@@ -26,7 +26,7 @@ AFL_PATH?=/usr/local/bin
 
 .PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check docker
 
-all: cmake_build man/man3/cmark.3
+all: cmake_build man/man3/cmark-gfm.3
 
 $(CMARK): cmake_build
 
@@ -92,7 +92,7 @@ mingw:
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
 	$(MAKE) && $(MAKE) install
 
-man/man3/cmark.3: src/cmark.h | $(CMARK)
+man/man3/cmark-gfm.3: src/cmark.h | $(CMARK)
 	python man/make_man_page.py $< > $@ \
 
 archive:
@@ -156,7 +156,7 @@ $(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart" "--normalize"; do \
-	     echo "cmark -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts" ; \
+	     echo "cmark-gfm -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts" ; \
 	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts $(ALLTESTS) >/dev/null || exit 1;\
 	  done; \
 	done;

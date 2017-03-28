@@ -28,7 +28,7 @@ typedef enum {
 } writer_format;
 
 void print_usage() {
-  printf("Usage:   cmark [FILE*]\n");
+  printf("Usage:   cmark-gfm [FILE*]\n");
   printf("Options:\n");
   printf("  --to, -t FORMAT   Specify output format (html, xml, man, "
          "commonmark, latex)\n");
