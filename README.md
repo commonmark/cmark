@@ -1,13 +1,19 @@
-cmark
-=====
+cmark-gfm
+=========
 
-[![Build Status]](https://travis-ci.org/jgm/cmark)
-[![Windows Build Status]](https://ci.appveyor.com/project/jgm/cmark)
+[![Build Status]](https://travis-ci.org/github/cmark)
+[![Windows Build Status]](https://ci.appveyor.com/project/github/cmark)
 
-`cmark` is the C reference implementation of [CommonMark], a
-rationalized version of Markdown syntax with a [spec][the spec].
-(For the JavaScript reference implementation, see
-[commonmark.js].)
+`cmark-gfm` is an extended version of the C reference implementation of
+[CommonMark], a rationalized version of Markdown syntax with a spec.  This
+repository adds GitHub Flavored Markdown extensions to
+[the upstream implementation], as defined in [the spec].
+
+The rest of the README is preserved as-is from the upstream source.  Note that
+the library and binaries produced by this fork are suffixed with `-gfm` in
+order to distinguish them from the upstream.
+
+---
 
 It provides a shared library (`libcmark`) with functions for parsing
 CommonMark documents to an abstract syntax tree (AST), manipulating
@@ -178,11 +184,12 @@ Nick Wellnhofer contributed many improvements, including
 most of the C library's API and its test harness.
 
 [benchmarks]: benchmarks.md
-[the spec]: http://spec.commonmark.org
+[the spec]: https://github.github.com/gfm/
+[the upstream implementation]: https://github.com/jgm/cmark
 [CommonMark]: http://commonmark.org
 [cmake]: http://www.cmake.org/download/
 [re2c]: http://re2c.org
 [commonmark.js]: https://github.com/jgm/commonmark.js
-[Build Status]: https://img.shields.io/travis/jgm/cmark/master.svg?style=flat
-[Windows Build Status]: https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true
+[Build Status]: https://img.shields.io/travis/github/cmark/master.svg?style=flat
+[Windows Build Status]: https://ci.appveyor.com/api/projects/status/wv7ifhqhv5itm3d5?svg=true
 [american fuzzy lop]: http://lcamtuf.coredump.cx/afl/
