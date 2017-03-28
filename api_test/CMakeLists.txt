@@ -8,7 +8,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${PROJECT_BINARY_DIR}/src
 )
-target_link_libraries(api_test libcmark ${CMAKE_DL_LIBS})
+target_link_libraries(api_test libcmark-gfm ${CMAKE_DL_LIBS})
 
 # Compiler flags
 if(MSVC)
