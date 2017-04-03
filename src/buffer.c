@@ -45,7 +45,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   if (target_size > (bufsize_t)(INT32_MAX / 2)) {
     fprintf(stderr,
       "[cmark] cmark_strbuf_grow requests buffer with size > %d, aborting\n",
-         (bufsize_t)(INT32_MAX / 2));
+         (INT32_MAX / 2));
     abort();
   }
     abort();
