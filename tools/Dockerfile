@@ -22,3 +22,5 @@ RUN wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && \
 	make install && \
 	cd .. && \
 	rm -rf afl-*
+
+RUN apt-get install -y man

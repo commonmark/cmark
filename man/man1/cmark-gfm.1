@@ -1,14 +1,14 @@
-.TH "cmark" "1" "March 24, 2016" "LOCAL" "General Commands Manual"
+.TH "cmark-gfm" "1" "March 24, 2016" "LOCAL" "General Commands Manual"
 .SH "NAME"
 \fBcmark\fR
-\- convert CommonMark formatted text to HTML
+\- convert CommonMark formatted text with GitHub Flavored Markdown extensions to HTML
 .SH "SYNOPSIS"
 .HP 6n
-\fBcmark\fR
+\fBcmark-gfm\fR
 [options]
 file*
 .SH "DESCRIPTION"
-\fBcmark\fR
+\fBcmark-gfm\fR
 converts Markdown formatted plain text to either HTML, groff man,
 CommonMark XML, LaTeX, or CommonMark, using the conventions
 described in the CommonMark spec.  It reads input from \fIstdin\fR
@@ -41,6 +41,12 @@ Include source position attribute.
 .TP 12n
 .B \-\-normalize
 Consolidate adjacent text nodes.
+.TP 12n
+.B \-\-extension, \-e \f[I]EXTENSION_NAME\f[]
+Specify an extension name to use.
+.TP 12n
+.B \-\-list\-extensions
+List available extensions and quit.
 .TP 12n
 .B \-\-validate-utf8
 Validate UTF-8, replacing illegal sequences with U+FFFD.

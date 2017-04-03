@@ -40,7 +40,7 @@ void print_usage() {
   printf("  --smart           Use smart punctuation\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
   printf("  --normalize       Consolidate adjacent text nodes\n");
-  printf("  -e, --extension EXTENSION_NAME Specify an extension name to use\n");
+  printf("  --extension, -e EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
   printf("  --help, -h        Print usage information\n");
   printf("  --version         Print version\n");

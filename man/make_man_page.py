@@ -129,5 +129,5 @@ with open(sourcefile, 'r') as cmarkh:
             chunk = []
             mdlines.append('\n')
 
-sys.stdout.write('.TH ' + os.path.basename(sourcefile).replace('.h','') + ' 3 "' + date.today().strftime('%B %d, %Y') + '" "LOCAL" "Library Functions Manual"\n')
+sys.stdout.write('.TH cmark-gfm 3 "' + date.today().strftime('%B %d, %Y') + '" "LOCAL" "Library Functions Manual"\n')
 sys.stdout.write(''.join(mdlines))
