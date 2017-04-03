@@ -12,15 +12,19 @@ const char *cmark_version_string() { return CMARK_VERSION_STRING; }
 
 static void *xcalloc(size_t nmem, size_t size) {
   void *ptr = calloc(nmem, size);
-  if (!ptr)
+  if (!ptr) {
+    fprintf(stderr, "[cmark] calloc returned null pointer, aborting\n");
     abort();
+  }
   return ptr;
 }
 
 static void *xrealloc(void *ptr, size_t size) {
   void *new_ptr = realloc(ptr, size);
-  if (!new_ptr)
+  if (!new_ptr) {
+    fprintf(stderr, "[cmark] realloc returned null pointer, aborting\n");
     abort();
+  }
   return new_ptr;
 }
 
