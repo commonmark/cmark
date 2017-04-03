@@ -48,7 +48,6 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
          (INT32_MAX / 2));
     abort();
   }
-    abort();
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
    * complexity on append operations. */
