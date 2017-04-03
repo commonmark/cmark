@@ -11,7 +11,7 @@ extern "C" {
 
 /** # NAME
  *
- * **cmark** - CommonMark parsing, manipulating, and rendering
+ * **cmark-gfm** - CommonMark parsing, manipulating, and rendering
  */
 
 /** # DESCRIPTION
