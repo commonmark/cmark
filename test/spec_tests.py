@@ -104,14 +104,15 @@ def get_tests(specfile):
                 state = 0
                 example_number = example_number + 1
                 end_line = line_number
-                tests.append({
-                    "markdown":''.join(markdown_lines).replace('→',"\t"),
-                    "html":''.join(html_lines).replace('→',"\t"),
-                    "example": example_number,
-                    "start_line": start_line,
-                    "end_line": end_line,
-                    "section": headertext,
-                    "extensions": extensions})
+                if 'disabled' not in extensions:
+                    tests.append({
+                        "markdown":''.join(markdown_lines).replace('→',"\t"),
+                        "html":''.join(html_lines).replace('→',"\t"),
+                        "example": example_number,
+                        "start_line": start_line,
+                        "end_line": end_line,
+                        "section": headertext,
+                        "extensions": extensions})
                 start_line = 0
                 markdown_lines = []
                 html_lines = []
