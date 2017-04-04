@@ -27,8 +27,10 @@ bufsize_t _ext_scan_at(bufsize_t (*scanner)(const unsigned char *), unsigned cha
 
   spacechar = [ \t\v\f];
   newline = [\r]?[\n];
+  escaped_char = [\\][|!"#$%&'()*+,./:;<=>?@[\\\]^_`{}~-];
 
   table_marker = (spacechar*[:]?[-]+[:]?spacechar*);
+  table_cell = (escaped_char|[^|\r\n])*;
 */
 
 bufsize_t _scan_table_start(const unsigned char *p)
@@ -37,6 +39,36 @@ bufsize_t _scan_table_start(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   [|]? table_marker ([|] table_marker)* [|]? spacechar* newline { return (bufsize_t)(p - start); }
+  .? { return 0; }
+*/
+}
+
+bufsize_t _scan_table_cell(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  table_cell { return (bufsize_t)(p - start); }
+  .? { return 0; }
+*/
+}
+
+bufsize_t _scan_table_cell_end(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  [|] spacechar* newline? { return (bufsize_t)(p - start); }
+  .? { return 0; }
+*/
+}
+
+bufsize_t _scan_table_row_end(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  spacechar* newline { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }

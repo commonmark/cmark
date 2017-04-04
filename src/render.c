@@ -5,6 +5,7 @@
 #include "utf8.h"
 #include "render.h"
 #include "node.h"
+#include "syntax_extension.h"
 
 static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
@@ -29,6 +30,16 @@ static void S_out(cmark_renderer *renderer, cmark_node *node,
   int len;
   cmark_chunk remainder = cmark_chunk_literal("");
   int k = renderer->buffer->size - 1;
+
+  cmark_syntax_extension *ext = NULL;
+  cmark_node *n = node;
+  while (n && !ext) {
+    ext = n->extension;
+    if (!ext)
+      n = n->parent;
+  }
+  if (ext && !ext->commonmark_escape_func)
+    ext = NULL;
 
   wrap = wrap && !renderer->no_linebreaks;
 
@@ -63,6 +74,10 @@ static void S_out(cmark_renderer *renderer, cmark_node *node,
     if (len == -1) { // error condition
       return;        // return without rendering rest of string
     }
+
+    if (ext && ext->commonmark_escape_func(ext, node, c))
+      cmark_strbuf_putc(renderer->buffer, '\\');
+
     nextc = source[i + len];
     if (c == 32 && wrap) {
       if (!renderer->begin_line) {

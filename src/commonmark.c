@@ -34,8 +34,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
   needs_escaping =
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
-        ((node->parent && node->parent->extension && node->parent->extension->commonmark_escape_func && node->parent->extension->commonmark_escape_func(node->extension, node->parent, c)) ||
-         c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
+        (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
