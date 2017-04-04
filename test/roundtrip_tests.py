@@ -46,4 +46,5 @@ result_counts = {'pass': 0, 'fail': 0, 'error': 0, 'skip': 0}
 for test in tests:
     do_test(converter, test, args.normalize, result_counts)
 
+sys.stdout.buffer.write("{pass} passed, {fail} failed, {error} errored, {skip} skipped\n".format(**result_counts).encode('utf-8'))
 exit(result_counts['fail'] + result_counts['error'])
