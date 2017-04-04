@@ -254,8 +254,8 @@ Tables with embedded pipes could be tricky.
 | a | b |
 | --- | --- |
 | Escaped pipes are \|okay\|. | Like \| this. |
-| Within `|code| is okay` too. |
-| _**`c|`**_ \| complex
+| Within `\|code\| is okay` too. |
+| _**`c\|`**_ \| complex
 | don't **\_reparse\_**
 .
 <table>
@@ -344,7 +344,7 @@ This shouldn't assert.
 </tr>
 <tr>
 <td>|</td>
-<td><code>\|</code></td>
+<td><code>|</code></td>
 </tr>
 <tr>
 <td>\a</td>
@@ -424,6 +424,27 @@ Here's a link to [Freedom Planet 2][].
 <td>d</td>
 <td></td>
 <td>e</td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Interaction with emphasis
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+|***(a)***|
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em><strong>(a)</strong></em></td>
+<td></td>
 </tr></tbody></table>
 ````````````````````````````````
 

@@ -24,3 +24,13 @@ RUN wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && \
 	rm -rf afl-*
 
 RUN apt-get install -y man
+
+RUN wget https://github.com/skvadrik/re2c/releases/download/0.15.3/re2c-0.15.3.tar.gz && \
+	tar xf re2c-0.15.3.tar.gz && \
+	cd re2c-* && \
+	./configure && \
+	make install && \
+	cd .. && \
+	rm -rf re2c-*
+
+RUN apt-get install -y clang-format-3.5

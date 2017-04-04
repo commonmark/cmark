@@ -3229,8 +3229,8 @@ spans (such as emphasis, code, etc.) will not break a cell:
 ```````````````````````````````` example table
 | f\|oo  |
 | ------ |
-| b `|` az |
-| b **|** im |
+| b `\|` az |
+| b **\|** im |
 .
 <table>
 <thead>
@@ -3279,7 +3279,7 @@ block-level structure:
 | bar | baz |
 bar
 
-bar
+bim
 .
 <table>
 <thead>
@@ -3297,7 +3297,7 @@ bar
 <td>bar</td>
 <td></td>
 </tr></tbody></table>
-<p>bar</p>
+<p>bim</p>
 ````````````````````````````````
 
 The header row must match the [delimiter row] in the number of cells.  If not,
