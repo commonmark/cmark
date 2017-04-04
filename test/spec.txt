@@ -1,12 +1,24 @@
 ---
-title: CommonMark Spec
-author: John MacFarlane
+title: GitHub Flavored Markdown Spec
 version: 0.27
-date: '2016-11-18'
+date: '2017-2-20'
 license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 ...
 
 # Introduction
+
+## What is GitHub Flavored Markdown?
+
+GitHub Flavored Markdown, often shortened as GFM, is the dialect of Markdown
+that is currently supported for user content on GitHub.com and GitHub
+Enterprise.
+
+This formal specification, based on the CommonMark Spec, defines the syntax and
+semantics of this dialect.
+
+GFM is a strict superset of CommonMark. All the features which are supported in
+GitHub user content and that are not specified on the original CommonMark Spec
+are hence known as **extensions**, and highlighted as such.
 
 ## What is Markdown?
 
@@ -3165,8 +3177,8 @@ aaa
 
 ## Tables (extension)
 
-If the `table` extension is enabled, an additional leaf block type is
-available
+GFM enables the `table` extension, where an additional leaf block type is
+available.
 
 A [table](@) is an arrangement of data with rows and columns, consisting of a
 single header row, a [delimiter row] separating the header from the data, and
@@ -3223,8 +3235,8 @@ bar | baz
 </tr></tbody></table>
 ````````````````````````````````
 
-Include a pipe in a cell's content by escaping it. Pipes inside other inline
-spans (such as emphasis, code, etc.) will not break a cell:
+Include a pipe in a cell's content by escaping it, including inside other
+inline spans:
 
 ```````````````````````````````` example table
 | f\|oo  |
@@ -3279,7 +3291,7 @@ block-level structure:
 | bar | baz |
 bar
 
-bim
+bar
 .
 <table>
 <thead>
@@ -3297,7 +3309,7 @@ bim
 <td>bar</td>
 <td></td>
 </tr></tbody></table>
-<p>bim</p>
+<p>bar</p>
 ````````````````````````````````
 
 The header row must match the [delimiter row] in the number of cells.  If not,
@@ -3314,8 +3326,8 @@ a table will not be recognized:
 ````````````````````````````````
 
 The remainder of the table's rows may vary in the number of cells.  If there
-are a number of cells than the header, empty cells are inserted.  If there are
-greater, the excess is ignored:
+are a number of cells fewer than the number of cells in the header row, empty
+cells are inserted.  If there are greater, the excess is ignored:
 
 ```````````````````````````````` example table
 | abc | def |
@@ -4906,6 +4918,63 @@ that in such cases, we require one space indentation from the list marker
 (and then the normal four spaces for the indented code).  This will match the
 four-space rule in cases where the list marker plus its initial indentation
 takes four spaces (a common case), but diverge in other cases.
+
+<div class="extension">
+
+## Task list items (extension)
+
+GFM enables the `tasklist` extension, where an additional processing step is
+performed on [list items].
+
+A [task list item](@) is a [list item][list items] where the first block in it
+is a paragraph which begins with a [task list item marker] and at least one
+whitespace character before any other content.
+
+A [task list item marker](@) consists of an optional number of spaces, a left
+bracket (`[`), either a whitespace character or the letter `x` in either
+lowercase or uppercase, and then a right bracket (`]`).
+
+When rendered, the [task list item marker] is replaced with a semantic checkbox element;
+in an HTML output, this would be an `<input type="checkbox">` element.
+
+If the character between the brackets is a whitespace character, the checkbox
+is unchecked.  Otherwise, the checkbox is checked.
+
+This spec does not define how the checkbox elements are interacted with: in practice,
+implementors are free to render the checkboxes as disabled or inmutable elements,
+or they may dynamically handle dynamic interactions (i.e. checking, unchecking) in
+the final rendered document.
+
+```````````````````````````````` example disabled
+- [ ] foo
+- [x] bar
+.
+<ul>
+<li><input disabled="" type="checkbox"> foo</li>
+<li><input checked="" disabled="" type="checkbox"> bar</li>
+</ul>
+````````````````````````````````
+
+Task lists can be arbitrarily nested:
+
+```````````````````````````````` example disabled
+- [x] foo
+  - [ ] bar
+  - [x] baz
+- [ ] bim
+.
+<ul>
+<li><input checked="" disabled="" type="checkbox"> foo
+<ul>
+<li><input disabled="" type="checkbox"> bar</li>
+<li><input checked="" disabled="" type="checkbox"> baz</li>
+</ul>
+</li>
+<li><input disabled="" type="checkbox"> bim</li>
+</ul>
+````````````````````````````````
+
+</div>
 
 ## Lists
 
@@ -7292,7 +7361,7 @@ __a<http://foo.bar/?q=__>
 
 ## Strikethrough (extension)
 
-If the `strikethrough` extension is enabled, an additional emphasis type is
+GFM enables the `strikethrough` extension, where an additional emphasis type is
 available.
 
 Strikethrough text is any text wrapped in tildes (`~`).
@@ -8750,7 +8819,7 @@ foo@bar.example.com
 
 ## Autolinks (extension)
 
-If the `autolink` extension is enabled, autolinks will be recognised in a
+GFM enables the `autolink` extension, where autolinks will be recognised in a
 greater number of conditions.
 
 [Autolink]s can also be constructed without requiring the use of `<` and to `>`
@@ -9179,9 +9248,9 @@ foo <a href="\*">
 
 <div class="extension">
 
-## Raw HTML (extension)
+## Disallowed Raw HTML (extension)
 
-If the `tagfilter` extension is enabled, the following HTML tags will be
+GFM enables the `tagfilter` extension, where the following HTML tags will be
 filtered when rendering HTML output:
 
 * `<title>`
