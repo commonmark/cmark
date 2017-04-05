@@ -41,16 +41,15 @@ IF (PYTHONINTERP_FOUND)
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
 
-    add_test(roundtriptest_executable
+    add_test(roundtriptest_library
       ${PYTHON_EXECUTABLE}
       "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
       "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
 
-    add_test(entity_executable
-      ${PYTHON_EXECUTABLE}
-      "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
+    add_test(entity_library
+      ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
   endif()
@@ -63,12 +62,25 @@ IF (PYTHONINTERP_FOUND)
     ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
     )
 
+  add_test(extensions_executable
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark" "--extensions" "table strikethrough autolink tagfilter"
+    )
+
+  add_test(roundtrip_extensions_executable
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    "--extensions" "table strikethrough autolink tagfilter"
+    )
+
   add_test(regressiontest_executable
     ${PYTHON_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec"
     "${CMAKE_CURRENT_SOURCE_DIR}/regression.txt" "--program"
     "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
+
 
 ELSE(PYTHONINTERP_FOUND)
 

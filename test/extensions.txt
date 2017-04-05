@@ -1,0 +1,562 @@
+---
+title: Extensions test
+author: Yuki Izumi
+version: 0.1
+date: '2016-08-31'
+license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
+...
+
+## Tables
+
+Here's a well-formed table, doing everything it should.
+
+```````````````````````````````` example
+| abc | def |
+| --- | --- |
+| ghi | jkl |
+| mno | pqr |
+.
+<table>
+<thead>
+<tr>
+<th>abc</th>
+<th>def</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ghi</td>
+<td>jkl</td>
+</tr>
+<tr>
+<td>mno</td>
+<td>pqr</td>
+</tr></tbody></table>
+````````````````````````````````
+
+We're going to mix up the table now; we'll demonstrate that inline formatting
+works fine, but block elements don't.  You can also have empty cells, and the
+textual alignment of the columns is shown to be irrelevant.
+
+```````````````````````````````` example
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| 1. Block elements inside cells don't work. | |
+| But _**inline elements do**_. | x |
+
+Hi!
+.
+<p>Hello!</p>
+<table>
+<thead>
+<tr>
+<th><em>abc</em></th>
+<th>セン</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Block elements inside cells don't work.</td>
+<td></td>
+</tr>
+<tr>
+<td>But <em><strong>inline elements do</strong></em>.</td>
+<td>x</td>
+</tr></tbody></table>
+<p>Hi!</p>
+````````````````````````````````
+
+Here we demonstrate some edge cases about what is and isn't a table.
+
+```````````````````````````````` example
+| Not enough table | to be considered table |
+
+| Not enough table | to be considered table |
+| Not enough table | to be considered table |
+
+| Just enough table | to be considered table |
+| ----------------- | ---------------------- |
+
+| ---- | --- |
+
+|x|
+|-|
+
+| xyz |
+| --- |
+.
+<p>| Not enough table | to be considered table |</p>
+<p>| Not enough table | to be considered table |
+| Not enough table | to be considered table |</p>
+<table>
+<thead>
+<tr>
+<th>Just enough table</th>
+<th>to be considered table</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+<p>| ---- | --- |</p>
+<table>
+<thead>
+<tr>
+<th>x</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+<table>
+<thead>
+<tr>
+<th>xyz</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+````````````````````````````````
+
+A "simpler" table, GFM style:
+
+```````````````````````````````` example
+abc | def
+--- | ---
+xyz | ghi
+.
+<table>
+<thead>
+<tr>
+<th>abc</th>
+<th>def</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>xyz</td>
+<td>ghi</td>
+</tr></tbody></table>
+````````````````````````````````
+
+We are making the parser slighly more lax here. Here is a table with spaces at
+the end:
+
+```````````````````````````````` example
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| this row has a space at the end | | 
+| But _**inline elements do**_. | x |
+
+Hi!
+.
+<p>Hello!</p>
+<table>
+<thead>
+<tr>
+<th><em>abc</em></th>
+<th>セン</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>this row has a space at the end</td>
+<td></td>
+</tr>
+<tr>
+<td>But <em><strong>inline elements do</strong></em>.</td>
+<td>x</td>
+</tr></tbody></table>
+<p>Hi!</p>
+````````````````````````````````
+
+Table alignment:
+
+```````````````````````````````` example
+aaa | bbb | ccc | ddd | eee
+:-- | --- | :-: | --- | --:
+fff | ggg | hhh | iii | jjj
+.
+<table>
+<thead>
+<tr>
+<th align="left">aaa</th>
+<th>bbb</th>
+<th align="center">ccc</th>
+<th>ddd</th>
+<th align="right">eee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fff</td>
+<td>ggg</td>
+<td align="center">hhh</td>
+<td>iii</td>
+<td align="right">jjj</td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Table cell count mismatches
+
+The header and marker row must match.
+
+```````````````````````````````` example
+| a | b | c |
+| --- | --- |
+| this | isn't | okay |
+.
+<p>| a | b | c |
+| --- | --- |
+| this | isn't | okay |</p>
+````````````````````````````````
+
+But any of the body rows can be shorter. Rows longer
+than the header are truncated.
+
+```````````````````````````````` example
+| a | b | c |
+| --- | --- | ---
+| x
+| a | b
+| 1 | 2 | 3 | 4 | 5 |
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>a</td>
+<td>b</td>
+<td></td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Embedded pipes
+
+Tables with embedded pipes could be tricky.
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+| Escaped pipes are \|okay\|. | Like \| this. |
+| Within `|code| is okay` too. |
+| _**`c|`**_ \| complex
+| don't **\_reparse\_**
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Escaped pipes are |okay|.</td>
+<td>Like | this.</td>
+</tr>
+<tr>
+<td>Within <code>|code| is okay</code> too.</td>
+<td></td>
+</tr>
+<tr>
+<td><em><strong><code>c|</code></strong></em> | complex</td>
+<td></td>
+</tr>
+<tr>
+<td>don't <strong>_reparse_</strong></td>
+<td></td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Oddly-formatted markers
+
+This shouldn't assert.
+
+```````````````````````````````` example
+| a |
+--- |
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+</tr>
+</thead>
+<tbody></tbody></table>
+````````````````````````````````
+
+### Escaping
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+| \\ | `\\` |
+| \\\\ | `\\\\` |
+| \_ | `\_` |
+| \| | `\|` |
+| \a | `\a` |
+
+\\ `\\`
+
+\\\\ `\\\\`
+
+\_ `\_`
+
+\| `\|`
+
+\a `\a`
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\</td>
+<td><code>\\</code></td>
+</tr>
+<tr>
+<td>\\</td>
+<td><code>\\\\</code></td>
+</tr>
+<tr>
+<td>_</td>
+<td><code>\_</code></td>
+</tr>
+<tr>
+<td>|</td>
+<td><code>\|</code></td>
+</tr>
+<tr>
+<td>\a</td>
+<td><code>\a</code></td>
+</tr></tbody></table>
+<p>\ <code>\\</code></p>
+<p>\\ <code>\\\\</code></p>
+<p>_ <code>\_</code></p>
+<p>| <code>\|</code></p>
+<p>\a <code>\a</code></p>
+````````````````````````````````
+
+### Embedded HTML
+
+```````````````````````````````` example
+| a |
+| --- |
+| <strong>hello</strong> |
+| ok <br> sure |
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>hello</strong></td>
+</tr>
+<tr>
+<td>ok <br> sure</td>
+</tr></tbody></table>
+````````````````````````````````
+
+### Reference-style links
+
+```````````````````````````````` example
+Here's a link to [Freedom Planet 2][].
+
+| Here's a link to [Freedom Planet 2][] in a table header. |
+| --- |
+| Here's a link to [Freedom Planet 2][] in a table row. |
+
+[Freedom Planet 2]: http://www.freedomplanet2.com/
+.
+<p>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a> in a table header.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Here's a link to <a href="http://www.freedomplanet2.com/">Freedom Planet 2</a> in a table row.</td>
+</tr></tbody></table>
+````````````````````````````````
+
+
+## Strikethroughs
+
+A well-formed strikethrough.
+
+```````````````````````````````` example
+A proper ~strikethrough~.
+.
+<p>A proper <del>strikethrough</del>.</p>
+````````````````````````````````
+
+Some strikethrough edge cases.
+
+```````````````````````````````` example
+These are ~not strikethroughs.
+
+No, they are not~
+
+This ~is ~ legit~ isn't ~ legit.
+
+This is just ~~~~~one~~~~~ huge strikethrough.
+.
+<p>These are ~not strikethroughs.</p>
+<p>No, they are not~</p>
+<p>This <del>is ~ legit</del> isn't ~ legit.</p>
+<p>This is just <del>one</del> huge strikethrough.</p>
+````````````````````````````````
+
+
+## Autolinks
+
+```````````````````````````````` example
+: http://google.com https://google.com
+
+<http://google.com/å> http://google.com/å
+
+scyther@pokemon.com
+
+www.github.com www.github.com/á
+
+www.google.com/a_b
+
+**Autolink and http://inlines**
+
+![http://inline.com/image](http://inline.com/image)
+
+a.w@b.c
+
+Full stop outside parens shouldn't be included http://google.com/ok.
+
+(Full stop inside parens shouldn't be included http://google.com/ok.)
+
+"http://google.com"
+
+'http://google.com'
+
+http://🍄.ga/ http://x🍄.ga/
+.
+<p>: <a href="http://google.com">http://google.com</a> <a href="https://google.com">https://google.com</a></p>
+<p><a href="http://google.com/%C3%A5">http://google.com/å</a> <a href="http://google.com/%C3%A5">http://google.com/å</a></p>
+<p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a></p>
+<p><a href="http://www.github.com">www.github.com</a> <a href="http://www.github.com/%C3%A1">www.github.com/á</a></p>
+<p><a href="http://www.google.com/a_b">www.google.com/a_b</a></p>
+<p><strong>Autolink and <a href="http://inlines">http://inlines</a></strong></p>
+<p><img src="http://inline.com/image" alt="http://inline.com/image" /></p>
+<p><a href="mailto:a.w@b.c">a.w@b.c</a></p>
+<p>Full stop outside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.</p>
+<p>(Full stop inside parens shouldn't be included <a href="http://google.com/ok">http://google.com/ok</a>.)</p>
+<p>&quot;<a href="http://google.com">http://google.com</a>&quot;</p>
+<p>'<a href="http://google.com">http://google.com</a>'</p>
+<p><a href="http://%F0%9F%8D%84.ga/">http://🍄.ga/</a> <a href="http://x%F0%9F%8D%84.ga/">http://x🍄.ga/</a></p>
+````````````````````````````````
+
+```````````````````````````````` example
+This shouldn't crash everything: (_A_@_.A
+.
+<IGNORE>
+````````````````````````````````
+
+## HTML tag filter
+
+
+```````````````````````````````` example
+This is <xmp> not okay, but **this** <strong>is</strong>.
+
+<p>This is <xmp> not okay, but **this** <strong>is</strong>.</p>
+
+Nope, I won't have <textarea>.
+
+<p>No <textarea> here either.</p>
+
+<p>This <random /> <thing> is okay</thing> though.</p>
+
+Yep, <totally>okay</totally>.
+
+<!-- HTML comments are okay, though. -->
+<!- But we're strict. ->
+<! No nonsense. >
+<!-- Leave multiline comments the heck alone, though, okay?
+Even with {"x":"y"} or 1 > 2 or whatever. Even **markdown**.
+-->
+<!--- Support everything CommonMark's parser does. -->
+<!---->
+<!--thistoo-->
+.
+<p>This is &lt;xmp> not okay, but <strong>this</strong> <strong>is</strong>.</p>
+<p>This is &lt;xmp> not okay, but **this** <strong>is</strong>.</p>
+<p>Nope, I won't have &lt;textarea>.</p>
+<p>No &lt;textarea> here either.</p>
+<p>This <random /> <thing> is okay</thing> though.</p>
+<p>Yep, <totally>okay</totally>.</p>
+<!-- HTML comments are okay, though. -->
+<p>&lt;!- But we're strict. -&gt;
+&lt;! No nonsense. &gt;</p>
+<!-- Leave multiline comments the heck alone, though, okay?
+Even with {"x":"y"} or 1 > 2 or whatever. Even **markdown**.
+-->
+<!--- Support everything CommonMark's parser does. -->
+<!---->
+<!--thistoo-->
+````````````````````````````````
+
+
+## Interop
+
+Autolink and strikethrough.
+
+```````````````````````````````` example
+~~www.google.com~~
+
+~~http://google.com~~
+.
+<p><del><a href="http://www.google.com">www.google.com</a></del></p>
+<p><del><a href="http://google.com">http://google.com</a></del></p>
+````````````````````````````````
+
+Autolink and tables.
+
+```````````````````````````````` example
+| a | b |
+| --- | --- |
+| https://github.com www.github.com | http://pokemon.com |
+.
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com">https://github.com</a> <a href="http://www.github.com">www.github.com</a></td>
+<td><a href="http://pokemon.com">http://pokemon.com</a></td>
+</tr></tbody></table>
+````````````````````````````````
