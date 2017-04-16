@@ -22,7 +22,8 @@ before_install:
  - |
      if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]
      then
-         echo "Building without python3, to make sure that works."
+         brew update
+         brew install python3
      fi
 
 script:
