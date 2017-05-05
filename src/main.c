@@ -32,7 +32,6 @@ void print_usage() {
   printf("  --nobreaks       Render soft line breaks as spaces\n");
   printf("  --safe           Suppress raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
-  printf("  --normalize      Consolidate adjacent text nodes\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -99,8 +98,6 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_SMART;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
-    } else if (strcmp(argv[i], "--normalize") == 0) {
-      options |= CMARK_OPT_NORMALIZE;
     } else if (strcmp(argv[i], "--validate-utf8") == 0) {
       options |= CMARK_OPT_VALIDATE_UTF8;
     } else if ((strcmp(argv[i], "--help") == 0) ||
