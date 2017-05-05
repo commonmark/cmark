@@ -135,7 +135,7 @@ $(ALLTESTS): $(SPEC)
 
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
-	  for opts in "" "--smart" "--normalize"; do \
+	  for opts in "" "--smart"; do \
 	     echo "cmark -t $$format $$opts" ; \
 	     valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts $(ALLTESTS) >/dev/null || exit 1;\
           done; \
