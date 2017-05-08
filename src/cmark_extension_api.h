@@ -326,6 +326,12 @@ void cmark_syntax_extension_set_commonmark_render_func(cmark_syntax_extension *e
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_EXPORT
+void cmark_syntax_extension_set_plaintext_render_func(cmark_syntax_extension *extension,
+                                                      cmark_common_render_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
 void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extension,
                                                   cmark_common_render_func func);
 

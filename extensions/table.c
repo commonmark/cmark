@@ -632,6 +632,7 @@ cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension_set_can_contain_func(self, can_contain);
   cmark_syntax_extension_set_contains_inlines_func(self, contains_inlines);
   cmark_syntax_extension_set_commonmark_render_func(self, commonmark_render);
+  cmark_syntax_extension_set_plaintext_render_func(self, commonmark_render);
   cmark_syntax_extension_set_latex_render_func(self, latex_render);
   cmark_syntax_extension_set_man_render_func(self, man_render);
   cmark_syntax_extension_set_html_render_func(self, html_render);
