@@ -754,7 +754,7 @@ cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
 
 // Parse an autolink or HTML tag.
 // Assumes the subject has a '<' character at the current position.
-static cmark_node *handle_pointy_brace(subject *subj) {
+static cmark_node *handle_pointy_brace(subject *subj, bool liberal_html_tag) {
   bufsize_t matchlen = 0;
   cmark_chunk contents;
 
@@ -784,6 +784,15 @@ static cmark_node *handle_pointy_brace(subject *subj) {
     contents = cmark_chunk_dup(&subj->input, subj->pos - 1, matchlen + 1);
     subj->pos += matchlen;
     return make_raw_html(subj->mem, contents);
+  }
+
+  if (liberal_html_tag) {
+    matchlen = scan_liberal_html_tag(&subj->input, subj->pos);
+    if (matchlen > 0) {
+      contents = cmark_chunk_dup(&subj->input, subj->pos - 1, matchlen + 1);
+      subj->pos += matchlen;
+      return make_raw_html(subj->mem, contents);
+    }
   }
 
   // if nothing matches, just return the opening <:
@@ -1141,7 +1150,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_entity(subj);
     break;
   case '<':
-    new_inl = handle_pointy_brace(subj);
+    new_inl = handle_pointy_brace(subj, (options & CMARK_OPT_LIBERAL_HTML_TAG) != 0);
     break;
   case '*':
   case '_':

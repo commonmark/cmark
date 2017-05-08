@@ -17,6 +17,7 @@ struct cmark_syntax_extension {
   cmark_can_contain_func          can_contain_func;
   cmark_contains_inlines_func     contains_inlines_func;
   cmark_common_render_func        commonmark_render_func;
+  cmark_common_render_func        plaintext_render_func;
   cmark_common_render_func        latex_render_func;
   cmark_common_render_func        man_render_func;
   cmark_html_render_func          html_render_func;

@@ -122,6 +122,17 @@ bufsize_t _scan_html_tag(const unsigned char *p)
 */
 }
 
+// Try to (liberally) match an HTML tag after first <, returning num of chars matched.
+bufsize_t _scan_liberal_html_tag(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  .+ [>] { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
 // Try to match an HTML block tag start line, returning
 // an integer code for the type of block (1-6, matching the spec).
 // #7 is handled by a separate function, below.
