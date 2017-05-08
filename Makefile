@@ -156,10 +156,10 @@ $(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
 
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
-	  for opts in "" "--smart" "--normalize"; do \
+	  for opts in "" "--smart"; do \
 	     echo "cmark-gfm -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts" ; \
 	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts $(ALLTESTS) >/dev/null || exit 1;\
-	  done; \
+          done; \
 	done;
 
 fuzztest:

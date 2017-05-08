@@ -40,7 +40,6 @@ void print_usage() {
   printf("  --safe            Suppress raw HTML and dangerous URLs\n");
   printf("  --smart           Use smart punctuation\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
-  printf("  --normalize       Consolidate adjacent text nodes\n");
   printf("  --extension, -e EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
   printf("  --help, -h        Print usage information\n");
@@ -140,8 +139,6 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_GITHUB_PRE_LANG;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
-    } else if (strcmp(argv[i], "--normalize") == 0) {
-      options |= CMARK_OPT_NORMALIZE;
     } else if (strcmp(argv[i], "--validate-utf8") == 0) {
       options |= CMARK_OPT_VALIDATE_UTF8;
     } else if (strcmp(argv[i], "--liberal-html-tag") == 0) {

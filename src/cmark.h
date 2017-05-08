@@ -690,10 +690,6 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  * ### Options affecting parsing
  */
 
-/** Normalize tree by consolidating adjacent text nodes.
- */
-#define CMARK_OPT_NORMALIZE (1 << 8)
-
 /** Validate UTF-8 in the input before parsing, replacing illegal
  * sequences with the replacement character U+FFFD.
  */
