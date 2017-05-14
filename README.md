@@ -57,8 +57,9 @@ There are also libraries that wrap `libcmark` for
 [Haskell](http://hackage.haskell.org/package/cmark),
 [ruby](https://github.com/gjtorikian/commonmarker),
 [lua](https://github.com/jgm/cmark-lua),
-[Perl](https://metacpan.org/release/CommonMark), and
-[R](http://cran.r-project.org/package=commonmark).
+[Perl](https://metacpan.org/release/CommonMark),
+[R](http://cran.r-project.org/package=commonmark) and
+[Scala](https://github.com/sparsetech/cmark-scala).
 
 Installing
 ----------
