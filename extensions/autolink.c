@@ -152,7 +152,7 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
 
   size_t link_end;
 
-  if (max_rewind > 0 && strchr("*_~([", data[-1]) == NULL &&
+  if (max_rewind > 0 && strchr("*_~(", data[-1]) == NULL &&
       !cmark_isspace(data[-1]))
     return 0;
 
