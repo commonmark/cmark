@@ -53,12 +53,12 @@ It is easy to use `libcmark` in python, lua, ruby, and other dynamic
 languages: see the `wrappers/` subdirectory for some simple examples.
 
 There are also libraries that wrap `libcmark` for
-[go](https://github.com/rhinoman/go-commonmark),
-[Haskell](http://hackage.haskell.org/package/cmark),
-[ruby](https://github.com/gjtorikian/commonmarker),
-[lua](https://github.com/jgm/cmark-lua),
+[Go](https://github.com/rhinoman/go-commonmark),
+[Haskell](https://hackage.haskell.org/package/cmark),
+[Ruby](https://github.com/gjtorikian/commonmarker),
+[Lua](https://github.com/jgm/cmark-lua),
 [Perl](https://metacpan.org/release/CommonMark),
-[R](http://cran.r-project.org/package=commonmark) and
+[R](https://cran.r-project.org/package=commonmark) and
 [Scala](https://github.com/sparsetech/cmark-scala).
 
 Installing
