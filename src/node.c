@@ -280,6 +280,9 @@ const char *cmark_node_get_literal(cmark_node *node) {
   case CMARK_NODE_CODE_BLOCK:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.code.literal);
 
+  case NODE_IMAGE:
+		return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.link.url);
+
   default:
     break;
   }
