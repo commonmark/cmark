@@ -61,7 +61,7 @@ add_compiler_export_flags()
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+  COMPILE_FLAGS "-DCMARK_STATIC_DEFINE -fPIC")
 
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
