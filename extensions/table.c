@@ -644,3 +644,17 @@ cmark_syntax_extension *create_table_extension(void) {
 
   return self;
 }
+
+uint16_t cmarkextensions_get_table_columns(cmark_node *node) {
+  if (node->type != CMARK_NODE_TABLE)
+    return 0;
+
+  return ((node_table *)node->as.opaque)->n_columns;
+}
+
+uint8_t *cmarkextensions_get_table_alignments(cmark_node *node) {
+  if (node->type != CMARK_NODE_TABLE)
+    return 0;
+
+  return ((node_table *)node->as.opaque)->alignments;
+}
