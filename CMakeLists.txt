@@ -23,8 +23,8 @@ set(PROJECT_VERSION_GFM 0)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM} )
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
-option(CMARK_STATIC "Build static libcmark library" ON)
-option(CMARK_SHARED "Build shared libcmark library" ON)
+option(CMARK_STATIC "Build static libcmark-gfm library" ON)
+option(CMARK_SHARED "Build shared libcmark-gfm library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
 add_subdirectory(src)

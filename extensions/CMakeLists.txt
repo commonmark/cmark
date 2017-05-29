@@ -19,15 +19,6 @@ include_directories(
 
 include (GenerateExportHeader)
 
-# We make LIB_INSTALL_DIR configurable rather than
-# hard-coding lib, because on some OSes different locations
-# are used for different architectures (e.g. /usr/lib64 on
-# 64-bit Fedora).
-if(NOT LIB_INSTALL_DIR)
-  set(LIB_INSTALL_DIR "lib" CACHE STRING
-  "Set the installation directory for libraries." FORCE)
-endif(NOT LIB_INSTALL_DIR)
-
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
@@ -38,9 +29,9 @@ if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
 
   set_target_properties(${LIBRARY} PROPERTIES
-  OUTPUT_NAME "cmark-gfmextensions"
-  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
-  VERSION ${PROJECT_VERSION})
+    OUTPUT_NAME "cmark-gfmextensions"
+    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
+    VERSION ${PROJECT_VERSION})
 
   set_property(TARGET ${LIBRARY}
     APPEND PROPERTY MACOSX_RPATH true)
@@ -48,10 +39,12 @@ if (CMARK_SHARED)
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
   set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfmextensions_dll)
 
+  generate_export_header(${LIBRARY}
+    BASE_NAME cmarkextensions)
+
   list(APPEND CMARK_INSTALL ${LIBRARY})
   target_link_libraries(${LIBRARY} libcmark-gfm)
 
-  generate_export_header(${LIBRARY} BASE_NAME cmarkextensions)
 endif()
 
 if (CMARK_STATIC)
@@ -70,6 +63,28 @@ if (CMARK_STATIC)
       OUTPUT_NAME "cmark-gfmextensions"
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
+
+  list(APPEND CMARK_INSTALL ${STATICLIBRARY})
+endif()
+
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+
+include (InstallRequiredSystemLibraries)
+install(TARGETS ${CMARK_INSTALL}
+  EXPORT cmark-gfmextensions
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib${LIB_SUFFIX}
+  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  )
+
+if (CMARK_SHARED OR CMARK_STATIC)
+  install(FILES
+  core-extensions.h
+  ${CMAKE_CURRENT_BINARY_DIR}/cmarkextensions_export.h
+  DESTINATION include
+  )
+
+  install(EXPORT cmark-gfmextensions DESTINATION lib${LIB_SUFFIX}/cmake-gfmextensions)
 endif()
 
 # Feature tests
