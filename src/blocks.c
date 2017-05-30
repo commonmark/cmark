@@ -415,7 +415,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
     data->start = 1;
-    data->delimiter = CMARK_PERIOD_DELIM;
+    data->delimiter = CMARK_NO_DELIM;
     data->tight = false;
   } else if (cmark_isdigit(c)) {
     int start = 0;
