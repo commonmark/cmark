@@ -71,10 +71,7 @@ include (GenerateExportHeader)
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
-target_link_libraries(${PROGRAM} libcmark-gfm_static)
-
-add_dependencies(${PROGRAM} libcmark-gfmextensions_static)
-target_link_libraries(${PROGRAM} libcmark-gfmextensions_static)
+target_link_libraries(${PROGRAM} libcmark-gfmextensions_static libcmark-gfm_static)
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
