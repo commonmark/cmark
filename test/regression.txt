@@ -74,3 +74,13 @@ a***b* c*
 <p>a*<em><em>b</em> c</em></p>
 ````````````````````````````````
 
+Issue #193 - unescaped left angle brackets in link destination
+
+```````````````````````````````` example
+[a]
+
+[a]: <te<st>
+.
+<p><a href="te%3Cst">a</a></p>
+````````````````````````````````
+

@@ -91,7 +91,7 @@ bufsize_t _scan_autolink_uri(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  scheme [:][^\x00-\x20<>]*[>]  { return (bufsize_t)(p - start); }
+  scheme [:][^\x00-\x20>]*[>]  { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
