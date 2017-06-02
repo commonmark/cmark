@@ -369,6 +369,11 @@ void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_EXPORT
+void *cmark_syntax_extension_get_private(cmark_syntax_extension *extension);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_EXPORT
 void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
                                                  cmark_postprocess_func func);
 
