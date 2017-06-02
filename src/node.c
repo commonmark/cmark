@@ -85,7 +85,7 @@ cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
   case CMARK_NODE_LIST: {
     cmark_list *list = &node->as.list;
     list->list_type = CMARK_BULLET_LIST;
-    list->start = 1;
+    list->start = 0;
     list->tight = false;
     break;
   }

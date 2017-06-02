@@ -59,8 +59,8 @@ static void constructor(test_batch_runner *runner) {
              "default is list type is bullet");
       INT_EQ(runner, cmark_node_get_list_delim(node), CMARK_NO_DELIM,
              "default is list delim is NO_DELIM");
-      INT_EQ(runner, cmark_node_get_list_start(node), 1,
-             "default is list start is 1");
+      INT_EQ(runner, cmark_node_get_list_start(node), 0,
+             "default is list start is 0");
       INT_EQ(runner, cmark_node_get_list_tight(node), 0,
              "default is list is loose");
       break;
