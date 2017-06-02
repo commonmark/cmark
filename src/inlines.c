@@ -842,7 +842,9 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset) {
     }
   } else {
     while (i < input->len) {
-      if (input->data[i] == '\\')
+      if (input->data[i] == '\\' &&
+	  i + 1 < input-> len &&
+          cmark_ispunct(input->data[i+1]))
         i += 2;
       else if (input->data[i] == '(') {
         ++nb_p;
