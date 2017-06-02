@@ -265,7 +265,8 @@ CMARK_EXPORT
 const char *cmark_node_get_type_string(cmark_node *node);
 
 /** Returns the string contents of 'node', or an empty
-    string if none is set.
+    string if none is set.  Returns NULL if called on a
+    node that does not have string content.
  */
 CMARK_EXPORT const char *cmark_node_get_literal(cmark_node *node);
 
@@ -334,7 +335,8 @@ CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
 CMARK_EXPORT int cmark_node_set_fence_info(cmark_node *node, const char *info);
 
 /** Returns the URL of a link or image 'node', or an empty string
-    if no URL is set.
+    if no URL is set.  Returns NULL if called on a node that is
+    not a link or image.
  */
 CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
 
@@ -344,7 +346,8 @@ CMARK_EXPORT const char *cmark_node_get_url(cmark_node *node);
 CMARK_EXPORT int cmark_node_set_url(cmark_node *node, const char *url);
 
 /** Returns the title of a link or image 'node', or an empty
-    string if no title is set.
+    string if no title is set.  Returns NULL if called on a node
+    that is not a link or image.
  */
 CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
 
@@ -354,7 +357,8 @@ CMARK_EXPORT const char *cmark_node_get_title(cmark_node *node);
 CMARK_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
 
 /** Returns the literal "on enter" text for a custom 'node', or
-    an empty string if no on_enter is set.
+    an empty string if no on_enter is set.  Returns NULL if called
+    on a non-custom node.
  */
 CMARK_EXPORT const char *cmark_node_get_on_enter(cmark_node *node);
 
@@ -366,7 +370,8 @@ CMARK_EXPORT int cmark_node_set_on_enter(cmark_node *node,
                                          const char *on_enter);
 
 /** Returns the literal "on exit" text for a custom 'node', or
-    an empty string if no on_exit is set.
+    an empty string if no on_exit is set.  Returns NULL if
+    called on a non-custom node.
  */
 CMARK_EXPORT const char *cmark_node_get_on_exit(cmark_node *node);
 

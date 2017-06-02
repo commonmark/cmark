@@ -1,4 +1,4 @@
-.TH cmark 3 "May 05, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "June 02, 2017" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -331,7 +331,8 @@ of the type, or \f[C]"<unknown>"\f[].
 
 .PP
 Returns the string contents of \f[I]node\f[], or an empty string if none
-is set.
+is set. Returns NULL if called on a node that does not have string
+content.
 
 .PP
 \fIint\f[] \fBcmark_node_set_literal\f[](\fIcmark_node *node\f[], \fIconst char *content\f[])
@@ -426,7 +427,8 @@ and 0 on failure.
 
 .PP
 Returns the URL of a link or image \f[I]node\f[], or an empty string if
-no URL is set.
+no URL is set. Returns NULL if called on a node that is not a link or
+image.
 
 .PP
 \fIint\f[] \fBcmark_node_set_url\f[](\fIcmark_node *node\f[], \fIconst char *url\f[])
@@ -440,7 +442,8 @@ on failure.
 
 .PP
 Returns the title of a link or image \f[I]node\f[], or an empty string
-if no title is set.
+if no title is set. Returns NULL if called on a node that is not a link
+or image.
 
 .PP
 \fIint\f[] \fBcmark_node_set_title\f[](\fIcmark_node *node\f[], \fIconst char *title\f[])
@@ -454,7 +457,8 @@ on failure.
 
 .PP
 Returns the literal "on enter" text for a custom \f[I]node\f[], or an
-empty string if no on_enter is set.
+empty string if no on_enter is set. Returns NULL if called on a
+non\-custom node.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
@@ -469,7 +473,8 @@ success 0 on failure.
 
 .PP
 Returns the literal "on exit" text for a custom \f[I]node\f[], or an
-empty string if no on_exit is set.
+empty string if no on_exit is set. Returns NULL if called on a
+non\-custom node.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])
