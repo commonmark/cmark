@@ -28,7 +28,12 @@ static void *xrealloc(void *ptr, size_t size) {
   return new_ptr;
 }
 
-cmark_mem DEFAULT_MEM_ALLOCATOR = {xcalloc, xrealloc, free};
+// workaround MSVC C4232 warning
+static void xfree(void *ptr) {
+  free(ptr);
+}
+
+cmark_mem DEFAULT_MEM_ALLOCATOR = {xcalloc, xrealloc, xfree};
 
 char *cmark_markdown_to_html(const char *text, size_t len, int options) {
   cmark_node *doc;
