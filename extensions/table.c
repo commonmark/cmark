@@ -9,7 +9,7 @@
 #include "strikethrough.h"
 #include "table.h"
 
-static cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
+cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
     CMARK_NODE_TABLE_CELL;
 
 typedef struct {
