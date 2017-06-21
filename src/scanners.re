@@ -128,7 +128,7 @@ bufsize_t _scan_liberal_html_tag(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .+ [>] { return (bufsize_t)(p - start); }
+  [^\n\x00]+ [>] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
