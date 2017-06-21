@@ -156,7 +156,7 @@ bufsize_t _scan_html_block_end_1(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .* [<] [/] ('script'|'pre'|'style') [>] { return (bufsize_t)(p - start); }
+  [^\x00]* [<] [/] ('script'|'pre'|'style') [>] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -167,7 +167,7 @@ bufsize_t _scan_html_block_end_2(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .* '-->' { return (bufsize_t)(p - start); }
+  [^\x00]* '-->' { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -178,7 +178,7 @@ bufsize_t _scan_html_block_end_3(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .* '?>' { return (bufsize_t)(p - start); }
+  [^\x00]* '?>' { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -189,7 +189,7 @@ bufsize_t _scan_html_block_end_4(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .* '>' { return (bufsize_t)(p - start); }
+  [^\x00]* '>' { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -200,7 +200,7 @@ bufsize_t _scan_html_block_end_5(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  .* ']]>' { return (bufsize_t)(p - start); }
+  [^\x00]* ']]>' { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
