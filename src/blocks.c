@@ -1146,6 +1146,8 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   else
     cmark_strbuf_put(&parser->curline, buffer, bytes);
 
+  bytes = parser->curline.size;
+
   // ensure line ends with a newline:
   if (bytes == 0 || !S_is_line_end_char(parser->curline.ptr[bytes - 1]))
     cmark_strbuf_putc(&parser->curline, '\n');
