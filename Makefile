@@ -77,7 +77,7 @@ afl:
 	$(AFL_PATH)/afl-fuzz \
 	    -i test/afl_test_cases \
 	    -o test/afl_results \
-	    -x test/afl_dictionary \
+	    -x test/fuzzing_dictionary \
 	    -t 100 \
 	    $(CMARK) $(CMARK_OPTS)
 
