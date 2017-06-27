@@ -14,6 +14,7 @@ BENCHFILE=$(BENCHDIR)/benchinput.md
 ALLTESTS=alltests.md
 NUMRUNS?=10
 CMARK=$(BUILDDIR)/src/cmark
+CMARK_FUZZ=$(BUILDDIR)/src/cmark-fuzz
 PROG?=$(CMARK)
 VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
@@ -77,9 +78,16 @@ afl:
 	$(AFL_PATH)/afl-fuzz \
 	    -i test/afl_test_cases \
 	    -o test/afl_results \
-	    -x test/afl_dictionary \
+	    -x test/fuzzing_dictionary \
 	    -t 100 \
 	    $(CMARK) $(CMARK_OPTS)
+
+libFuzzer:
+	@[ -n "$(LIB_FUZZER_PATH)" ] || { echo '$$LIB_FUZZER_PATH not set'; false; }
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR) && cmake -DCMAKE_BUILD_TYPE=Asan -DCMARK_LIB_FUZZER=ON -DCMAKE_LIB_FUZZER_PATH=$(LIB_FUZZER_PATH) ..
+	$(MAKE) -j2 -C $(BUILDDIR) cmark-fuzz
+	test/run-cmark-fuzz $(CMARK_FUZZ)
 
 clang-check: all
 	${CLANG_CHECK} -p build -analyze src/*.c
