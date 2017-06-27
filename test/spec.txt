@@ -337,6 +337,8 @@ the general Unicode categories  `Pc`, `Pd`, `Pe`, `Pf`, `Pi`, `Po`, or `Ps`.
 
 An [East Asian punctuation character](@) is a [punctuation character] with
 the East_Asian_Width property values `A`, `F`, `H` or `W`.
+An [non-East Asian punctuation character](@) is a [punctuation character] with
+the East_Asian_Width property values `N` or `Na`.
 
 ## Tabs
 
@@ -5987,16 +5989,14 @@ a non-backslash-escaped `_` character.
 
 A [left-flanking delimiter run](@) is
 a [delimiter run] that is (a) not followed by [Unicode whitespace],
-and (b) not followed by a [punctuation character] which is not
-[East Asian punctuation character], or
+and (b) not followed by a [non-East Asian punctuation character], or
 preceded by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
 
 A [right-flanking delimiter run](@) is
 a [delimiter run] that is (a) not preceded by [Unicode whitespace],
-and (b) not preceded by a [punctuation character] which is not
-[East Asian punctuation character], or
+and (b) not preceded by a [non-East Asian punctuation character], or
 followed by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
