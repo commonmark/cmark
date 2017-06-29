@@ -23,7 +23,7 @@ CLANG_CHECK?=clang-check
 CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
 AFL_PATH?=/usr/local/bin
 
-.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check
+.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check libFuzzer
 
 all: cmake_build man/man3/cmark.3
 
