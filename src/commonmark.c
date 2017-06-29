@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <assert.h>
 
 #include "config.h"
@@ -81,7 +82,9 @@ static int longest_backtick_sequence(const char *code) {
 }
 
 static int shortest_unused_backtick_sequence(const char *code) {
-  int32_t used = 1;
+  // note: if the shortest sequence is >= 32, this returns 32
+  // so as not to overflow the bit array.
+  uint32_t used = 1;
   int current = 0;
   size_t i = 0;
   size_t code_len = strlen(code);
@@ -89,7 +92,7 @@ static int shortest_unused_backtick_sequence(const char *code) {
     if (code[i] == '`') {
       current++;
     } else {
-      if (current) {
+      if (current > 0 && current < 32) {
         used |= (1 << current);
       }
       current = 0;
@@ -98,7 +101,7 @@ static int shortest_unused_backtick_sequence(const char *code) {
   }
   // return number of first bit that is 0:
   i = 0;
-  while (used & 1) {
+  while (i < 32 && used & 1) {
     used = used >> 1;
     i++;
   }
