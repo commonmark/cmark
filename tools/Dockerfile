@@ -1,20 +1,19 @@
 FROM debian:jessie
 
 RUN apt-get update && apt-get install -y \
-  build-essential autoconf libtool \
+  build-essential \
+  autoconf \
+  libtool \
   git \
   pkg-config \
-  && apt-get clean
-
-RUN apt-get install -y \
-  cmake \
   gdb \
   valgrind \
-  python3
-
-RUN apt-get install -y \
+  python3 \
   wget \
-  clang
+  clang \
+  man \
+  clang-format-3.5 \
+  && apt-get clean
 
 RUN wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && \
 	tar xf afl-latest.tgz && \
@@ -22,8 +21,6 @@ RUN wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && \
 	make install && \
 	cd .. && \
 	rm -rf afl-*
-
-RUN apt-get install -y man
 
 RUN wget https://github.com/skvadrik/re2c/releases/download/0.15.3/re2c-0.15.3.tar.gz && \
 	tar xf re2c-0.15.3.tar.gz && \
@@ -33,4 +30,10 @@ RUN wget https://github.com/skvadrik/re2c/releases/download/0.15.3/re2c-0.15.3.t
 	cd .. && \
 	rm -rf re2c-*
 
-RUN apt-get install -y clang-format-3.5
+RUN wget https://cmake.org/files/v3.8/cmake-3.8.2.tar.gz && \
+	tar xf cmake-3.8.2.tar.gz && \
+	cd cmake-* && \
+	./bootstrap && \
+	make install && \
+	cd .. && \
+	rm -rf cmake-*
