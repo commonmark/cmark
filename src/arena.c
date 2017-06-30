@@ -71,7 +71,8 @@ static void *arena_calloc(size_t nmem, size_t size) {
   }
   void *ptr = (uint8_t *) A->ptr + A->used;
   A->used += sz;
-  *((size_t *) ptr) = nmem * size;
+  size_t new_sz = nmem * size;
+  memcpy(ptr, &new_sz, sizeof(new_sz));
   return (uint8_t *) ptr + sizeof(size_t);
 }
 
