@@ -93,7 +93,7 @@ static int shortest_unused_backtick_sequence(const char *code) {
       current++;
     } else {
       if (current > 0 && current < 32) {
-        used |= (1 << current);
+        used |= (1U << current);
       }
       current = 0;
     }
