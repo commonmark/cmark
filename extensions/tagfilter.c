@@ -1,5 +1,6 @@
 #include "tagfilter.h"
 #include <parser.h>
+#include <ctype.h>
 
 static const char *blacklist[] = {
     "title",   "textarea", "style",  "xmp",       "iframe",
@@ -23,7 +24,7 @@ static int is_tag(const unsigned char *tag_data, size_t tag_size,
     if (*tagname == 0)
       break;
 
-    if (tag_data[i] != *tagname)
+    if (tolower(tag_data[i]) != *tagname)
       return 0;
   }
 
