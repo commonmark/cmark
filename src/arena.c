@@ -62,6 +62,12 @@ static void *arena_calloc(size_t nmem, size_t size) {
     init_arena();
 
   size_t sz = nmem * size + sizeof(size_t);
+
+  // Round allocation sizes to largest integer size to
+  // ensure returned memory is correctly aligned
+  const size_t align = sizeof(size_t) - 1;
+  sz = (sz + align) & ~align;
+
   if (sz > A->sz) {
     A->prev = alloc_arena_chunk(sz, A->prev);
     return (uint8_t *) A->prev->ptr + sizeof(size_t);
@@ -71,8 +77,7 @@ static void *arena_calloc(size_t nmem, size_t size) {
   }
   void *ptr = (uint8_t *) A->ptr + A->used;
   A->used += sz;
-  size_t new_sz = nmem * size;
-  memcpy(ptr, &new_sz, sizeof(new_sz));
+  *((size_t *) ptr) = sz - sizeof(size_t);
   return (uint8_t *) ptr + sizeof(size_t);
 }
 
