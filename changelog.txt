@@ -1,3 +1,8 @@
+[0.27.1.gfm.3]
+
+  * Various undefined behavior issues fixed (#38, #39, #40).
+  * Tag filter is case-insensitive (#43).
+
 [0.27.1.gfm.2]
 
   * Fix a number of bugs (reading past end of buffer, undefined behavior.
