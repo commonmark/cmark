@@ -5,6 +5,7 @@
 #include "utf8.h"
 #include "render.h"
 #include "node.h"
+#include "syntax_extension.h"
 
 static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
@@ -18,9 +19,10 @@ static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
   }
 }
 
-static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
+static void S_out(cmark_renderer *renderer, cmark_node *node,
+                  const char *source, bool wrap,
                   cmark_escaping escape) {
-  int length = strlen(source);
+  int length = (int)strlen(source);
   unsigned char nextc;
   int32_t c;
   int i = 0;
@@ -28,6 +30,16 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
   int len;
   cmark_chunk remainder = cmark_chunk_literal("");
   int k = renderer->buffer->size - 1;
+
+  cmark_syntax_extension *ext = NULL;
+  cmark_node *n = node;
+  while (n && !ext) {
+    ext = n->extension;
+    if (!ext)
+      n = n->parent;
+  }
+  if (ext && !ext->commonmark_escape_func)
+    ext = NULL;
 
   wrap = wrap && !renderer->no_linebreaks;
 
@@ -62,6 +74,10 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
     if (len == -1) { // error condition
       return;        // return without rendering rest of string
     }
+
+    if (ext && ext->commonmark_escape_func(ext, node, c))
+      cmark_strbuf_putc(renderer->buffer, '\\');
+
     nextc = source[i + len];
     if (c == 32 && wrap) {
       if (!renderer->begin_line) {
@@ -95,12 +111,12 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       // we need to escape a potential list marker after
       // a digit:
       renderer->begin_content =
-          renderer->begin_content && cmark_isdigit(c) == 1;
+          renderer->begin_content && cmark_isdigit((char)c) == 1;
     } else {
-      (renderer->outc)(renderer, escape, c, nextc);
+      (renderer->outc)(renderer, node, escape, c, nextc);
       renderer->begin_line = false;
       renderer->begin_content =
-          renderer->begin_content && cmark_isdigit(c) == 1;
+          renderer->begin_content && cmark_isdigit((char)c) == 1;
     }
 
     // If adding the character went beyond width, look for an
@@ -142,13 +158,13 @@ void cmark_render_code_point(cmark_renderer *renderer, uint32_t c) {
   renderer->column += 1;
 }
 
-char *cmark_render(cmark_node *root, int options, int width,
-                   void (*outc)(cmark_renderer *, cmark_escaping, int32_t,
+char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
+                   void (*outc)(cmark_renderer *, cmark_node *,
+                                cmark_escaping, int32_t,
                                 unsigned char),
                    int (*render_node)(cmark_renderer *renderer,
                                       cmark_node *node,
                                       cmark_event_type ev_type, int options)) {
-  cmark_mem *mem = cmark_node_mem(root);
   cmark_strbuf pref = CMARK_BUF_INIT(mem);
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
   cmark_node *cur;

@@ -21,9 +21,9 @@ from ctypes import CDLL, c_char_p, c_long, c_void_p
 sysname = platform.system()
 
 if sysname == 'Darwin':
-    cmark = CDLL("build/src/libcmark.dylib")
+    cmark = CDLL("build/src/libcmark-gfm.dylib")
 else:
-    cmark = CDLL("build/src/libcmark.so")
+    cmark = CDLL("build/src/libcmark-gfm.so")
 
 parse_document = cmark.cmark_parse_document
 parse_document.restype = c_void_p
@@ -129,5 +129,5 @@ with open(sourcefile, 'r') as cmarkh:
             chunk = []
             mdlines.append('\n')
 
-sys.stdout.write('.TH ' + os.path.basename(sourcefile).replace('.h','') + ' 3 "' + date.today().strftime('%B %d, %Y') + '" "LOCAL" "Library Functions Manual"\n')
+sys.stdout.write('.TH cmark-gfm 3 "' + date.today().strftime('%B %d, %Y') + '" "LOCAL" "Library Functions Manual"\n')
 sys.stdout.write(''.join(mdlines))
