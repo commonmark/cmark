@@ -1,10 +1,12 @@
 SRCDIR=src
+EXTDIR=extensions
 DATADIR=data
 BUILDDIR?=build
 GENERATOR?=Unix Makefiles
 MINGW_BUILDDIR?=build-mingw
 MINGW_INSTALLDIR?=windows
 SPEC=test/spec.txt
+EXTENSIONS_SPEC=test/extensions.txt
 SITE=_site
 SPECVERSION=$(shell perl -ne 'print $$1 if /^version: *([0-9.]+)/' $(SPEC))
 FUZZCHARS?=2000000  # for fuzztest
@@ -12,20 +14,20 @@ BENCHDIR=bench
 BENCHSAMPLES=$(wildcard $(BENCHDIR)/samples/*.md)
 BENCHFILE=$(BENCHDIR)/benchinput.md
 ALLTESTS=alltests.md
-NUMRUNS?=10
-CMARK=$(BUILDDIR)/src/cmark
+NUMRUNS?=20
+CMARK=$(BUILDDIR)/src/cmark-gfm
 CMARK_FUZZ=$(BUILDDIR)/src/cmark-fuzz
 PROG?=$(CMARK)
 VERSION?=$(SPECVERSION)
 RELEASE?=CommonMark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
-CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
+CLANG_FORMAT=clang-format-3.5 -style llvm -sort-includes=0 -i
 AFL_PATH?=/usr/local/bin
 
-.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check libFuzzer
+.PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl clang-check docker libFuzzer
 
-all: cmake_build man/man3/cmark.3
+all: cmake_build man/man3/cmark-gfm.3
 
 $(CMARK): cmake_build
 
@@ -79,8 +81,9 @@ afl:
 	    -i test/afl_test_cases \
 	    -o test/afl_results \
 	    -x test/fuzzing_dictionary \
+	    $(AFL_OPTIONS) \
 	    -t 100 \
-	    $(CMARK) $(CMARK_OPTS)
+	    $(CMARK) -e table -e strikethrough -e autolink -e tagfilter $(CMARK_OPTS)
 
 libFuzzer:
 	@[ -n "$(LIB_FUZZER_PATH)" ] || { echo '$$LIB_FUZZER_PATH not set'; false; }
@@ -98,7 +101,7 @@ mingw:
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
 	$(MAKE) && $(MAKE) install
 
-man/man3/cmark.3: src/cmark.h | $(CMARK)
+man/man3/cmark-gfm.3: src/cmark.h | $(CMARK)
 	python man/make_man_page.py $< > $@ \
 
 archive:
@@ -126,6 +129,19 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 		--encoding-policy substitute -o $@ $<
 	$(CLANG_FORMAT) $@
 
+# We include scanners.c in the repository, so this shouldn't
+# normally need to be generated.
+$(EXTDIR)/ext_scanners.c: $(EXTDIR)/ext_scanners.re
+	@case "$$(re2c -v)" in \
+	    *\ 0.13.*|*\ 0.14|*\ 0.14.1) \
+		echo "re2c >= 0.14.2 is required"; \
+		false; \
+		;; \
+	esac
+	re2c --case-insensitive -b -i --no-generation-date -8 \
+		--encoding-policy substitute -o $@ $<
+	clang-format-3.5 -style llvm -i $@
+
 # We include entities.inc in the repository, so normally this
 # doesn't need to be regenerated:
 $(SRCDIR)/entities.inc: tools/make_entities_inc.py
@@ -138,14 +154,19 @@ update-spec:
 test: $(SPEC) cmake_build
 	$(MAKE) -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
-$(ALLTESTS): $(SPEC)
-	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
+$(ALLTESTS): $(SPEC) $(EXTENSIONS_SPEC)
+	( \
+	  python3 test/spec_tests.py --spec $(SPEC) --dump-tests | \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); u8s = open(1, "w", encoding="utf-8", closefd=False); print("\n".join([test["markdown"] for test in tests]), file=u8s)'; \
+	  python3 test/spec_tests.py --spec $(EXTENSIONS_SPEC) --dump-tests | \
+	    python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); u8s = open(1, "w", encoding="utf-8", closefd=False); print("\n".join([test["markdown"] for test in tests]), file=u8s)'; \
+	) > $@
 
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart"; do \
-	     echo "cmark -t $$format $$opts" ; \
-	     valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts $(ALLTESTS) >/dev/null || exit 1;\
+	     echo "cmark-gfm -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts" ; \
+	     valgrind -q --leak-check=full --dsymutil=yes --suppressions=suppressions --error-exitcode=1 $(PROG) -t $$format -e table -e strikethrough -e autolink -e tagfilter $$opts $(ALLTESTS) >/dev/null || exit 1;\
           done; \
 	done;
 
@@ -189,6 +210,9 @@ newbench:
 format:
 	$(CLANG_FORMAT) src/*.c src/*.h api_test/*.c api_test/*.h
 
+format-extensions:
+	clang-format-3.5 -style llvm -i extensions/*.c extensions/*.h
+
 operf: $(CMARK)
 	operf $< < $(BENCHFILE) > /dev/null
 
@@ -196,3 +220,7 @@ distclean: clean
 	-rm -rf *.dSYM
 	-rm -f README.html
 	-rm -rf $(BENCHFILE) $(ALLTESTS) progit
+
+docker:
+	docker build -t cmark $(CURDIR)/tools
+	docker run --privileged -t -i -v $(CURDIR):/src/cmark -w /src/cmark cmark /bin/bash
