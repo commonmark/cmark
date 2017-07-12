@@ -933,12 +933,12 @@ static void test_feed_across_line_ending(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
+#ifdef CMARK_TIMEOUT_SUPPORTED
+
 static void test_feed_finish(test_batch_runner *runner) {
   cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
   cmark_parser_feed(parser, "line1\r", 6);
-#ifdef CMARK_TIMEOUT_SUPPORTED
   cmark_node *document = cmark_parser_feed_finish(parser, "\nline2\r\n", 8, 1000);
-#endif
   OK(runner, document != NULL, "document was returned");
   if (document) {
     OK(runner, document->first_child->next == NULL, "document has one paragraph");
@@ -946,6 +946,8 @@ static void test_feed_finish(test_batch_runner *runner) {
   }
   cmark_parser_free(parser);
 }
+
+#endif
 
 int main() {
   int retval;
@@ -973,7 +975,9 @@ int main() {
   test_cplusplus(runner);
   test_safe(runner);
   test_feed_across_line_ending(runner);
+#ifdef CMARK_TIMEOUT_SUPPORTED
   test_feed_finish(runner);
+#endif
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
