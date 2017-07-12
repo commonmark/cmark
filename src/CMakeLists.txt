@@ -73,6 +73,10 @@ add_compiler_export_flags()
 
 target_link_libraries(${PROGRAM} libcmark-gfmextensions_static libcmark-gfm_static)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(${PROGRAM} ${CMAKE_THREAD_LIBS_INIT})
+
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
   COMPILE_FLAGS "-DCMARK_STATIC_DEFINE -DCMARKEXTENSIONS_STATIC_DEFINE")

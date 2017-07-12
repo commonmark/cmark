@@ -14,8 +14,11 @@
 #include "../extensions/core-extensions.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#include <io.h>
-#include <fcntl.h>
+#  include <io.h>
+#  include <fcntl.h>
+#  include <malloc.h>
+#else
+#  include <alloca.h>
 #endif
 
 typedef enum {
@@ -28,7 +31,7 @@ typedef enum {
   FORMAT_LATEX
 } writer_format;
 
-void print_usage() {
+static void print_usage() {
   printf("Usage:   cmark-gfm [FILE*]\n");
   printf("Options:\n");
   printf("  --to, -t FORMAT   Specify output format (html, xml, man, "
@@ -117,7 +120,7 @@ int main(int argc, char *argv[]) {
   _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-  files = (int *)calloc(argc, sizeof(*files));
+  files = (int *)alloca(argc * sizeof(*files));
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {
@@ -194,11 +197,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-#if DEBUG
-  parser = cmark_parser_new(options);
-#else
   parser = cmark_parser_new_with_mem(options, cmark_get_arena_mem_allocator());
-#endif
 
   for (i = 1; i < argc; i++) {
     if ((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--extension") == 0)) {
@@ -254,19 +253,9 @@ success:
 
 failure:
 
-#if DEBUG
-  if (parser)
-    cmark_parser_free(parser);
-
-  if (document)
-    cmark_node_free(document);
-#else
   cmark_arena_reset();
-#endif
 
   cmark_release_plugins();
-
-  free(files);
 
   return res;
 }

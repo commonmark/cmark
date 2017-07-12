@@ -1,4 +1,4 @@
-.TH cmark-gfm 3 "April 03, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "July 12, 2017" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -781,6 +781,20 @@ As for \f[I]cmark_render_commonmark\f[], but specifying the allocator to
 use for the resulting string.
 
 .PP
+\fIchar *\f[] \fBcmark_render_plaintext\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
+
+.PP
+Render a \f[I]node\f[] tree as a plain text document. It is the caller's
+responsibility to free the returned buffer.
+
+.PP
+\fIchar *\f[] \fBcmark_render_plaintext_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_plaintext\f[], but specifying the allocator to
+use for the resulting string.
+
+.PP
 \fIchar *\f[] \fBcmark_render_latex\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
@@ -916,6 +930,18 @@ dashes.
 
 .PP
 Use GitHub\-style  tags for code blocks instead of .
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_LIBERAL_HTML_TAG (1 << 12)
+.RE
+\f[]
+.fi
+
+.PP
+Be liberal in interpreting inline HTML tags.
 
 .SS
 Version information

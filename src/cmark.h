@@ -2,6 +2,7 @@
 #define CMARK_CMARK_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include "cmark_export.h"
 #include "cmark_version.h"
 
@@ -738,6 +739,15 @@ int cmark_version(void);
  */
 CMARK_EXPORT
 const char *cmark_version_string(void);
+
+#if (!defined(_WIN32) || defined(__CYGWIN__)) && !defined(__APPLE__)
+#  include <pthread.h>
+#  define CMARK_TIMEOUT_SUPPORTED
+
+CMARK_EXPORT
+cmark_node *cmark_parser_feed_finish(cmark_parser *parser, const char *buffer, size_t len, uint32_t millis);
+
+#endif
 
 /** # AUTHORS
  *

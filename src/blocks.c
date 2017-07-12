@@ -22,6 +22,10 @@
 #include "houdini.h"
 #include "buffer.h"
 
+#ifdef CMARK_TIMEOUT_SUPPORTED
+#  include <sys/time.h>
+#endif
+
 #define CODE_INDENT 4
 #define TAB_STOP 4
 
@@ -566,6 +570,58 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options) {
 void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len) {
   S_parser_feed(parser, (const unsigned char *)buffer, len, false);
 }
+
+#ifdef CMARK_TIMEOUT_SUPPORTED
+
+struct parser_feed {
+  cmark_parser *parser;
+  const char *buffer;
+  size_t len;
+  pthread_cond_t cond;
+};
+
+static void *_parser_feed_finish(void *arg) {
+  struct parser_feed *pf = (struct parser_feed *)arg;
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+  cmark_parser_feed(pf->parser, pf->buffer, pf->len);
+  cmark_node *doc = cmark_parser_finish(pf->parser);
+  pthread_cond_signal(&pf->cond);
+  return doc;
+}
+
+cmark_node *cmark_parser_feed_finish(cmark_parser *parser, const char *buffer, size_t len, uint32_t millis) {
+  if (millis == 0) {
+    cmark_parser_feed(parser, buffer, len);
+    return cmark_parser_finish(parser);
+  }
+
+  struct parser_feed pf = { parser, buffer, len, PTHREAD_COND_INITIALIZER };
+
+  struct timeval now;
+  gettimeofday(&now, NULL);
+
+  struct timespec t;
+  t.tv_sec = now.tv_sec + millis / 1000;
+  t.tv_nsec = (now.tv_usec + (millis % 1000) * 1000UL) * 1000UL;
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, _parser_feed_finish, &pf);
+  pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+  int r = pthread_cond_timedwait(&pf.cond, &mtx, &t);
+  pthread_mutex_unlock(&mtx);
+
+  if (r != 0)
+    pthread_cancel(thread);
+
+  cmark_node *doc;
+  if (pthread_join(thread, (void *)&doc) == 0 &&
+      doc != PTHREAD_CANCELED)
+    return doc;
+  return NULL;
+}
+
+#endif  // CMARK_TIMEOUT_SUPPORTED
 
 void cmark_parser_feed_reentrant(cmark_parser *parser, const char *buffer, size_t len) {
   cmark_strbuf saved_linebuf;

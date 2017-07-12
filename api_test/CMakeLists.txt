@@ -8,7 +8,9 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${PROJECT_BINARY_DIR}/src
 )
-target_link_libraries(api_test libcmark-gfm)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(api_test libcmark-gfm ${CMAKE_THREAD_LIBS_INIT})
 
 # Compiler flags
 if(MSVC)
