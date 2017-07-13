@@ -81,7 +81,7 @@ Issue #193 - unescaped left angle brackets in link destination
 
 [a]: <te<st>
 .
-<p><a href="te%3Cst">a</a></p>
+<p><a href="%3Cte%3Cst%3E">a</a></p>
 ````````````````````````````````
 
 Issue #192 - escaped spaces in link destination
