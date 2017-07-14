@@ -8,21 +8,21 @@
 extern "C" {
 #endif
 
-#define REFMAP_SIZE 16
-
 struct cmark_reference {
   struct cmark_reference *next;
   unsigned char *label;
   cmark_chunk url;
   cmark_chunk title;
-  unsigned int hash;
+  unsigned int age;
 };
 
 typedef struct cmark_reference cmark_reference;
 
 struct cmark_reference_map {
   cmark_mem *mem;
-  cmark_reference *table[REFMAP_SIZE];
+  cmark_reference *refs;
+  cmark_reference **sorted;
+  unsigned int size;
 };
 
 typedef struct cmark_reference_map cmark_reference_map;
