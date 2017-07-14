@@ -20,15 +20,17 @@ GFM is a strict superset of CommonMark. All the features which are supported in
 GitHub user content and that are not specified on the original CommonMark Spec
 are hence known as **extensions**, and highlighted as such.
 
+While GFM supports a wide range of inputs, it's worth noting that GitHub.com
+and GitHub Enterprise perform additional post-processing and sanitization after
+GFM is converted to HTML to ensure security and consistency of the website.
+
 ## What is Markdown?
 
 Markdown is a plain text format for writing structured documents,
-based on conventions for indicating formatting in email
-and usenet posts.  It was developed by John Gruber (with
-help from Aaron Swartz) and released in 2004 in the form of a
-[syntax description](http://daringfireball.net/projects/markdown/syntax)
-and a Perl script (`Markdown.pl`) for converting Markdown to
-HTML.  In the next decade, dozens of implementations were
+based on conventions used for indicating formatting in email and
+usenet posts.  It was developed in 2004 by John Gruber, who wrote
+the first Markdown-to-HTML converter in Perl, and it soon became
+ubiquitous.  In the next decade, dozens of implementations were
 developed in many languages.  Some extended the original
 Markdown syntax with conventions for footnotes, tables, and
 other document elements.  Some allowed Markdown documents to be
@@ -326,7 +328,7 @@ form feed (`U+000C`), or carriage return (`U+000D`).
 characters].
 
 A [Unicode whitespace character](@) is
-any code point in the Unicode `Zs` general category, or a tab (`U+0009`),
+any code point in the Unicode `Zs` class, or a tab (`U+0009`),
 carriage return (`U+000D`), newline (`U+000A`), or form feed
 (`U+000C`).
 
@@ -345,7 +347,7 @@ is `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`,
 
 A [punctuation character](@) is an [ASCII
 punctuation character] or anything in
-the general Unicode categories  `Pc`, `Pd`, `Pe`, `Pf`, `Pi`, `Po`, or `Ps`.
+the Unicode classes `Pc`, `Pd`, `Pe`, `Pf`, `Pi`, `Po`, or `Ps`.
 
 ## Tabs
 
@@ -416,8 +418,8 @@ as indentation with four spaces would:
 Normally the `>` that begins a block quote may be followed
 optionally by a space, which is not considered part of the
 content.  In the following case `>` is followed by a tab,
-which is treated as if it were expanded into three spaces.
-Since one of these spaces is considered part of the
+which is treated as if it were expanded into spaces.
+Since one of theses spaces is considered part of the
 delimiter, `foo` is considered to be indented six spaces
 inside the block quote context, so we get an indented
 code block starting with two spaces.
@@ -495,7 +497,7 @@ We can think of a document as a sequence of
 quotations, lists, headings, rules, and code blocks.  Some blocks (like
 block quotes and list items) contain other blocks; others (like
 headings and paragraphs) contain [inline](@) content---text,
-links, emphasized text, images, code spans, and so on.
+links, emphasized text, images, code, and so on.
 
 ## Precedence
 
@@ -6047,15 +6049,6 @@ we just have literal backticks:
 <p>`foo</p>
 ````````````````````````````````
 
-The following case also illustrates the need for opening and
-closing backtick strings to be equal in length:
-
-```````````````````````````````` example
-`foo``bar``
-.
-<p>`foo<code>bar</code></p>
-````````````````````````````````
-
 
 ## Emphasis and strong emphasis
 
@@ -6110,14 +6103,14 @@ characters that is not preceded or followed by a `_` character.
 
 A [left-flanking delimiter run](@) is
 a [delimiter run] that is (a) not followed by [Unicode whitespace],
-and (b) not followed by a [punctuation character], or
+and (b) either not followed by a [punctuation character], or
 preceded by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
 
 A [right-flanking delimiter run](@) is
 a [delimiter run] that is (a) not preceded by [Unicode whitespace],
-and (b) not preceded by a [punctuation character], or
+and (b) either not preceded by a [punctuation character], or
 followed by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
@@ -6196,7 +6189,7 @@ The following rules define emphasis and strong emphasis:
 7.  A double `**` [can close strong emphasis](@)
     iff it is part of a [right-flanking delimiter run].
 
-8.  A double `__` [can close strong emphasis] iff
+8.  A double `__` [can close strong emphasis]
     it is part of a [right-flanking delimiter run]
     and either (a) not part of a [left-flanking delimiter run]
     or (b) part of a [left-flanking delimiter run]
@@ -6237,7 +6230,7 @@ the following principles resolve ambiguity:
     `<em><em>...</em></em>`.
 
 14. An interpretation `<em><strong>...</strong></em>` is always
-    preferred to `<strong><em>...</em></strong>`.
+    preferred to `<strong><em>..</em></strong>`.
 
 15. When two potential emphasis or strong emphasis spans overlap,
     so that the second begins before the first ends and ends after
@@ -8616,11 +8609,11 @@ The link labels are case-insensitive:
 ````````````````````````````````
 
 
-If you just want a literal `!` followed by bracketed text, you can
-backslash-escape the opening `[`:
+If you just want bracketed text, you can backslash-escape the
+opening `!` and `[`:
 
 ```````````````````````````````` example
-!\[foo]
+\!\[foo]
 
 [foo]: /url "title"
 .
@@ -8835,14 +8828,15 @@ greater number of conditions.
 
 [Autolink]s can also be constructed without requiring the use of `<` and to `>`
 to delimit them, although they will be recognized under a smaller set of
-circumstances.  All such recognized autolinks can only come after whitespace,
-or any of the delimiting characters `*`, `_`, `~`, `(`, and `[`.
+circumstances.  All such recognized autolinks can only come at the beginning of
+a line, after whitespace, or any of the delimiting characters `*`, `_`, `~`,
+and `(`.
 
-An [extended www autolink](@) will be recognized when a [valid domain] is
-found. A [valid domain](@) consists of the text `www.`, followed by
-alphanumeric characters, underscores (`_`), hyphens (`-`) and periods (`.`).
-There must be at least one period, and no underscores may be present in the
-last two segments of the domain.
+An [extended www autolink](@) will be recognized when the text `www.` is found
+followed by a [valid domain]. A [valid domain](@) consists of alphanumeric
+characters, underscores (`_`), hyphens (`-`) and periods (`.`).  There must be
+at least one period, and no underscores may be present in the last two segments
+of the domain.
 
 The scheme `http` will be inserted automatically:
 
