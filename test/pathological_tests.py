@@ -5,6 +5,8 @@ import re
 import argparse
 import sys
 import platform
+import itertools
+import multiprocessing
 from cmark import CMark
 
 if __name__ == "__main__":
@@ -16,6 +18,28 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
 cmark = CMark(prog=args.program, library_dir=args.library_dir)
+
+def hash_collisions():
+    REFMAP_SIZE = 16
+    COUNT = 50000
+
+    def badhash(ref):
+        h = 0
+        for c in ref:
+            a = (h << 6) & 0xFFFFFFFF
+            b = (h << 16) & 0xFFFFFFFF
+            h = ord(c) + a + b - h
+            h = h & 0xFFFFFFFF
+
+        return (h % REFMAP_SIZE) == 0
+
+    keys = ("x%d" % i for i in itertools.count())
+    collisions = itertools.islice((k for k in keys if badhash(k)), COUNT)
+    bad_key = next(collisions)
+
+    document = ''.join("[%s]: /url\n\n[%s]\n\n" % (key, bad_key) for key in collisions)
+
+    return document, re.compile("(<p>\[%s\]</p>\n){%d}" % (bad_key, COUNT-1))
 
 # list of pairs consisting of input and a regex that must match the output.
 pathological = {
@@ -58,32 +82,47 @@ pathological = {
                   re.compile("abc\ufffd?de\ufffd?")),
     "backticks":
                  ("".join(map(lambda x: ("e" + "`" * x), range(1,10000))),
-                  re.compile("^<p>[e`]*</p>\n$"))
+                  re.compile("^<p>[e`]*</p>\n$")),
+    "reference collisions": hash_collisions()
     }
 
 whitespace_re = re.compile('/s+/')
 passed = 0
 errored = 0
-failed = 0
+TIMEOUT = 5
+
+def run_test(inp, regex):
+    [rc, actual, err] = cmark.to_html(inp)
+    if rc != 0:
+        print('[ERRORED (return code %d)]' % rc)
+        print(err)
+        exit(1)
+    elif regex.search(actual):
+        print('[PASSED]')
+    else:
+        print('[FAILED (mismatch)]')
+        print(repr(actual))
+        exit(1)
 
 print("Testing pathological cases:")
 for description in pathological:
     (inp, regex) = pathological[description]
-    [rc, actual, err] = cmark.to_html(inp)
-    if rc != 0:
-        errored += 1
-        print(description, '[ERRORED (return code %d)]' %rc)
-        print(err)
-    elif regex.search(actual):
-        print(description, '[PASSED]')
-        passed += 1
-    else:
-        print(description, '[FAILED]')
-        print(repr(actual))
-        failed += 1
+    print(description, "... ", end='')
+    sys.stdout.flush()
 
-print("%d passed, %d failed, %d errored" % (passed, failed, errored))
-if (failed == 0 and errored == 0):
-    exit(0)
-else:
-    exit(1)
+    p = multiprocessing.Process(target=run_test, args=(inp, regex))
+    p.start()
+    p.join(TIMEOUT)
+
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        print('[TIMED OUT]')
+        errored += 1
+    elif p.exitcode != 0:
+        errored += 1
+    else:
+        passed += 1
+
+print("%d passed, %d errored" % (passed, errored))
+exit(errored)

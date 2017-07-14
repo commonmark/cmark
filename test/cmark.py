@@ -92,7 +92,7 @@ class CMark:
             else:
                 libnames = [ ["lib", ".so"] ]
             if not library_dir:
-                library_dir = os.path.join("build", "src")
+                library_dir = os.path.join("..", "build", "src")
             for prefix, suffix in libnames:
                 candidate = os.path.join(library_dir, prefix + "cmark-gfm" + suffix)
                 if os.path.isfile(candidate):
