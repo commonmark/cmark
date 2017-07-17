@@ -9,16 +9,6 @@ import itertools
 import multiprocessing
 from cmark import CMark
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run cmark tests.')
-    parser.add_argument('--program', dest='program', nargs='?', default=None,
-            help='program to test')
-    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-            default=None, help='directory containing dynamic library')
-    args = parser.parse_args(sys.argv[1:])
-
-cmark = CMark(prog=args.program, library_dir=args.library_dir)
-
 def hash_collisions():
     REFMAP_SIZE = 16
     COUNT = 50000
@@ -92,6 +82,14 @@ errored = 0
 TIMEOUT = 5
 
 def run_test(inp, regex):
+    parser = argparse.ArgumentParser(description='Run cmark tests.')
+    parser.add_argument('--program', dest='program', nargs='?', default=None,
+            help='program to test')
+    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+            default=None, help='directory containing dynamic library')
+    args = parser.parse_args(sys.argv[1:])
+    cmark = CMark(prog=args.program, library_dir=args.library_dir)
+
     [rc, actual, err] = cmark.to_html(inp)
     if rc != 0:
         print('[ERRORED (return code %d)]' % rc)
@@ -104,25 +102,26 @@ def run_test(inp, regex):
         print(repr(actual))
         exit(1)
 
-print("Testing pathological cases:")
-for description in pathological:
-    (inp, regex) = pathological[description]
-    print(description, "... ", end='')
-    sys.stdout.flush()
+if __name__ == '__main__':
+    print("Testing pathological cases:")
+    for description in pathological:
+        (inp, regex) = pathological[description]
+        print(description, "... ", end='')
+        sys.stdout.flush()
 
-    p = multiprocessing.Process(target=run_test, args=(inp, regex))
-    p.start()
-    p.join(TIMEOUT)
+        p = multiprocessing.Process(target=run_test, args=(inp, regex))
+        p.start()
+        p.join(TIMEOUT)
 
-    if p.is_alive():
-        p.terminate()
-        p.join()
-        print('[TIMED OUT]')
-        errored += 1
-    elif p.exitcode != 0:
-        errored += 1
-    else:
-        passed += 1
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            print('[TIMED OUT]')
+            errored += 1
+        elif p.exitcode != 0:
+            errored += 1
+        else:
+            passed += 1
 
-print("%d passed, %d errored" % (passed, errored))
-exit(errored)
+    print("%d passed, %d errored" % (passed, errored))
+    exit(errored)
