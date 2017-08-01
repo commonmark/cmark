@@ -1,3 +1,127 @@
+[0.28]
+
+  * Update spec.
+  * Use unsigned integer when shifting (Phil Turnbull).
+    Avoids a UBSAN warning which can be triggered when handling a
+    long sequence of backticks.
+  * Avoid memcpy'ing NULL pointers (Phil Turnbull).
+    Avoids a UBSAN warning when link title is empty string.
+    The length of the memcpy is zero so the NULL pointer is not
+    dereferenced but it is still undefined behaviour.
+  * DeMorgan simplification of some tests in emphasis parser.
+    This also brings the code into closer alignment with the wording
+    of the spec (see jgm/CommonMark#467).
+  * Fixed undefined shift in commonmark writer (#211).
+    Found by google/oss-fuzz:
+    <https://oss-fuzz.com/v2/testcase-detail/4686992824598528>.
+  * latex writer:  fix memory overflow (#210).
+    We got an array overflow in enumerated lists nested more than
+    10 deep with start number =/= 1.
+    This commit also ensures that we don't try to set `enum_` counters
+    that aren't defined by LaTeX (generally up to enumv).
+    Found by google/oss-fuzz:
+    <https://oss-fuzz.com/v2/testcase-detail/5546760854306816>.
+  * Check for NULL pointer in get_link_type (Phil Turnbull).
+    `echo '[](xx:)' | ./build/src/cmark -t latex` gave a
+    segfault.
+  * Move fuzzing dictionary into single file (Phil Turnbull).
+    This allows AFL and libFuzzer to use the same dictionary
+  * Reset bytes after UTF8 proc (Yuki Izumi, #206).
+  * Don't scan past an EOL (Yuki Izumi).
+    The existing negated character classes (`[^…]`) are careful to
+    always include` \x00` in the characters excluded, but these `.`
+    catch-alls can scan right past the terminating NUL placed
+    at the end of the buffer by `_scan_at`.  As such, buffer
+    overruns can occur.  Also, don't scan past a newline in HTML
+    block end scanners.
+  * Document cases where `get_` functions return `NULL` (#155).
+    E.g. `cmark_node_get_url` on a non-link or image.
+  * Properly handle backslashes in link destinations (#192).
+    Only ascii punctuation characters are escapable, per the spec.
+  * Fixed `cmark_node_get_list_start` to return 0 for bullet lists,
+    as documented (#202).
+  * Use `CMARK_NO_DELIM` for bullet lists (#201).
+  * Fixed code for freeing delimiter stack (#189).
+  * Removed abort outside of conditional (typo).
+  * Removed coercion in error message when aborting from buffer.
+  * Print message to stderr when we abort due to memory demands (#188).
+  * `libcmark.pc`: use `CMAKE_INSTALL_LIBDIR` (#185, Jens Petersen).
+    Needed for multilib distros like Fedora.
+  * Fixed buffer overflow error in `S_parser_feed` (#184).
+    The overflow could occur in the following condition:
+    the buffer ends with `\r` and the next memory address
+    contains `\n`.
+  * Update emphasis parsing for spec change.
+    Strong now goes inside Emph rather than the reverse,
+    when both scopes are possible.  The code is much simpler.
+    This also avoids a spec inconsistency that cmark had previously:
+    `***hi***` became Strong (Emph "hi")) but
+    `***hi****` became Emph (Strong "hi")) "*"
+  * Fixes for the LaTeX renderer (#182, Doeme)
+    + Don't double-output the link in latex-rendering.
+    + Prevent ligatures in dashes sensibly when rendering latex.
+      `\-` is a hyphenation, so it doesn't get displayed at all.
+  * Added a test for NULL when freeing `subj->last_delim`.
+  * Cleaned up setting of lower bounds for openers.
+    We now use a much smaller array.
+  * Fix #178, quadratic parsing bug.  Add pathological test.
+  * Slight improvement of clarity of logic in emph matching.
+  * Fix "multiple of 3" determination in emph/strong parsing.
+    We need to store the length of the original delimiter run,
+    instead of using the length of the remaining delimiters
+    after some have been subtracted.  Test case:
+    `a***b* c*`.  Thanks to Raph Levin for reporting.
+  * Correctly initialize chunk in S_process_line (Nick Wellnhofer, #170).
+    The `alloc` member wasn't initialized.  This also allows to add an
+    assertion in `chunk_rtrim` which doesn't work for alloced chunks.
+  * Added 'make newbench'.
+  * `scanners.c` generated with re2c 0.16 (68K smaller!).
+  * `scanners.re` - fixed warnings; use `*` for fallback.
+  * Fixed some warnings in `scanners.re`.
+  * Update CaseFolding to latest (Kevin Wojniak, #168).
+  * Allow balanced nested parens in link destinations (Yuki Izumi, #166)
+  * Allocate enough bytes for backticks array.
+  * Inlines: Ensure that the delimiter stack is freed in subject.
+  * Fixed pathological cases with backtick code spans:
+
+    - Removed recursion in scan_to_closing_backticks
+    - Added an array of pointers to potential backtick closers
+      to subject
+    - This array is used to avoid traversing the subject again
+      when we've already seen all the potential backtick closers.
+    - Added a max bound of 1000 for backtick code span delimiters.
+    - This helps with pathological cases like:
+
+            x
+            x `
+            x ``
+            x ```
+            x ````
+            ...
+
+    - Added pathological test case.
+
+    Thanks to Martin Mitáš for identifying the problem and for
+    discussion of solutions.
+  * Remove redundant cmake_minimum_required (#163, @kainjow).
+  * Make shared and static libraries optional (Azamat H. Hackimov).
+    Now you can enable/disable compilation and installation targets for
+    shared and static libraries via `-DCMARK_SHARED=ON/OFF` and
+    `-DCMARK_STATIC=ON/OFF`.
+  * Added support for built-in `${LIB_SUFFIX}` feature (Azamat H.
+    Hackimov).  Replaced `${LIB_INSTALL_DIR}` option with built-in
+    `${LIB_SUFFIX}` for installing for 32/64-bit systems. Normally,
+    CMake will set `${LIB_SUFFIX}` automatically for required enviroment.
+    If you have any issues with it, you can override this option with
+    `-DLIB_SUFFIX=64` or `-DLIB_SUFFIX=""` during configuration.
+  * Add Makefile target and harness to fuzz with libFuzzer (Phil Turnbull).
+    This can be run locally with `make libFuzzer` but the harness will be
+    integrated into oss-fuzz for large-scale fuzzing.
+  * Makefile: use warnings with re2c.
+  * README: Add link to Python wrapper, prettify languages list
+    (Pavlo Kpyshin).
+  * README: Add link to cmark-scala (Tim Nieradzik, #196)
+
 [0.27.1]
 
   * Set policy for CMP0063 to avoid a warning (#162).
