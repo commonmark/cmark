@@ -117,6 +117,8 @@
   * Add Makefile target and harness to fuzz with libFuzzer (Phil Turnbull).
     This can be run locally with `make libFuzzer` but the harness will be
     integrated into oss-fuzz for large-scale fuzzing.
+  * Advertise `--validate-utf8` in usage information
+    (Nguyễn Thái Ngọc Duy).
   * Makefile: use warnings with re2c.
   * README: Add link to Python wrapper, prettify languages list
     (Pavlo Kpyshin).
