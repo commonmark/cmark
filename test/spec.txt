@@ -1645,6 +1645,15 @@ With tildes:
 </code></pre>
 ````````````````````````````````
 
+Fewer than three backticks is not enough:
+
+```````````````````````````````` example
+``
+foo
+``
+.
+<p><code>foo</code></p>
+````````````````````````````````
 
 The closing code fence must use the same character as the opening
 fence:
@@ -2032,6 +2041,37 @@ or [closing tag] (with any [tag name] other than `script`,
 `style`, or `pre`) followed only by [whitespace]
 or the end of the line.\
 **End condition:** line is followed by a [blank line].
+
+HTML blocks continue until they are closed by their appropriate
+[end condition], or the last line of the document or other [container block].
+This means any HTML **within an HTML block** that might otherwise be recognised
+as a start condition will be ignored by the parser and passed through as-is,
+without changing the parser's state.
+
+For instance, `<pre>` within a HTML block started by `<table>` will not affect
+the parser state; as the HTML block was started in by start condition 6, it
+will end at any blank line. This can be surprising:
+
+```````````````````````````````` example
+<table><tr><td>
+<pre>
+**Hello**,
+
+_world_.
+</pre>
+</td></tr></table>
+.
+<table><tr><td>
+<pre>
+**Hello**,
+<p><em>world</em>.
+</pre></p>
+</td></tr></table>
+````````````````````````````````
+
+In this case, the HTML block is terminated by the newline — the `**hello**`
+text remains verbatim — and regular parsing resumes, with a paragraph,
+emphasised `world` and inline and block HTML following.
 
 All types of [HTML blocks] except type 7 may interrupt
 a paragraph.  Blocks of type 7 may not interrupt a paragraph.
@@ -3639,11 +3679,15 @@ The following rules define [list items]:
     If the list item is ordered, then it is also assigned a start
     number, based on the ordered list marker.
 
-    Exceptions: When the first list item in a [list] interrupts
-    a paragraph---that is, when it starts on a line that would
-    otherwise count as [paragraph continuation text]---then (a)
-    the lines *Ls* must not begin with a blank line, and (b) if
-    the list item is ordered, the start number must be 1.
+    Exceptions:
+
+    1. When the first list item in a [list] interrupts
+       a paragraph---that is, when it starts on a line that would
+       otherwise count as [paragraph continuation text]---then (a)
+       the lines *Ls* must not begin with a blank line, and (b) if
+       the list item is ordered, the start number must be 1.
+    2. If any line is a [thematic break][thematic breaks] then
+       that line is not a list item.
 
 For example, let *Ls* be the lines
 
@@ -5856,8 +5900,9 @@ for efficient parsing strategies that do not backtrack.
 
 First, some definitions.  A [delimiter run](@) is either
 a sequence of one or more `*` characters that is not preceded or
-followed by a `*` character, or a sequence of one or more `_`
-characters that is not preceded or followed by a `_` character.
+followed by a non-backslash-escaped `*` character, or a sequence
+of one or more `_` characters that is not preceded or followed by
+a non-backslash-escaped `_` character.
 
 A [left-flanking delimiter run](@) is
 a [delimiter run] that is (a) not followed by [Unicode whitespace],
@@ -7159,7 +7204,9 @@ A [link destination](@) consists of either
 - a nonempty sequence of characters that does not include
   ASCII space or control characters, and includes parentheses
   only if (a) they are backslash-escaped or (b) they are part of
-  a balanced pair of unescaped parentheses.
+  a balanced pair of unescaped parentheses.  (Implementations
+  may impose limits on parentheses nesting to avoid performance
+  issues, but at least three levels of nesting should be supported.)
 
 A [link title](@)  consists of either
 
@@ -7265,7 +7312,7 @@ Parentheses inside the link destination may be escaped:
 <p><a href="(foo)">link</a></p>
 ````````````````````````````````
 
-Any number parentheses are allowed without escaping, as long as they are
+Any number of parentheses are allowed without escaping, as long as they are
 balanced:
 
 ```````````````````````````````` example
@@ -7571,13 +7618,16 @@ that [matches] a [link reference definition] elsewhere in the document.
 A [link label](@)  begins with a left bracket (`[`) and ends
 with the first right bracket (`]`) that is not backslash-escaped.
 Between these brackets there must be at least one [non-whitespace character].
-Unescaped square bracket characters are not allowed in
-[link labels].  A link label can have at most 999
-characters inside the square brackets.
+Unescaped square bracket characters are not allowed inside the
+opening and closing square brackets of [link labels].  A link
+label can have at most 999 characters inside the square
+brackets.
 
 One label [matches](@)
 another just in case their normalized forms are equal.  To normalize a
-label, perform the *Unicode case fold* and collapse consecutive internal
+label, strip off the opening and closing brackets,
+perform the *Unicode case fold*, strip leading and trailing
+[whitespace] and collapse consecutive internal
 [whitespace] to a single space.  If there are multiple
 matching reference link definitions, the one that comes first in the
 document is used.  (It is desirable in such cases to emit a warning.)
