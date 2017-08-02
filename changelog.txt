@@ -121,7 +121,7 @@
     (Nguyễn Thái Ngọc Duy).
   * Makefile: use warnings with re2c.
   * README: Add link to Python wrapper, prettify languages list
-    (Pavlo Kpyshin).
+    (Pavlo Kapyshin).
   * README: Add link to cmark-scala (Tim Nieradzik, #196)
 
 [0.27.1]
