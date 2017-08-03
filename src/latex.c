@@ -252,24 +252,24 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       CR();
       list_number = cmark_node_get_list_start(node);
       if (list_number > 1) {
-	enumlevel = S_get_enumlevel(node);
-	// latex normally supports only five levels
-	if (enumlevel >= 1 && enumlevel <= 5) {
+        enumlevel = S_get_enumlevel(node);
+        // latex normally supports only five levels
+        if (enumlevel >= 1 && enumlevel <= 5) {
           snprintf(list_number_string, LIST_NUMBER_STRING_SIZE, "%d",
                    list_number);
           LIT("\\setcounter{enum");
-          switch(enumlevel) {
-	  case 1: LIT("i"); break;
-	  case 2: LIT("ii"); break;
-	  case 3: LIT("iii"); break;
-	  case 4: LIT("iv"); break;
-	  case 5: LIT("v"); break;
-	  default: LIT("i"); break;
+          switch (enumlevel) {
+          case 1: LIT("i"); break;
+          case 2: LIT("ii"); break;
+          case 3: LIT("iii"); break;
+          case 4: LIT("iv"); break;
+          case 5: LIT("v"); break;
+          default: LIT("i"); break;
 	  }
           LIT("}{");
           OUT(list_number_string, false, NORMAL);
           LIT("}");
-	}
+        }
         CR();
       }
     } else {
