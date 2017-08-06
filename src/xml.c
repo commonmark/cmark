@@ -35,6 +35,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   cmark_strbuf *xml = state->xml;
   bool literal = false;
   cmark_delim_type delim;
+  cmark_marker_type marker;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   char buffer[BUFFER_SIZE];
 
@@ -79,9 +80,21 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         } else if (delim == CMARK_PERIOD_DELIM) {
           cmark_strbuf_puts(xml, " delim=\"period\"");
         }
+        marker = cmark_node_get_list_marker(node);
+        if (marker == CMARK_NUMERIC_MARKER) {
+          cmark_strbuf_puts(xml, " marker=\"numeric\"");
+        }
         break;
       case CMARK_BULLET_LIST:
         cmark_strbuf_puts(xml, " type=\"bullet\"");
+        marker = cmark_node_get_list_marker(node);
+        if (marker == CMARK_ASTERISK_MARKER) {
+          cmark_strbuf_puts(xml, " marker=\"asterisk\"");
+        } else if (marker == CMARK_HYPHEN_MARKER) {
+          cmark_strbuf_puts(xml, " marker=\"hyphen\"");
+        } else if (marker == CMARK_PLUS_MARKER) {
+          cmark_strbuf_puts(xml, " marker=\"plus\"");
+        }
         break;
       default:
         break;

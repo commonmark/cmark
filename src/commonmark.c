@@ -220,6 +220,14 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
       marker_width = 4;
+      if (cmark_node_get_list_marker(node->parent) == CMARK_ASTERISK_MARKER) {
+        snprintf(listmarker, LISTMARKER_SIZE, "  %s ", "*");
+      } else if (cmark_node_get_list_marker(node->parent) ==
+                 CMARK_PLUS_MARKER) {
+        snprintf(listmarker, LISTMARKER_SIZE, "  %s ", "+");
+      } else {
+        snprintf(listmarker, LISTMARKER_SIZE, "  %s ", "-");
+      }
     } else {
       list_number = cmark_node_get_list_start(node->parent);
       list_delim = cmark_node_get_list_delim(node->parent);
@@ -237,13 +245,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       marker_width = strlen(listmarker);
     }
     if (entering) {
-      if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-        LIT("  - ");
-        renderer->begin_content = true;
-      } else {
-        LIT(listmarker);
-        renderer->begin_content = true;
-      }
+      LIT(listmarker);
+      renderer->begin_content = true;
       for (i = marker_width; i--;) {
         cmark_strbuf_putc(renderer->prefix, ' ');
       }

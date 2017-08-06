@@ -103,6 +103,8 @@ static void accessors(test_batch_runner *runner) {
   cmark_node *bullet_list = cmark_node_next(heading);
   INT_EQ(runner, cmark_node_get_list_type(bullet_list), CMARK_BULLET_LIST,
          "get_list_type bullet");
+  INT_EQ(runner, cmark_node_get_list_marker(bullet_list), CMARK_ASTERISK_MARKER,
+         "get_list_marker asterisk");
   INT_EQ(runner, cmark_node_get_list_tight(bullet_list), 1,
          "get_list_tight tight");
 
@@ -111,6 +113,8 @@ static void accessors(test_batch_runner *runner) {
          "get_list_type ordered");
   INT_EQ(runner, cmark_node_get_list_delim(ordered_list), CMARK_PERIOD_DELIM,
          "get_list_delim ordered");
+  INT_EQ(runner, cmark_node_get_list_marker(ordered_list), CMARK_NUMERIC_MARKER,
+         "get_list_marker numeric");
   INT_EQ(runner, cmark_node_get_list_start(ordered_list), 2, "get_list_start");
   INT_EQ(runner, cmark_node_get_list_tight(ordered_list), 0,
          "get_list_tight loose");
@@ -144,10 +148,14 @@ static void accessors(test_batch_runner *runner) {
 
   OK(runner, cmark_node_set_heading_level(heading, 3), "set_heading_level");
 
+  OK(runner, cmark_node_set_list_marker(bullet_list, CMARK_HYPHEN_MARKER),
+     "set_list_marker hyphen");
   OK(runner, cmark_node_set_list_type(bullet_list, CMARK_ORDERED_LIST),
      "set_list_type ordered");
   OK(runner, cmark_node_set_list_delim(bullet_list, CMARK_PAREN_DELIM),
      "set_list_delim paren");
+  OK(runner, cmark_node_set_list_marker(bullet_list, CMARK_NUMERIC_MARKER),
+     "set_list_marker numeric");
   OK(runner, cmark_node_set_list_start(bullet_list, 3), "set_list_start");
   OK(runner, cmark_node_set_list_tight(bullet_list, 0), "set_list_tight loose");
 

@@ -402,6 +402,52 @@ int cmark_node_set_list_delim(cmark_node *node, cmark_delim_type delim) {
   }
 }
 
+cmark_marker_type cmark_node_get_list_marker(cmark_node *node) {
+  if (node == NULL) {
+    return CMARK_NO_MARKER;
+  }
+
+  if (node->type == CMARK_NODE_LIST) {
+    return node->as.list.marker;
+  } else {
+    return CMARK_NO_MARKER;
+  }
+}
+
+int cmark_node_set_list_marker(cmark_node *node, cmark_marker_type marker) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type != CMARK_NODE_LIST) {
+    return 0;
+  }
+
+  if (cmark_node_get_list_type(node) == CMARK_ORDERED_LIST &&
+      marker == CMARK_NUMERIC_MARKER) {
+    node->as.list.bullet_char = 0;
+    node->as.list.marker = CMARK_NUMERIC_MARKER;
+    return 1;
+  } else if (cmark_node_get_list_type(node) == CMARK_BULLET_LIST &&
+             marker == CMARK_ASTERISK_MARKER) {
+    node->as.list.bullet_char = '*';
+    node->as.list.marker = marker;
+    return 1;
+  } else if (cmark_node_get_list_type(node) == CMARK_BULLET_LIST &&
+             marker == CMARK_HYPHEN_MARKER) {
+    node->as.list.bullet_char = '-';
+    node->as.list.marker = marker;
+    return 1;
+  } else if (cmark_node_get_list_type(node) == CMARK_BULLET_LIST &&
+             marker == CMARK_PLUS_MARKER) {
+    node->as.list.bullet_char = '+';
+    node->as.list.marker = marker;
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 int cmark_node_get_list_start(cmark_node *node) {
   if (node == NULL) {
     return 0;

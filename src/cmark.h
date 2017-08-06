@@ -83,6 +83,14 @@ typedef enum {
   CMARK_PAREN_DELIM
 } cmark_delim_type;
 
+typedef enum {
+  CMARK_NO_MARKER,
+  CMARK_NUMERIC_MARKER,
+  CMARK_ASTERISK_MARKER,
+  CMARK_HYPHEN_MARKER,
+  CMARK_PLUS_MARKER
+} cmark_marker_type;
+
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
@@ -307,6 +315,16 @@ CMARK_EXPORT cmark_delim_type cmark_node_get_list_delim(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_list_delim(cmark_node *node,
                                            cmark_delim_type delim);
+
+/** Returns the marker type of 'node' or CMARK_NO_MARKER if 'node' is not a
+ * list.
+ */
+CMARK_EXPORT cmark_marker_type cmark_node_get_list_marker(cmark_node *node);
+
+/** Sets the marker type of 'node', returning 1 on success and 0 on error.
+ */
+CMARK_EXPORT int cmark_node_set_list_marker(cmark_node *node,
+                                            cmark_marker_type marker);
 
 /** Returns starting number of 'node', if it is an ordered list, otherwise 0.
  */
@@ -633,8 +651,14 @@ const char *cmark_version_string(void);
 #define NODE_IMAGE CMARK_NODE_IMAGE
 #define BULLET_LIST CMARK_BULLET_LIST
 #define ORDERED_LIST CMARK_ORDERED_LIST
+#define NO_DELIM CMARK_NO_DELIM
 #define PERIOD_DELIM CMARK_PERIOD_DELIM
 #define PAREN_DELIM CMARK_PAREN_DELIM
+#define NO_MARKER CMARK_PERIOD_DELIM
+#define NUMERIC_MARKER CMARK_NUMERIC_MARKER
+#define ASTERISK_MARKER CMARK_ASTERISK_MARKER
+#define HYPHEN_MARKER CMARK_HYPHEN_MARKER
+#define PLUS_MARKER CMARK_PLUS_MARKER
 #endif
 
 #ifdef __cplusplus
