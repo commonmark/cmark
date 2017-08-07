@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
 
-  cmark_register_plugin(core_extensions_registration);
+  core_extensions_ensure_registered();
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);

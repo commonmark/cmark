@@ -12,10 +12,7 @@ def pipe_through_prog(prog, text):
     return [p1.returncode, result.decode('utf-8'), err]
 
 def parse(lib, extlib, text, extensions):
-    register_plugin = lib.cmark_register_plugin
-    register_plugin.argtypes = [c_void_p]
-
-    core_extensions_registration = extlib.core_extensions_registration
+    core_extensions_ensure_registered = extlib.core_extensions_ensure_registered
 
     find_syntax_extension = lib.cmark_find_syntax_extension
     find_syntax_extension.restype = c_void_p
@@ -35,7 +32,7 @@ def parse(lib, extlib, text, extensions):
     parser_finish.restype = c_void_p
     parser_finish.argtypes = [c_void_p]
 
-    register_plugin(core_extensions_registration)
+    core_extensions_ensure_registered()
 
     parser = parser_new(0)
     for e in set(extensions):

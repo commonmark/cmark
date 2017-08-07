@@ -9,7 +9,7 @@ extern "C" {
 #include "cmarkextensions_export.h"
 
 CMARKEXTENSIONS_EXPORT
-int core_extensions_registration(cmark_plugin *plugin);
+void core_extensions_ensure_registered(void);
 
 CMARKEXTENSIONS_EXPORT
 uint16_t cmarkextensions_get_table_columns(cmark_node *node);
