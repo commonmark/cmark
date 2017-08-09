@@ -1279,7 +1279,6 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
   bufsize_t matchlen = 0;
   bufsize_t beforetitle;
 
-  // TODO XXX
   subject_from_buf(mem, -1, 0, &subj, input, NULL);
 
   // parse label:
