@@ -666,6 +666,12 @@ void cmark_inline_parser_remove_delimiter(cmark_inline_parser *parser, delimiter
 CMARK_EXPORT
 delimiter *cmark_inline_parser_get_last_delimiter(cmark_inline_parser *parser);
 
+CMARK_EXPORT
+int cmark_inline_parser_get_line(cmark_inline_parser *parser);
+
+CMARK_EXPORT
+int cmark_inline_parser_get_column(cmark_inline_parser *parser);
+
 /** Convenience function to scan a given delimiter.
  *
  * 'left_flanking' and 'right_flanking' will be set to true if they

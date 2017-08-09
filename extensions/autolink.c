@@ -149,6 +149,7 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   size_t max_rewind = cmark_inline_parser_get_offset(inline_parser);
   uint8_t *data = chunk->data + max_rewind;
   size_t size = chunk->len - max_rewind;
+  int start = cmark_inline_parser_get_column(inline_parser);
 
   size_t link_end;
 
@@ -186,6 +187,13 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   text->as.literal =
       cmark_chunk_dup(chunk, (bufsize_t)max_rewind, (bufsize_t)link_end);
   cmark_node_append_child(node, text);
+
+  node->start_line = text->start_line =
+    node->end_line = text->end_line =
+    cmark_inline_parser_get_line(inline_parser);
+
+  node->start_column = text->start_column = start - 1;
+  node->end_column = text->end_column = cmark_inline_parser_get_column(inline_parser) - 1;
 
   return node;
 }

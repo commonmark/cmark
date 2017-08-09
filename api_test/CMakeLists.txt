@@ -7,8 +7,9 @@ add_executable(api_test
 include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${PROJECT_BINARY_DIR}/src
+  ${PROJECT_BINARY_DIR}/extensions
 )
-target_link_libraries(api_test libcmark-gfm)
+target_link_libraries(api_test libcmark-gfmextensions libcmark-gfm)
 
 # Compiler flags
 if(MSVC)
