@@ -78,6 +78,15 @@ left double quote, to facilitate this style:
 <p>“Second paragraph by same speaker, in fiction.”</p>
 ````````````````````````````````
 
+A quote following a `]` or `)` character cannot
+be an open quote:
+
+```````````````````````````````` example
+[a]'s b'
+.
+<p>[a]’s b’</p>
+````````````````````````````````
+
 Quotes that are escaped come out as literal straight
 quotes:
 
