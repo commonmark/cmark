@@ -230,6 +230,47 @@ static CMARK_INLINE cmark_chunk take_while(subject *subj, int (*f)(int)) {
   return cmark_chunk_dup(&subj->input, startpos, len);
 }
 
+// Return the number of newlines in a given span of text in a subject.  If
+// the number is greater than zero, also return the number of characters
+// between the last newline and the end of the span in `since_newline`.
+static int count_newlines(subject *subj, bufsize_t from, bufsize_t len, int *since_newline) {
+  int nls = 0;
+  int since_nl = 0;
+
+  while (len--) {
+    if (subj->input.data[from++] == '\n') {
+      ++nls;
+      since_nl = 0;
+    } else {
+      ++since_nl;
+    }
+  }
+
+  if (!nls)
+    return 0;
+
+  *since_newline = since_nl;
+  return nls;
+}
+
+// Adjust `node`'s `end_line`, `end_column`, and `subj`'s `line` and
+// `column_offset` according to the number of newlines in a just-matched span
+// of text in `subj`.
+static void adjust_subj_node_newlines(subject *subj, cmark_node *node, int matchlen, int extra, int options) {
+  if (!(options & CMARK_OPT_SOURCEPOS)) {
+    return;
+  }
+
+  int since_newline;
+  int newlines = count_newlines(subj, subj->pos - matchlen - extra, matchlen, &since_newline);
+  if (newlines) {
+    subj->line += newlines;
+    node->end_line += newlines;
+    node->end_column = since_newline;
+    subj->column_offset = -subj->pos + since_newline + extra;
+  }
+}
+
 // Try to process a backtick code span that began with a
 // span of ticks of length openticklength length (already
 // parsed).  Return 0 if you don't find matching closing
@@ -277,7 +318,7 @@ static bufsize_t scan_to_closing_backticks(subject *subj,
 
 // Parse backtick code section or raw backticks, return an inline.
 // Assumes that the subject has a backtick at the current position.
-static cmark_node *handle_backticks(subject *subj) {
+static cmark_node *handle_backticks(subject *subj, int options) {
   cmark_chunk openticks = take_while(subj, isbacktick);
   bufsize_t startpos = subj->pos;
   bufsize_t endpos = scan_to_closing_backticks(subj, openticks.len);
@@ -293,7 +334,9 @@ static cmark_node *handle_backticks(subject *subj) {
     cmark_strbuf_trim(&buf);
     cmark_strbuf_normalize_whitespace(&buf);
 
-    return make_code(subj, startpos, endpos - openticks.len - 1, cmark_chunk_buf_detach(&buf));
+    cmark_node *node = make_code(subj, startpos, endpos - openticks.len - 1, cmark_chunk_buf_detach(&buf));
+    adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
+    return node;
   }
 }
 
@@ -775,7 +818,7 @@ cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
 
 // Parse an autolink or HTML tag.
 // Assumes the subject has a '<' character at the current position.
-static cmark_node *handle_pointy_brace(subject *subj, bool liberal_html_tag) {
+static cmark_node *handle_pointy_brace(subject *subj, int options) {
   bufsize_t matchlen = 0;
   cmark_chunk contents;
 
@@ -804,15 +847,19 @@ static cmark_node *handle_pointy_brace(subject *subj, bool liberal_html_tag) {
   if (matchlen > 0) {
     contents = cmark_chunk_dup(&subj->input, subj->pos - 1, matchlen + 1);
     subj->pos += matchlen;
-    return make_raw_html(subj, subj->pos - 1 - matchlen, subj->pos - 1, contents);
+    cmark_node *node = make_raw_html(subj, subj->pos - matchlen - 1, subj->pos - 1, contents);
+    adjust_subj_node_newlines(subj, node, matchlen, 1, options);
+    return node;
   }
 
-  if (liberal_html_tag) {
+  if (options & CMARK_OPT_LIBERAL_HTML_TAG) {
     matchlen = scan_liberal_html_tag(&subj->input, subj->pos);
     if (matchlen > 0) {
       contents = cmark_chunk_dup(&subj->input, subj->pos - 1, matchlen + 1);
       subj->pos += matchlen;
-      return make_raw_html(subj, subj->pos - 1 - matchlen, subj->pos - 1, contents);
+      cmark_node *node = make_raw_html(subj, subj->pos - matchlen - 1, subj->pos - 1, contents);
+      adjust_subj_node_newlines(subj, node, matchlen, 1, options);
+      return node;
     }
   }
 
@@ -1169,7 +1216,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_newline(subj);
     break;
   case '`':
-    new_inl = handle_backticks(subj);
+    new_inl = handle_backticks(subj, options);
     break;
   case '\\':
     new_inl = handle_backslash(parser, subj);
@@ -1178,7 +1225,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_entity(subj);
     break;
   case '<':
-    new_inl = handle_pointy_brace(subj, (options & CMARK_OPT_LIBERAL_HTML_TAG) != 0);
+    new_inl = handle_pointy_brace(subj, options);
     break;
   case '*':
   case '_':
@@ -1240,7 +1287,7 @@ void cmark_parse_inlines(cmark_parser *parser,
                          cmark_reference_map *refmap,
                          int options) {
   subject subj;
-  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1, &subj, &parent->content, refmap);
+  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &parent->content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(parser, &subj, parent, options))

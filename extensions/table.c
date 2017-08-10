@@ -28,7 +28,7 @@ typedef struct {
 
 typedef struct {
   cmark_strbuf *buf;
-  int start_offset, end_offset;
+  int start_offset, end_offset, internal_offset;
 } node_cell;
 
 static void free_table_cell(cmark_mem *mem, void *data) {
@@ -133,6 +133,10 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       cell->buf = cell_buf;
       cell->start_offset = offset;
       cell->end_offset = offset + cell_matched - 1;
+      while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
+        --cell->start_offset;
+        ++cell->internal_offset;
+      }
       row->n_columns += 1;
       row->cells = cmark_llist_append(parser->mem, row->cells, cell);
     }
@@ -249,6 +253,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
       cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
           CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
       header_cell->start_line = header_cell->end_line = parent_container->start_line;
+      header_cell->internal_offset = cell->internal_offset;
       header_cell->end_column = parent_container->start_column + cell->end_offset;
       cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(header_cell, self);
@@ -292,6 +297,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
       node_cell *cell = (node_cell *) tmp->data;
       cmark_node *node = cmark_parser_add_child(parser, table_row_block,
           CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
+      node->internal_offset = cell->internal_offset;
       node->end_column = parent_container->start_column + cell->end_offset;
       cmark_node_set_string_content(node, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(node, self);
