@@ -57,6 +57,9 @@ typedef struct subject{
   bool scanned_for_backticks;
 } subject;
 
+// Extensions may populate this.
+static int8_t SKIP_CHARS[256];
+
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
@@ -345,7 +348,7 @@ static cmark_node *handle_backticks(subject *subj, int options) {
 static int scan_delims(subject *subj, unsigned char c, bool *can_open,
                        bool *can_close) {
   int numdelims = 0;
-  bufsize_t before_char_pos;
+  bufsize_t before_char_pos, after_char_pos;
   int32_t after_char = 0;
   int32_t before_char = 0;
   int len;
@@ -356,12 +359,12 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   } else {
     before_char_pos = subj->pos - 1;
     // walk back to the beginning of the UTF_8 sequence:
-    while (peek_at(subj, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
+    while ((peek_at(subj, before_char_pos) >> 6 == 2 || SKIP_CHARS[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
       before_char_pos -= 1;
     }
     len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
                                  subj->pos - before_char_pos, &before_char);
-    if (len == -1) {
+    if (len == -1 || (before_char < 256 && SKIP_CHARS[(unsigned char) before_char])) {
       before_char = 10;
     }
   }
@@ -376,11 +379,20 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     }
   }
 
-  len = cmark_utf8proc_iterate(subj->input.data + subj->pos,
-                               subj->input.len - subj->pos, &after_char);
-  if (len == -1) {
+  if (subj->pos == subj->input.len) {
     after_char = 10;
+  } else {
+    after_char_pos = subj->pos;
+    while (SKIP_CHARS[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
+      after_char_pos += 1;
+    }
+    len = cmark_utf8proc_iterate(subj->input.data + after_char_pos,
+                                 subj->input.len - after_char_pos, &after_char);
+    if (len == -1 || (after_char < 256 && SKIP_CHARS[(unsigned char) after_char])) {
+      after_char = 10;
+    }
   }
+
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
                   (!cmark_utf8proc_is_punctuation(after_char) ||
                    cmark_utf8proc_is_space(before_char) ||
@@ -1174,11 +1186,11 @@ static bufsize_t subject_find_special_char(subject *subj, int options) {
 }
 
 void cmark_inlines_add_special_character(unsigned char c) {
-  SPECIAL_CHARS[c] = 1;
+  SPECIAL_CHARS[c] = SKIP_CHARS[c] = 1;
 }
 
 void cmark_inlines_remove_special_character(unsigned char c) {
-  SPECIAL_CHARS[c] = 0;
+  SPECIAL_CHARS[c] = SKIP_CHARS[c] = 0;
 }
 
 static cmark_node *try_extensions(cmark_parser *parser,
