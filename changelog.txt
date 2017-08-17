@@ -1,3 +1,7 @@
+[0.28.0.gfm.7]
+
+  * Strikethrough characters do not disturb regular emphasis processing.
+
 [0.28.0.gfm.6]
 
   * Fix inline sourcepos info when inlines span multiple lines, and in
