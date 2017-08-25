@@ -31,19 +31,20 @@ typedef enum {
 void print_usage() {
   printf("Usage:   cmark-gfm [FILE*]\n");
   printf("Options:\n");
-  printf("  --to, -t FORMAT   Specify output format (html, xml, man, "
+  printf("  --to, -t FORMAT  Specify output format (html, xml, man, "
          "commonmark, plaintext, latex)\n");
-  printf("  --width WIDTH     Specify wrap width (default 0 = nowrap)\n");
-  printf("  --sourcepos       Include source position attribute\n");
-  printf("  --hardbreaks      Treat newlines as hard line breaks\n");
-  printf("  --nobreaks        Render soft line breaks as spaces\n");
-  printf("  --safe            Suppress raw HTML and dangerous URLs\n");
-  printf("  --smart           Use smart punctuation\n");
+  printf("  --width WIDTH    Specify wrap width (default 0 = nowrap)\n");
+  printf("  --sourcepos      Include source position attribute\n");
+  printf("  --hardbreaks     Treat newlines as hard line breaks\n");
+  printf("  --nobreaks       Render soft line breaks as spaces\n");
+  printf("  --safe           Suppress raw HTML and dangerous URLs\n");
+  printf("  --smart          Use smart punctuation\n");
+  printf("  --validate-utf8  Replace UTF-8 invalid sequences with U+FFFD\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
   printf("  --extension, -e EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
-  printf("  --help, -h        Print usage information\n");
-  printf("  --version         Print version\n");
+  printf("  --help, -h       Print usage information\n");
+  printf("  --version        Print version\n");
 }
 
 static bool print_document(cmark_node *document, writer_format writer,
@@ -256,7 +257,7 @@ failure:
 
 #if DEBUG
   if (parser)
-    cmark_parser_free(parser);
+  cmark_parser_free(parser);
 
   if (document)
     cmark_node_free(document);

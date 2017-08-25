@@ -116,9 +116,9 @@ To run a test for memory leaks using `valgrind`:
 
     make leakcheck
 
-To reformat source code using `astyle`:
+To reformat source code using `clang-format`:
 
-    make astyle
+    make format
 
 To run a "fuzz test" against ten long randomly generated inputs:
 

@@ -119,7 +119,7 @@ static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
   c.data = (unsigned char *)mem->calloc(len + 1, 1);
   c.alloc = 1;
   if (len)
-    memcpy(c.data, src->data, len);
+  memcpy(c.data, src->data, len);
   c.data[len] = '\0';
 
   return c;
@@ -389,8 +389,8 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     len = cmark_utf8proc_iterate(subj->input.data + after_char_pos,
                                  subj->input.len - after_char_pos, &after_char);
     if (len == -1 || (after_char < 256 && SKIP_CHARS[(unsigned char) after_char])) {
-      after_char = 10;
-    }
+    after_char = 10;
+  }
   }
 
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
@@ -407,7 +407,8 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     *can_close = right_flanking &&
                  (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
   } else if (c == '\'' || c == '"') {
-    *can_open = left_flanking && !right_flanking;
+    *can_open = left_flanking && !right_flanking &&
+	         before_char != ']' && before_char != ')';
     *can_close = right_flanking;
   } else {
     *can_open = left_flanking;
@@ -698,7 +699,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   cmark_node *tmp, *tmpnext, *emph;
 
   // calculate the actual number of characters used from this closer
-  use_delims = (closer_num_chars >= 2 && opener_num_chars >=2) ? 2 : 1;
+  use_delims = (closer_num_chars >= 2 && opener_num_chars >= 2) ? 2 : 1;
 
   // remove used characters from associated inlines.
   opener_num_chars -= use_delims;
@@ -782,8 +783,8 @@ static cmark_node *handle_entity(subject *subj) {
   return make_str(subj, subj->pos - 1 - len, subj->pos - 1, cmark_chunk_buf_detach(&ent));
 }
 
-// Clean a URL: remove surrounding whitespace and surrounding <>,
-// and remove \ that escape punctuation.
+// Clean a URL: remove surrounding whitespace, and remove \ that escape
+// punctuation.
 cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
@@ -794,11 +795,7 @@ cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
     return result;
   }
 
-  if (url->data[0] == '<' && url->data[url->len - 1] == '>') {
-    houdini_unescape_html_f(&buf, url->data + 1, url->len - 2);
-  } else {
     houdini_unescape_html_f(&buf, url->data, url->len);
-  }
 
   cmark_strbuf_unescape(&buf);
   return cmark_chunk_buf_detach(&buf);
@@ -924,24 +921,12 @@ noMatch:
   subj->pos = startpos; // rewind
   return 0;
 }
-static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset) {
+
+static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
+                                        cmark_chunk *output) {
   bufsize_t i = offset;
   size_t nb_p = 0;
 
-  if (i < input->len && input->data[i] == '<') {
-    ++i;
-    while (i < input->len) {
-      if (input->data[i] == '>') {
-        ++i;
-        break;
-      } else if (input->data[i] == '\\')
-        i += 2;
-      else if (cmark_isspace(input->data[i]))
-        return -1;
-      else
-        ++i;
-    }
-  } else {
     while (i < input->len) {
       if (input->data[i] == '\\' &&
 	  i + 1 < input-> len &&
@@ -962,18 +947,53 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset) {
       else
         ++i;
     }
+
+  if (i >= input->len)
+    return -1;
+
+  {
+    cmark_chunk result = {input->data + offset, i - offset, 0};
+    *output = result;
+  }
+  return i - offset;
+}
+
+static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
+                                      cmark_chunk *output) {
+  bufsize_t i = offset;
+
+  if (i < input->len && input->data[i] == '<') {
+    ++i;
+    while (i < input->len) {
+      if (input->data[i] == '>') {
+        ++i;
+        break;
+      } else if (input->data[i] == '\\')
+        i += 2;
+      else if (cmark_isspace(input->data[i]) || input->data[i] == '<')
+        return manual_scan_link_url_2(input, offset, output);
+      else
+        ++i;
+    }
+  } else {
+    return manual_scan_link_url_2(input, offset, output);
   }
 
   if (i >= input->len)
     return -1;
+
+  {
+    cmark_chunk result = {input->data + offset + 1, i - 2 - offset, 0};
+    *output = result;
+  }
   return i - offset;
 }
+
 // Return a link, an image, or a literal close bracket.
 static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
   bufsize_t initial_pos, after_link_text_pos;
-  bufsize_t starturl, endurl, starttitle, endtitle, endall;
-  bufsize_t n;
-  bufsize_t sps;
+  bufsize_t endurl, starttitle, endtitle, endall;
+  bufsize_t sps, n;
   cmark_reference *ref = NULL;
   cmark_chunk url_chunk, title_chunk;
   cmark_chunk url, title;
@@ -1009,11 +1029,11 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
   // First, look for an inline link.
   if (peek_char(subj) == '(' &&
       ((sps = scan_spacechars(&subj->input, subj->pos + 1)) > -1) &&
-      ((n = manual_scan_link_url(&subj->input, subj->pos + 1 + sps)) > -1)) {
+      ((n = manual_scan_link_url(&subj->input, subj->pos + 1 + sps,
+                                 &url_chunk)) > -1)) {
 
     // try to parse an explicit link:
-    starturl = subj->pos + 1 + sps; // after (
-    endurl = starturl + n;
+    endurl = subj->pos + 1 + sps + n;
     starttitle = endurl + scan_spacechars(&subj->input, endurl);
 
     // ensure there are spaces btw url and title
@@ -1026,7 +1046,6 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
     if (peek_at(subj, endall) == ')') {
       subj->pos = endall + 1;
 
-      url_chunk = cmark_chunk_dup(&subj->input, starturl, endurl - starturl);
       title_chunk =
           cmark_chunk_dup(&subj->input, starttitle, endtitle - starttitle);
       url = cmark_clean_url(subj->mem, &url_chunk);
@@ -1357,9 +1376,8 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
 
   // parse link url:
   spnl(&subj);
-  matchlen = manual_scan_link_url(&subj.input, subj.pos);
-  if (matchlen > 0) {
-    url = cmark_chunk_dup(&subj.input, subj.pos, matchlen);
+  if ((matchlen = manual_scan_link_url(&subj.input, subj.pos, &url)) > -1 &&
+      url.len > 0) {
     subj.pos += matchlen;
   } else {
     return 0;
