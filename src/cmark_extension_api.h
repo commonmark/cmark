@@ -269,6 +269,9 @@ cmark_syntax_extension *cmark_syntax_extension_new (const char *name);
 CMARK_EXPORT
 cmark_node_type cmark_syntax_extension_add_node(int is_inline);
 
+CMARK_EXPORT
+void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension, bool emphasis);
+
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_EXPORT

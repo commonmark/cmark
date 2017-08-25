@@ -394,9 +394,9 @@ void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add) 
     for (tmp_char = ext->special_inline_chars; tmp_char; tmp_char=tmp_char->next) {
       unsigned char c = (unsigned char)(size_t)tmp_char->data;
       if (add)
-        cmark_inlines_add_special_character(c);
+        cmark_inlines_add_special_character(c, ext->emphasis);
       else
-        cmark_inlines_remove_special_character(c);
+        cmark_inlines_remove_special_character(c, ext->emphasis);
     }
   }
 }

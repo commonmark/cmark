@@ -150,5 +150,7 @@ cmark_syntax_extension *create_strikethrough_extension(void) {
   special_chars = cmark_llist_append(mem, special_chars, (void *)'~');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
 
+  cmark_syntax_extension_set_emphasis(ext, true);
+
   return ext;
 }

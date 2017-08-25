@@ -1185,12 +1185,16 @@ static bufsize_t subject_find_special_char(subject *subj, int options) {
   return subj->input.len;
 }
 
-void cmark_inlines_add_special_character(unsigned char c) {
-  SPECIAL_CHARS[c] = SKIP_CHARS[c] = 1;
+void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
+  SPECIAL_CHARS[c] = 1;
+  if (emphasis)
+    SKIP_CHARS[c] = 1;
 }
 
-void cmark_inlines_remove_special_character(unsigned char c) {
-  SPECIAL_CHARS[c] = SKIP_CHARS[c] = 0;
+void cmark_inlines_remove_special_character(unsigned char c, bool emphasis) {
+  SPECIAL_CHARS[c] = 0;
+  if (emphasis)
+    SKIP_CHARS[c] = 0;
 }
 
 static cmark_node *try_extensions(cmark_parser *parser,

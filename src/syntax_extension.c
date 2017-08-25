@@ -36,6 +36,11 @@ cmark_node_type cmark_syntax_extension_add_node(int is_inline) {
   return *ref = (cmark_node_type) ((int) *ref + 1);
 }
 
+void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension,
+                                         bool emphasis) {
+  extension->emphasis = emphasis;
+}
+
 void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extension,
                                                 cmark_open_block_func func) {
   extension->try_opening_block = func;

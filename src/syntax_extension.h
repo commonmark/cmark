@@ -12,6 +12,7 @@ struct cmark_syntax_extension {
   cmark_llist                   * special_inline_chars;
   char                          * name;
   void                          * priv;
+  bool                            emphasis;
   cmark_free_func                 free_function;
   cmark_get_type_string_func      get_type_string_func;
   cmark_can_contain_func          can_contain_func;
