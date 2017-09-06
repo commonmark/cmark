@@ -934,176 +934,59 @@ static void test_feed_across_line_ending(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
-static void source_pos(test_batch_runner *runner) {
-  static const char markdown[] =
-    "# Hi *there*.\n"
-    "\n"
-    "Hello &ldquo; <http://www.google.com>\n"
-    "there `hi` -- [okay](www.google.com (ok)).\n"
-    "\n"
-    "> 1. Okay.\n"
-    ">    Sure.\n"
-    ">\n"
-    "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
+#if !defined(_WIN32) || defined(__CYGWIN__)
+#  include <sys/time.h>
+static struct timeval _before, _after;
+static int _timing;
+#  define START_TIMING() \
+       gettimeofday(&_before, NULL)
 
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
-                      "    <text sourcepos=\"1:3-1:5\">Hi </text>\n"
-                      "    <emph sourcepos=\"1:6-1:12\">\n"
-                      "      <text sourcepos=\"1:7-1:11\">there</text>\n"
-                      "    </emph>\n"
-                      "    <text sourcepos=\"1:13-1:13\">.</text>\n"
-                      "  </heading>\n"
-                      "  <paragraph sourcepos=\"3:1-4:42\">\n"
-                      "    <text sourcepos=\"3:1-3:14\">Hello “ </text>\n"
-                      "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
-                      "      <text sourcepos=\"3:16-3:36\">http://www.google.com</text>\n"
-                      "    </link>\n"
-                      "    <softbreak />\n"
-                      "    <text sourcepos=\"4:1-4:6\">there </text>\n"
-                      "    <code sourcepos=\"4:8-4:9\">hi</code>\n"
-                      "    <text sourcepos=\"4:11-4:14\"> -- </text>\n"
-                      "    <link sourcepos=\"4:15-4:41\" destination=\"www.google.com\" title=\"ok\">\n"
-                      "      <text sourcepos=\"4:16-4:19\">okay</text>\n"
-                      "    </link>\n"
-                      "    <text sourcepos=\"4:42-4:42\">.</text>\n"
-                      "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
-                      "      <item sourcepos=\"6:3-8:1\">\n"
-                      "        <paragraph sourcepos=\"6:6-7:10\">\n"
-                      "          <text sourcepos=\"6:6-6:10\">Okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <text sourcepos=\"7:6-7:10\">Sure.</text>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "      <item sourcepos=\"9:3-10:20\">\n"
-                      "        <paragraph sourcepos=\"9:6-10:20\">\n"
-                      "          <text sourcepos=\"9:6-9:15\">Yes, okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
-                      "            <text sourcepos=\"10:8-10:9\">ok</text>\n"
-                      "          </image>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "    </list>\n"
-                      "  </block_quote>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
-}
+#  define END_TIMING() \
+        do { \
+          gettimeofday(&_after, NULL); \
+          _timing = (_after.tv_sec - _before.tv_sec) * 1000 + (_after.tv_usec - _before.tv_usec) / 1000; \
+        } while (0)
 
-static void ext_source_pos(test_batch_runner *runner) {
-  static const char *extensions[3] = {
-    "strikethrough",
-    "table",
-    "autolink",
-  };
+#  define TIMING _timing
+#else
+#  define START_TIMING()
+#  define END_TIMING()
+#  define TIMING 0
+#endif
 
-  static const char markdown[] =
-    "Hi ~~friend~~.\n"
-    "\n"
-    "> www.github.com\n"
-    "\n"
-    "1. | a | b | *c* |\n"
-    "   | - | - | --: |\n"
-    "   | 1 | 2 | ~3~ |\n";
+static void test_pathological_regressions(test_batch_runner *runner) {
+  {
+    // I don't care what the output is, so long as it doesn't take too long.
+    char path[] = "[a](b";
+    char *input = (char *)calloc(1, (sizeof(path) - 1) * 50000);
+    for (int i = 0; i < 50000; ++i)
+      memcpy(input + i * (sizeof(path) - 1), path, sizeof(path) - 1);
 
-  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
-  core_extensions_ensure_registered();
+    START_TIMING();
+    char *html = cmark_markdown_to_html(input, (sizeof(path) - 1) * 50000,
+                                        CMARK_OPT_VALIDATE_UTF8);
+    END_TIMING();
+    free(html);
+    free(input);
 
-  for (int i = 0; i < (int)(sizeof(extensions) / sizeof(*extensions)); ++i) {
-    cmark_syntax_extension *ext = cmark_find_syntax_extension(extensions[i]);
-    cmark_parser_attach_syntax_extension(parser, ext);
+    OK(runner, TIMING < 1000, "takes less than 1000ms to run");
   }
 
-  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+  {
+    char path[] = "[a](<b";
+    char *input = (char *)calloc(1, (sizeof(path) - 1) * 50000);
+    for (int i = 0; i < 50000; ++i)
+      memcpy(input + i * (sizeof(path) - 1), path, sizeof(path) - 1);
 
-  cmark_node *doc = cmark_parser_finish(parser);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-7:18\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <paragraph sourcepos=\"1:1-1:14\">\n"
-                      "    <text sourcepos=\"1:1-1:3\">Hi </text>\n"
-                      "    <strikethrough sourcepos=\"1:4-1:13\">\n"
-                      "      <text sourcepos=\"1:6-1:11\">friend</text>\n"
-                      "    </strikethrough>\n"
-                      "    <text sourcepos=\"1:14-1:14\">.</text>\n"
-                      "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"3:1-3:16\">\n"
-                      "    <paragraph sourcepos=\"3:3-3:16\">\n"
-                      "      <link sourcepos=\"3:2-3:16\" destination=\"http://www.github.com\" title=\"\">\n"
-                      "        <text sourcepos=\"3:2-3:16\">www.github.com</text>\n"
-                      "      </link>\n"
-                      "    </paragraph>\n"
-                      "  </block_quote>\n"
-		      "  <list sourcepos=\"5:1-7:18\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"true\">\n"
-		      "    <item sourcepos=\"5:1-7:18\">\n"
-                      "      <table sourcepos=\"5:4-7:18\">\n"
-                      "        <table_header sourcepos=\"5:4-5:18\">\n"
-                      "          <table_cell sourcepos=\"5:5-5:7\">\n"
-                      "            <text sourcepos=\"5:6-5:6\">a</text>\n"
-                      "          </table_cell>\n"
-                      "          <table_cell sourcepos=\"5:9-5:11\">\n"
-                      "            <text sourcepos=\"5:10-5:10\">b</text>\n"
-                      "          </table_cell>\n"
-                      "          <table_cell sourcepos=\"5:13-5:17\">\n"
-                      "            <emph sourcepos=\"5:14-5:16\">\n"
-                      "              <text sourcepos=\"5:15-5:15\">c</text>\n"
-                      "            </emph>\n"
-                      "          </table_cell>\n"
-                      "        </table_header>\n"
-                      "        <table_row sourcepos=\"7:4-7:18\">\n"
-                      "          <table_cell sourcepos=\"7:5-7:7\">\n"
-                      "            <text sourcepos=\"7:6-7:6\">1</text>\n"
-                      "          </table_cell>\n"
-                      "          <table_cell sourcepos=\"7:9-7:11\">\n"
-                      "            <text sourcepos=\"7:10-7:10\">2</text>\n"
-                      "          </table_cell>\n"
-                      "          <table_cell sourcepos=\"7:13-7:17\">\n"
-                      "            <strikethrough sourcepos=\"7:14-7:16\">\n"
-                      "              <text sourcepos=\"7:15-7:15\">3</text>\n"
-                      "            </strikethrough>\n"
-                      "          </table_cell>\n"
-                      "        </table_row>\n"
-                      "      </table>\n"
-		      "    </item>\n"
-		      "  </list>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
-}
+    START_TIMING();
+    char *html = cmark_markdown_to_html(input, (sizeof(path) - 1) * 50000,
+                                        CMARK_OPT_VALIDATE_UTF8);
+    END_TIMING();
+    free(html);
+    free(input);
 
-static void ref_source_pos(test_batch_runner *runner) {
-  static const char markdown[] =
-    "Let's try [reference] links.\n"
-    "\n"
-    "[reference]: https://github.com (GitHub)\n";
-
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-3:40\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <paragraph sourcepos=\"1:1-1:28\">\n"
-                      "    <text sourcepos=\"1:1-1:10\">Let's try </text>\n"
-                      "    <link sourcepos=\"1:11-1:21\" destination=\"https://github.com\" title=\"GitHub\">\n"
-                      "      <text sourcepos=\"1:12-1:20\">reference</text>\n"
-                      "    </link>\n"
-                      "    <text sourcepos=\"1:22-1:28\"> links.</text>\n"
-                      "  </paragraph>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
+    OK(runner, TIMING < 1000, "takes less than 1000ms to run");
+  }
 }
 
 int main() {
@@ -1132,9 +1015,7 @@ int main() {
   test_cplusplus(runner);
   test_safe(runner);
   test_feed_across_line_ending(runner);
-  source_pos(runner);
-  ext_source_pos(runner);
-  ref_source_pos(runner);
+  test_pathological_regressions(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

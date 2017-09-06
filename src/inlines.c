@@ -119,7 +119,7 @@ static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
   c.data = (unsigned char *)mem->calloc(len + 1, 1);
   c.alloc = 1;
   if (len)
-  memcpy(c.data, src->data, len);
+    memcpy(c.data, src->data, len);
   c.data[len] = '\0';
 
   return c;
