@@ -72,7 +72,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 
 static int parse_inline(subject *subj, cmark_node *parent, int options);
 
-static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
+static void subject_from_buf(cmark_mem *mem, subject *e, cmark_chunk *chunk,
                              cmark_reference_map *refmap);
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
@@ -149,13 +149,11 @@ static CMARK_INLINE cmark_node *make_autolink(cmark_mem *mem, cmark_chunk url,
   return link;
 }
 
-static void subject_from_buf(cmark_mem *mem, subject *e, cmark_strbuf *buffer,
+static void subject_from_buf(cmark_mem *mem, subject *e, cmark_chunk *chunk,
                              cmark_reference_map *refmap) {
   int i;
   e->mem = mem;
-  e->input.data = buffer->ptr;
-  e->input.len = buffer->size;
-  e->input.alloc = 0;
+  e->input = *chunk;
   e->pos = 0;
   e->refmap = refmap;
   e->last_delim = NULL;
@@ -708,7 +706,7 @@ cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
     return result;
   }
 
-  houdini_unescape_html_f(&buf, url->data, url->len);
+    houdini_unescape_html_f(&buf, url->data, url->len);
 
   cmark_strbuf_unescape(&buf);
   return cmark_chunk_buf_detach(&buf);
@@ -827,24 +825,24 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
   bufsize_t i = offset;
   size_t nb_p = 0;
 
-  while (i < input->len) {
-    if (input->data[i] == '\\' &&
-        i + 1 < input-> len &&
-        cmark_ispunct(input->data[i+1]))
-      i += 2;
-    else if (input->data[i] == '(') {
-      ++nb_p;
-      ++i;
-    } else if (input->data[i] == ')') {
-      if (nb_p == 0)
+    while (i < input->len) {
+      if (input->data[i] == '\\' &&
+	  i + 1 < input-> len &&
+          cmark_ispunct(input->data[i+1]))
+        i += 2;
+      else if (input->data[i] == '(') {
+        ++nb_p;
+        ++i;
+      } else if (input->data[i] == ')') {
+        if (nb_p == 0)
+          break;
+        --nb_p;
+        ++i;
+      } else if (cmark_isspace(input->data[i]))
         break;
-      --nb_p;
-      ++i;
-    } else if (cmark_isspace(input->data[i]))
-      break;
-    else
-      ++i;
-  }
+      else
+        ++i;
+    }
 
   if (i >= input->len)
     return -1;
@@ -1178,7 +1176,8 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                                 cmark_reference_map *refmap, int options) {
   subject subj;
-  subject_from_buf(mem, &subj, &parent->content, refmap);
+  cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
+  subject_from_buf(mem, &subj, &content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))
@@ -1206,7 +1205,7 @@ static void spnl(subject *subj) {
 // Modify refmap if a reference is encountered.
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
-bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
+bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
                                        cmark_reference_map *refmap) {
   subject subj;
 
