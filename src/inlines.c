@@ -70,7 +70,7 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent, int options);
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
-                             cmark_strbuf *buffer, cmark_reference_map *refmap);
+                             cmark_chunk *buffer, cmark_reference_map *refmap);
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
@@ -157,12 +157,10 @@ static CMARK_INLINE cmark_node *make_autolink(subject *subj,
 }
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
-                             cmark_strbuf *buffer, cmark_reference_map *refmap) {
+                             cmark_chunk *chunk, cmark_reference_map *refmap) {
   int i;
   e->mem = mem;
-  e->input.data = buffer->ptr;
-  e->input.len = buffer->size;
-  e->input.alloc = 0;
+  e->input = *chunk;
   e->line = line_number;
   e->pos = 0;
   e->block_offset = block_offset;
@@ -1322,7 +1320,8 @@ void cmark_parse_inlines(cmark_parser *parser,
                          cmark_reference_map *refmap,
                          int options) {
   subject subj;
-  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &parent->content, refmap);
+  cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
+  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(parser, &subj, parent, options))
@@ -1350,7 +1349,7 @@ static void spnl(subject *subj) {
 // Modify refmap if a reference is encountered.
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
-bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
+bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
                                        cmark_reference_map *refmap) {
   subject subj;
 

@@ -16,7 +16,7 @@ void cmark_parse_inlines(cmark_parser *parser,
                          cmark_reference_map *refmap,
                          int options);
 
-bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_strbuf *input,
+bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
                                        cmark_reference_map *refmap);
 
 void cmark_inlines_add_special_character(unsigned char c, bool emphasis);
