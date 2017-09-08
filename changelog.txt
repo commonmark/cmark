@@ -1,3 +1,7 @@
+[0.28.0.gfm.10]
+
+  * Fix denial of service parsing references.
+
 [0.28.0.gfm.9]
 
   * Fix denial of service parsing nested links (#49).
