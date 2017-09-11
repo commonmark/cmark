@@ -3399,6 +3399,21 @@ cells are inserted.  If there are greater, the excess is ignored:
 </tr></tbody></table>
 ````````````````````````````````
 
+If there are no rows in the body, no `<tbody>` is generated in HTML output:
+
+```````````````````````````````` example table
+| abc | def |
+| --- | --- |
+.
+<table>
+<thead>
+<tr>
+<th>abc</th>
+<th>def</th>
+</tr>
+</thead></table>
+````````````````````````````````
+
 </div>
 
 # Container blocks

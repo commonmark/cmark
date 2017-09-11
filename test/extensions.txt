@@ -96,23 +96,20 @@ Here we demonstrate some edge cases about what is and isn't a table.
 <th>Just enough table</th>
 <th>to be considered table</th>
 </tr>
-</thead>
-<tbody></tbody></table>
+</thead></table>
 <p>| ---- | --- |</p>
 <table>
 <thead>
 <tr>
 <th>x</th>
 </tr>
-</thead>
-<tbody></tbody></table>
+</thead></table>
 <table>
 <thead>
 <tr>
 <th>xyz</th>
 </tr>
-</thead>
-<tbody></tbody></table>
+</thead></table>
 ````````````````````````````````
 
 A "simpler" table, GFM style:
@@ -297,8 +294,7 @@ This shouldn't assert.
 <tr>
 <th>a</th>
 </tr>
-</thead>
-<tbody></tbody></table>
+</thead></table>
 ````````````````````````````````
 
 ### Escaping
