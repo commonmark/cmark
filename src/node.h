@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "cmark.h"
+#include "cmark_extension_api.h"
 #include "buffer.h"
 #include "chunk.h"
 
@@ -61,13 +62,17 @@ struct cmark_node {
   struct cmark_node *last_child;
 
   void *user_data;
+  cmark_free_func user_data_free_func;
 
   int start_line;
   int start_column;
   int end_line;
   int end_column;
+  int internal_offset;
   uint16_t type;
   uint16_t flags;
+
+  cmark_syntax_extension *extension;
 
   union {
     cmark_chunk literal;
@@ -77,6 +82,7 @@ struct cmark_node {
     cmark_link link;
     cmark_custom custom;
     int html_block_type;
+    void *opaque;
   } as;
 };
 
@@ -84,6 +90,24 @@ static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
   return node->content.mem;
 }
 CMARK_EXPORT int cmark_node_check(cmark_node *node, FILE *out);
+
+static CMARK_INLINE bool CMARK_NODE_TYPE_BLOCK_P(cmark_node_type node_type) {
+	return (node_type & CMARK_NODE_TYPE_MASK) == CMARK_NODE_TYPE_BLOCK;
+}
+
+static CMARK_INLINE bool CMARK_NODE_BLOCK_P(cmark_node *node) {
+	return node != NULL && CMARK_NODE_TYPE_BLOCK_P((cmark_node_type) node->type);
+}
+
+static CMARK_INLINE bool CMARK_NODE_TYPE_INLINE_P(cmark_node_type node_type) {
+	return (node_type & CMARK_NODE_TYPE_MASK) == CMARK_NODE_TYPE_INLINE;
+}
+
+static CMARK_INLINE bool CMARK_NODE_INLINE_P(cmark_node *node) {
+	return node != NULL && CMARK_NODE_TYPE_INLINE_P((cmark_node_type) node->type);
+}
+
+CMARK_EXPORT bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type);
 
 #ifdef __cplusplus
 }

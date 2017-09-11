@@ -17,7 +17,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     cmark_node *doc = cmark_parse_document(markdown, markdown_size, options);
 
     free(cmark_render_commonmark(doc, options, 80));
-    free(cmark_render_html(doc, options));
+    free(cmark_render_html(doc, options, NULL));
     free(cmark_render_latex(doc, options, 80));
     free(cmark_render_man(doc, options, 80));
     free(cmark_render_xml(doc, options));

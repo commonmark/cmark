@@ -19,6 +19,8 @@ if __name__ == "__main__":
             default=None, help='limit to sections matching regex pattern')
     parser.add_argument('--library-dir', dest='library_dir', nargs='?',
             default=None, help='directory containing dynamic library')
+    parser.add_argument('--extensions', dest='extensions', nargs='?',
+            default=None, help='space separated list of extensions to enable')
     parser.add_argument('--no-normalize', dest='normalize',
             action='store_const', const=False, default=True,
             help='do not normalize HTML')
@@ -39,11 +41,14 @@ def print_test_header(headertext, example_number, start_line, end_line):
     out("Example %d (lines %d-%d) %s\n" % (example_number,start_line,end_line,headertext))
 
 def do_test(converter, test, normalize, result_counts):
-    [retcode, actual_html, err] = converter(test['markdown'])
+    [retcode, actual_html, err] = converter(test['markdown'], test['extensions'])
+    actual_html = re.sub(r'\r\n', '\n', actual_html)
     if retcode == 0:
-        expected_html = test['html']
+        expected_html = re.sub(r'\r\n', '\n', test['html'])
         unicode_error = None
-        if normalize:
+        if expected_html.strip() == '<IGNORE>':
+            passed = True
+        elif normalize:
             try:
                 passed = normalize_html(actual_html) == normalize_html(expected_html)
             except UnicodeDecodeError as e:
@@ -82,6 +87,7 @@ def get_tests(specfile):
     markdown_lines = []
     html_lines = []
     state = 0  # 0 regular text, 1 markdown example, 2 html output
+    extensions = []
     headertext = ''
     tests = []
 
@@ -91,19 +97,22 @@ def get_tests(specfile):
         for line in specf:
             line_number = line_number + 1
             l = line.strip()
-            if l == "`" * 32 + " example":
+            if l.startswith("`" * 32 + " example"):
                 state = 1
+                extensions = l[32 + len(" example"):].split()
             elif l == "`" * 32:
                 state = 0
                 example_number = example_number + 1
                 end_line = line_number
-                tests.append({
-                    "markdown":''.join(markdown_lines).replace('→',"\t"),
-                    "html":''.join(html_lines).replace('→',"\t"),
-                    "example": example_number,
-                    "start_line": start_line,
-                    "end_line": end_line,
-                    "section": headertext})
+                if 'disabled' not in extensions:
+                    tests.append({
+                        "markdown":''.join(markdown_lines).replace('→',"\t"),
+                        "html":''.join(html_lines).replace('→',"\t"),
+                        "example": example_number,
+                        "start_line": start_line,
+                        "end_line": end_line,
+                        "section": headertext,
+                        "extensions": extensions})
                 start_line = 0
                 markdown_lines = []
                 html_lines = []
@@ -131,11 +140,11 @@ if __name__ == "__main__":
         pattern_re = re.compile('.')
     tests = [ test for test in all_tests if re.search(pattern_re, test['section']) and (not args.number or test['example'] == args.number) ]
     if args.dump_tests:
-        out(json.dumps(tests, ensure_ascii=False, indent=2))
+        out(json.dumps(tests, indent=2))
         exit(0)
     else:
         skipped = len(all_tests) - len(tests)
-        converter = CMark(prog=args.program, library_dir=args.library_dir).to_html
+        converter = CMark(prog=args.program, library_dir=args.library_dir, extensions=args.extensions).to_html
         result_counts = {'pass': 0, 'fail': 0, 'error': 0, 'skip': skipped}
         for test in tests:
             do_test(converter, test, args.normalize, result_counts)

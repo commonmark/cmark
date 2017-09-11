@@ -117,4 +117,20 @@ static CMARK_INLINE cmark_chunk cmark_chunk_buf_detach(cmark_strbuf *buf) {
   return c;
 }
 
+/* trim_new variants are to be used when the source chunk may or may not be
+ * allocated; forces a newly allocated chunk. */
+static CMARK_INLINE cmark_chunk cmark_chunk_ltrim_new(cmark_mem *mem, cmark_chunk *c) {
+  cmark_chunk r = cmark_chunk_dup(c, 0, c->len);
+  cmark_chunk_ltrim(&r);
+  cmark_chunk_to_cstr(mem, &r);
+  return r;
+}
+
+static CMARK_INLINE cmark_chunk cmark_chunk_rtrim_new(cmark_mem *mem, cmark_chunk *c) {
+  cmark_chunk r = cmark_chunk_dup(c, 0, c->len);
+  cmark_chunk_rtrim(&r);
+  cmark_chunk_to_cstr(mem, &r);
+  return r;
+}
+
 #endif

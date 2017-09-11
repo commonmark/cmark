@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "cmark_ctype.h"
+#include "syntax_extension.h"
 #include "config.h"
 #include "parser.h"
 #include "cmark.h"
@@ -80,43 +81,72 @@ static cmark_node *make_document(cmark_mem *mem) {
   return e;
 }
 
+int cmark_parser_attach_syntax_extension(cmark_parser *parser,
+                                         cmark_syntax_extension *extension) {
+  parser->syntax_extensions = cmark_llist_append(parser->mem, parser->syntax_extensions, extension);
+  if (extension->match_inline || extension->insert_inline_from_delim) {
+    parser->inline_syntax_extensions = cmark_llist_append(
+      parser->mem, parser->inline_syntax_extensions, extension);
+  }
+
+  return 1;
+}
+
+static void cmark_parser_dispose(cmark_parser *parser) {
+  if (parser->root)
+    cmark_node_free(parser->root);
+
+  if (parser->refmap)
+    cmark_reference_map_free(parser->refmap);
+}
+
+static void cmark_parser_reset(cmark_parser *parser) {
+  cmark_llist *saved_exts = parser->syntax_extensions;
+  cmark_llist *saved_inline_exts = parser->inline_syntax_extensions;
+  int saved_options = parser->options;
+  cmark_mem *saved_mem = parser->mem;
+
+  cmark_parser_dispose(parser);
+
+  memset(parser, 0, sizeof(cmark_parser));
+  parser->mem = saved_mem;
+
+  cmark_strbuf_init(parser->mem, &parser->curline, 256);
+  cmark_strbuf_init(parser->mem, &parser->linebuf, 0);
+
+  cmark_node *document = make_document(parser->mem);
+
+  parser->refmap = cmark_reference_map_new(parser->mem);
+  parser->root = document;
+  parser->current = document;
+
+  parser->last_buffer_ended_with_cr = false;
+
+  parser->syntax_extensions = saved_exts;
+  parser->inline_syntax_extensions = saved_inline_exts;
+  parser->options = saved_options;
+}
+
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
   parser->mem = mem;
-
-  cmark_node *document = make_document(mem);
-
-  cmark_strbuf_init(mem, &parser->curline, 256);
-  cmark_strbuf_init(mem, &parser->linebuf, 0);
-
-  parser->refmap = cmark_reference_map_new(mem);
-  parser->root = document;
-  parser->current = document;
-  parser->line_number = 0;
-  parser->offset = 0;
-  parser->column = 0;
-  parser->first_nonspace = 0;
-  parser->first_nonspace_column = 0;
-  parser->indent = 0;
-  parser->blank = false;
-  parser->partially_consumed_tab = false;
-  parser->last_line_length = 0;
   parser->options = options;
-  parser->last_buffer_ended_with_cr = false;
-
+  cmark_parser_reset(parser);
   return parser;
 }
 
 cmark_parser *cmark_parser_new(int options) {
-  extern cmark_mem DEFAULT_MEM_ALLOCATOR;
-  return cmark_parser_new_with_mem(options, &DEFAULT_MEM_ALLOCATOR);
+  extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
+  return cmark_parser_new_with_mem(options, &CMARK_DEFAULT_MEM_ALLOCATOR);
 }
 
 void cmark_parser_free(cmark_parser *parser) {
   cmark_mem *mem = parser->mem;
+  cmark_parser_dispose(parser);
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
-  cmark_reference_map_free(parser->refmap);
+  cmark_llist_free(parser->mem, parser->syntax_extensions);
+  cmark_llist_free(parser->mem, parser->inline_syntax_extensions);
   mem->free(parser);
 }
 
@@ -143,23 +173,19 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
   return true;
 }
 
-static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
-                                     cmark_node_type child_type) {
-  return (parent_type == CMARK_NODE_DOCUMENT ||
-          parent_type == CMARK_NODE_BLOCK_QUOTE ||
-          parent_type == CMARK_NODE_ITEM ||
-          (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
-}
-
 static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
-  return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADING);
+static CMARK_INLINE bool contains_inlines(cmark_node *node) {
+  if (node->extension && node->extension->contains_inlines_func) {
+    return node->extension->contains_inlines_func(node->extension, node) != 0;
+  }
+
+  return (node->type == CMARK_NODE_PARAGRAPH ||
+          node->type == CMARK_NODE_HEADING);
 }
 
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
@@ -255,17 +281,21 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
-    while (cmark_strbuf_at(node_content, 0) == '[' &&
-           (pos = cmark_parse_reference_inline(parser->mem, node_content,
-                                               parser->refmap))) {
+  {
+    cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
+    while (chunk.len && chunk.data[0] == '[' &&
+           (pos = cmark_parse_reference_inline(parser->mem, &chunk, parser->refmap))) {
 
-      cmark_strbuf_drop(node_content, pos);
+      chunk.data += pos;
+      chunk.len -= pos;
     }
+    cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
     if (is_blank(node_content, 0)) {
       // remove blank node (former reference def)
       cmark_node_free(b);
     }
     break;
+  }
 
   case CMARK_NODE_CODE_BLOCK:
     if (!b->as.code.fenced) { // indented code
@@ -340,7 +370,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
 
   // if 'parent' isn't the kind of node that can accept this child,
   // then back up til we hit a node that can.
-  while (!can_contain(S_type(parent), block_type)) {
+  while (!cmark_node_can_contain_type(parent, block_type)) {
     parent = finalize(parser, parent);
   }
 
@@ -359,22 +389,42 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   return child;
 }
 
+void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add) {
+  cmark_llist *tmp_ext;
+
+  for (tmp_ext = parser->inline_syntax_extensions; tmp_ext; tmp_ext=tmp_ext->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp_ext->data;
+    cmark_llist *tmp_char;
+    for (tmp_char = ext->special_inline_chars; tmp_char; tmp_char=tmp_char->next) {
+      unsigned char c = (unsigned char)(size_t)tmp_char->data;
+      if (add)
+        cmark_inlines_add_special_character(c, ext->emphasis);
+      else
+        cmark_inlines_remove_special_character(c, ext->emphasis);
+    }
+  }
+}
+
 // Walk through node and all children, recursively, parsing
 // string content into inline content where appropriate.
-static void process_inlines(cmark_mem *mem, cmark_node *root,
+static void process_inlines(cmark_parser *parser,
                             cmark_reference_map *refmap, int options) {
-  cmark_iter *iter = cmark_iter_new(root);
+  cmark_iter *iter = cmark_iter_new(parser->root);
   cmark_node *cur;
   cmark_event_type ev_type;
+
+  cmark_manage_extensions_special_characters(parser, true);
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
-      if (contains_inlines(S_type(cur))) {
-        cmark_parse_inlines(mem, cur, refmap, options);
+      if (contains_inlines(cur)) {
+        cmark_parse_inlines(parser, cur, refmap, options);
       }
     }
   }
+
+  cmark_manage_extensions_special_characters(parser, false);
 
   cmark_iter_free(iter);
 }
@@ -482,7 +532,7 @@ static cmark_node *finalize_document(cmark_parser *parser) {
   }
 
   finalize(parser, parser->root);
-  process_inlines(parser->mem, parser->root, parser->refmap, parser->options);
+  process_inlines(parser, parser->refmap, parser->options);
 
   return parser->root;
 }
@@ -521,6 +571,19 @@ void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len) {
   S_parser_feed(parser, (const unsigned char *)buffer, len, false);
 }
 
+void cmark_parser_feed_reentrant(cmark_parser *parser, const char *buffer, size_t len) {
+  cmark_strbuf saved_linebuf;
+
+  cmark_strbuf_init(parser->mem, &saved_linebuf, 0);
+  cmark_strbuf_puts(&saved_linebuf, cmark_strbuf_cstr(&parser->linebuf));
+  cmark_strbuf_clear(&parser->linebuf);
+
+  S_parser_feed(parser, (const unsigned char *)buffer, len, true);
+
+  cmark_strbuf_sets(&parser->linebuf, cmark_strbuf_cstr(&saved_linebuf));
+  cmark_strbuf_free(&saved_linebuf);
+}
+
 static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
                           size_t len, bool eof) {
   const unsigned char *end = buffer + len;
@@ -548,7 +611,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
-    chunk_len = (eol - buffer);
+    chunk_len = (bufsize_t)(eol - buffer);
     if (process) {
       if (parser->linebuf.size > 0) {
         cmark_strbuf_put(&parser->linebuf, buffer, chunk_len);
@@ -784,6 +847,21 @@ static bool parse_html_block_prefix(cmark_parser *parser,
   return res;
 }
 
+static bool parse_extension_block(cmark_parser *parser,
+                                  cmark_node *container,
+                                  cmark_chunk *input)
+{
+  bool res = false;
+
+  if (container->extension->last_block_matches) {
+    if (container->extension->last_block_matches(
+        container->extension, parser, input->data, input->len, container))
+      res = true;
+  }
+
+  return res;
+}
+
 /**
  * For each containing node, try to parse the associated line start.
  *
@@ -804,6 +882,12 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
     cont_type = S_type(container);
 
     S_find_first_nonspace(parser, input);
+
+    if (container->extension) {
+      if (!parse_extension_block(parser, container, input))
+        goto done;
+      continue;
+    }
 
     switch (cont_type) {
     case CMARK_NODE_BLOCK_QUOTE:
@@ -900,6 +984,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       (*container)->as.heading.level = level;
       (*container)->as.heading.setext = false;
+      (*container)->internal_offset = matched;
 
     } else if (!indented && (matched = scan_open_code_fence(
                                  input, parser->first_nonspace))) {
@@ -907,7 +992,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       (*container)->as.code.fenced = true;
       (*container)->as.code.fence_char = peek_at(input, parser->first_nonspace);
-      (*container)->as.code.fence_length = (matched > 255) ? 255 : matched;
+      (*container)->as.code.fence_length = (matched > 255) ? 255 : (uint8_t)matched;
       (*container)->as.code.fence_offset =
           (int8_t)(parser->first_nonspace - parser->offset);
       (*container)->as.code.info = cmark_chunk_literal("");
@@ -1005,9 +1090,27 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.code.fence_length = 0;
       (*container)->as.code.fence_offset = 0;
       (*container)->as.code.info = cmark_chunk_literal("");
-
     } else {
-      break;
+      cmark_llist *tmp;
+      cmark_node *new_container = NULL;
+
+      for (tmp = parser->syntax_extensions; tmp; tmp=tmp->next) {
+        cmark_syntax_extension *ext = (cmark_syntax_extension *) tmp->data;
+
+        if (ext->try_opening_block) {
+          new_container = ext->try_opening_block(
+              ext, indented, parser, *container, input->data, input->len);
+
+          if (new_container) {
+            *container = new_container;
+            break;
+          }
+        }
+      }
+
+      if (!new_container) {
+        break;
+      }
     }
 
     if (accepts_lines(S_type(*container))) {
@@ -1140,6 +1243,9 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   bool all_matched = true;
   cmark_node *container;
   cmark_chunk input;
+  cmark_node *current;
+
+  cmark_strbuf_clear(&parser->curline);
 
   if (parser->options & CMARK_OPT_VALIDATE_UTF8)
     cmark_utf8proc_check(&parser->curline, buffer, bytes);
@@ -1161,6 +1267,12 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   input.len = parser->curline.size;
   input.alloc = 0;
 
+  // Skip UTF-8 BOM.
+  if (parser->line_number == 0 &&
+      input.len >= 3 &&
+      memcmp(input.data, "\xef\xbb\xbf", 3) == 0)
+    parser->offset += 3;
+
   parser->line_number++;
 
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
@@ -1170,8 +1282,12 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   container = last_matched_container;
 
+  current = parser->current;
+
   open_new_blocks(parser, &container, &input, all_matched);
 
+  /* parser->current might have changed if feed_reentrant was called */
+  if (current == parser->current)
   add_text_to_container(parser, container, last_matched_container, &input);
 
 finished:
@@ -1187,6 +1303,13 @@ finished:
 }
 
 cmark_node *cmark_parser_finish(cmark_parser *parser) {
+  cmark_node *res;
+  cmark_llist *extensions;
+
+  /* Parser was already finished once */
+  if (parser->root == NULL)
+    return NULL;
+
   if (parser->linebuf.size) {
     S_process_line(parser, parser->linebuf.ptr, parser->linebuf.size);
     cmark_strbuf_clear(&parser->linebuf);
@@ -1197,11 +1320,88 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
   cmark_consolidate_text_nodes(parser->root);
 
   cmark_strbuf_free(&parser->curline);
+  cmark_strbuf_free(&parser->linebuf);
 
 #if CMARK_DEBUG_NODES
   if (cmark_node_check(parser->root, stderr)) {
     abort();
   }
 #endif
-  return parser->root;
+
+  for (extensions = parser->syntax_extensions; extensions; extensions = extensions->next) {
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) extensions->data;
+    if (ext->postprocess_func) {
+      cmark_node *processed = ext->postprocess_func(ext, parser, parser->root);
+      if (processed)
+        parser->root = processed;
+    }
+  }
+
+  res = parser->root;
+  parser->root = NULL;
+
+  cmark_parser_reset(parser);
+
+  return res;
+}
+
+int cmark_parser_get_line_number(cmark_parser *parser) {
+  return parser->line_number;
+}
+
+bufsize_t cmark_parser_get_offset(cmark_parser *parser) {
+  return parser->offset;
+}
+
+bufsize_t cmark_parser_get_column(cmark_parser *parser) {
+  return parser->column;
+}
+
+int cmark_parser_get_first_nonspace(cmark_parser *parser) {
+  return parser->first_nonspace;
+}
+
+int cmark_parser_get_first_nonspace_column(cmark_parser *parser) {
+  return parser->first_nonspace_column;
+}
+
+int cmark_parser_get_indent(cmark_parser *parser) {
+  return parser->indent;
+}
+
+int cmark_parser_is_blank(cmark_parser *parser) {
+  return parser->blank;
+}
+
+int cmark_parser_has_partially_consumed_tab(cmark_parser *parser) {
+  return parser->partially_consumed_tab;
+}
+
+int cmark_parser_get_last_line_length(cmark_parser *parser) {
+  return parser->last_line_length;
+}
+
+cmark_node *cmark_parser_add_child(cmark_parser *parser,
+                                   cmark_node   *parent,
+                                   cmark_node_type block_type,
+                                   int start_column) {
+  return add_child(parser, parent, block_type, start_column);
+}
+
+void cmark_parser_advance_offset(cmark_parser *parser,
+                                 const char *input,
+                                 int count,
+                                 int columns) {
+  cmark_chunk input_chunk = cmark_chunk_literal(input);
+
+  S_advance_offset(parser, &input_chunk, count, columns != 0);
+}
+
+void cmark_parser_set_backslash_ispunct_func(cmark_parser *parser,
+                                             cmark_ispunct_func func) {
+  parser->backslash_ispunct = func;
+}
+
+cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser) {
+  return parser->syntax_extensions;
 }
