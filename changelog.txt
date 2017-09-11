@@ -1,3 +1,7 @@
+[0.28.0.gfm.11]
+
+  * Do not output empty `<tbody>` in table extension.
+
 [0.28.0.gfm.10]
 
   * Fix denial of service parsing references.
