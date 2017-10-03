@@ -523,6 +523,19 @@ This shouldn't crash everything: (_A_@_.A
 <IGNORE>
 ````````````````````````````````
 
+```````````````````````````````` example
+These should not link:
+
+* @a.b.c@. x
+* n@.  b
+.
+<p>These should not link:</p>
+<ul>
+<li>@a.b.c@. x</li>
+<li>n@.  b</li>
+</ul>
+````````````````````````````````
+
 ## HTML tag filter
 
 

@@ -319,7 +319,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
 
     if (c == '@')
       nb++;
-    else if (c == '.' && link_end < size - 1)
+    else if (c == '.' && link_end < size - 1 && cmark_isalnum(data[link_end + 1]))
       np++;
     else if (c != '-' && c != '_')
       break;
