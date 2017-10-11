@@ -1,4 +1,17 @@
-[0.28]
+[0.28.1]
+
+  * `--smart`: open quote can never occur right after `]` or `)` (#227).
+  * Fix quadratic behavior in `finalize` (Vicent Marti).
+  * Don't use `CMAKE_INSTALL_LIBDIR` to create `libcmark.pc` (#236).
+    This wasn't getting set in processing `libcmark.pc.in`, and we
+    were getting the wrong entry in `libcmark.pc`.
+    The new approach sets an internal `libdir` variable to
+    `lib${LIB_SUFFIX}`.  This variable is used both to set the
+    install destination and in the libcmark.pc.in template.
+  * Update README.md, replace `make astyle` with `make format`
+    (Nguyễn Thái Ngọc Duy).
+
+[0.28.0]
 
   * Update spec.
   * Use unsigned integer when shifting (Phil Turnbull).
