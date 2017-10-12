@@ -1,3 +1,8 @@
+[0.28.2]
+
+  * Fixed regression in install dest for static library (#238).
+    Due to a mistake, 0.28.1 installed libcmark.a into include/.
+
 [0.28.1]
 
   * `--smart`: open quote can never occur right after `]` or `)` (#227).
