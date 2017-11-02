@@ -2,6 +2,8 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.3")
     cmake_policy(SET CMP0063 NEW)
 endif()
 
+include(GNUInstallDirs)
+
 set(LIBRARY "libcmark")
 set(STATICLIBRARY "libcmark_static")
 set(HEADERS
@@ -123,19 +125,21 @@ endif(MSVC)
 
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 
+set(libdir lib${LIB_SUFFIX})
+
 include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   EXPORT cmark
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib${LIB_SUFFIX}
-  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  LIBRARY DESTINATION ${libdir}
+  ARCHIVE DESTINATION ${libdir}
   )
 
 if(CMARK_SHARED OR CMARK_STATIC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
-    DESTINATION lib${LIB_SUFFIX}/pkgconfig)
+    DESTINATION ${libdir}/pkgconfig)
 
   install(FILES
     cmark.h
@@ -144,7 +148,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION include
     )
 
-  install(EXPORT cmark DESTINATION lib${LIB_SUFFIX}/cmake)
+  install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 endif()
 
 # Feature tests

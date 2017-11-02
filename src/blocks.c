@@ -255,17 +255,21 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
-    while (cmark_strbuf_at(node_content, 0) == '[' &&
-           (pos = cmark_parse_reference_inline(parser->mem, node_content,
-                                               parser->refmap))) {
+  {
+    cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
+    while (chunk.len && chunk.data[0] == '[' &&
+           (pos = cmark_parse_reference_inline(parser->mem, &chunk, parser->refmap))) {
 
-      cmark_strbuf_drop(node_content, pos);
+      chunk.data += pos;
+      chunk.len -= pos;
     }
+    cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
     if (is_blank(node_content, 0)) {
       // remove blank node (former reference def)
       cmark_node_free(b);
     }
     break;
+  }
 
   case CMARK_NODE_CODE_BLOCK:
     if (!b->as.code.fenced) { // indented code
