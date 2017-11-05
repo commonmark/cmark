@@ -31,6 +31,8 @@ def hash_collisions():
 
     return document, re.compile("(<p>\[%s\]</p>\n){%d}" % (bad_key, COUNT-1))
 
+allowed_failures = {"many references": True}
+
 # list of pairs consisting of input and a regex that must match the output.
 pathological = {
     # note - some pythons have limit of 65535 for {num-matches} in re.
@@ -73,12 +75,22 @@ pathological = {
     "backticks":
                  ("".join(map(lambda x: ("e" + "`" * x), range(1,10000))),
                   re.compile("^<p>[e`]*</p>\n$")),
+    "unclosed links A":
+                 ("[a](<b" * 50000,
+                  re.compile("(\[a\]\(&lt;b){50000}")),
+    "unclosed links B":
+                 ("[a](b" * 50000,
+                  re.compile("(\[a\]\(b){50000}")),
+    "many references":
+                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,50000 * 16))) + "[0] " * 50000,
+                  re.compile("(\[0\] ){49999}")),
     "reference collisions": hash_collisions()
     }
 
 whitespace_re = re.compile('/s+/')
 passed = 0
 errored = 0
+ignored = 0
 TIMEOUT = 5
 
 def run_test(inp, regex):
@@ -117,11 +129,17 @@ if __name__ == '__main__':
             p.terminate()
             p.join()
             print('[TIMED OUT]')
-            errored += 1
+            if allowed_failures[description]:
+                ignored += 1
+            else:
+                errored += 1
         elif p.exitcode != 0:
-            errored += 1
+            if allowed_failures[description]:
+                ignored += 1
+            else:
+                errored += 1
         else:
             passed += 1
 
-    print("%d passed, %d errored" % (passed, errored))
+    print("%d passed, %d errored, %d ignored" % (passed, errored, ignored))
     exit(errored)

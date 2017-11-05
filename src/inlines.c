@@ -793,7 +793,7 @@ cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
     return result;
   }
 
-    houdini_unescape_html_f(&buf, url->data, url->len);
+  houdini_unescape_html_f(&buf, url->data, url->len);
 
   cmark_strbuf_unescape(&buf);
   return cmark_chunk_buf_detach(&buf);
@@ -925,26 +925,26 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
   bufsize_t i = offset;
   size_t nb_p = 0;
 
-    while (i < input->len) {
-      if (input->data[i] == '\\' &&
-	  i + 1 < input-> len &&
-          cmark_ispunct(input->data[i+1]))
-        i += 2;
-      else if (input->data[i] == '(') {
-        ++nb_p;
-        ++i;
+  while (i < input->len) {
+    if (input->data[i] == '\\' &&
+        i + 1 < input-> len &&
+        cmark_ispunct(input->data[i+1]))
+      i += 2;
+    else if (input->data[i] == '(') {
+      ++nb_p;
+      ++i;
         if (nb_p > 32)
           return -1;
-      } else if (input->data[i] == ')') {
-        if (nb_p == 0)
-          break;
-        --nb_p;
-        ++i;
-      } else if (cmark_isspace(input->data[i]))
+    } else if (input->data[i] == ')') {
+      if (nb_p == 0)
         break;
-      else
-        ++i;
-    }
+      --nb_p;
+      ++i;
+    } else if (cmark_isspace(input->data[i]))
+      break;
+    else
+      ++i;
+  }
 
   if (i >= input->len)
     return -1;

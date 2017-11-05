@@ -989,6 +989,95 @@ static void test_pathological_regressions(test_batch_runner *runner) {
   }
 }
 
+static void source_pos(test_batch_runner *runner) {
+  static const char markdown[] =
+    "# Hi *there*.\n"
+    "\n"
+    "Hello &ldquo; <http://www.google.com>\n"
+    "there `hi` -- [okay](www.google.com (ok)).\n"
+    "\n"
+    "> 1. Okay.\n"
+    ">    Sure.\n"
+    ">\n"
+    "> 2. Yes, okay.\n"
+    ">    ![ok](hi \"yes\")\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
+                      "    <text sourcepos=\"1:3-1:5\">Hi </text>\n"
+                      "    <emph sourcepos=\"1:6-1:12\">\n"
+                      "      <text sourcepos=\"1:7-1:11\">there</text>\n"
+                      "    </emph>\n"
+                      "    <text sourcepos=\"1:13-1:13\">.</text>\n"
+                      "  </heading>\n"
+                      "  <paragraph sourcepos=\"3:1-4:42\">\n"
+                      "    <text sourcepos=\"3:1-3:14\">Hello “ </text>\n"
+                      "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
+                      "      <text sourcepos=\"3:16-3:36\">http://www.google.com</text>\n"
+                      "    </link>\n"
+                      "    <softbreak />\n"
+                      "    <text sourcepos=\"4:1-4:6\">there </text>\n"
+                      "    <code sourcepos=\"4:8-4:9\">hi</code>\n"
+                      "    <text sourcepos=\"4:11-4:14\"> -- </text>\n"
+                      "    <link sourcepos=\"4:15-4:41\" destination=\"www.google.com\" title=\"ok\">\n"
+                      "      <text sourcepos=\"4:16-4:19\">okay</text>\n"
+                      "    </link>\n"
+                      "    <text sourcepos=\"4:42-4:42\">.</text>\n"
+                      "  </paragraph>\n"
+                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
+                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
+                      "      <item sourcepos=\"6:3-8:1\">\n"
+                      "        <paragraph sourcepos=\"6:6-7:10\">\n"
+                      "          <text sourcepos=\"6:6-6:10\">Okay.</text>\n"
+                      "          <softbreak />\n"
+                      "          <text sourcepos=\"7:6-7:10\">Sure.</text>\n"
+                      "        </paragraph>\n"
+                      "      </item>\n"
+                      "      <item sourcepos=\"9:3-10:20\">\n"
+                      "        <paragraph sourcepos=\"9:6-10:20\">\n"
+                      "          <text sourcepos=\"9:6-9:15\">Yes, okay.</text>\n"
+                      "          <softbreak />\n"
+                      "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
+                      "            <text sourcepos=\"10:8-10:9\">ok</text>\n"
+                      "          </image>\n"
+                      "        </paragraph>\n"
+                      "      </item>\n"
+                      "    </list>\n"
+                      "  </block_quote>\n"
+                      "</document>\n",
+         "sourcepos are as expected");
+  free(xml);
+  cmark_node_free(doc);
+}
+
+static void ref_source_pos(test_batch_runner *runner) {
+  static const char markdown[] =
+    "Let's try [reference] links.\n"
+    "\n"
+    "[reference]: https://github.com (GitHub)\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-3:40\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:1-1:28\">\n"
+                      "    <text sourcepos=\"1:1-1:10\">Let's try </text>\n"
+                      "    <link sourcepos=\"1:11-1:21\" destination=\"https://github.com\" title=\"GitHub\">\n"
+                      "      <text sourcepos=\"1:12-1:20\">reference</text>\n"
+                      "    </link>\n"
+                      "    <text sourcepos=\"1:22-1:28\"> links.</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "sourcepos are as expected");
+  free(xml);
+  cmark_node_free(doc);
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1016,6 +1105,8 @@ int main() {
   test_safe(runner);
   test_feed_across_line_ending(runner);
   test_pathological_regressions(runner);
+  source_pos(runner);
+  ref_source_pos(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

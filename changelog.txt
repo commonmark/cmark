@@ -1,3 +1,26 @@
+[0.28.3]
+
+  * Include GNUInstallDirs in src/CMakeLists.txt (Nick Wellnhofer, #240).
+    This fixes build problems on some cmake versions (#241).
+
+[0.28.2]
+
+  * Fixed regression in install dest for static library (#238).
+    Due to a mistake, 0.28.1 installed libcmark.a into include/.
+
+[0.28.1]
+
+  * `--smart`: open quote can never occur right after `]` or `)` (#227).
+  * Fix quadratic behavior in `finalize` (Vicent Marti).
+  * Don't use `CMAKE_INSTALL_LIBDIR` to create `libcmark.pc` (#236).
+    This wasn't getting set in processing `libcmark.pc.in`, and we
+    were getting the wrong entry in `libcmark.pc`.
+    The new approach sets an internal `libdir` variable to
+    `lib${LIB_SUFFIX}`.  This variable is used both to set the
+    install destination and in the libcmark.pc.in template.
+  * Update README.md, replace `make astyle` with `make format`
+    (Nguyễn Thái Ngọc Duy).
+
 [0.28.0.gfm.11]
 
   * Do not output empty `<tbody>` in table extension.
@@ -32,7 +55,7 @@
   * Add `core_extensions_ensure_registered`.
   * Add sourcepos information for inlines.
 
-[0.28]
+[0.28.0]
 
   * Update spec.
   * Use unsigned integer when shifting (Phil Turnbull).
