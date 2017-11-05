@@ -5,6 +5,8 @@ import re
 import argparse
 import sys
 import platform
+import multiprocessing
+import time
 from cmark import CMark
 
 if __name__ == "__main__":
@@ -92,7 +94,17 @@ def run_pathological_test(description, results):
 
 print("Testing pathological cases:")
 for description in pathological:
-    run_pathological_test(description, results)
+    p = multiprocessing.Process(target=run_pathological_test,
+              args=(description, results,))
+    p.start()
+    # wait 8 seconds or until it finishes
+    p.join(8)
+    # kill it if still active
+    if p.is_alive():
+        print(description, '[TIMEOUT]')
+        p.terminate()
+        results['errored'] += 1
+        p.join()
 
 print("%d passed, %d failed, %d errored" %
           (results['passed'], results['failed'], results['errored']))
