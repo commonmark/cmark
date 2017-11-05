@@ -148,7 +148,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION include
     )
 
-  install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+  install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmark)
 endif()
 
 # Feature tests
