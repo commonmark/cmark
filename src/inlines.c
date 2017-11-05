@@ -898,6 +898,8 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
       else if (input->data[i] == '(') {
         ++nb_p;
         ++i;
+        if (nb_p > 32)
+          return -1;
       } else if (input->data[i] == ')') {
         if (nb_p == 0)
           break;
