@@ -71,28 +71,32 @@ pathological = {
     }
 
 whitespace_re = re.compile('/s+/')
-passed = 0
-errored = 0
-failed = 0
 
-print("Testing pathological cases:")
-for description in pathological:
+results = {'passed': 0, 'errored': 0, 'failed': 0}
+
+def run_pathological_test(description, results):
     (inp, regex) = pathological[description]
     [rc, actual, err] = cmark.to_html(inp)
     if rc != 0:
-        errored += 1
         print(description, '[ERRORED (return code %d)]' %rc)
         print(err)
+        results['errored'] += 1
     elif regex.search(actual):
         print(description, '[PASSED]')
-        passed += 1
+        results['passed'] += 1
     else:
         print(description, '[FAILED]')
         print(repr(actual))
-        failed += 1
+        results['failed'] += 1
 
-print("%d passed, %d failed, %d errored" % (passed, failed, errored))
-if (failed == 0 and errored == 0):
+
+print("Testing pathological cases:")
+for description in pathological:
+    run_pathological_test(description, results)
+
+print("%d passed, %d failed, %d errored" %
+          (results['passed'], results['failed'], results['errored']))
+if (results['failed'] == 0 and results['errored'] == 0):
     exit(0)
 else:
     exit(1)
