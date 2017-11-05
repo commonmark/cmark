@@ -127,7 +127,7 @@ if ignored > 0:
     print("Ignoring these allowed failures:")
     for x in results['ignored']:
         print(x)
-if (results['failed'] == 0 and results['errored'] == 0):
+if failed == 0 and errored == 0:
     exit(0)
 else:
     exit(1)
