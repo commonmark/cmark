@@ -1,5 +1,6 @@
 #include "strikethrough.h"
 #include <parser.h>
+#include <render.h>
 
 cmark_node_type CMARK_NODE_STRIKETHROUGH;
 

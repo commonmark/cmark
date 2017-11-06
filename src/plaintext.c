@@ -1,5 +1,6 @@
 #include "node.h"
 #include "syntax_extension.h"
+#include "render.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, node, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, node, s, false, LITERAL)
