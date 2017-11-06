@@ -165,7 +165,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION include
     )
 
-  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmark-gfm)
+  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 endif()
 
 # Feature tests
