@@ -54,7 +54,6 @@ for entity, utf8 in entities:
         print(entity, '[ERRORED (return code {})]'.format(rc))
         print(err)
     elif check in actual:
-        print(entity, '[PASSED]')
         passed += 1
     else:
         print(entity, '[FAILED]')

@@ -21,6 +21,40 @@
   * Update README.md, replace `make astyle` with `make format`
     (Nguyễn Thái Ngọc Duy).
 
+[0.28.0.gfm.11]
+
+  * Do not output empty `<tbody>` in table extension.
+
+[0.28.0.gfm.10]
+
+  * Fix denial of service parsing references.
+
+[0.28.0.gfm.9]
+
+  * Fix denial of service parsing nested links (#49).
+
+[0.28.0.gfm.8]
+
+  * Fix bug where autolink would cause `:` to be skipped in emphasis
+    processing.
+
+[0.28.0.gfm.7]
+
+  * Strikethrough characters do not disturb regular emphasis processing.
+
+[0.28.0.gfm.6]
+
+  * Fix inline sourcepos info when inlines span multiple lines, and in
+    ATX headings.
+
+[0.28.0.gfm.5]
+
+  * Latest spec.
+  * Fix a typo in the spec (John Gardner).
+  * Fix quadratic behavior in reference lookups.
+  * Add `core_extensions_ensure_registered`.
+  * Add sourcepos information for inlines.
+
 [0.28.0]
 
   * Update spec.
@@ -146,6 +180,34 @@
   * README: Add link to Python wrapper, prettify languages list
     (Pavlo Kapyshin).
   * README: Add link to cmark-scala (Tim Nieradzik, #196)
+
+[0.27.1.gfm.4]
+
+  * Fix regression with nested parentheses in link targets (#48).
+
+[0.27.1.gfm.3]
+
+  * Various undefined behavior issues fixed (#38, #39, #40).
+  * Tag filter is case-insensitive (#43).
+
+[0.27.1.gfm.2]
+
+  * Fix a number of bugs (reading past end of buffer, undefined behavior.
+  * Add `cmark_syntax_extension_get_private()`. (Jonathan Müller)
+
+[0.27.1.gfm.1]
+
+  * Add plaintext renderer.
+  * Remove normalize option; we now always normalize the AST.
+  * Add getters for table alignment.
+  * `make install` also installs the extensions static/shared library.
+
+[0.27.1.gfm.0]
+
+  * Add extensions: tagfilter, strikethrough, table, autolink.
+  * Add arena memory implementation.
+  * Add CMARK_OPT_GITHUB_PRE_LANG for fenced code blocks.
+  * Skip UTF-8 BOM on input.
 
 [0.27.1]
 

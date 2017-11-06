@@ -4,10 +4,11 @@ endif()
 
 include(GNUInstallDirs)
 
-set(LIBRARY "libcmark")
-set(STATICLIBRARY "libcmark_static")
+set(LIBRARY "libcmark-gfm")
+set(STATICLIBRARY "libcmark-gfm_static")
 set(HEADERS
   cmark.h
+  cmark_extension_api.h
   parser.h
   buffer.h
   node.h
@@ -20,6 +21,9 @@ set(HEADERS
   houdini.h
   cmark_ctype.h
   render.h
+  registry.h
+  syntax_extension.h
+  plugin.h
   )
 set(LIBRARY_SOURCES
   cmark.c
@@ -37,21 +41,29 @@ set(LIBRARY_SOURCES
   xml.c
   html.c
   commonmark.c
+  plaintext.c
   latex.c
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
   cmark_ctype.c
+  arena.c
+  linked_list.c
+  syntax_extension.c
+  registry.c
+  plugin.c
   ${HEADERS}
   )
 
-set(PROGRAM "cmark")
+set(PROGRAM "cmark-gfm")
 set(PROGRAM_SOURCES
-  ${LIBRARY_SOURCES}
   main.c
   )
 
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(
+  ${PROJECT_BINARY_DIR}/extensions
+)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
@@ -61,16 +73,20 @@ include (GenerateExportHeader)
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
+target_link_libraries(${PROGRAM} libcmark-gfmextensions_static libcmark-gfm_static)
+
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+  COMPILE_FLAGS "-DCMARK_STATIC_DEFINE -DCMARKEXTENSIONS_STATIC_DEFINE")
 
 # Check integrity of node structure when compiled as debug:
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")
 set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
 
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
+
+add_definitions(-DLIBDIR=\"${CMAKE_BINARY_DIR}\")
 
 if (${CMAKE_VERSION} VERSION_GREATER "1.8")
   set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -83,15 +99,15 @@ if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   # Include minor version and patch level in soname for now.
   set_target_properties(${LIBRARY} PROPERTIES
-    OUTPUT_NAME "cmark"
-    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    OUTPUT_NAME "cmark-gfm"
+    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
     VERSION ${PROJECT_VERSION})
 
   set_property(TARGET ${LIBRARY}
     APPEND PROPERTY MACOSX_RPATH true)
 
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
-  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark_dll)
+  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm_dll)
 
   generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
@@ -107,11 +123,11 @@ if (CMARK_STATIC)
 
   if (MSVC)
     set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark_static"
+      OUTPUT_NAME "cmark-gfm_static"
       VERSION ${PROJECT_VERSION})
   else()
     set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark"
+      OUTPUT_NAME "cmark-gfm"
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
 
@@ -129,26 +145,27 @@ set(libdir lib${LIB_SUFFIX})
 
 include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
-  EXPORT cmark
+  EXPORT cmark-gfm
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
   )
 
 if(CMARK_SHARED OR CMARK_STATIC)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc
     DESTINATION ${libdir}/pkgconfig)
 
   install(FILES
     cmark.h
+    cmark_extension_api.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
     DESTINATION include
     )
 
-  install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmark-gfm)
 endif()
 
 # Feature tests
@@ -177,9 +194,9 @@ if(MSVC)
   else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
   endif()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4706 /D_CRT_SECURE_NO_WARNINGS")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX /wd4706 /wd4204 /wd4221 /wd4100 /D_CRT_SECURE_NO_WARNINGS")
 elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -pedantic")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-unused-parameter -std=c99 -pedantic")
 endif()
 
 # Compile as C++ under MSVC older than 12.0

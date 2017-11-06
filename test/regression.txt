@@ -92,3 +92,37 @@ Issue #192 - escaped spaces in link destination
 .
 <p>[a](te\ st)</p>
 ````````````````````````````````
+
+Issue github/github#76615:  multiple delimiter combinations gets sketchy
+
+
+```````````````````````````````` example strikethrough
+~~**_`this`_**~~  
+~~***`this`***~~  
+~~___`this`___~~
+
+**_`this`_**  
+***`this`***  
+___`this`___
+
+~~**_this_**~~  
+~~***this***~~  
+~~___this___~~
+
+**_this_**  
+***this***  
+___this___
+.
+<p><del><strong><em><code>this</code></em></strong></del><br />
+<del><em><strong><code>this</code></strong></em></del><br />
+<del><em><strong><code>this</code></strong></em></del></p>
+<p><strong><em><code>this</code></em></strong><br />
+<em><strong><code>this</code></strong></em><br />
+<em><strong><code>this</code></strong></em></p>
+<p><del><strong><em>this</em></strong></del><br />
+<del><em><strong>this</strong></em></del><br />
+<del><em><strong>this</strong></em></del></p>
+<p><strong><em>this</em></strong><br />
+<em><strong>this</strong></em><br />
+<em><strong>this</strong></em></p>
+````````````````````````````````

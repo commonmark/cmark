@@ -1,8 +1,8 @@
-.TH cmark 3 "June 02, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "April 03, 2017" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
-\f[B]cmark\f[] \- CommonMark parsing, manipulating, and rendering
+\f[B]cmark\-gfm\f[] \- CommonMark parsing, manipulating, and rendering
 
 .SH
 DESCRIPTION
@@ -27,37 +27,31 @@ Node Structure
 .RS 0n
 typedef enum {
   /* Error status */
-  CMARK_NODE_NONE,
+  CMARK_NODE_NONE = 0x0000,
 
   /* Block */
-  CMARK_NODE_DOCUMENT,
-  CMARK_NODE_BLOCK_QUOTE,
-  CMARK_NODE_LIST,
-  CMARK_NODE_ITEM,
-  CMARK_NODE_CODE_BLOCK,
-  CMARK_NODE_HTML_BLOCK,
-  CMARK_NODE_CUSTOM_BLOCK,
-  CMARK_NODE_PARAGRAPH,
-  CMARK_NODE_HEADING,
-  CMARK_NODE_THEMATIC_BREAK,
-
-  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_DOCUMENT       = CMARK_NODE_TYPE_BLOCK | 0x0001,
+  CMARK_NODE_BLOCK_QUOTE    = CMARK_NODE_TYPE_BLOCK | 0x0002,
+  CMARK_NODE_LIST           = CMARK_NODE_TYPE_BLOCK | 0x0003,
+  CMARK_NODE_ITEM           = CMARK_NODE_TYPE_BLOCK | 0x0004,
+  CMARK_NODE_CODE_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0005,
+  CMARK_NODE_HTML_BLOCK     = CMARK_NODE_TYPE_BLOCK | 0x0006,
+  CMARK_NODE_CUSTOM_BLOCK   = CMARK_NODE_TYPE_BLOCK | 0x0007,
+  CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
+  CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
+  CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
 
   /* Inline */
-  CMARK_NODE_TEXT,
-  CMARK_NODE_SOFTBREAK,
-  CMARK_NODE_LINEBREAK,
-  CMARK_NODE_CODE,
-  CMARK_NODE_HTML_INLINE,
-  CMARK_NODE_CUSTOM_INLINE,
-  CMARK_NODE_EMPH,
-  CMARK_NODE_STRONG,
-  CMARK_NODE_LINK,
-  CMARK_NODE_IMAGE,
-
-  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
-  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+  CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
+  CMARK_NODE_SOFTBREAK     = CMARK_NODE_TYPE_INLINE | 0x0002,
+  CMARK_NODE_LINEBREAK     = CMARK_NODE_TYPE_INLINE | 0x0003,
+  CMARK_NODE_CODE          = CMARK_NODE_TYPE_INLINE | 0x0004,
+  CMARK_NODE_HTML_INLINE   = CMARK_NODE_TYPE_INLINE | 0x0005,
+  CMARK_NODE_CUSTOM_INLINE = CMARK_NODE_TYPE_INLINE | 0x0006,
+  CMARK_NODE_EMPH          = CMARK_NODE_TYPE_INLINE | 0x0007,
+  CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
+  CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
+  CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
 } cmark_node_type;
 .RE
 \f[]
@@ -114,6 +108,72 @@ typedef struct cmark_mem {
 .PP
 Defines the memory allocation functions to be used by CMark when parsing
 and allocating a document tree
+
+.PP
+\fIcmark_mem *\f[] \fBcmark_get_default_mem_allocator\f[](\fI\f[])
+
+.PP
+The default memory allocator; uses the system's calloc, realloc and
+free.
+
+.PP
+\fIcmark_mem *\f[] \fBcmark_get_arena_mem_allocator\f[](\fI\f[])
+
+.PP
+An arena allocator; uses system calloc to allocate large slabs of
+memory. Memory in these slabs is not reused at all.
+
+.PP
+\fIvoid\f[] \fBcmark_arena_reset\f[](\fIvoid\f[])
+
+.PP
+Resets the arena allocator, quickly returning all used memory to the
+operating system.
+
+.PP
+\fItypedef\f[] \fBvoid\f[](\fI*cmark_free_func\f[])
+
+.PP
+Callback for freeing user data with a \f[I]cmark_mem\f[] context.
+
+.SS
+Linked list
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef struct _cmark_llist
+{
+  struct _cmark_llist *next;
+  void         *data;
+} cmark_llist;
+.RE
+\f[]
+.fi
+
+.PP
+A generic singly linked list.
+
+.PP
+\fIcmark_llist *\f[] \fBcmark_llist_append\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[], \fIvoid              * data\f[])
+
+.PP
+Append an element to the linked list, return the possibly modified head
+of the list.
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free_full\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[], \fIcmark_free_func     free_func\f[])
+
+.PP
+Free the list starting with \f[I]head\f[], calling \f[I]free_func\f[]
+with the data pointer of each of its elements
+
+.PP
+\fIvoid\f[] \fBcmark_llist_free\f[](\fIcmark_mem         * mem\f[], \fIcmark_llist       * head\f[])
+
+.PP
+Free the list starting with \f[I]head\f[]
 
 .SS
 Creating and Destroying Nodes
@@ -314,6 +374,12 @@ Sets arbitrary user data for \f[I]node\f[]. Returns 1 on success, 0 on
 failure.
 
 .PP
+\fIint\f[] \fBcmark_node_set_user_data_free_func\f[](\fIcmark_node *node\f[], \fIcmark_free_func free_func\f[])
+
+.PP
+Set free function for user data */
+
+.PP
 \fIcmark_node_type\f[] \fBcmark_node_get_type\f[](\fIcmark_node *node\f[])
 
 .PP
@@ -421,6 +487,18 @@ Returns the info string from a fenced code block.
 .PP
 Sets the info string in a fenced code block, returning 1 on success
 and 0 on failure.
+
+.PP
+\fIint\f[] \fBcmark_node_set_fenced\f[](\fIcmark_node * node\f[], \fIint fenced\f[], \fIint length\f[], \fIint offset\f[], \fIchar character\f[])
+
+.PP
+Sets code blocks fencing details
+
+.PP
+\fIint\f[] \fBcmark_node_get_fenced\f[](\fIcmark_node *node\f[], \fIint *length\f[], \fIint *offset\f[], \fIchar *character\f[])
+
+.PP
+Returns code blocks fencing details
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_url\f[](\fIcmark_node *node\f[])
@@ -560,6 +638,12 @@ Returns 1 on success, 0 on failure.
 .PP
 Consolidates adjacent text nodes.
 
+.PP
+\fIvoid\f[] \fBcmark_node_own\f[](\fIcmark_node *root\f[])
+
+.PP
+Ensures a node and all its children own their own chunk memory.
+
 .SS
 Parsing
 .PP
@@ -647,12 +731,26 @@ Render a \f[I]node\f[] tree as XML. It is the caller's responsibility to
 free the returned buffer.
 
 .PP
-\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[])
+\fIchar *\f[] \fBcmark_render_xml_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_xml\f[], but specifying the allocator to use
+for the resulting string.
+
+.PP
+\fIchar *\f[] \fBcmark_render_html\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_llist *extensions\f[])
 
 .PP
 Render a \f[I]node\f[] tree as an HTML fragment. It is up to the user to
 add an appropriate header and footer. It is the caller's responsibility
 to free the returned buffer.
+
+.PP
+\fIchar *\f[] \fBcmark_render_html_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIcmark_llist *extensions\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_html\f[], but specifying the allocator to use
+for the resulting string.
 
 .PP
 \fIchar *\f[] \fBcmark_render_man\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
@@ -662,6 +760,13 @@ Render a \f[I]node\f[] tree as a groff man page, without the header. It
 is the caller's responsibility to free the returned buffer.
 
 .PP
+\fIchar *\f[] \fBcmark_render_man_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_man\f[], but specifying the allocator to use
+for the resulting string.
+
+.PP
 \fIchar *\f[] \fBcmark_render_commonmark\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
@@ -669,11 +774,25 @@ Render a \f[I]node\f[] tree as a commonmark document. It is the caller's
 responsibility to free the returned buffer.
 
 .PP
+\fIchar *\f[] \fBcmark_render_commonmark_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_commonmark\f[], but specifying the allocator to
+use for the resulting string.
+
+.PP
 \fIchar *\f[] \fBcmark_render_latex\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
 Render a \f[I]node\f[] tree as a LaTeX document. It is the caller's
 responsibility to free the returned buffer.
+
+.PP
+\fIchar *\f[] \fBcmark_render_latex_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_latex\f[], but specifying the allocator to use
+for the resulting string.
 
 .SS
 Options
@@ -785,6 +904,18 @@ with the replacement character U+FFFD.
 .PP
 Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
 dashes.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_GITHUB_PRE_LANG (1 << 11)
+.RE
+\f[]
+.fi
+
+.PP
+Use GitHub\-style  tags for code blocks instead of .
 
 .SS
 Version information

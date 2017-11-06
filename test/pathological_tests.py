@@ -5,21 +5,33 @@ import re
 import argparse
 import sys
 import platform
+import itertools
 import multiprocessing
-import time
 from cmark import CMark
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run cmark tests.')
-    parser.add_argument('--program', dest='program', nargs='?', default=None,
-            help='program to test')
-    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-            default=None, help='directory containing dynamic library')
-    args = parser.parse_args(sys.argv[1:])
+def hash_collisions():
+    REFMAP_SIZE = 16
+    COUNT = 50000
+
+    def badhash(ref):
+        h = 0
+        for c in ref:
+            a = (h << 6) & 0xFFFFFFFF
+            b = (h << 16) & 0xFFFFFFFF
+            h = ord(c) + a + b - h
+            h = h & 0xFFFFFFFF
+
+        return (h % REFMAP_SIZE) == 0
+
+    keys = ("x%d" % i for i in itertools.count())
+    collisions = itertools.islice((k for k in keys if badhash(k)), COUNT)
+    bad_key = next(collisions)
+
+    document = ''.join("[%s]: /url\n\n[%s]\n\n" % (key, bad_key) for key in collisions)
+
+    return document, re.compile("(<p>\[%s\]</p>\n){%d}" % (bad_key, COUNT-1))
 
 allowed_failures = {"many references": True}
-
-cmark = CMark(prog=args.program, library_dir=args.library_dir)
 
 # list of pairs consisting of input and a regex that must match the output.
 pathological = {
@@ -71,63 +83,63 @@ pathological = {
                   re.compile("(\[a\]\(b){50000}")),
     "many references":
                  ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,50000 * 16))) + "[0] " * 50000,
-                  re.compile("(\[0\] ){49999}"))
+                  re.compile("(\[0\] ){49999}")),
+    "reference collisions": hash_collisions()
     }
 
 whitespace_re = re.compile('/s+/')
+passed = 0
+errored = 0
+ignored = 0
+TIMEOUT = 5
 
-results = {'passed': [], 'errored': [], 'failed': [], 'ignored': []}
+def run_test(inp, regex):
+    parser = argparse.ArgumentParser(description='Run cmark tests.')
+    parser.add_argument('--program', dest='program', nargs='?', default=None,
+            help='program to test')
+    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+            default=None, help='directory containing dynamic library')
+    args = parser.parse_args(sys.argv[1:])
+    cmark = CMark(prog=args.program, library_dir=args.library_dir)
 
-def run_pathological_test(description, results):
-    (inp, regex) = pathological[description]
     [rc, actual, err] = cmark.to_html(inp)
-    extra = ""
     if rc != 0:
-        print(description, '[ERRORED (return code %d)]' %rc)
+        print('[ERRORED (return code %d)]' % rc)
         print(err)
-        if allowed_failures[description]:
-            results['ignored'].append(description)
-        else:
-            results['errored'].append(description)
+        exit(1)
     elif regex.search(actual):
-        print(description, '[PASSED]')
-        results['passed'].append(description)
+        print('[PASSED]')
     else:
-        print(description, '[FAILED]')
+        print('[FAILED (mismatch)]')
         print(repr(actual))
-        if allowed_failures[description]:
-            results['ignored'].append(description)
+        exit(1)
+
+if __name__ == '__main__':
+    print("Testing pathological cases:")
+    for description in pathological:
+        (inp, regex) = pathological[description]
+        print(description, "... ", end='')
+        sys.stdout.flush()
+
+        p = multiprocessing.Process(target=run_test, args=(inp, regex))
+        p.start()
+        p.join(TIMEOUT)
+
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            print('[TIMED OUT]')
+            if allowed_failures[description]:
+                ignored += 1
+            else:
+                errored += 1
+        elif p.exitcode != 0:
+            if allowed_failures[description]:
+                ignored += 1
+            else:
+                errored += 1
         else:
-            results['failed'].append(description)
+            passed += 1
 
-print("Testing pathological cases:")
-for description in pathological:
-    p = multiprocessing.Process(target=run_pathological_test,
-              args=(description, results,))
-    p.start()
-    # wait 4 seconds or until it finishes
-    p.join(4)
-    # kill it if still active
-    if p.is_alive():
-        print(description, '[TIMEOUT]')
-        if allowed_failures[description]:
-            results['ignored'].append(description)
-        else:
-            results['errored'].append(description)
-        p.terminate()
-        p.join()
-
-passed  = len(results['passed'])
-failed  = len(results['failed'])
-errored = len(results['errored'])
-ignored = len(results['ignored'])
-
-print("%d passed, %d failed, %d errored" % (passed, failed, errored))
-if ignored > 0:
-    print("Ignoring these allowed failures:")
-    for x in results['ignored']:
-        print(x)
-if failed == 0 and errored == 0:
-    exit(0)
-else:
-    exit(1)
+    print("%d passed, %d errored, %d ignored" % (passed, errored, ignored))
+    exit(errored)
