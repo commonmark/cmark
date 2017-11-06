@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "cmark.h"
 #include "syntax_extension.h"
@@ -37,8 +38,8 @@ cmark_node_type cmark_syntax_extension_add_node(int is_inline) {
 }
 
 void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension,
-                                         bool emphasis) {
-  extension->emphasis = emphasis;
+                                         int emphasis) {
+  extension->emphasis = emphasis == 1;
 }
 
 void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extension,

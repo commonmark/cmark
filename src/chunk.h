@@ -12,7 +12,7 @@
 #define CMARK_CHUNK_EMPTY                                                      \
   { NULL, 0, 0 }
 
-typedef struct {
+typedef struct cmark_chunk {
   unsigned char *data;
   bufsize_t len;
   bufsize_t alloc; // also implies a NULL-terminated string

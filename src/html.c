@@ -9,6 +9,7 @@
 #include "scanners.h"
 #include "syntax_extension.h"
 #include "html.h"
+#include "render.h"
 
 // Functions to convert cmark_nodes to HTML strings.
 

@@ -389,7 +389,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   return child;
 }
 
-void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add) {
+void cmark_manage_extensions_special_characters(cmark_parser *parser, int add) {
   cmark_llist *tmp_ext;
 
   for (tmp_ext = parser->inline_syntax_extensions; tmp_ext; tmp_ext=tmp_ext->next) {

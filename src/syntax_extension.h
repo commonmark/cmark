@@ -3,6 +3,7 @@
 
 #include "cmark.h"
 #include "cmark_extension_api.h"
+#include "config.h"
 
 struct cmark_syntax_extension {
   cmark_match_block_func          last_block_matches;

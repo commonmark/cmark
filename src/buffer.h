@@ -13,8 +13,6 @@
 extern "C" {
 #endif
 
-typedef int32_t bufsize_t;
-
 typedef struct {
   cmark_mem *mem;
   unsigned char *ptr;

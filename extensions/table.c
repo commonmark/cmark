@@ -4,6 +4,7 @@
 #include <parser.h>
 #include <references.h>
 #include <string.h>
+#include <render.h>
 
 #include "ext_scanners.h"
 #include "strikethrough.h"

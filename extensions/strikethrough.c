@@ -1,5 +1,6 @@
 #include "strikethrough.h"
 #include <parser.h>
+#include <render.h>
 
 cmark_node_type CMARK_NODE_STRIKETHROUGH;
 
@@ -150,7 +151,7 @@ cmark_syntax_extension *create_strikethrough_extension(void) {
   special_chars = cmark_llist_append(mem, special_chars, (void *)'~');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
 
-  cmark_syntax_extension_set_emphasis(ext, true);
+  cmark_syntax_extension_set_emphasis(ext, 1);
 
   return ext;
 }

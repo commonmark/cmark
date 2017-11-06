@@ -6,8 +6,10 @@ extern "C" {
 #endif
 
 #include <cmark.h>
-#include <render.h>
-#include <buffer.h>
+
+struct cmark_renderer;
+struct cmark_html_renderer;
+struct cmark_chunk;
 
 /**
  * ## Extension Support
@@ -227,7 +229,7 @@ typedef int (*cmark_contains_inlines_func) (cmark_syntax_extension *extension,
                                             cmark_node *node);
 
 typedef void (*cmark_common_render_func) (cmark_syntax_extension *extension,
-                                          cmark_renderer *renderer,
+                                          struct cmark_renderer *renderer,
                                           cmark_node *node,
                                           cmark_event_type ev_type,
                                           int options);
@@ -237,7 +239,7 @@ typedef int (*cmark_commonmark_escape_func) (cmark_syntax_extension *extension,
                                               int c);
 
 typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
-                                        cmark_html_renderer *renderer,
+                                        struct cmark_html_renderer *renderer,
                                         cmark_node *node,
                                         cmark_event_type ev_type,
                                         int options);
@@ -270,7 +272,7 @@ CMARK_EXPORT
 cmark_node_type cmark_syntax_extension_add_node(int is_inline);
 
 CMARK_EXPORT
-void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension, bool emphasis);
+void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension, int emphasis);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
@@ -614,7 +616,7 @@ void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset);
  * Use cmark_inline_parser_get_offset to get our current position in the chunk.
  */
 CMARK_EXPORT
-cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
+struct cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
 
 /** Returns 1 if the inline parser is currently in a bracket; pass 1 for 'image'
  * if you want to know about an image-type bracket, 0 for link-type. */
@@ -699,7 +701,7 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
                                   int *punct_after);
 
 CMARK_EXPORT
-void cmark_manage_extensions_special_characters(cmark_parser *parser, bool add);
+void cmark_manage_extensions_special_characters(cmark_parser *parser, int add);
 
 CMARK_EXPORT
 cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser);

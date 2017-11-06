@@ -2,6 +2,7 @@
 #define CMARK_CMARK_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include "cmark_export.h"
 #include "cmark_version.h"
 
@@ -772,6 +773,8 @@ const char *cmark_version_string(void);
 #define PERIOD_DELIM CMARK_PERIOD_DELIM
 #define PAREN_DELIM CMARK_PAREN_DELIM
 #endif
+
+typedef int32_t bufsize_t;
 
 #ifdef __cplusplus
 }

@@ -7,6 +7,7 @@ extern "C" {
 
 #include <cmark_extension_api.h>
 #include "cmarkextensions_export.h"
+#include <stdint.h>
 
 CMARKEXTENSIONS_EXPORT
 void core_extensions_ensure_registered(void);
