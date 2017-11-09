@@ -65,8 +65,9 @@ There are also libraries that wrap `libcmark` for
 [Lua](https://github.com/jgm/cmark-lua),
 [Perl](https://metacpan.org/release/CommonMark),
 [Python](https://pypi.python.org/pypi/paka.cmark),
-[R](https://cran.r-project.org/package=commonmark) and
-[Scala](https://github.com/sparsetech/cmark-scala).
+[R](https://cran.r-project.org/package=commonmark),
+[Scala](https://github.com/sparsetech/cmark-scala) and
+[Node.js](https://github.com/killa123/node-cmark).
 
 Installing
 ----------
