@@ -115,6 +115,9 @@ if (CMARK_STATIC)
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
 
+  generate_export_header(${STATICLIBRARY}
+    BASE_NAME ${PROJECT_NAME})
+
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
