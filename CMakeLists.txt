@@ -22,9 +22,13 @@ set(PROJECT_VERSION_PATCH 3)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
-option(CMARK_STATIC "Build static libcmark library" ON)
+option(CMARK_STATIC "Build static libcmark library" OFF)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
+
+if(CMARK_STATIC AND CMARK_SHARED)
+  message(FATAL_ERROR "You cannot build both the shared and static libcmark library at the same time -- they generate different export headers.")
+endif()
 
 add_subdirectory(src)
 if(CMARK_TESTS AND CMARK_SHARED)
