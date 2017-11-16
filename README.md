@@ -1,7 +1,7 @@
 cmark
 =====
 
-[![Build Status]](https://travis-ci.org/jgm/cmark)
+[![Build Status]](https://travis-ci.org/commonmark/cmark)
 [![Windows Build Status]](https://ci.appveyor.com/project/jgm/cmark)
 
 `cmark` is the C reference implementation of [CommonMark], a
@@ -171,7 +171,7 @@ Contributing
 There is a [forum for discussing
 CommonMark](http://talk.commonmark.org); you should use it instead of
 github issues for questions and possibly open-ended discussions.
-Use the [github issue tracker](http://github.com/jgm/CommonMark/issues)
+Use the [github issue tracker](http://github.com/commonmark/CommonMark/issues)
 only for simple, clear, actionable issues.
 
 Authors
@@ -191,8 +191,8 @@ most of the C library's API and its test harness.
 [CommonMark]: http://commonmark.org
 [cmake]: http://www.cmake.org/download/
 [re2c]: http://re2c.org
-[commonmark.js]: https://github.com/jgm/commonmark.js
-[Build Status]: https://img.shields.io/travis/jgm/cmark/master.svg?style=flat
+[commonmark.js]: https://github.com/commonmark/commonmark.js
+[Build Status]: https://img.shields.io/travis/commonmark/cmark/master.svg?style=flat
 [Windows Build Status]: https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true
 [american fuzzy lop]: http://lcamtuf.coredump.cx/afl/
 [libFuzzer]: http://llvm.org/docs/LibFuzzer.html
