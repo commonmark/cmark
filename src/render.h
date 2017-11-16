@@ -28,6 +28,7 @@ struct cmark_renderer {
   void (*cr)(struct cmark_renderer *);
   void (*blankline)(struct cmark_renderer *);
   void (*out)(struct cmark_renderer *, cmark_node *, const char *, bool, cmark_escaping);
+  unsigned int footnote_ix;
 };
 
 typedef struct cmark_renderer cmark_renderer;
@@ -36,6 +37,8 @@ struct cmark_html_renderer {
   cmark_strbuf *html;
   cmark_node *plain;
   cmark_llist *filter_extensions;
+  unsigned int footnote_ix;
+  unsigned int written_footnote_ix;
   void *opaque;
 };
 

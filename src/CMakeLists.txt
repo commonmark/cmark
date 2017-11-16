@@ -15,6 +15,8 @@ set(HEADERS
   iterator.h
   chunk.h
   references.h
+  footnotes.h
+  map.h
   utf8.h
   scanners.h
   inlines.h
@@ -36,6 +38,8 @@ set(LIBRARY_SOURCES
   utf8.c
   buffer.c
   references.c
+  footnotes.c
+  map.c
   render.c
   man.c
   xml.c

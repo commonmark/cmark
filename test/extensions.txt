@@ -579,6 +579,65 @@ Even with {"x":"y"} or 1 > 2 or whatever. Even **markdown**.
 <!--thistoo-->
 ````````````````````````````````
 
+## Footnotes
+
+```````````````````````````````` example
+This is some text.[^1]. Other text.[^footnote].
+
+Here's a thing[^other-note].
+
+And another thing[^codeblock-note].
+
+This doesn't have a referent[^nope].
+
+
+[^other-note]:       no code block here (spaces are stripped away)
+
+[^codeblock-note]:
+        this is now a code block (8 spaces indentation)
+
+[^1]: Some *bolded* footnote definition.
+
+Hi!
+
+[^footnote]:
+    > Blockquotes can be in a footnote.
+
+        as well as code blocks
+
+    or, naturally, simple paragraphs.
+
+[^unused]: This is unused.
+.
+<p>This is some text.<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<p>Here's a thing<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
+<p>And another thing<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>.</p>
+<p>This doesn't have a referent[^nope].</p>
+<p>Hi!</p>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>Some <em>bolded</em> footnote definition. <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<blockquote>
+<p>Blockquotes can be in a footnote.</p>
+</blockquote>
+<pre><code>as well as code blocks
+</code></pre>
+<p>or, naturally, simple paragraphs. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn3">
+<p>no code block here (spaces are stripped away) <a href="#fnref3" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn4">
+<pre><code>this is now a code block (8 spaces indentation)
+</code></pre>
+<a href="#fnref4" class="footnote-backref">↩</a>
+</li>
+</ol>
+</section>
+````````````````````````````````
 
 ## Interop
 

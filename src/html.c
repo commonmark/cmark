@@ -59,6 +59,20 @@ static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size
     cmark_strbuf_put(html, data, (bufsize_t)len);
 }
 
+static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *html) {
+  if (renderer->written_footnote_ix >= renderer->footnote_ix)
+    return false;
+  renderer->written_footnote_ix = renderer->footnote_ix;
+
+  cmark_strbuf_puts(html, "<a href=\"#fnref");
+  char n[32];
+  snprintf(n, sizeof(n), "%d", renderer->footnote_ix);
+  cmark_strbuf_puts(html, n);
+  cmark_strbuf_puts(html, "\" class=\"footnote-backref\">↩</a>");
+
+  return true;
+}
+
 static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   cmark_node *parent;
@@ -249,6 +263,10 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
         cmark_html_render_sourcepos(node, html, options);
         cmark_strbuf_putc(html, '>');
       } else {
+        if (parent->type == CMARK_NODE_FOOTNOTE_DEFINITION && node->next == NULL) {
+          cmark_strbuf_putc(html, ' ');
+          S_put_footnote_backref(renderer, html);
+        }
         cmark_strbuf_puts(html, "</p>\n");
       }
     }
@@ -363,6 +381,37 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    if (entering) {
+      if (renderer->footnote_ix == 0) {
+        cmark_strbuf_puts(html, "<section class=\"footnotes\">\n<ol>\n");
+      }
+      ++renderer->footnote_ix;
+      cmark_strbuf_puts(html, "<li id=\"fn");
+      char n[32];
+      snprintf(n, sizeof(n), "%d", renderer->footnote_ix);
+      cmark_strbuf_puts(html, n);
+      cmark_strbuf_puts(html, "\">\n");
+    } else {
+      if (S_put_footnote_backref(renderer, html)) {
+        cmark_strbuf_putc(html, '\n');
+      }
+      cmark_strbuf_puts(html, "</li>\n");
+    }
+    break;
+
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+    if (entering) {
+      cmark_strbuf_puts(html, "<sup class=\"footnote-ref\"><a href=\"#fn");
+      cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_puts(html, "\" id=\"fnref");
+      cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_puts(html, "\">[");
+      cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_puts(html, "]</a></sup>");
+    }
+    break;
+
   default:
     assert(false);
     break;
@@ -380,7 +429,7 @@ char *cmark_render_html_with_mem(cmark_node *root, int options, cmark_llist *ext
   cmark_strbuf html = CMARK_BUF_INIT(mem);
   cmark_event_type ev_type;
   cmark_node *cur;
-  cmark_html_renderer renderer = {&html, NULL, NULL, NULL};
+  cmark_html_renderer renderer = {&html, NULL, NULL, 0, 0, NULL};
   cmark_iter *iter = cmark_iter_new(root);
 
   for (; extensions; extensions = extensions->next)
@@ -394,6 +443,11 @@ char *cmark_render_html_with_mem(cmark_node *root, int options, cmark_llist *ext
     cur = cmark_iter_get_node(iter);
     S_render_node(&renderer, cur, ev_type, options);
   }
+
+  if (renderer.footnote_ix) {
+    cmark_strbuf_puts(&html, "</ol>\n</section>\n");
+  }
+
   result = (char *)cmark_strbuf_detach(&html);
 
   cmark_llist_free(mem, renderer.filter_extensions);

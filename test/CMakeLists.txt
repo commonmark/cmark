@@ -64,14 +64,19 @@ IF (PYTHONINTERP_FOUND)
     )
 
   add_test(extensions_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm" "--extensions" "table strikethrough autolink tagfilter"
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py"
+    "--no-normalize"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm --footnotes"
+    "--extensions" "table strikethrough autolink tagfilter"
     )
 
   add_test(roundtrip_extensions_executable
     ${PYTHON_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
-    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm --footnotes"
     "--extensions" "table strikethrough autolink tagfilter"
     )
 

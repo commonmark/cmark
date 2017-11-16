@@ -52,6 +52,7 @@ typedef enum {
   CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
   CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
   CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
+  CMARK_NODE_FOOTNOTE_DEFINITION = CMARK_NODE_TYPE_BLOCK | 0x000b,
 
   /* Inline */
   CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
@@ -64,6 +65,7 @@ typedef enum {
   CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
   CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
   CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
+  CMARK_NODE_FOOTNOTE_REFERENCE = CMARK_NODE_TYPE_INLINE | 0x000b,
 } cmark_node_type;
 
 extern cmark_node_type CMARK_NODE_LAST_BLOCK;
@@ -717,6 +719,10 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
 /** Be liberal in interpreting inline HTML tags.
  */
 #define CMARK_OPT_LIBERAL_HTML_TAG (1 << 12)
+
+/** Parse footnotes.
+ */
+#define CMARK_OPT_FOOTNOTES (1 << 13)
 
 /**
  * ## Version information

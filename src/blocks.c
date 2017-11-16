@@ -21,6 +21,7 @@
 #include "inlines.h"
 #include "houdini.h"
 #include "buffer.h"
+#include "footnotes.h"
 
 #define CODE_INDENT 4
 #define TAB_STOP 4
@@ -97,7 +98,7 @@ static void cmark_parser_dispose(cmark_parser *parser) {
     cmark_node_free(parser->root);
 
   if (parser->refmap)
-    cmark_reference_map_free(parser->refmap);
+    cmark_map_free(parser->refmap);
 }
 
 static void cmark_parser_reset(cmark_parser *parser) {
@@ -408,7 +409,7 @@ void cmark_manage_extensions_special_characters(cmark_parser *parser, int add) {
 // Walk through node and all children, recursively, parsing
 // string content into inline content where appropriate.
 static void process_inlines(cmark_parser *parser,
-                            cmark_reference_map *refmap, int options) {
+                            cmark_map *refmap, int options) {
   cmark_iter *iter = cmark_iter_new(parser->root);
   cmark_node *cur;
   cmark_event_type ev_type;
@@ -427,6 +428,84 @@ static void process_inlines(cmark_parser *parser,
   cmark_manage_extensions_special_characters(parser, false);
 
   cmark_iter_free(iter);
+}
+
+static int sort_footnote_by_ix(const void *_a, const void *_b) {
+  cmark_footnote *a = *(cmark_footnote **)_a;
+  cmark_footnote *b = *(cmark_footnote **)_b;
+  return (int)a->ix - (int)b->ix;
+}
+
+static void process_footnotes(cmark_parser *parser) {
+  // * Collect definitions in a map.
+  // * Iterate the references in the document in order, assigning indices to
+  //   definitions in the order they're seen.
+  // * Write out the footnotes at the bottom of the document in index order.
+
+  cmark_map *map = cmark_footnote_map_new(parser->mem);
+
+  cmark_iter *iter = cmark_iter_new(parser->root);
+  cmark_node *cur;
+  cmark_event_type ev_type;
+
+  while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
+    cur = cmark_iter_get_node(iter);
+    if (ev_type == CMARK_EVENT_EXIT && cur->type == CMARK_NODE_FOOTNOTE_DEFINITION) {
+      cmark_node_unlink(cur);
+      cmark_footnote_create(map, cur);
+    }
+  }
+
+  cmark_iter_free(iter);
+  iter = cmark_iter_new(parser->root);
+  unsigned int ix = 0;
+
+  while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
+    cur = cmark_iter_get_node(iter);
+    if (ev_type == CMARK_EVENT_EXIT && cur->type == CMARK_NODE_FOOTNOTE_REFERENCE) {
+      cmark_footnote *footnote = (cmark_footnote *)cmark_map_lookup(map, &cur->as.literal);
+      if (footnote) {
+        if (!footnote->ix)
+          footnote->ix = ++ix;
+
+        char n[32];
+        snprintf(n, sizeof(n), "%d", footnote->ix);
+        cmark_chunk_free(parser->mem, &cur->as.literal);
+        cmark_strbuf buf = CMARK_BUF_INIT(parser->mem);
+        cmark_strbuf_puts(&buf, n);
+
+        cur->as.literal = cmark_chunk_buf_detach(&buf);
+      } else {
+        cmark_node *text = (cmark_node *)parser->mem->calloc(1, sizeof(*text));
+        cmark_strbuf_init(parser->mem, &text->content, 0);
+        text->type = (uint16_t) CMARK_NODE_TEXT;
+
+        cmark_strbuf buf = CMARK_BUF_INIT(parser->mem);
+        cmark_strbuf_puts(&buf, "[^");
+        cmark_strbuf_put(&buf, cur->as.literal.data, cur->as.literal.len);
+        cmark_strbuf_putc(&buf, ']');
+
+        text->as.literal = cmark_chunk_buf_detach(&buf);
+        cmark_node_insert_after(cur, text);
+        cmark_node_free(cur);
+      }
+    }
+  }
+
+  cmark_iter_free(iter);
+
+  if (map->sorted) {
+    qsort(map->sorted, map->size, sizeof(cmark_map_entry *), sort_footnote_by_ix);
+    for (unsigned int i = 0; i < map->size; ++i) {
+      cmark_footnote *footnote = (cmark_footnote *)map->sorted[i];
+      if (!footnote->ix)
+        continue;
+      cmark_node_append_child(parser->root, footnote->node);
+      footnote->node = NULL;
+    }
+  }
+
+  cmark_map_free(map);
 }
 
 // Attempts to parse a list item marker (bullet or enumerated).
@@ -533,6 +612,8 @@ static cmark_node *finalize_document(cmark_parser *parser) {
 
   finalize(parser, parser->root);
   process_inlines(parser, parser->refmap, parser->options);
+  if (parser->options & CMARK_OPT_FOOTNOTES)
+    process_footnotes(parser);
 
   return parser->root;
 }
@@ -759,6 +840,18 @@ static bool parse_block_quote_prefix(cmark_parser *parser, cmark_chunk *input) {
   return res;
 }
 
+static bool parse_footnote_definition_block_prefix(cmark_parser *parser, cmark_chunk *input,
+                                                   cmark_node *container) {
+  if (parser->indent >= 4) {
+    S_advance_offset(parser, input, 4, true);
+    return true;
+  } else if (input->len > 0 && (input->data[0] == '\n' || (input->data[0] == '\r' && input->data[1] == '\n'))) {
+    return true;
+  }
+
+  return false;
+}
+
 static bool parse_node_item_prefix(cmark_parser *parser, cmark_chunk *input,
                                    cmark_node *container) {
   bool res = false;
@@ -913,6 +1006,10 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       if (parser->blank)
         goto done;
       break;
+		case CMARK_NODE_FOOTNOTE_DEFINITION:
+			if (!parse_footnote_definition_block_prefix(parser, input, container))
+				goto done;
+			break;
     default:
       break;
     }
@@ -1024,6 +1121,21 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
+    } else if (!indented &&
+               parser->options & CMARK_OPT_FOOTNOTES &&
+               (matched = scan_footnote_definition(input, parser->first_nonspace))) {
+      cmark_chunk c = cmark_chunk_dup(input, parser->first_nonspace + 2, matched - 2);
+      cmark_chunk_to_cstr(parser->mem, &c);
+
+      while (c.data[c.len - 1] != ']')
+        --c.len;
+      --c.len;
+
+      S_advance_offset(parser, input, parser->first_nonspace + matched - parser->offset, false);
+      *container = add_child(parser, *container, CMARK_NODE_FOOTNOTE_DEFINITION, parser->first_nonspace + matched + 1);
+      (*container)->as.literal = c;
+
+      (*container)->internal_offset = matched;
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,

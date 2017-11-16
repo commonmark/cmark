@@ -1,4 +1,4 @@
-.TH cmark-gfm 3 "April 03, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "November 09, 2017" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -40,6 +40,7 @@ typedef enum {
   CMARK_NODE_PARAGRAPH      = CMARK_NODE_TYPE_BLOCK | 0x0008,
   CMARK_NODE_HEADING        = CMARK_NODE_TYPE_BLOCK | 0x0009,
   CMARK_NODE_THEMATIC_BREAK = CMARK_NODE_TYPE_BLOCK | 0x000a,
+  CMARK_NODE_FOOTNOTE_DEFINITION = CMARK_NODE_TYPE_BLOCK | 0x000b,
 
   /* Inline */
   CMARK_NODE_TEXT          = CMARK_NODE_TYPE_INLINE | 0x0001,
@@ -52,6 +53,7 @@ typedef enum {
   CMARK_NODE_STRONG        = CMARK_NODE_TYPE_INLINE | 0x0008,
   CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
   CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
+  CMARK_NODE_FOOTNOTE_REFERENCE = CMARK_NODE_TYPE_INLINE | 0x000b,
 } cmark_node_type;
 .RE
 \f[]
@@ -781,6 +783,20 @@ As for \f[I]cmark_render_commonmark\f[], but specifying the allocator to
 use for the resulting string.
 
 .PP
+\fIchar *\f[] \fBcmark_render_plaintext\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
+
+.PP
+Render a \f[I]node\f[] tree as a plain text document. It is the caller's
+responsibility to free the returned buffer.
+
+.PP
+\fIchar *\f[] \fBcmark_render_plaintext_with_mem\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[], \fIcmark_mem *mem\f[])
+
+.PP
+As for \f[I]cmark_render_plaintext\f[], but specifying the allocator to
+use for the resulting string.
+
+.PP
 \fIchar *\f[] \fBcmark_render_latex\f[](\fIcmark_node *root\f[], \fIint options\f[], \fIint width\f[])
 
 .PP
@@ -916,6 +932,30 @@ dashes.
 
 .PP
 Use GitHub\-style  tags for code blocks instead of .
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_LIBERAL_HTML_TAG (1 << 12)
+.RE
+\f[]
+.fi
+
+.PP
+Be liberal in interpreting inline HTML tags.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_FOOTNOTES (1 << 13)
+.RE
+\f[]
+.fi
+
+.PP
+Parse footnotes.
 
 .SS
 Version information

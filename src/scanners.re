@@ -329,3 +329,13 @@ bufsize_t _scan_dangerous_url(const unsigned char *p)
 */
 }
 
+// Scans a footnote definition opening.
+bufsize_t _scan_footnote_definition(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  '[^' ([^\] \r\n\x00\t]+) ']:' [ \t]* { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
