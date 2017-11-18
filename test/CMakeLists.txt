@@ -9,7 +9,7 @@ else(SPEC_TESTS)
   find_package(PythonInterp 3)
 endif(SPEC_TESTS)
 
-if (CMARK_SHARED)
+if (CMARK_SHARED OR CMARK_STATIC)
   add_test(NAME api_test COMMAND api_test)
 endif()
 
