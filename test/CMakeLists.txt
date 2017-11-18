@@ -41,14 +41,14 @@ IF (PYTHONINTERP_FOUND)
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
 
-    add_test(roundtriptest_executable
+    add_test(roundtriptest_library
       ${PYTHON_EXECUTABLE}
       "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
       "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
 
-    add_test(entity_executable
+    add_test(entity_library
       ${PYTHON_EXECUTABLE}
       "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
