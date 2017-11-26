@@ -176,11 +176,15 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
 
 static CMARK_INLINE int isbacktick(int c) { return (c == '`'); }
 
-static CMARK_INLINE unsigned char peek_char(subject *subj) {
+static CMARK_INLINE unsigned char peek_char_n(subject *subj, bufsize_t n) {
   // NULL bytes should have been stripped out by now.  If they're
   // present, it's a programming error:
-  assert(!(subj->pos < subj->input.len && subj->input.data[subj->pos] == 0));
-  return (subj->pos < subj->input.len) ? subj->input.data[subj->pos] : 0;
+  assert(!(subj->pos + n < subj->input.len && subj->input.data[subj->pos + n] == 0));
+  return (subj->pos + n < subj->input.len) ? subj->input.data[subj->pos + n] : 0;
+}
+
+static CMARK_INLINE unsigned char peek_char(subject *subj) {
+  return peek_char_n(subj, 0);
 }
 
 static CMARK_INLINE unsigned char peek_at(subject *subj, bufsize_t pos) {
@@ -1303,7 +1307,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     break;
   case '!':
     advance(subj);
-    if (peek_char(subj) == '[') {
+    if (peek_char(subj) == '[' && peek_char_n(subj, 1) != '^') {
       advance(subj);
       new_inl = make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_literal("!["));
       push_bracket(subj, true, new_inl);
