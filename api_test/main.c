@@ -1015,7 +1015,7 @@ static void source_pos(test_batch_runner *runner) {
                       "    <text sourcepos=\"1:13-1:13\">.</text>\n"
                       "  </heading>\n"
                       "  <paragraph sourcepos=\"3:1-4:42\">\n"
-                      "    <text sourcepos=\"3:1-3:14\">Hello “ </text>\n"
+                      "    <text sourcepos=\"3:1-3:14\">Hello \xe2\x80\x9c </text>\n"
                       "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
                       "      <text sourcepos=\"3:16-3:36\">http://www.google.com</text>\n"
                       "    </link>\n"
