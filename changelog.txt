@@ -1,3 +1,7 @@
+[0.28.3.gfm.12]
+
+  * Various security and bug fixes.
+
 [0.28.3]
 
   * Include GNUInstallDirs in src/CMakeLists.txt (Nick Wellnhofer, #240).
