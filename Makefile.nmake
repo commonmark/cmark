@@ -16,6 +16,8 @@ $(BUILDDIR)/CMakeFiles:
 	    -G "$(GENERATOR)" \
 	    -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) \
 	    -D CMAKE_INSTALL_PREFIX=$(INSTALLDIR) \
+	    -D CMARK_STATIC=ON \
+	    -D CMARK_SHARED=OFF \
 	    .. && \
 	cd ..
 
