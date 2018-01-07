@@ -9,7 +9,11 @@ include_directories(
   ${PROJECT_BINARY_DIR}/src
   ${PROJECT_BINARY_DIR}/extensions
 )
-target_link_libraries(api_test libcmark-gfmextensions libcmark-gfm)
+if(CMARK_SHARED)
+  target_link_libraries(api_test libcmark-gfmextensions libcmark-gfm)
+else()
+  target_link_libraries(api_test libcmark-gfmextensions_static libcmark-gfm_static)
+endif()
 
 # Compiler flags
 if(MSVC)

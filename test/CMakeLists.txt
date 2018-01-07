@@ -9,7 +9,7 @@ else(SPEC_TESTS)
   find_package(PythonInterp 3)
 endif(SPEC_TESTS)
 
-if (CMARK_SHARED)
+if (CMARK_SHARED OR CMARK_STATIC)
   add_test(NAME api_test COMMAND api_test)
 endif()
 
@@ -50,7 +50,8 @@ IF (PYTHONINTERP_FOUND)
       )
 
     add_test(entity_library
-      ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
+      ${PYTHON_EXECUTABLE}
+      "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
       "--library-dir" "${CMAKE_CURRENT_BINARY_DIR}/../src"
       )
   endif()

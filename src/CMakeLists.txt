@@ -77,7 +77,11 @@ include (GenerateExportHeader)
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
-target_link_libraries(${PROGRAM} libcmark-gfmextensions_static libcmark-gfm_static)
+if(CMARK_SHARED)
+  target_link_libraries(${PROGRAM} libcmark-gfmextensions libcmark-gfm)
+elseif(CMARK_STATIC)
+  target_link_libraries(${PROGRAM} libcmark-gfmextensions_static libcmark-gfm_static)
+endif()
 
 # Disable the PUBLIC declarations when compiling the executable:
 set_target_properties(${PROGRAM} PROPERTIES
@@ -134,6 +138,11 @@ if (CMARK_STATIC)
       OUTPUT_NAME "cmark-gfm"
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
+
+  if (NOT CMARK_SHARED)
+    generate_export_header(${STATICLIBRARY}
+      BASE_NAME ${PROJECT_NAME})
+  endif()
 
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
