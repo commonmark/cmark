@@ -1,4 +1,4 @@
-.TH cmark-gfm 3 "November 09, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "January 25, 2018" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -956,6 +956,19 @@ Be liberal in interpreting inline HTML tags.
 
 .PP
 Parse footnotes.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE (1 << 14)
+.RE
+\f[]
+.fi
+
+.PP
+Only parse strikethroughs if surrounded by exactly 2 tildes. Gives some
+compatibility with redcarpet.
 
 .SS
 Version information

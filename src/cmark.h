@@ -724,6 +724,11 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_FOOTNOTES (1 << 13)
 
+/** Only parse strikethroughs if surrounded by exactly 2 tildes.
+ * Gives some compatibility with redcarpet.
+ */
+#define CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE (1 << 14)
+
 /**
  * ## Version information
  */

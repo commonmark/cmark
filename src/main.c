@@ -44,6 +44,8 @@ void print_usage() {
   printf("  --footnotes      Parse footnotes\n");
   printf("  --extension, -e EXTENSION_NAME Specify an extension name to use\n");
   printf("  --list-extensions              List available extensions and quit\n");
+  printf("  --strikethrough-double-tilde   Only parse strikethrough (if enabled)\n");
+  printf("                                 with two tildes\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -129,6 +131,8 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[i], "--list-extensions") == 0) {
       print_extensions();
       goto success;
+    } else if (strcmp(argv[i], "--strikethrough-double-tilde") == 0) {
+      options |= CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE;
     } else if (strcmp(argv[i], "--sourcepos") == 0) {
       options |= CMARK_OPT_SOURCEPOS;
     } else if (strcmp(argv[i], "--hardbreaks") == 0) {
