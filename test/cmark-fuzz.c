@@ -4,7 +4,7 @@
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   int options = 0;
-  if (size > sizeof(options)) {
+  if (size >= sizeof(options)) {
     /* First 4 bytes of input are treated as options */
     int options = *(const int *)data;
 
