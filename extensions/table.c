@@ -542,6 +542,18 @@ static void man_render(cmark_syntax_extension *extension,
   }
 }
 
+static void html_table_add_align(cmark_strbuf* html, const char* align, int options) {
+  if (options & CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES) {
+    cmark_strbuf_puts(html, " style=\"text-align: ");
+    cmark_strbuf_puts(html, align);
+    cmark_strbuf_puts(html, "\"");
+  } else {
+    cmark_strbuf_puts(html, " align=\"");
+    cmark_strbuf_puts(html, align);
+    cmark_strbuf_puts(html, "\"");
+  }
+}
+
 struct html_table_state {
   unsigned need_closing_table_body : 1;
   unsigned in_table_header : 1;
@@ -611,9 +623,9 @@ static void html_render(cmark_syntax_extension *extension,
           break;
 
       switch (alignments[i]) {
-      case 'l': cmark_strbuf_puts(html, " align=\"left\""); break;
-      case 'c': cmark_strbuf_puts(html, " align=\"center\""); break;
-      case 'r': cmark_strbuf_puts(html, " align=\"right\""); break;
+      case 'l': html_table_add_align(html, "left", options); break;
+      case 'c': html_table_add_align(html, "center", options); break;
+      case 'r': html_table_add_align(html, "right", options); break;
       }
 
       cmark_html_render_sourcepos(node, html, options);

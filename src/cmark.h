@@ -729,6 +729,10 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE (1 << 14)
 
+/** Use style attributes to align table cells instead of align attributes.
+ */
+#define CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES (1 << 15)
+
 /**
  * ## Version information
  */

@@ -1,4 +1,4 @@
-.TH cmark-gfm 3 "January 25, 2018" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "February 20, 2018" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -969,6 +969,18 @@ Parse footnotes.
 .PP
 Only parse strikethroughs if surrounded by exactly 2 tildes. Gives some
 compatibility with redcarpet.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES (1 << 15)
+.RE
+\f[]
+.fi
+
+.PP
+Use style attributes to align table cells instead of align attributes.
 
 .SS
 Version information
