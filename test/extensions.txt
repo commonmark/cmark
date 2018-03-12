@@ -609,9 +609,9 @@ Hi!
 
 [^unused]: This is unused.
 .
-<p>This is some text!<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
-<p>Here's a thing<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
-<p>And another thing<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>.</p>
+<p>This is some text!<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup>.</p>
+<p>Here's a thing<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup>.</p>
+<p>And another thing<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup>.</p>
 <p>This doesn't have a referent[^nope].</p>
 <p>Hi!</p>
 <section class="footnotes">
