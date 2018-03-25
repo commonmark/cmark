@@ -527,7 +527,7 @@ Markdown document.
 
 A line consisting of 0-3 spaces of indentation, followed by a sequence
 of three or more matching `-`, `_`, or `*` characters, each followed
-optionally by any number of spaces, forms a
+optionally by any number of spaces or tabs, forms a
 [thematic break](@).
 
 ```````````````````````````````` example
@@ -1584,7 +1584,7 @@ begins with a code fence, indented no more than three spaces.
 
 The line with the opening code fence may optionally contain some text
 following the code fence; this is trimmed of leading and trailing
-spaces and called the [info string](@).
+whitespace and called the [info string](@).
 The [info string] may not contain any backtick
 characters.  (The reason for this restriction is that otherwise
 some inline code would be incorrectly interpreted as the
@@ -2069,7 +2069,7 @@ _world_.
 </td></tr></table>
 ````````````````````````````````
 
-In this case, the HTML block is terminated by the newline — the `**hello**`
+In this case, the HTML block is terminated by the newline — the `**Hello**`
 text remains verbatim — and regular parsing resumes, with a paragraph,
 emphasised `world` and inline and block HTML following.
 
@@ -5049,11 +5049,9 @@ item:
  - b
   - c
    - d
-    - e
-   - f
-  - g
- - h
-- i
+  - e
+ - f
+- g
 .
 <ul>
 <li>a</li>
@@ -5063,11 +5061,53 @@ item:
 <li>e</li>
 <li>f</li>
 <li>g</li>
-<li>h</li>
-<li>i</li>
 </ul>
 ````````````````````````````````
 
+
+```````````````````````````````` example
+1. a
+
+  2. b
+
+   3. c
+.
+<ol>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+<li>
+<p>c</p>
+</li>
+</ol>
+````````````````````````````````
+
+Note, however, that list items may not be indented more than
+three spaces.  Here `- e` is treated as a paragraph continuation
+line, because it is indented more than three spaces:
+
+```````````````````````````````` example
+- a
+ - b
+  - c
+   - d
+    - e
+.
+<ul>
+<li>a</li>
+<li>b</li>
+<li>c</li>
+<li>d
+- e</li>
+</ul>
+````````````````````````````````
+
+And here, `3. c` is treated as in indented code block,
+because it is indented four spaces and preceded by a
+blank line.
 
 ```````````````````````````````` example
 1. a
@@ -5083,10 +5123,9 @@ item:
 <li>
 <p>b</p>
 </li>
-<li>
-<p>c</p>
-</li>
 </ol>
+<pre><code>3. c
+</code></pre>
 ````````````````````````````````
 
 
@@ -8624,7 +8663,7 @@ a [single-quoted attribute value], or a [double-quoted attribute value].
 
 An [unquoted attribute value](@)
 is a nonempty string of characters not
-including spaces, `"`, `'`, `=`, `<`, `>`, or `` ` ``.
+including [whitespace], `"`, `'`, `=`, `<`, `>`, or `` ` ``.
 
 A [single-quoted attribute value](@)
 consists of `'`, zero or more
@@ -8745,9 +8784,13 @@ Illegal [whitespace]:
 ```````````````````````````````` example
 < a><
 foo><bar/ >
+<foo bar=baz
+bim!bop />
 .
 <p>&lt; a&gt;&lt;
-foo&gt;&lt;bar/ &gt;</p>
+foo&gt;&lt;bar/ &gt;
+&lt;foo bar=baz
+bim!bop /&gt;</p>
 ````````````````````````````````
 
 
