@@ -2612,7 +2612,8 @@ bar
 
 
 However, a following blank line is needed, except at the end of
-a document, and except for blocks of types 1--5, above:
+a document, and except for blocks of types 1--5, [above][HTML
+block]:
 
 ```````````````````````````````` example
 <div>
@@ -2758,8 +2759,8 @@ an indented code block:
 
 Fortunately, blank lines are usually not necessary and can be
 deleted.  The exception is inside `<pre>` tags, but as described
-above, raw HTML blocks starting with `<pre>` *can* contain blank
-lines.
+[above][HTML blocks], raw HTML blocks starting with `<pre>`
+*can* contain blank lines.
 
 ## Link reference definitions
 
@@ -2811,7 +2812,7 @@ them.
 
 ```````````````````````````````` example
 [Foo bar]:
-<my%20url>
+<my url>
 'title'
 
 [Foo bar]
@@ -4458,9 +4459,10 @@ continued here.</p>
 6.  **That's all.** Nothing that is not counted as a list item by rules
     #1--5 counts as a [list item](#list-items).
 
-The rules for sublists follow from the general rules above.  A sublist
-must be indented the same number of spaces a paragraph would need to be
-in order to be included in the list item.
+The rules for sublists follow from the general rules
+[above][List items].  A sublist must be indented the same number
+of spaces a paragraph would need to be in order to be included
+in the list item.
 
 So, in this case we need two spaces indent:
 
@@ -5587,22 +5589,22 @@ references and their corresponding code points.
 
 [Decimal numeric character
 references](@)
-consist of `&#` + a string of 1--8 arabic digits + `;`. A
+consist of `&#` + a string of 1--7 arabic digits + `;`. A
 numeric character reference is parsed as the corresponding
 Unicode character. Invalid Unicode code points will be replaced by
 the REPLACEMENT CHARACTER (`U+FFFD`).  For security reasons,
 the code point `U+0000` will also be replaced by `U+FFFD`.
 
 ```````````````````````````````` example
-&#35; &#1234; &#992; &#98765432; &#0;
+&#35; &#1234; &#992; &#0;
 .
-<p># Ӓ Ϡ � �</p>
+<p># Ӓ Ϡ �</p>
 ````````````````````````````````
 
 
 [Hexadecimal numeric character
 references](@) consist of `&#` +
-either `X` or `x` + a string of 1-8 hexadecimal digits + `;`.
+either `X` or `x` + a string of 1-6 hexadecimal digits + `;`.
 They too are parsed as the corresponding Unicode character (this
 time specified with a hexadecimal numeral instead of decimal).
 
@@ -5617,9 +5619,13 @@ Here are some nonentities:
 
 ```````````````````````````````` example
 &nbsp &x; &#; &#x;
+&#987654321;
+&#abcdef0;
 &ThisIsNotDefined; &hi?;
 .
 <p>&amp;nbsp &amp;x; &amp;#; &amp;#x;
+&amp;#987654321;
+&amp;#abcdef0;
 &amp;ThisIsNotDefined; &amp;hi?;</p>
 ````````````````````````````````
 
@@ -6675,6 +6681,17 @@ cannot form emphasis if the sum of the lengths of
 the delimiter runs containing the opening and
 closing delimiters is a multiple of 3.
 
+
+For the same reason, we don't get two consecutive
+emphasis sections in this example:
+
+```````````````````````````````` example
+*foo**bar*
+.
+<p><em>foo**bar</em></p>
+````````````````````````````````
+
+
 The same condition ensures that the following
 cases are all strong emphasis nested inside
 emphasis, even when the interior spaces are
@@ -7237,7 +7254,7 @@ following rules apply:
 A [link destination](@) consists of either
 
 - a sequence of zero or more characters between an opening `<` and a
-  closing `>` that contains no spaces, line breaks, or unescaped
+  closing `>` that contains no line breaks or unescaped
   `<` or `>` characters, or
 
 - a nonempty sequence of characters that does not include
@@ -7308,9 +7325,8 @@ Both the title and the destination may be omitted:
 <p><a href="">link</a></p>
 ````````````````````````````````
 
-
-The destination cannot contain spaces or line breaks,
-even if enclosed in pointy brackets:
+The destination can only contain spaces if it is
+enclosed in pointy brackets:
 
 ```````````````````````````````` example
 [link](/my uri)
@@ -7318,13 +7334,14 @@ even if enclosed in pointy brackets:
 <p>[link](/my uri)</p>
 ````````````````````````````````
 
-
 ```````````````````````````````` example
 [link](</my uri>)
 .
-<p>[link](&lt;/my uri&gt;)</p>
+<p><a href="/my%20uri">link</a></p>
 ````````````````````````````````
 
+The destination cannot contain line breaks,
+even if enclosed in pointy brackets:
 
 ```````````````````````````````` example
 [link](foo
@@ -7333,7 +7350,6 @@ bar)
 <p>[link](foo
 bar)</p>
 ````````````````````````````````
-
 
 ```````````````````````````````` example
 [link](<foo
