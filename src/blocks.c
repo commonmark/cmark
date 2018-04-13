@@ -1137,6 +1137,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       (*container)->internal_offset = matched;
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
+	       parser->indent < 4 &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
                     (*container)->type == CMARK_NODE_PARAGRAPH, &data))) {

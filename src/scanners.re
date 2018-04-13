@@ -41,7 +41,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 
   attributename = [a-zA-Z_:][a-zA-Z0-9:._-]*;
 
-  unquotedvalue = [^"'=<>`\x00]+;
+  unquotedvalue = [^ \t\r\n\v\f"'=<>`\x00]+;
   singlequotedvalue = ['][^'\x00]*['];
   doublequotedvalue = ["][^"\x00]*["];
 
@@ -310,7 +310,7 @@ bufsize_t _scan_entity(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [&] ([#] ([Xx][A-Fa-f0-9]{1,8}|[0-9]{1,8}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
+  [&] ([#] ([Xx][A-Fa-f0-9]{1,6}|[0-9]{1,7}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
      { return (bufsize_t)(p - start); }
   * { return 0; }
 */
