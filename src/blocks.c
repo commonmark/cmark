@@ -615,22 +615,24 @@ static void S_find_first_nonspace(cmark_parser *parser, cmark_chunk *input) {
   char c;
   int chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
 
-  parser->first_nonspace = parser->offset;
-  parser->first_nonspace_column = parser->column;
-  while ((c = peek_at(input, parser->first_nonspace))) {
-    if (c == ' ') {
-      parser->first_nonspace += 1;
-      parser->first_nonspace_column += 1;
-      chars_to_tab = chars_to_tab - 1;
-      if (chars_to_tab == 0) {
+  if (parser->first_nonspace <= parser->offset) {
+    parser->first_nonspace = parser->offset;
+    parser->first_nonspace_column = parser->column;
+    while ((c = peek_at(input, parser->first_nonspace))) {
+      if (c == ' ') {
+        parser->first_nonspace += 1;
+        parser->first_nonspace_column += 1;
+        chars_to_tab = chars_to_tab - 1;
+        if (chars_to_tab == 0) {
+          chars_to_tab = TAB_STOP;
+        }
+      } else if (c == '\t') {
+        parser->first_nonspace += 1;
+        parser->first_nonspace_column += chars_to_tab;
         chars_to_tab = TAB_STOP;
+      } else {
+        break;
       }
-    } else if (c == '\t') {
-      parser->first_nonspace += 1;
-      parser->first_nonspace_column += chars_to_tab;
-      chars_to_tab = TAB_STOP;
-    } else {
-      break;
     }
   }
 
@@ -1160,6 +1162,9 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->offset = 0;
   parser->column = 0;
+  parser->first_nonspace = 0;
+  parser->first_nonspace_column = 0;
+  parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;
 
