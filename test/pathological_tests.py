@@ -57,6 +57,9 @@ pathological = {
     "nested block quotes":
                  ((("> " * 50000) + "a"),
                   re.compile("(<blockquote>\n){50000}")),
+    "deeply nested lists":
+                 ("".join(map(lambda x: ("  " * x + "* a\n"), range(0,1000))),
+                  re.compile("<ul>\n(<li>a\n<ul>\n){999}<li>a</li>\n</ul>\n(</li>\n</ul>\n){999}")),
     "U+0000 in input":
                  ("abc\u0000de\u0000",
                   re.compile("abc\ufffd?de\ufffd?")),
