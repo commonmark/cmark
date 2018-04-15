@@ -64,17 +64,17 @@ pathological = {
                  ("abc\u0000de\u0000",
                   re.compile("abc\ufffd?de\ufffd?")),
     "backticks":
-                 ("".join(map(lambda x: ("e" + "`" * x), range(1,10000))),
+                 ("".join(map(lambda x: ("e" + "`" * x), range(1,5000))),
                   re.compile("^<p>[e`]*</p>\n$")),
     "unclosed links A":
-                 ("[a](<b" * 50000,
-                  re.compile("(\[a\]\(&lt;b){50000}")),
+                 ("[a](<b" * 30000,
+                  re.compile("(\[a\]\(&lt;b){30000}")),
     "unclosed links B":
-                 ("[a](b" * 50000,
-                  re.compile("(\[a\]\(b){50000}")),
-    "many references":
-                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,50000 * 16))) + "[0] " * 50000,
-                  re.compile("(\[0\] ){49999}"))
+                 ("[a](b" * 30000,
+                  re.compile("(\[a\]\(b){30000}")),
+#    "many references":
+#                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
+#                  re.compile("(\[0\] ){4999}"))
     }
 
 whitespace_re = re.compile('/s+/')
