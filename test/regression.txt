@@ -92,7 +92,6 @@ Issue #192 - escaped spaces in link destination
 .
 <p>[a](te\ st)</p>
 ````````````````````````````````
-
 Issue github/github#76615:  multiple delimiter combinations gets sketchy
 
 
@@ -125,4 +124,18 @@ ___this___
 <p><strong><em>this</em></strong><br />
 <em><strong>this</strong></em><br />
 <em><strong>this</strong></em></p>
+````````````````````````````````
+
+Issue #527 - meta tags in inline contexts
+
+```````````````````````````````` example
+City:
+<span itemprop="contentLocation" itemscope itemtype="https://schema.org/City">
+  <meta itemprop="name" content="Springfield">
+</span>
+.
+<p>City:
+<span itemprop="contentLocation" itemscope itemtype="https://schema.org/City">
+  <meta itemprop="name" content="Springfield">
+</span></p>
 ````````````````````````````````
