@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <cmark_extension_api.h>
+#include "cmark_extension_api.h"
 #include "cmarkextensions_export.h"
 #include <stdint.h>
 
