@@ -1,0 +1,19 @@
+Source: cmark-gfm
+Build-Depends: cmake, debhelper (>= 9)
+Homepage: https://github.com/github/cmark
+Maintainer: Joachim Nilsson <joachim.nilsson@westermo.se>
+Priority: optional
+Section: text
+Standards-Version: 3.9.8
+
+Package: cmark-gfm
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: CommonMark parsing and rendering program, GitHub flavor
+ cmark is the C reference implementation of CommonMark, a rationalized
+ version of Markdown syntax with a spec.  This package provides a
+ command-line program (cmark) for parsing and rendering CommonMark
+ documents.
+ .
+ This is the GitHub flavored Markdown with extensions for org-mode style
+ tables, auto-linking, and more.
