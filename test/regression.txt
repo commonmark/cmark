@@ -139,3 +139,18 @@ City:
 <meta itemprop="name" content="Springfield">
 </span></p>
 ````````````````````````````````
+
+Issue kivikakk/comrak#80 - link parsing cases
+
+```````````````````````````````` example
+[a](\ b)
+
+[a](<<b)
+
+[a](<b
+)
+.
+<p>[a](\ b)</p>
+<p><a href="%3C%3Cb">a</a></p>
+<p><a href="%3Cb">a</a></p>
+````````````````````````````````
