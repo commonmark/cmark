@@ -7495,25 +7495,16 @@ __a<http://foo.bar/?q=__>
 GFM enables the `strikethrough` extension, where an additional emphasis type is
 available.
 
-Strikethrough text is any text wrapped in tildes (`~`).
+Strikethrough text is any text wrapped in two tildes (`~`).
 
 ```````````````````````````````` example strikethrough
-~Hi~ Hello, world!
+~~Hi~~ Hello, world!
 .
 <p><del>Hi</del> Hello, world!</p>
 ````````````````````````````````
 
-Any number of tildes may be used on either side of the text; they do not need
-to match, and they cannot be nested.
-
-```````````````````````````````` example strikethrough
-This ~text~~~~ is ~~~~curious~.
-.
-<p>This <del>text</del> is <del>curious</del>.</p>
-````````````````````````````````
-
-As with regular emphasis delimiters, a new paragraph will cause the cessation
-of parsing a strikethrough:
+As with regular emphasis delimiters, a new paragraph will cause strikethrough
+parsing to cease:
 
 ```````````````````````````````` example strikethrough
 This ~~has a
