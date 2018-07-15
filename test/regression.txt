@@ -92,6 +92,7 @@ Issue #192 - escaped spaces in link destination
 .
 <p>[a](te\ st)</p>
 ````````````````````````````````
+
 Issue github/github#76615:  multiple delimiter combinations gets sketchy
 
 
@@ -153,4 +154,18 @@ Issue kivikakk/comrak#80 - link parsing cases
 <p>[a](\ b)</p>
 <p><a href="%3C%3Cb">a</a></p>
 <p><a href="%3Cb">a</a></p>
+````````````````````````````````
+
+cmark-gfm strikethrough rules
+
+```````````````````````````````` example strikethrough
+~Hi~ Hello, world!
+.
+<p><del>Hi</del> Hello, world!</p>
+````````````````````````````````
+
+```````````````````````````````` example strikethrough
+This ~text~~~~ is ~~~~curious~.
+.
+<p>This <del>text</del> is <del>curious</del>.</p>
 ````````````````````````````````
