@@ -89,6 +89,13 @@ IF (PYTHONINTERP_FOUND)
     "--extensions" "table strikethrough autolink tagfilter"
     )
 
+  add_test(option_full_info_string
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions-full-info-string.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm --full-info-string"
+    )
+
   add_test(regressiontest_executable
     ${PYTHON_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec"

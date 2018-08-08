@@ -733,6 +733,11 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES (1 << 15)
 
+/** Include the remainder of the info string in code blocks in
+ * a separate attribute.
+ */
+#define CMARK_OPT_FULL_INFO_STRING (1 << 16)
+
 /**
  * ## Version information
  */

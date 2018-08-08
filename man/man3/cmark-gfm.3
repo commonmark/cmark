@@ -1,4 +1,4 @@
-.TH cmark-gfm 3 "February 20, 2018" "LOCAL" "Library Functions Manual"
+.TH cmark-gfm 3 "August 08, 2018" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -981,6 +981,19 @@ compatibility with redcarpet.
 
 .PP
 Use style attributes to align table cells instead of align attributes.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_FULL_INFO_STRING (1 << 16)
+.RE
+\f[]
+.fi
+
+.PP
+Include the remainder of the info string in code blocks in a separate
+attribute.
 
 .SS
 Version information

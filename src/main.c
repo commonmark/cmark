@@ -31,23 +31,25 @@ typedef enum {
 void print_usage() {
   printf("Usage:   cmark-gfm [FILE*]\n");
   printf("Options:\n");
-  printf("  --to, -t FORMAT  Specify output format (html, xml, man, "
+  printf("  --to, -t FORMAT   Specify output format (html, xml, man, "
          "commonmark, plaintext, latex)\n");
-  printf("  --width WIDTH    Specify wrap width (default 0 = nowrap)\n");
-  printf("  --sourcepos      Include source position attribute\n");
-  printf("  --hardbreaks     Treat newlines as hard line breaks\n");
-  printf("  --nobreaks       Render soft line breaks as spaces\n");
-  printf("  --safe           Suppress raw HTML and dangerous URLs\n");
-  printf("  --smart          Use smart punctuation\n");
-  printf("  --validate-utf8  Replace UTF-8 invalid sequences with U+FFFD\n");
+  printf("  --width WIDTH     Specify wrap width (default 0 = nowrap)\n");
+  printf("  --sourcepos       Include source position attribute\n");
+  printf("  --hardbreaks      Treat newlines as hard line breaks\n");
+  printf("  --nobreaks        Render soft line breaks as spaces\n");
+  printf("  --safe            Suppress raw HTML and dangerous URLs\n");
+  printf("  --smart           Use smart punctuation\n");
+  printf("  --validate-utf8   Replace UTF-8 invalid sequences with U+FFFD\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
-  printf("  --footnotes      Parse footnotes\n");
-  printf("  --extension, -e EXTENSION_NAME Specify an extension name to use\n");
-  printf("  --list-extensions              List available extensions and quit\n");
-  printf("  --strikethrough-double-tilde   Only parse strikethrough (if enabled)\n");
-  printf("                                 with two tildes\n");
+  printf("  --footnotes       Parse footnotes\n");
+  printf("  --extension, -e EXTENSION_NAME  Specify an extension name to use\n");
+  printf("  --list-extensions               List available extensions and quit\n");
+  printf("  --strikethrough-double-tilde    Only parse strikethrough (if enabled)\n");
+  printf("                                  with two tildes\n");
   printf("  --table-prefer-style-attributes Use style attributes to align table cells\n"
          "                                  instead of align attributes.\n");
+  printf("  --full-info-string              Include remainder of code block info\n"
+         "                                  string in a separate attribute.\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -133,6 +135,8 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[i], "--list-extensions") == 0) {
       print_extensions();
       goto success;
+    } else if (strcmp(argv[i], "--full-info-string") == 0) {
+      options |= CMARK_OPT_FULL_INFO_STRING;
     } else if (strcmp(argv[i], "--table-prefer-style-attributes") == 0) {
       options |= CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES;
     } else if (strcmp(argv[i], "--strikethrough-double-tilde") == 0) {
