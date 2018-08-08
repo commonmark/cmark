@@ -1,3 +1,14 @@
+[0.28.3.gfm.13]
+
+  * Footnote rendering bugfix (Michael Camilleri, #90).
+  * Debian packaging (Joachim Nilsson, #97).
+  * Add CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE for redcarpet compatibility.
+  * Add CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES (FUJI Goro, #86, #87).
+  * Fix pathological nested list parsing (Phil Turnbull, #95).
+  * Expose more of the extension APIs (Minghao Liu, #96).
+  * Add python example which uses extensions (Greg Stein, #102).
+  * Add CMARK_OPT_FULL_INFO_STRING (Mike Kavouras, #103).
+
 [0.28.3.gfm.12]
 
   * Various security and bug fixes.
