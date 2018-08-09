@@ -133,6 +133,12 @@ static void html_render(cmark_syntax_extension *extension,
   }
 }
 
+static void plaintext_render(cmark_syntax_extension *extension,
+                             cmark_renderer *renderer, cmark_node *node,
+                             cmark_event_type ev_type, int options) {
+  renderer->out(renderer, node, "~", false, LITERAL);
+}
+
 cmark_syntax_extension *create_strikethrough_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("strikethrough");
   cmark_llist *special_chars = NULL;
@@ -143,6 +149,7 @@ cmark_syntax_extension *create_strikethrough_extension(void) {
   cmark_syntax_extension_set_latex_render_func(ext, latex_render);
   cmark_syntax_extension_set_man_render_func(ext, man_render);
   cmark_syntax_extension_set_html_render_func(ext, html_render);
+  cmark_syntax_extension_set_plaintext_render_func(ext, plaintext_render);
   CMARK_NODE_STRIKETHROUGH = cmark_syntax_extension_add_node(1);
 
   cmark_syntax_extension_set_match_inline_func(ext, match);
