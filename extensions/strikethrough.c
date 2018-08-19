@@ -51,7 +51,6 @@ static delimiter *insert(cmark_syntax_extension *self, cmark_parser *parser,
 
   cmark_node_set_syntax_extension(strikethrough, self);
 
-  cmark_node_set_string_content(strikethrough, "~");
   tmp = cmark_node_next(opener->inl_text);
 
   while (tmp) {
@@ -94,7 +93,7 @@ static int can_contain(cmark_syntax_extension *extension, cmark_node *node,
 static void commonmark_render(cmark_syntax_extension *extension,
                               cmark_renderer *renderer, cmark_node *node,
                               cmark_event_type ev_type, int options) {
-  renderer->out(renderer, node, cmark_node_get_string_content(node), false, LITERAL);
+  renderer->out(renderer, node, "~~", false, LITERAL);
 }
 
 static void latex_render(cmark_syntax_extension *extension,
