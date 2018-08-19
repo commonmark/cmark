@@ -35,7 +35,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
-         c == '>' || c == '\\' || c == '`' || c == '!' ||
+         c == '>' || c == '\\' || c == '`' || c == '~' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
           // begin_content doesn't get set to false til we've passed digits
