@@ -578,10 +578,15 @@ static void html_render(cmark_syntax_extension *extension,
       cmark_strbuf_putc(html, '>');
       table_state->need_closing_table_body = false;
     } else {
-      if (table_state->need_closing_table_body)
+      if (table_state->need_closing_table_body) {
+        cmark_html_render_cr(html);
         cmark_strbuf_puts(html, "</tbody>");
+        cmark_html_render_cr(html);
+      }
       table_state->need_closing_table_body = false;
-      cmark_strbuf_puts(html, "</table>\n");
+      cmark_html_render_cr(html);
+      cmark_strbuf_puts(html, "</table>");
+      cmark_html_render_cr(html);
     }
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
     if (entering) {

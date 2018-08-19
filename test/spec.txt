@@ -3257,7 +3257,9 @@ right, or center alignment respectively.
 <tr>
 <td>baz</td>
 <td>bim</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 ````````````````````````````````
 
 Cells in one column don't need to match length, though it's easier to read if
@@ -3279,7 +3281,9 @@ bar | baz
 <tr>
 <td align="center">bar</td>
 <td align="right">baz</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 ````````````````````````````````
 
 Include a pipe in a cell's content by escaping it, including inside other
@@ -3303,7 +3307,9 @@ inline spans:
 </tr>
 <tr>
 <td>b <strong>|</strong> im</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 ````````````````````````````````
 
 The table is broken at the first empty line, or beginning of another
@@ -3326,7 +3332,9 @@ block-level structure:
 <tr>
 <td>bar</td>
 <td>baz</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <blockquote>
 <p>bar</p>
 </blockquote>
@@ -3355,7 +3363,9 @@ bar
 <tr>
 <td>bar</td>
 <td></td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>bar</p>
 ````````````````````````````````
 
@@ -3397,7 +3407,9 @@ cells are inserted.  If there are greater, the excess is ignored:
 <tr>
 <td>bar</td>
 <td>baz</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 ````````````````````````````````
 
 If there are no rows in the body, no `<tbody>` is generated in HTML output:
@@ -3412,7 +3424,8 @@ If there are no rows in the body, no `<tbody>` is generated in HTML output:
 <th>abc</th>
 <th>def</th>
 </tr>
-</thead></table>
+</thead>
+</table>
 ````````````````````````````````
 
 </div>
