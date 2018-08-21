@@ -6,7 +6,7 @@ if(CMAKE_MAJOR_VERSION GREATER 2)
     cmake_policy(SET CMP0048 OLD)
 endif()
 
-project(cmark)
+project(cmark-gfm)
 
 include("FindAsan.cmake")
 
@@ -14,7 +14,7 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
 
-set(PROJECT_NAME "cmark")
+set(PROJECT_NAME "cmark-gfm")
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 28)
@@ -22,7 +22,7 @@ set(PROJECT_VERSION_PATCH 3)
 set(PROJECT_VERSION_GFM 14)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM} )
 
-option(CMARK_TESTS "Build cmark tests and enable testing" ON)
+option(CMARK_TESTS "Build cmark-gfm tests and enable testing" ON)
 option(CMARK_STATIC "Build static libcmark-gfm library" ON)
 option(CMARK_SHARED "Build shared libcmark-gfm library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)

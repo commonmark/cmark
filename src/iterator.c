@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "node.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "iterator.h"
 
 cmark_iter *cmark_iter_new(cmark_node *root) {

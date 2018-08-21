@@ -1,4 +1,4 @@
-#include <cmark_extension_api.h>
+#include <cmark-gfm-extension_api.h>
 #include <html.h>
 #include <inlines.h>
 #include <parser.h>
@@ -685,14 +685,14 @@ cmark_syntax_extension *create_table_extension(void) {
   return self;
 }
 
-uint16_t cmarkextensions_get_table_columns(cmark_node *node) {
+uint16_t cmark_gfm_extensions_get_table_columns(cmark_node *node) {
   if (node->type != CMARK_NODE_TABLE)
     return 0;
 
   return ((node_table *)node->as.opaque)->n_columns;
 }
 
-uint8_t *cmarkextensions_get_table_alignments(cmark_node *node) {
+uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node) {
   if (node->type != CMARK_NODE_TABLE)
     return 0;
 

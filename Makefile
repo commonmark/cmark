@@ -101,7 +101,7 @@ mingw:
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
 	$(MAKE) && $(MAKE) install
 
-man/man3/cmark-gfm.3: src/cmark.h | $(CMARK)
+man/man3/cmark-gfm.3: src/cmark-gfm.h | $(CMARK)
 	python man/make_man_page.py $< > $@ \
 
 archive:
@@ -222,5 +222,5 @@ distclean: clean
 	-rm -rf $(BENCHFILE) $(ALLTESTS) progit
 
 docker:
-	docker build -t cmark $(CURDIR)/tools
-	docker run --privileged -t -i -v $(CURDIR):/src/cmark -w /src/cmark cmark /bin/bash
+	docker build -t cmark-gfm $(CURDIR)/tools
+	docker run --privileged -t -i -v $(CURDIR):/src/cmark-gfm -w /src/cmark-gfm cmark-gfm /bin/bash

@@ -4,14 +4,14 @@
 #include <errno.h>
 #include "config.h"
 #include "memory.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "node.h"
-#include "cmark_extension_api.h"
+#include "cmark-gfm-extension_api.h"
 #include "syntax_extension.h"
 #include "parser.h"
 #include "registry.h"
 
-#include "../extensions/core-extensions.h"
+#include "../extensions/cmark-gfm-core-extensions.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
 
-  core_extensions_ensure_registered();
+  cmark_gfm_core_extensions_ensure_registered();
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
@@ -129,8 +129,8 @@ int main(int argc, char *argv[]) {
 
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--version") == 0) {
-      printf("cmark %s", CMARK_VERSION_STRING);
-      printf(" - CommonMark converter\n(C) 2014-2016 John MacFarlane\n");
+      printf("cmark-gfm %s", CMARK_GFM_VERSION_STRING);
+      printf(" - CommonMark with GitHub Flavored Markdown converter\n(C) 2014-2016 John MacFarlane\n");
       goto success;
     } else if (strcmp(argv[i], "--list-extensions") == 0) {
       print_extensions();

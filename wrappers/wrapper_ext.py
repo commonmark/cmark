@@ -3,9 +3,9 @@
 #
 # Example for using the shared library from python.
 # Will work with either python 2 or python 3.
-# Requires cmark-gfm and cmark-gfmextensions libraries to be installed.
+# Requires cmark-gfm and cmark-gfm-extensions libraries to be installed.
 #
-# This particular example uses the GitHub extensions from the gfmextensions
+# This particular example uses the GitHub extensions from the gfm-extensions
 # library. EXTENSIONS specifies which to use, and the sample shows how to
 # connect them into a parser.
 #
@@ -15,13 +15,13 @@ import ctypes
 
 if sys.platform == 'darwin':
     libname = 'libcmark-gfm.dylib'
-    extname = 'libcmark-gfmextensions.dylib'
+    extname = 'libcmark-gfm-extensions.dylib'
 elif sys.platform == 'win32':
     libname = 'cmark-gfm.dll'
-    extname = 'cmark-gfmextensions.dll'
+    extname = 'cmark-gfm-extensions.dll'
 else:
     libname = 'libcmark-gfm.so'
-    extname = 'libcmark-gfmextensions.so'
+    extname = 'libcmark-gfm-extensions.so'
 cmark = ctypes.CDLL(libname)
 cmark_ext = ctypes.CDLL(extname)
 
@@ -76,7 +76,7 @@ F_cmark_render_html.argtypes = (ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)
 
 
 # Set up the libcmark-gfm library and its extensions
-F_register = cmark_ext.core_extensions_ensure_registered
+F_register = cmark_ext.cmark_gfm_core_extensions_ensure_registered
 F_register.restype = None
 F_register.argtypes = ( )
 F_register()

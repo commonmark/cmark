@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include "cmark.h"
+#include "cmark-gfm.h"
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   int options = 0;

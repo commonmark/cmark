@@ -31,22 +31,22 @@ extern "C" {
 #define HOUDINI_ESCAPED_SIZE(x) (((x)*12) / 10)
 #define HOUDINI_UNESCAPED_SIZE(x) (x)
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
                                       bufsize_t size);
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int houdini_escape_html(cmark_strbuf *ob, const uint8_t *src,
                                bufsize_t size);
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src,
                                 bufsize_t size, int secure);
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src,
                                  bufsize_t size);
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void houdini_unescape_html_f(cmark_strbuf *ob, const uint8_t *src,
                                     bufsize_t size);
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int houdini_escape_href(cmark_strbuf *ob, const uint8_t *src,
                                bufsize_t size);
 

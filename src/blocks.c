@@ -13,7 +13,7 @@
 #include "syntax_extension.h"
 #include "config.h"
 #include "parser.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "node.h"
 #include "references.h"
 #include "utf8.h"

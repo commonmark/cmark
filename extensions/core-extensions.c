@@ -1,4 +1,4 @@
-#include "core-extensions.h"
+#include "cmark-gfm-core-extensions.h"
 #include "autolink.h"
 #include "strikethrough.h"
 #include "table.h"
@@ -15,7 +15,7 @@ static int core_extensions_registration(cmark_plugin *plugin) {
   return 1;
 }
 
-void core_extensions_ensure_registered(void) {
+void cmark_gfm_core_extensions_ensure_registered(void) {
   static int registered = 0;
 
   if (!registered) {

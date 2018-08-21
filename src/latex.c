@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include "config.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "node.h"
 #include "buffer.h"
 #include "utf8.h"

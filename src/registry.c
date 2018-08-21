@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "config.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "syntax_extension.h"
 #include "registry.h"
 #include "plugin.h"

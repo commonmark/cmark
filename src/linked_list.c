@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "cmark.h"
+#include "cmark-gfm.h"
 
 cmark_llist *cmark_llist_append(cmark_mem *mem, cmark_llist *head, void *data) {
   cmark_llist *tmp;

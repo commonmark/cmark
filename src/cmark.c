@@ -4,15 +4,15 @@
 #include "registry.h"
 #include "node.h"
 #include "houdini.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "buffer.h"
 
 cmark_node_type CMARK_NODE_LAST_BLOCK = CMARK_NODE_FOOTNOTE_DEFINITION;
 cmark_node_type CMARK_NODE_LAST_INLINE = CMARK_NODE_FOOTNOTE_REFERENCE;
 
-int cmark_version() { return CMARK_VERSION; }
+int cmark_version() { return CMARK_GFM_VERSION; }
 
-const char *cmark_version_string() { return CMARK_VERSION_STRING; }
+const char *cmark_version_string() { return CMARK_GFM_VERSION_STRING; }
 
 static void *xcalloc(size_t nmem, size_t size) {
   void *ptr = calloc(nmem, size);

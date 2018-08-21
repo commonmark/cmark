@@ -1,7 +1,7 @@
 #ifndef CMARK_SCANNERS_H
 #define CMARK_SCANNERS_H
 
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "chunk.h"
 
 #ifdef __cplusplus

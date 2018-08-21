@@ -1,11 +1,11 @@
-#ifndef CMARK_CMARK_EXTENSION_API_H
-#define CMARK_CMARK_EXTENSION_API_H
+#ifndef CMARK_GFM_EXTENSION_API_H
+#define CMARK_GFM_EXTENSION_API_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cmark.h"
+#include "cmark-gfm.h"
 
 struct cmark_renderer;
 struct cmark_html_renderer;
@@ -170,7 +170,7 @@ typedef int (*cmark_plugin_init_func)(cmark_plugin *plugin);
  * This takes ownership of 'extension', one should not call
  * 'cmark_syntax_extension_free' on a registered extension.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_plugin_register_syntax_extension(cmark_plugin *plugin,
                                             cmark_syntax_extension *extension);
 
@@ -180,7 +180,7 @@ int cmark_plugin_register_syntax_extension(cmark_plugin *plugin,
  *  It can then be attached to a cmark_parser
  *  with the cmark_parser_attach_syntax_extension method.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 cmark_syntax_extension *cmark_find_syntax_extension(const char *name);
 
 /** Should create and add a new open block to 'parent_container' if
@@ -260,143 +260,143 @@ typedef void (*cmark_opaque_free_func) (cmark_syntax_extension *extension,
 
 /** Free a cmark_syntax_extension.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_free               (cmark_mem *mem, cmark_syntax_extension *extension);
 
 /** Return a newly-constructed cmark_syntax_extension, named 'name'.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 cmark_syntax_extension *cmark_syntax_extension_new (const char *name);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 cmark_node_type cmark_syntax_extension_add_node(int is_inline);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_emphasis(cmark_syntax_extension *extension, int emphasis);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_open_block_func(cmark_syntax_extension *extension,
                                                 cmark_open_block_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_match_block_func(cmark_syntax_extension *extension,
                                                  cmark_match_block_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_match_inline_func(cmark_syntax_extension *extension,
                                                   cmark_match_inline_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_inline_from_delim_func(cmark_syntax_extension *extension,
                                                        cmark_inline_from_delim_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_special_inline_chars(cmark_syntax_extension *extension,
                                                      cmark_llist *special_chars);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_get_type_string_func(cmark_syntax_extension *extension,
                                                      cmark_get_type_string_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_can_contain_func(cmark_syntax_extension *extension,
                                                  cmark_can_contain_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_contains_inlines_func(cmark_syntax_extension *extension,
                                                       cmark_contains_inlines_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_commonmark_render_func(cmark_syntax_extension *extension,
                                                        cmark_common_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_plaintext_render_func(cmark_syntax_extension *extension,
                                                       cmark_common_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extension,
                                                   cmark_common_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extension,
                                                 cmark_common_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_html_render_func(cmark_syntax_extension *extension,
                                                  cmark_html_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_html_filter_func(cmark_syntax_extension *extension,
                                                  cmark_html_filter_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_commonmark_escape_func(cmark_syntax_extension *extension,
                                                        cmark_commonmark_escape_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void *cmark_syntax_extension_get_private(cmark_syntax_extension *extension);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_postprocess_func(cmark_syntax_extension *extension,
                                                  cmark_postprocess_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_opaque_free_func(cmark_syntax_extension *extension,
                                                  cmark_opaque_free_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_parser_set_backslash_ispunct_func(cmark_parser *parser,
                                              cmark_ispunct_func func);
 
 /** Return the index of the line currently being parsed, starting with 1.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_line_number(cmark_parser *parser);
 
 /** Return the offset in bytes in the line being processed.
@@ -407,7 +407,7 @@ int cmark_parser_get_line_number(cmark_parser *parser);
  *
  * Here, offset will first be 0, then 5 (the index of the 'f' character).
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_offset(cmark_parser *parser);
 
 /**
@@ -441,7 +441,7 @@ int cmark_parser_get_offset(cmark_parser *parser);
  * cmark_parser_has_partially_consumed_tab() will now return
  * 'true'.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_column(cmark_parser *parser);
 
 /** Return the absolute index in bytes of the first nonspace
@@ -456,7 +456,7 @@ int cmark_parser_get_column(cmark_parser *parser);
  * 0            offset (16) first_nonspace (28)
  * ```
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_first_nonspace(cmark_parser *parser);
 
 /** Return the absolute index of the first nonspace column coming after 'offset'
@@ -466,7 +466,7 @@ int cmark_parser_get_first_nonspace(cmark_parser *parser);
  * See the documentation for cmark_parser_get_first_nonspace() and
  * cmark_parser_get_column() for more information.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_first_nonspace_column(cmark_parser *parser);
 
 /** Return the difference between the values returned by
@@ -476,7 +476,7 @@ int cmark_parser_get_first_nonspace_column(cmark_parser *parser);
  * This is not a byte offset, as it can count one tab as multiple
  * characters.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_indent(cmark_parser *parser);
 
 /** Return 'true' if the line currently being processed has been entirely
@@ -507,7 +507,7 @@ int cmark_parser_get_indent(cmark_parser *parser);
  *
  * At this point, this function will now return 'true'.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_is_blank(cmark_parser *parser);
 
 /** Return 'true' if the value returned by cmark_parser_get_offset()
@@ -516,13 +516,13 @@ int cmark_parser_is_blank(cmark_parser *parser);
  * See the documentation for cmark_parser_get_column() for more
  * information.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_has_partially_consumed_tab(cmark_parser *parser);
 
 /** Return the length in bytes of the previously processed line, excluding potential
  * newline (\n) and carriage return (\r) trailing characters.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_get_last_line_length(cmark_parser *parser);
 
 /** Add a child to 'parent' during the parsing process.
@@ -531,7 +531,7 @@ int cmark_parser_get_last_line_length(cmark_parser *parser);
  * this function will back up till it hits a node that can, closing
  * blocks as appropriate.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 cmark_node*cmark_parser_add_child(cmark_parser *parser,
                                   cmark_node *parent,
                                   cmark_node_type block_type,
@@ -542,14 +542,14 @@ cmark_node*cmark_parser_add_child(cmark_parser *parser,
  * See the documentation of cmark_parser_get_offset() and
  * cmark_parser_get_column() for more information.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_parser_advance_offset(cmark_parser *parser,
                                  const char *input,
                                  int count,
                                  int columns);
 
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_parser_feed_reentrant(cmark_parser *parser, const char *buffer, size_t len);
 
 /** Attach the syntax 'extension' to the 'parser', to provide extra syntax
@@ -559,33 +559,33 @@ void cmark_parser_feed_reentrant(cmark_parser *parser, const char *buffer, size_
  *  Returns 'true' if the 'extension' was successfully attached,
  *  'false' otherwise.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_parser_attach_syntax_extension(cmark_parser *parser, cmark_syntax_extension *extension);
 
 /** Change the type of 'node'.
  *
  * Return 0 if the type could be changed, 1 otherwise.
  */
-CMARK_EXPORT int cmark_node_set_type(cmark_node *node, cmark_node_type type);
+CMARK_GFM_EXPORT int cmark_node_set_type(cmark_node *node, cmark_node_type type);
 
 /** Return the string content for all types of 'node'.
  *  The pointer stays valid as long as 'node' isn't freed.
  */
-CMARK_EXPORT const char *cmark_node_get_string_content(cmark_node *node);
+CMARK_GFM_EXPORT const char *cmark_node_get_string_content(cmark_node *node);
 
 /** Set the string 'content' for all types of 'node'.
  *  Copies 'content'.
  */
-CMARK_EXPORT int cmark_node_set_string_content(cmark_node *node, const char *content);
+CMARK_GFM_EXPORT int cmark_node_set_string_content(cmark_node *node, const char *content);
 
 /** Get the syntax extension responsible for the creation of 'node'.
  *  Return NULL if 'node' was created because it matched standard syntax rules.
  */
-CMARK_EXPORT cmark_syntax_extension *cmark_node_get_syntax_extension(cmark_node *node);
+CMARK_GFM_EXPORT cmark_syntax_extension *cmark_node_get_syntax_extension(cmark_node *node);
 
 /** Set the syntax extension responsible for creating 'node'.
  */
-CMARK_EXPORT int cmark_node_set_syntax_extension(cmark_node *node,
+CMARK_GFM_EXPORT int cmark_node_set_syntax_extension(cmark_node *node,
                                                   cmark_syntax_extension *extension);
 
 /**
@@ -600,63 +600,63 @@ CMARK_EXPORT int cmark_node_set_syntax_extension(cmark_node *node,
 typedef int (*cmark_inline_predicate)(int c);
 
 /** Advance the current inline parsing offset */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_inline_parser_advance_offset(cmark_inline_parser *parser);
 
 /** Get the current inline parsing offset */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_get_offset(cmark_inline_parser *parser);
 
 /** Set the offset in bytes in the chunk being processed by the given inline parser.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset);
 
 /** Gets the cmark_chunk being operated on by the given inline parser.
  * Use cmark_inline_parser_get_offset to get our current position in the chunk.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 struct cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
 
 /** Returns 1 if the inline parser is currently in a bracket; pass 1 for 'image'
  * if you want to know about an image-type bracket, 0 for link-type. */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image);
 
 /** Remove the last n characters from the last child of the given node.
  * This only works where all n characters are in the single last child, and the last
  * child is CMARK_NODE_TEXT.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_node_unput(cmark_node *node, int n);
 
 
 /** Get the character located at the current inline parsing offset
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 unsigned char cmark_inline_parser_peek_char(cmark_inline_parser *parser);
 
 /** Get the character located 'pos' bytes in the current line.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 unsigned char cmark_inline_parser_peek_at(cmark_inline_parser *parser, int pos);
 
 /** Whether the inline parser has reached the end of the current line
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_is_eof(cmark_inline_parser *parser);
 
 /** Get the characters located after the current inline parsing offset
  * while 'pred' matches. Free after usage.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 char *cmark_inline_parser_take_while(cmark_inline_parser *parser, cmark_inline_predicate pred);
 
 /** Push a delimiter on the delimiter stack.
  * See <<http://spec.commonmark.org/0.24/#phase-2-inline-structure> for
  * more information on the parameters
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_inline_parser_push_delimiter(cmark_inline_parser *parser,
                                   unsigned char c,
                                   int can_open,
@@ -665,16 +665,16 @@ void cmark_inline_parser_push_delimiter(cmark_inline_parser *parser,
 
 /** Remove 'delim' from the delimiter stack
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_inline_parser_remove_delimiter(cmark_inline_parser *parser, delimiter *delim);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 delimiter *cmark_inline_parser_get_last_delimiter(cmark_inline_parser *parser);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_get_line(cmark_inline_parser *parser);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_get_column(cmark_inline_parser *parser);
 
 /** Convenience function to scan a given delimiter.
@@ -691,7 +691,7 @@ int cmark_inline_parser_get_column(cmark_inline_parser *parser);
  * Returns the number of delimiters encountered, in the limit
  * of 'max_delims', and advances the inline parsing offset.
  */
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
                                   int max_delims,
                                   unsigned char c,
@@ -700,16 +700,16 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
                                   int *punct_before,
                                   int *punct_after);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_manage_extensions_special_characters(cmark_parser *parser, int add);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 cmark_llist *cmark_parser_get_syntax_extensions(cmark_parser *parser);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_arena_push(void);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 int cmark_arena_pop(void);
 
 #ifdef __cplusplus

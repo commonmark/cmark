@@ -7,7 +7,7 @@
 #include "node.h"
 #include "parser.h"
 #include "references.h"
-#include "cmark.h"
+#include "cmark-gfm.h"
 #include "houdini.h"
 #include "utf8.h"
 #include "scanners.h"

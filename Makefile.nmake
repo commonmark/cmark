@@ -3,7 +3,7 @@ DATADIR=data
 BUILDDIR=build
 INSTALLDIR=windows
 SPEC=test/spec.txt
-PROG=$(BUILDDIR)\src\cmark.exe
+PROG=$(BUILDDIR)\src\cmark-gfm.exe
 GENERATOR=NMake Makefiles
 
 all: $(BUILDDIR)/CMakeFiles

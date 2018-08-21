@@ -10,7 +10,7 @@ extern "C" {
 cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url);
 cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title);
 
-CMARK_EXPORT
+CMARK_GFM_EXPORT
 void cmark_parse_inlines(cmark_parser *parser,
                          cmark_node *parent,
                          cmark_map *refmap,
