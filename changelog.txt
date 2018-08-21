@@ -1,3 +1,10 @@
+[0.28.3.gfm.15]
+
+  * Escape non-strikethrough tildes (~) in commonmark output (John MacFarlane, #106).
+  * Cosmetic fix to table HTML output (John MacFarlane, #105).
+  * Use two tildes for strikethrough CommonMark output (John MacFarlane, #104).
+  * Normalised header and define names (#109).
+
 [0.28.3.gfm.14]
 
   * Added a plaintext renderer for strikethrough nodes.
