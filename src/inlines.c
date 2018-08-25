@@ -323,6 +323,42 @@ static bufsize_t scan_to_closing_backticks(subject *subj,
   return 0;
 }
 
+// Destructively modify string, converting newlines to
+// spaces or removing them if they're adjacent to spaces,
+// then removing a single leading + trailing space.
+static void S_normalize_code(cmark_strbuf *s) {
+  bool last_char_was_space = false;
+  bufsize_t r, w;
+
+  for (r = 0, w = 0; r < s->size; ++r) {
+    switch (s->ptr[r]) {
+    case '\r':
+      break;
+    case '\n':
+      if (!last_char_was_space && !cmark_isspace(s->ptr[r + 1])) {
+        s->ptr[w++] = ' ';
+        last_char_was_space = true;
+      } else {
+        last_char_was_space = false;
+      }
+      break;
+    default:
+      s->ptr[w++] = s->ptr[r];
+      last_char_was_space = (s->ptr[r] == ' ');
+    }
+  }
+
+  // begins and ends with space?
+  if (s->ptr[0] == ' ' && s->ptr[w - 1] == ' ') {
+    cmark_strbuf_drop(s, 1);
+    cmark_strbuf_truncate(s, w - 2);
+  } else {
+    cmark_strbuf_truncate(s, w);
+  }
+
+}
+
+
 // Parse backtick code section or raw backticks, return an inline.
 // Assumes that the subject has a backtick at the current position.
 static cmark_node *handle_backticks(subject *subj, int options) {
@@ -338,14 +374,14 @@ static cmark_node *handle_backticks(subject *subj, int options) {
 
     cmark_strbuf_set(&buf, subj->input.data + startpos,
                      endpos - startpos - openticks.len);
-    cmark_strbuf_trim(&buf);
-    cmark_strbuf_normalize_whitespace(&buf);
+    S_normalize_code(&buf);
 
     cmark_node *node = make_code(subj, startpos, endpos - openticks.len - 1, cmark_chunk_buf_detach(&buf));
     adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
     return node;
   }
 }
+
 
 // Scan ***, **, or * and return number scanned, or 0.
 // Advances position.

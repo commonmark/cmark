@@ -167,6 +167,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   int list_number;
   cmark_delim_type list_delim;
   int numticks;
+  bool extra_spaces;
   int i;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
@@ -363,14 +364,17 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     code = cmark_node_get_literal(node);
     code_len = strlen(code);
     numticks = shortest_unused_backtick_sequence(code);
+    extra_spaces = code_len == 0 ||
+	    code[0] == '`' || code[code_len - 1] == '`' ||
+	    code[0] == ' ' || code[code_len - 1] == ' ';
     for (i = 0; i < numticks; i++) {
       LIT("`");
     }
-    if (code_len == 0 || code[0] == '`') {
+    if (extra_spaces) {
       LIT(" ");
     }
     OUT(cmark_node_get_literal(node), allow_wrap, LITERAL);
-    if (code_len == 0 || code[code_len - 1] == '`') {
+    if (extra_spaces) {
       LIT(" ");
     }
     for (i = 0; i < numticks; i++) {
