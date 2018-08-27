@@ -2,7 +2,7 @@ cmark
 =====
 
 [![Build Status]](https://travis-ci.org/commonmark/cmark)
-[![Windows Build Status]](https://ci.appveyor.com/project/commonmark/cmark)
+[![Windows Build Status]](https://ci.appveyor.com/project/jgm/cmark-0ub06)
 
 `cmark` is the C reference implementation of [CommonMark], a
 rationalized version of Markdown syntax with a [spec][the spec].
