@@ -335,6 +335,11 @@ A [punctuation character](@) is an [ASCII
 punctuation character] or anything in
 the general Unicode categories  `Pc`, `Pd`, `Pe`, `Pf`, `Pi`, `Po`, or `Ps`.
 
+An [East Asian punctuation character](@) is a [punctuation character] with
+the East_Asian_Width property values `A`, `F`, `H` or `W`.
+An [non-East Asian punctuation character](@) is a [punctuation character] with
+the East_Asian_Width property values `N` or `Na`.
+
 ## Tabs
 
 Tabs in lines are not expanded to [spaces].  However,
@@ -5984,14 +5989,14 @@ a non-backslash-escaped `_` character.
 
 A [left-flanking delimiter run](@) is
 a [delimiter run] that is (a) not followed by [Unicode whitespace],
-and (b) not followed by a [punctuation character], or
+and (b) not followed by a [non-East Asian punctuation character], or
 preceded by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
 
 A [right-flanking delimiter run](@) is
 a [delimiter run] that is (a) not preceded by [Unicode whitespace],
-and (b) not preceded by a [punctuation character], or
+and (b) not preceded by a [non-East Asian punctuation character], or
 followed by [Unicode whitespace] or a [punctuation character].
 For purposes of this definition, the beginning and the end of
 the line count as Unicode whitespace.
@@ -6045,36 +6050,44 @@ The following rules define emphasis and strong emphasis:
 
 2.  A single `_` character [can open emphasis] iff
     it is part of a [left-flanking delimiter run]
-    and either (a) not part of a [right-flanking delimiter run]
-    or (b) part of a [right-flanking delimiter run]
-    preceded by punctuation.
+    and either (a) not part of a [right-flanking delimiter run],
+    (b) part of a [right-flanking delimiter run]
+    preceded by punctuation
+    or (c) part of a [right-flanking delimiter run]
+    followed by East Asian punctuation.
 
 3.  A single `*` character [can close emphasis](@)
     iff it is part of a [right-flanking delimiter run].
 
 4.  A single `_` character [can close emphasis] iff
     it is part of a [right-flanking delimiter run]
-    and either (a) not part of a [left-flanking delimiter run]
-    or (b) part of a [left-flanking delimiter run]
-    followed by punctuation.
+    and either (a) not part of a [left-flanking delimiter run],
+    (b) part of a [left-flanking delimiter run]
+    followed by punctuation
+    or (c) part of a [left-flanking delimiter run]
+    preceded by East Asian punctuation.
 
 5.  A double `**` [can open strong emphasis](@)
     iff it is part of a [left-flanking delimiter run].
 
 6.  A double `__` [can open strong emphasis] iff
     it is part of a [left-flanking delimiter run]
-    and either (a) not part of a [right-flanking delimiter run]
-    or (b) part of a [right-flanking delimiter run]
-    preceded by punctuation.
+    and either (a) not part of a [right-flanking delimiter run],
+    (b) part of a [right-flanking delimiter run]
+    preceded by punctuation
+    or (c) part of a [right-flanking delimiter run]
+    followed by East Asian punctuation.
 
 7.  A double `**` [can close strong emphasis](@)
     iff it is part of a [right-flanking delimiter run].
 
 8.  A double `__` [can close strong emphasis] iff
     it is part of a [right-flanking delimiter run]
-    and either (a) not part of a [left-flanking delimiter run]
-    or (b) part of a [left-flanking delimiter run]
-    followed by punctuation.
+    and either (a) not part of a [left-flanking delimiter run],
+    (b) part of a [left-flanking delimiter run]
+    followed by punctuation
+    or (c) part of a [left-flanking delimiter run]
+    preceded by East Asian punctuation.
 
 9.  Emphasis begins with a delimiter that [can open emphasis] and ends
     with a delimiter that [can close emphasis], and that uses the same
@@ -6164,6 +6177,24 @@ a*"foo"*
 ````````````````````````````````
 
 
+This is emphasis, because the opening `*` is preceded
+by an alphanumeric and followed by East Asian punctuation, and hence
+part of a [left-flanking delimiter run]:
+
+```````````````````````````````` example
+a*「foo」*
+.
+<p>a<em>「foo」</em></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+『a』*「foo」*
+.
+<p>『a』<em>「foo」</em></p>
+````````````````````````````````
+
+
 Unicode nonbreaking spaces count as whitespace, too:
 
 ```````````````````````````````` example
@@ -6186,6 +6217,16 @@ foo*bar*
 5*6*78
 .
 <p>5<em>6</em>78</p>
+````````````````````````````````
+
+
+Emphasis including East Asian punctuation without leading whitespace is
+permitted:
+
+```````````````````````````````` example
+5*「6」*78
+.
+<p>5<em>「6」</em>78</p>
 ````````````````````````````````
 
 
@@ -6218,6 +6259,25 @@ a_"foo"_
 ````````````````````````````````
 
 
+This is emphasis, because the opening `_` is preceded
+by an alphanumeric and followed by East Asian punctuation, and hence
+part of a [left-flanking delimiter run]:
+
+```````````````````````````````` example
+a_「foo」_
+.
+<p>a<em>「foo」</em></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+『a』_「foo」_
+.
+<p>『a』<em>「foo」</em></p>
+````````````````````````````````
+
+
+Unicode nonbreaking spaces count as whitespace, too:
 Emphasis with `_` is not allowed inside words:
 
 ```````````````````````````````` example
@@ -6238,6 +6298,13 @@ foo_bar_
 пристаням_стремятся_
 .
 <p>пристаням_стремятся_</p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+五_六_七八
+.
+<p>五_六_七八</p>
 ````````````````````````````````
 
 
@@ -6380,6 +6447,13 @@ _foo_bar_baz_
 ````````````````````````````````
 
 
+```````````````````````````````` example
+_み_か_ん_
+.
+<p><em>み_か_ん</em></p>
+````````````````````````````````
+
+
 This is emphasis, even though the closing delimiter is
 both left- and right-flanking, because it is followed by
 punctuation:
@@ -6418,6 +6492,24 @@ not part of a [left-flanking delimiter run]:
 a**"foo"**
 .
 <p>a**&quot;foo&quot;**</p>
+````````````````````````````````
+
+
+This is strong emphasis, because the opening `**` is preceded
+by an alphanumeric and followed by East Asian punctuation, and hence
+part of a [left-flanking delimiter run]:
+
+```````````````````````````````` example
+a**「foo」**
+.
+<p>a<strong>「foo」</strong></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+『a』**「foo」**
+.
+<p>『a』<strong>「foo」</strong></p>
 ````````````````````````````````
 
 
@@ -6469,6 +6561,23 @@ a__"foo"__
 ````````````````````````````````
 
 
+This is strong emphasis, because the opening `__` is preceded
+by an alphanumeric and followed by East Asian punctuation:
+
+```````````````````````````````` example
+a__「foo」__
+.
+<p>a<strong>「foo」</strong></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+『a』__「foo」__
+.
+<p>『a』<strong>「foo」</strong></p>
+````````````````````````````````
+
+
 Intraword strong emphasis is forbidden with `__`:
 
 ```````````````````````````````` example
@@ -6493,9 +6602,25 @@ foo__bar__
 
 
 ```````````````````````````````` example
+五__六__七八
+.
+<p>五__六__七八</p>
+````````````````````````````````
+
+
+```````````````````````````````` example
 __foo, __bar__, baz__
 .
 <p><strong>foo, <strong>bar</strong>, baz</strong></p>
+````````````````````````````````
+
+
+East Asian punctuations introduce ambiguity:
+
+```````````````````````````````` example
+__foo、__bar__、baz__
+.
+<p><strong>foo、</strong>bar<strong>、baz</strong></p>
 ````````````````````````````````
 
 
@@ -6536,6 +6661,15 @@ preceded by punctuation and followed by an alphanumeric:
 ````````````````````````````````
 
 
+East Asian punctuations is not the case:
+
+```````````````````````````````` example
+**〔**foo〕
+.
+<p><strong>〔</strong>foo〕</p>
+````````````````````````````````
+
+
 The point of this restriction is more easily appreciated
 with these examples:
 
@@ -6559,6 +6693,13 @@ with these examples:
 **foo "*bar*" foo**
 .
 <p><strong>foo &quot;<em>bar</em>&quot; foo</strong></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+**foo「*bar*」foo**
+.
+<p><strong>foo「<em>bar</em>」foo</strong></p>
 ````````````````````````````````
 
 
@@ -6593,6 +6734,15 @@ __(__foo)
 ````````````````````````````````
 
 
+East Asian punctuations is not the case:
+
+```````````````````````````````` example
+__〔__foo〕
+.
+<p><strong>〔</strong>foo〕</p>
+````````````````````````````````
+
+
 The point of this restriction is more easily appreciated
 with this example:
 
@@ -6616,6 +6766,13 @@ __foo__bar
 __пристаням__стремятся
 .
 <p>__пристаням__стремятся</p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+__か__き
+.
+<p>__か__き</p>
 ````````````````````````````````
 
 
