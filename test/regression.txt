@@ -169,3 +169,11 @@ This ~text~~~~ is ~~~~curious~.
 .
 <p>This <del>text</del> is <del>curious</del>.</p>
 ````````````````````````````````
+
+`~` should not be escaped in href — https://github.com/github/markup/issues/311
+
+```````````````````````````````` example
+[x](http://members.aon.at/~nkehrer/ibm_5110/emu5110.html)
+.
+<p><a href="http://members.aon.at/~nkehrer/ibm_5110/emu5110.html">x</a></p>
+````````````````````````````````
