@@ -41,7 +41,6 @@ void print_usage() {
   printf("  --smart           Use smart punctuation\n");
   printf("  --validate-utf8   Replace UTF-8 invalid sequences with U+FFFD\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");
-  printf("  --footnotes       Parse footnotes\n");
   printf("  --extension, -e EXTENSION_NAME  Specify an extension name to use\n");
   printf("  --list-extensions               List available extensions and quit\n");
   printf("  --strikethrough-double-tilde    Only parse strikethrough (if enabled)\n");
@@ -93,7 +92,7 @@ static void print_extensions(void) {
   cmark_llist *syntax_extensions;
   cmark_llist *tmp;
 
-  printf ("Available extensions:\n");
+  printf ("Available extensions:\nfootnotes\n");
 
   cmark_mem *mem = cmark_get_default_mem_allocator();
   syntax_extensions = cmark_list_syntax_extensions(mem);
@@ -151,8 +150,6 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_SMART;
     } else if (strcmp(argv[i], "--github-pre-lang") == 0) {
       options |= CMARK_OPT_GITHUB_PRE_LANG;
-    } else if (strcmp(argv[i], "--footnotes") == 0) {
-      options |= CMARK_OPT_FOOTNOTES;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
     } else if (strcmp(argv[i], "--validate-utf8") == 0) {
@@ -202,6 +199,10 @@ int main(int argc, char *argv[]) {
     } else if ((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--extension") == 0)) {
       i += 1; // Simpler to handle extensions in a second pass, as we can directly register
               // them with the parser.
+
+      if (i < argc && strcmp(argv[i], "footnotes") == 0) {
+        options |= CMARK_OPT_FOOTNOTES;
+      }
     } else if (*argv[i] == '-') {
       print_usage();
       goto failure;
@@ -220,6 +221,9 @@ int main(int argc, char *argv[]) {
     if ((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--extension") == 0)) {
       i += 1;
       if (i < argc) {
+        if (strcmp(argv[i], "footnotes") == 0) {
+          continue;
+        }
         cmark_syntax_extension *syntax_extension = cmark_find_syntax_extension(argv[i]);
         if (!syntax_extension) {
           fprintf(stderr, "Unknown extension %s\n", argv[i]);

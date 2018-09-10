@@ -177,3 +177,38 @@ This ~text~~~~ is ~~~~curious~.
 .
 <p><a href="http://members.aon.at/~nkehrer/ibm_5110/emu5110.html">x</a></p>
 ````````````````````````````````
+
+Footnotes in tables
+
+```````````````````````````````` example table footnotes
+A footnote in a paragraph[^1]
+
+| Column1   | Column2 |
+| --------- | ------- |
+| foot [^1] | note    |
+
+[^1]: a footnote
+.
+<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+<table>
+<thead>
+<tr>
+<th>Column1</th>
+<th>Column2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>foot <sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></td>
+<td>note</td>
+</tr>
+</tbody>
+</table>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>a footnote <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
