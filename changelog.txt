@@ -1,3 +1,8 @@
+[0.28.3.gfm.16]
+
+  * Do not percent-encode tildes (~) in HTML attribute values (#110).
+  * Fix footnote references in tables (#112).
+
 [0.28.3.gfm.15]
 
   * Escape non-strikethrough tildes (~) in commonmark output (John MacFarlane, #106).
