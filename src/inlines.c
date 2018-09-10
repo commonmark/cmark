@@ -1345,7 +1345,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
   // parse optional link_title
   beforetitle = subj.pos;
   spnl(&subj);
-  matchlen = scan_link_title(&subj.input, subj.pos);
+  matchlen = subj.pos == beforetitle ? 0 : scan_link_title(&subj.input, subj.pos);
   if (matchlen) {
     title = cmark_chunk_dup(&subj.input, subj.pos, matchlen);
     subj.pos += matchlen;
