@@ -92,6 +92,7 @@ typedef enum {
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
+typedef struct cmark_syntax_extension cmark_syntax_extension;
 
 /**
  * ## Custom memory allocator support
@@ -186,6 +187,13 @@ CMARK_GFM_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
  */
 CMARK_GFM_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type,
                                                  cmark_mem *mem);
+
+CMARK_GFM_EXPORT cmark_node *cmark_node_new_with_ext(cmark_node_type type,
+                                                cmark_syntax_extension *extension);
+
+CMARK_GFM_EXPORT cmark_node *cmark_node_new_with_mem_and_ext(cmark_node_type type,
+                                                cmark_mem *mem,
+                                                cmark_syntax_extension *extension);
 
 /** Frees the memory allocated for a node and any children.
  */

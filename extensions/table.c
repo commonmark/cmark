@@ -648,6 +648,16 @@ static void html_render(cmark_syntax_extension *extension,
   }
 }
 
+static void opaque_alloc(cmark_syntax_extension *self, cmark_mem *mem, cmark_node *node) {
+  if (node->type == CMARK_NODE_TABLE) {
+    node->as.opaque = mem->calloc(1, sizeof(node_table));
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    node->as.opaque = mem->calloc(1, sizeof(node_table_row));
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    node->as.opaque = mem->calloc(1, sizeof(node_cell));
+  }
+}
+
 static void opaque_free(cmark_syntax_extension *self, cmark_mem *mem, cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE) {
     free_node_table(mem, node->as.opaque);
@@ -677,6 +687,7 @@ cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension_set_latex_render_func(self, latex_render);
   cmark_syntax_extension_set_man_render_func(self, man_render);
   cmark_syntax_extension_set_html_render_func(self, html_render);
+  cmark_syntax_extension_set_opaque_alloc_func(self, opaque_alloc);
   cmark_syntax_extension_set_opaque_free_func(self, opaque_free);
   cmark_syntax_extension_set_commonmark_escape_func(self, escape);
   CMARK_NODE_TABLE = cmark_syntax_extension_add_node(0);
@@ -698,4 +709,31 @@ uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node) {
     return 0;
 
   return ((node_table *)node->as.opaque)->alignments;
+}
+
+int cmarkextensions_set_table_columns(cmark_node *node, uint16_t n_columns) {
+  return set_n_table_columns(node, n_columns);
+}
+
+int cmarkextensions_set_table_alignments(cmark_node *node, uint16_t ncols, uint8_t *alignments) {
+  uint8_t *a = (uint8_t *)cmark_node_mem(node)->calloc(1, ncols);
+  memcpy(a, alignments, ncols);
+  return set_table_alignments(node, a);
+}
+
+int cmarkextensions_get_table_row_is_header(cmark_node *node)
+{
+  if (!node || node->type != CMARK_NODE_TABLE_ROW)
+    return 0;
+
+  return ((node_table_row *)node->as.opaque)->is_header;
+}
+
+int cmarkextensions_set_table_row_is_header(cmark_node *node, int is_header)
+{
+  if (!node || node->type != CMARK_NODE_TABLE_ROW)
+    return 0;
+
+  ((node_table_row *)node->as.opaque)->is_header = (is_header != 0);
+  return 1;
 }

@@ -128,6 +128,11 @@ void *cmark_syntax_extension_get_private(cmark_syntax_extension *extension) {
     return extension->priv;
 }
 
+void cmark_syntax_extension_set_opaque_alloc_func(cmark_syntax_extension *extension,
+                                                  cmark_opaque_alloc_func func) {
+  extension->opaque_alloc_func = func;
+}
+
 void cmark_syntax_extension_set_opaque_free_func(cmark_syntax_extension *extension,
                                                  cmark_opaque_free_func func) {
   extension->opaque_free_func = func;
