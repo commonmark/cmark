@@ -10,8 +10,6 @@ Since the XML output is lossy, a lossless MD->XML->MD roundtrip isn't
 possible. The XML->MD->XML roundtrip should produce the original XML,
 though.
 
-HTML blocks and inlines aren't supported.
-
 Example usage with xsltproc:
 
     cmark -t xml doc.md | xsltproc -novalid xml2md.xsl -
@@ -123,15 +121,23 @@ Example usage with xsltproc:
 
 <xsl:template match="md:code_block">
     <xsl:apply-templates select="." mode="indent-block"/>
-    <!-- TODO: Longer delimiter if text contains ``` -->
-    <xsl:text>```</xsl:text>
+
+    <xsl:variable name="t" select="string(.)"/>
+    <xsl:variable name="delim">
+        <xsl:call-template name="code-delim">
+            <xsl:with-param name="text" select="$t"/>
+            <xsl:with-param name="delim" select="'```'"/>
+        </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:value-of select="$delim"/>
     <xsl:value-of select="@info"/>
     <xsl:text>&#10;</xsl:text>
     <xsl:call-template name="indent-lines">
-        <xsl:with-param name="code" select="."/>
+        <xsl:with-param name="code" select="$t"/>
     </xsl:call-template>
     <xsl:apply-templates select="ancestor::md:*" mode="indent"/>
-    <xsl:text>```</xsl:text>
+    <xsl:value-of select="$delim"/>
     <xsl:text>&#10;</xsl:text>
 </xsl:template>
 
@@ -228,28 +234,16 @@ Example usage with xsltproc:
 <!-- Inline code -->
 
 <xsl:template match="md:code">
-    <xsl:call-template name="escape-code">
-        <xsl:with-param name="text" select="string(.)"/>
-    </xsl:call-template>
-</xsl:template>
-
-<xsl:template name="escape-code">
-    <xsl:param name="text"/>
-    <xsl:param name="delim" select="'`'"/>
-
-    <xsl:choose>
-        <xsl:when test="contains($text, $delim)">
-            <xsl:call-template name="escape-code">
-                <xsl:with-param name="text" select="$text"/>
-                <xsl:with-param name="delim" select="concat($delim, '`')"/>
-            </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-            <xsl:value-of select="$delim"/>
-            <xsl:value-of select="$text"/>
-            <xsl:value-of select="$delim"/>
-        </xsl:otherwise>
-    </xsl:choose>
+    <xsl:variable name="t" select="string(.)"/>
+    <xsl:variable name="delim">
+        <xsl:call-template name="code-delim">
+            <xsl:with-param name="text" select="$t"/>
+            <xsl:with-param name="delim" select="'`'"/>
+        </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$delim"/>
+    <xsl:value-of select="$t"/>
+    <xsl:value-of select="$delim"/>
 </xsl:template>
 
 <!-- Links and images -->
@@ -280,7 +274,7 @@ Example usage with xsltproc:
     <xsl:value-of select="."/>
 </xsl:template>
 
-<!-- Escape text -->
+<!-- Escaping helpers -->
 
 <xsl:template name="escape-text">
     <xsl:param name="text"/>
@@ -301,6 +295,23 @@ Example usage with xsltproc:
         </xsl:when>
         <xsl:otherwise>
             <xsl:value-of select="$text"/>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
+
+<xsl:template name="code-delim">
+    <xsl:param name="text"/>
+    <xsl:param name="delim"/>
+
+    <xsl:choose>
+        <xsl:when test="contains($text, $delim)">
+            <xsl:call-template name="code-delim">
+                <xsl:with-param name="text" select="$text"/>
+                <xsl:with-param name="delim" select="concat($delim, '`')"/>
+            </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="$delim"/>
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
