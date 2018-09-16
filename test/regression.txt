@@ -212,3 +212,32 @@ A footnote in a paragraph[^1]
 </ol>
 </section>
 ````````````````````````````````
+
+Issue #527 - meta tags in inline contexts
+
+```````````````````````````````` example
+City:
+<span itemprop="contentLocation" itemscope itemtype="https://schema.org/City">
+  <meta itemprop="name" content="Springfield">
+</span>
+.
+<p>City:
+<span itemprop="contentLocation" itemscope itemtype="https://schema.org/City">
+<meta itemprop="name" content="Springfield">
+</span></p>
+````````````````````````````````
+
+Issue #530 - link parsing corner cases
+
+```````````````````````````````` example
+[a](\ b)
+
+[a](<<b)
+
+[a](<b
+)
+.
+<p>[a](\ b)</p>
+<p><a href="%3C%3Cb">a</a></p>
+<p><a href="%3Cb">a</a></p>
+````````````````````````````````

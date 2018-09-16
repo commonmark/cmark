@@ -152,11 +152,13 @@ if (MSVC)
     APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
 endif(MSVC)
 
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  include(InstallRequiredSystemLibraries)
+endif()
 
 set(libdir lib${LIB_SUFFIX})
 
-include (InstallRequiredSystemLibraries)
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   EXPORT cmark-gfm
   RUNTIME DESTINATION bin
