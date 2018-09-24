@@ -316,4 +316,54 @@ Example usage with xsltproc:
     </xsl:choose>
 </xsl:template>
 
+<!-- Table -->
+
+<xsl:template match="md:table">
+    <xsl:apply-templates select="." mode="indent-block"/>
+    <xsl:apply-templates select="md:*"/>
+</xsl:template>
+
+<xsl:template match="md:table_header">
+    <xsl:text>| </xsl:text>
+    <xsl:apply-templates select="md:*"/>
+    <xsl:text>&#xa; | </xsl:text>
+     <xsl:for-each select="md:table_cell">
+     <xsl:choose>
+     <xsl:when test="@align = 'right'">
+     <xsl:text> ---: |</xsl:text>
+     </xsl:when>
+     <xsl:when test="@align = 'left'">
+     <xsl:text> :--- |</xsl:text>
+     </xsl:when>
+     <xsl:when test="@align = 'center'">
+     <xsl:text> :---: |</xsl:text>
+     </xsl:when>
+     <xsl:otherwise>
+     <xsl:text> --- |</xsl:text>
+     </xsl:otherwise>
+     </xsl:choose>
+     </xsl:for-each>
+    <xsl:text>&#xa;</xsl:text>
+</xsl:template>
+
+<xsl:template match="md:table_cell">
+    <xsl:apply-templates select="md:*"/>
+    <xsl:text>| </xsl:text>
+</xsl:template>
+
+<xsl:template match="md:table_row">
+    <xsl:text>| </xsl:text>
+    <xsl:apply-templates select="md:*"/>
+    <xsl:text>&#xa;</xsl:text>
+</xsl:template>
+
+
+<!-- Striked-through -->
+
+<xsl:template match="md:strikethrough">
+    <xsl:text>~~</xsl:text>
+    <xsl:apply-templates select="md:*"/>
+    <xsl:text>~~</xsl:text>
+</xsl:template>
+
 </xsl:stylesheet>
