@@ -8,6 +8,7 @@
 #include "node.h"
 #include "buffer.h"
 #include "houdini.h"
+#include "syntax_extension.h"
 
 #define BUFFER_SIZE 100
 
@@ -48,6 +49,12 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
                node->start_line, node->start_column, node->end_line,
                node->end_column);
       cmark_strbuf_puts(xml, buffer);
+    }
+
+    if (node->extension && node->extension->xml_attr_func) {
+      const char* r = node->extension->xml_attr_func(node->extension, node);
+      if (r != NULL)
+        cmark_strbuf_puts(xml, r);
     }
 
     literal = false;

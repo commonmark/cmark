@@ -9,6 +9,7 @@
 #include "ext_scanners.h"
 #include "strikethrough.h"
 #include "table.h"
+#include "cmark-gfm-core-extensions.h"
 
 cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
     CMARK_NODE_TABLE_CELL;
@@ -488,6 +489,27 @@ static void latex_render(cmark_syntax_extension *extension,
   }
 }
 
+static const char *xml_attr(cmark_syntax_extension *extension,
+                            cmark_node *node) {
+  if (node->type == CMARK_NODE_TABLE_CELL) {
+    if (cmark_gfm_extensions_get_table_row_is_header(node->parent)) {
+      uint8_t *alignments = get_table_alignments(node->parent->parent);
+      int i = 0;
+      cmark_node *n;
+      for (n = node->parent->first_child; n; n = n->next, ++i)
+        if (n == node)
+          break;
+      switch (alignments[i]) {
+      case 'l': return " align=\"left\"";
+      case 'c': return " align=\"center\"";
+      case 'r': return " align=\"right\"";
+      }
+    }
+  }
+
+  return NULL;
+}
+
 static void man_render(cmark_syntax_extension *extension,
                        cmark_renderer *renderer, cmark_node *node,
                        cmark_event_type ev_type, int options) {
@@ -685,6 +707,7 @@ cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension_set_commonmark_render_func(self, commonmark_render);
   cmark_syntax_extension_set_plaintext_render_func(self, commonmark_render);
   cmark_syntax_extension_set_latex_render_func(self, latex_render);
+  cmark_syntax_extension_set_xml_attr_func(self, xml_attr);
   cmark_syntax_extension_set_man_render_func(self, man_render);
   cmark_syntax_extension_set_html_render_func(self, html_render);
   cmark_syntax_extension_set_opaque_alloc_func(self, opaque_alloc);
@@ -711,17 +734,17 @@ uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node) {
   return ((node_table *)node->as.opaque)->alignments;
 }
 
-int cmarkextensions_set_table_columns(cmark_node *node, uint16_t n_columns) {
+int cmark_gfm_extensions_set_table_columns(cmark_node *node, uint16_t n_columns) {
   return set_n_table_columns(node, n_columns);
 }
 
-int cmarkextensions_set_table_alignments(cmark_node *node, uint16_t ncols, uint8_t *alignments) {
+int cmark_gfm_extensions_set_table_alignments(cmark_node *node, uint16_t ncols, uint8_t *alignments) {
   uint8_t *a = (uint8_t *)cmark_node_mem(node)->calloc(1, ncols);
   memcpy(a, alignments, ncols);
   return set_table_alignments(node, a);
 }
 
-int cmarkextensions_get_table_row_is_header(cmark_node *node)
+int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node)
 {
   if (!node || node->type != CMARK_NODE_TABLE_ROW)
     return 0;
@@ -729,7 +752,7 @@ int cmarkextensions_get_table_row_is_header(cmark_node *node)
   return ((node_table_row *)node->as.opaque)->is_header;
 }
 
-int cmarkextensions_set_table_row_is_header(cmark_node *node, int is_header)
+int cmark_gfm_extensions_set_table_row_is_header(cmark_node *node, int is_header)
 {
   if (!node || node->type != CMARK_NODE_TABLE_ROW)
     return 0;

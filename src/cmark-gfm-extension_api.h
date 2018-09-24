@@ -236,6 +236,9 @@ typedef int (*cmark_commonmark_escape_func) (cmark_syntax_extension *extension,
                                               cmark_node *node,
                                               int c);
 
+typedef const char* (*cmark_xml_attr_func) (cmark_syntax_extension *extension,
+                                            cmark_node *node);
+
 typedef void (*cmark_html_render_func) (cmark_syntax_extension *extension,
                                         struct cmark_html_renderer *renderer,
                                         cmark_node *node,
@@ -343,6 +346,12 @@ void cmark_syntax_extension_set_latex_render_func(cmark_syntax_extension *extens
                                                   cmark_common_render_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_GFM_EXPORT
+void cmark_syntax_extension_set_xml_attr_func(cmark_syntax_extension *extension,
+                                              cmark_xml_attr_func func);
+
+  /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_man_render_func(cmark_syntax_extension *extension,
