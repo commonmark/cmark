@@ -1,3 +1,12 @@
+[0.28.3.gfm.17]
+
+  * Allow extension to provide opaque allocation function (Nicolás Ojeda
+    Bär, #89).
+  * Upstream optimisations and fixes.
+  * Extensions can add custom XML attributes (#116).
+  * Support for GFM extensions in cmark XML to CommonMark XSLT converter
+    (Maëlle Salmon, #117).
+
 [0.28.3.gfm.16]
 
   * Do not percent-encode tildes (~) in HTML attribute values (#110).
