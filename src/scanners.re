@@ -275,7 +275,7 @@ bufsize_t _scan_open_code_fence(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   [`]{3,} / [^`\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
-  [~]{3,} / [^~\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
+  [~]{3,} / [^\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
