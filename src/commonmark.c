@@ -171,6 +171,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   int i;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
+  char fencechar[2] = {'\0', '\0'};
   size_t info_len, code_len;
   char listmarker[LISTMARKER_SIZE];
   char *emph_delim;
@@ -278,6 +279,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     info = cmark_node_get_fence_info(node);
     info_len = strlen(info);
+    fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
     code_len = strlen(code);
     // use indented form if no info, and code doesn't
@@ -297,7 +299,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         numticks = 3;
       }
       for (i = 0; i < numticks; i++) {
-        LIT("`");
+        LIT(fencechar);
       }
       LIT(" ");
       OUT(info, false, LITERAL);
@@ -305,7 +307,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       OUT(cmark_node_get_literal(node), false, LITERAL);
       CR();
       for (i = 0; i < numticks; i++) {
-        LIT("`");
+        LIT(fencechar);
       }
     }
     BLANKLINE();
