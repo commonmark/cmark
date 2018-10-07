@@ -492,12 +492,18 @@ No, they are not~
 
 This ~is ~ legit~ isn't ~ legit.
 
-This is just ~~~~~one~~~~~ huge strikethrough.
+This is not ~~~~~one~~~~~ huge strikethrough.
+
+~one~ ~~two~~ ~~~three~~~
+
+No ~mismatch~~
 .
 <p>These are ~not strikethroughs.</p>
 <p>No, they are not~</p>
 <p>This <del>is ~ legit</del> isn't ~ legit.</p>
-<p>This is just <del>one</del> huge strikethrough.</p>
+<p>This is not ~~~~~one~~~~~ huge strikethrough.</p>
+<p><del>one</del> <del>two</del> ~~~three~~~</p>
+<p>No ~mismatch~~</p>
 ````````````````````````````````
 
 

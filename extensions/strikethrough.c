@@ -28,7 +28,7 @@ static cmark_node *match(cmark_syntax_extension *self, cmark_parser *parser,
   res->start_column = cmark_inline_parser_get_column(inline_parser) - delims;
 
   if ((left_flanking || right_flanking) &&
-      (!(parser->options & CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE) || delims == 2)) {
+      (delims == 2 || (!(parser->options & CMARK_OPT_STRIKETHROUGH_DOUBLE_TILDE) && delims == 1))) {
     cmark_inline_parser_push_delimiter(inline_parser, character, left_flanking,
                                        right_flanking, res);
   }
@@ -45,6 +45,9 @@ static delimiter *insert(cmark_syntax_extension *self, cmark_parser *parser,
   delimiter *res = closer->next;
 
   strikethrough = opener->inl_text;
+
+  if (opener->inl_text->as.literal.len != closer->inl_text->as.literal.len)
+    goto done;
 
   if (!cmark_node_set_type(strikethrough, CMARK_NODE_STRIKETHROUGH))
     goto done;
