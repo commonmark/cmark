@@ -1,7 +1,7 @@
 cmark-gfm
 =========
 
-[![Build Status]](https://travis-ci.org/github/cmark)
+[![Build Status]](https://travis-ci.org/github/cmark-gfm)
 [![Windows Build Status]](https://ci.appveyor.com/project/github/cmark)
 
 `cmark-gfm` is an extended version of the C reference implementation of
