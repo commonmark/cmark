@@ -227,7 +227,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_HTML_BLOCK:
     cmark_html_render_cr(html);
-    if (options & CMARK_OPT_SAFE) {
+    if (!(options & CMARK_OPT_UNSAFE)) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
     } else if (renderer->filter_extensions) {
       filter_html_block(renderer, node->as.literal.data, node->as.literal.len);
@@ -305,7 +305,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_HTML_INLINE:
-    if (options & CMARK_OPT_SAFE) {
+    if (!(options & CMARK_OPT_UNSAFE)) {
       cmark_strbuf_puts(html, "<!-- raw HTML omitted -->");
     } else {
       filtered = false;
@@ -354,7 +354,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
   case CMARK_NODE_LINK:
     if (entering) {
       cmark_strbuf_puts(html, "<a href=\"");
-      if (!((options & CMARK_OPT_SAFE) &&
+      if (!(!(options & CMARK_OPT_UNSAFE) &&
             scan_dangerous_url(&node->as.link.url, 0))) {
         houdini_escape_href(html, node->as.link.url.data,
                             node->as.link.url.len);
@@ -372,7 +372,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
   case CMARK_NODE_IMAGE:
     if (entering) {
       cmark_strbuf_puts(html, "<img src=\"");
-      if (!((options & CMARK_OPT_SAFE) &&
+      if (!(!(options & CMARK_OPT_UNSAFE) &&
             scan_dangerous_url(&node->as.link.url, 0))) {
         houdini_escape_href(html, node->as.link.url.data,
                             node->as.link.url.len);
