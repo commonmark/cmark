@@ -269,7 +269,11 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
-static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset) {
+static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
+  // postprocess_text can recurse very deeply if there is a very long line of
+  // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
+  if (depth > 1000) return;
+
   size_t link_end;
   uint8_t *data = text->as.literal.data,
     *at;
@@ -307,7 +311,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
   }
 
   if (rewind == 0 || ns > 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset);
+    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
     return;
   }
 
@@ -327,14 +331,14 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
 
   if (link_end < 2 || nb != 1 || np == 0 ||
       (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
-    postprocess_text(parser, text, max_rewind + 1 + offset);
+    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
     return;
   }
 
   link_end = autolink_delim(data, link_end);
 
   if (link_end == 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset);
+    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
     return;
   }
 
@@ -369,7 +373,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset)
   text->as.literal.len = offset + max_rewind - rewind;
   text->as.literal.data[text->as.literal.len] = 0;
 
-  postprocess_text(parser, post, 0);
+  postprocess_text(parser, post, 0, depth + 1);
 }
 
 static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *root) {
@@ -396,7 +400,7 @@ static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser
     }
 
     if (ev == CMARK_EVENT_ENTER && node->type == CMARK_NODE_TEXT) {
-      postprocess_text(parser, node, 0);
+      postprocess_text(parser, node, 0, /*depth*/0);
     }
   }
 
