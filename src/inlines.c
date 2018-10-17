@@ -1551,7 +1551,7 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
     }
   }
 
-  while (peek_char(parser) == c && numdelims <= max_delims) {
+  while (peek_char(parser) == c && numdelims < max_delims) {
     numdelims++;
     advance(parser);
   }
