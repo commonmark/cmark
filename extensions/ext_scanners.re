@@ -5,7 +5,7 @@ bufsize_t _ext_scan_at(bufsize_t (*scanner)(const unsigned char *), unsigned cha
 {
 	bufsize_t res;
 
-        if (ptr == NULL || offset > len) {
+        if (ptr == NULL || offset >= len) {
           return 0;
         } else {
 	  unsigned char lim = ptr[len];
