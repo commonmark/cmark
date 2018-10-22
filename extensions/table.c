@@ -114,7 +114,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
                                   cmark_parser *parser, unsigned char *string,
                                   int len) {
   table_row *row = NULL;
-  bufsize_t cell_matched, pipe_matched, offset;
+  bufsize_t cell_matched = 1, pipe_matched = 1, offset;
 
   row = (table_row *)parser->mem->calloc(1, sizeof(table_row));
   row->n_columns = 0;
@@ -122,7 +122,9 @@ static table_row *row_from_string(cmark_syntax_extension *self,
 
   offset = scan_table_cell_end(string, len, 0);
 
-  do {
+  // Parse the cells of the row. Stop if we reach the end of the input, or if we
+  // cannot detect any more cells.
+  while (offset < len && (cell_matched || pipe_matched)) {
     cell_matched = scan_table_cell(string, len, offset);
     pipe_matched = scan_table_cell_end(string, len, offset + cell_matched);
 
@@ -149,7 +151,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       pipe_matched = scan_table_row_end(string, len, offset);
       offset += pipe_matched;
     }
-  } while ((cell_matched || pipe_matched) && offset < len);
+  }
 
   if (offset != len || !row->n_columns) {
     free_table_row(parser->mem, row);
