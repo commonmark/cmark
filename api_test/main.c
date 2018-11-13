@@ -952,27 +952,51 @@ static void source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
-static void source_pos_2(test_batch_runner *runner) {
-  static const char markdown[] =
-    "*first*\n"
-    "second\n";
+static void source_pos_inlines(test_batch_runner *runner) {
+  {
+    static const char markdown[] =
+      "*first*\n"
+      "second\n";
 
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-2:6\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <paragraph sourcepos=\"1:1-2:6\">\n"
-                      "    <emph sourcepos=\"1:1-1:7\">\n"
-                      "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
-                      "    </emph>\n"
-                      "    <softbreak />\n"
-                      "    <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
-                      "  </paragraph>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-2:6\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <paragraph sourcepos=\"1:1-2:6\">\n"
+                        "    <emph sourcepos=\"1:1-1:7\">\n"
+                        "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
+                        "    </emph>\n"
+                        "    <softbreak />\n"
+                        "    <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
+                        "  </paragraph>\n"
+                        "</document>\n",
+                        "sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+      "*first\n"
+      "second*\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-2:7\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <paragraph sourcepos=\"1:1-2:7\">\n"
+                        "    <emph sourcepos=\"1:1-2:7\">\n"
+                        "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
+                        "      <softbreak />\n"
+                        "      <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
+                        "    </emph>\n"
+                        "  </paragraph>\n"
+                        "</document>\n",
+                        "sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
 }
 
 static void ref_source_pos(test_batch_runner *runner) {
@@ -1025,7 +1049,7 @@ int main() {
   test_safe(runner);
   test_feed_across_line_ending(runner);
   source_pos(runner);
-  source_pos_2(runner);
+  source_pos_inlines(runner);
   ref_source_pos(runner);
 
   test_print_summary(runner);
