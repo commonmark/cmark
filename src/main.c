@@ -13,6 +13,10 @@
 
 #include "../extensions/cmark-gfm-core-extensions.h"
 
+#if defined(__OpenBSD__)
+#include <unistd.h>
+#endif
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
 #include <fcntl.h>
@@ -116,6 +120,13 @@ int main(int argc, char *argv[]) {
   writer_format writer = FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
+
+#if defined(__OpenBSD__)
+  if (pledge("stdio rpath", NULL) != 0) {
+    perror("pledge");
+    return 1;
+  }
+#endif
 
   cmark_gfm_core_extensions_ensure_registered();
 
@@ -263,6 +274,13 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+
+#if defined(__OpenBSD__)
+  if (pledge("stdio", NULL) != 0) {
+    perror("pledge");
+    return 1;
+  }
+#endif
 
   document = cmark_parser_finish(parser);
 
