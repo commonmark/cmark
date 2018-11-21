@@ -14,7 +14,11 @@
 #include "../extensions/cmark-gfm-core-extensions.h"
 
 #if defined(__OpenBSD__)
-#include <unistd.h>
+#  include <sys/param.h>
+#  if OpenBSD >= 201605
+#    define USE_PLEDGE
+#    include <unistd.h>
+#  endif
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -121,7 +125,7 @@ int main(int argc, char *argv[]) {
   int options = CMARK_OPT_DEFAULT;
   int res = 1;
 
-#if defined(__OpenBSD__)
+#ifdef USE_PLEDGE
   if (pledge("stdio rpath", NULL) != 0) {
     perror("pledge");
     return 1;
@@ -275,7 +279,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-#if defined(__OpenBSD__)
+#ifdef USE_PLEDGE
   if (pledge("stdio", NULL) != 0) {
     perror("pledge");
     return 1;
