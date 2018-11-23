@@ -7,6 +7,14 @@
 #include "cmark.h"
 #include "node.h"
 
+#if defined(__OpenBSD__)
+#  include <sys/param.h>
+#  if OpenBSD >= 201605
+#    define USE_PLEDGE
+#    include <unistd.h>
+#  endif
+#endif
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
 #include <fcntl.h>
@@ -76,6 +84,13 @@ int main(int argc, char *argv[]) {
   char *unparsed;
   writer_format writer = FORMAT_HTML;
   int options = CMARK_OPT_DEFAULT;
+
+#ifdef USE_PLEDGE
+  if (pledge("stdio rpath", NULL) != 0) {
+    perror("pledge");
+    return 1;
+  }
+#endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
@@ -175,6 +190,13 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+
+#ifdef USE_PLEDGE
+  if (pledge("stdio", NULL) != 0) {
+    perror("pledge");
+    return 1;
+  }
+#endif
 
   document = cmark_parser_finish(parser);
   cmark_parser_free(parser);
