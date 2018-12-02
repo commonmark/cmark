@@ -70,7 +70,7 @@ IF (PYTHONINTERP_FOUND)
     "--no-normalize"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
     "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm"
-    "--extensions" "table strikethrough autolink tagfilter footnotes"
+    "--extensions" "table strikethrough autolink tagfilter footnotes tasklist"
     )
 
   add_test(roundtrip_extensions_executable
@@ -78,7 +78,7 @@ IF (PYTHONINTERP_FOUND)
     "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
     "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm"
-    "--extensions" "table strikethrough autolink tagfilter footnotes"
+    "--extensions" "table strikethrough autolink tagfilter footnotes tasklist"
     )
 
   add_test(option_table_prefer_style_attributes
@@ -86,7 +86,7 @@ IF (PYTHONINTERP_FOUND)
     "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
     "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/extensions-table-prefer-style-attributes.txt"
     "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark-gfm --table-prefer-style-attributes"
-    "--extensions" "table strikethrough autolink tagfilter footnotes"
+    "--extensions" "table strikethrough autolink tagfilter footnotes tasklist"
     )
 
   add_test(option_full_info_string

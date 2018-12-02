@@ -711,3 +711,32 @@ Autolink and tables.
 </tbody>
 </table>
 ````````````````````````````````
+
+## Task lists
+
+```````````````````````````````` example
+- [ ] foo
+- [x] bar
+.
+<ul>
+<li class="task-list-item"><input type="checkbox" disabled="" /> foo</li>
+<li class="task-list-item"><input type="checkbox" checked="" disabled="" /> bar</li>
+</ul>
+````````````````````````````````
+
+```````````````````````````````` example
+- [x] foo
+  - [ ] bar
+  - [x] baz
+- [ ] bim
+.
+<ul>
+<li class="task-list-item"><input type="checkbox" checked="" disabled="" /> foo
+<ul>
+<li class="task-list-item"><input type="checkbox" disabled="" /> bar</li>
+<li class="task-list-item"><input type="checkbox" checked="" disabled="" /> baz</li>
+</ul>
+</li>
+<li class="task-list-item"><input type="checkbox" disabled="" /> bim</li>
+</ul>
+````````````````````````````````

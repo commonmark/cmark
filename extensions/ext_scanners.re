@@ -31,6 +31,8 @@ bufsize_t _ext_scan_at(bufsize_t (*scanner)(const unsigned char *), unsigned cha
 
   table_marker = (spacechar*[:]?[-]+[:]?spacechar*);
   table_cell = (escaped_char|[^|\r\n])*;
+
+  tasklist = spacechar*("-"|"+"|"*"|[0-9]+.)spacechar+("[ ]"|"[x]")spacechar+;
 */
 
 bufsize_t _scan_table_start(const unsigned char *p)
@@ -69,6 +71,15 @@ bufsize_t _scan_table_row_end(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   spacechar* newline { return (bufsize_t)(p - start); }
+  .? { return 0; }
+*/
+}
+bufsize_t _scan_tasklist(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  tasklist { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
