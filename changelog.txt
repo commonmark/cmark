@@ -1,6 +1,6 @@
 [pre]
 
-  * Add tasklist extension implementation (Watson, #94).
+  * Add tasklist extension implementation (Watson1978, #94).
 
 [0.28.3.gfm.19]
 
