@@ -1,3 +1,7 @@
+[pre]
+
+  * Add tasklist extension implementation (Watson, #94).
+
 [0.28.3.gfm.19]
 
   * Prevent out-of-bound memory access in strikethrough matcher (Xavier Décoret, #124).
