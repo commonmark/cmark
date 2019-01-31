@@ -1,4 +1,4 @@
-[pre]
+[0.28.3.gfm.20]
 
   * Add tasklist extension implementation (Watson1978, #94).
 
