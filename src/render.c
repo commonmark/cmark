@@ -57,6 +57,7 @@ static void S_out(cmark_renderer *renderer, cmark_node *node,
       }
     }
     renderer->column = 0;
+    renderer->last_breakable = 0;
     renderer->begin_line = true;
     renderer->begin_content = true;
     renderer->need_cr -= 1;

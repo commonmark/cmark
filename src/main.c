@@ -21,6 +21,14 @@
 #  endif
 #endif
 
+#if defined(__OpenBSD__)
+#  include <sys/param.h>
+#  if OpenBSD >= 201605
+#    define USE_PLEDGE
+#    include <unistd.h>
+#  endif
+#endif
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h>
 #include <fcntl.h>
@@ -133,6 +141,13 @@ int main(int argc, char *argv[]) {
 #endif
 
   cmark_gfm_core_extensions_ensure_registered();
+
+#ifdef USE_PLEDGE
+  if (pledge("stdio rpath", NULL) != 0) {
+    perror("pledge");
+    return 1;
+  }
+#endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   _setmode(_fileno(stdin), _O_BINARY);
