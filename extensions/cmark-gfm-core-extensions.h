@@ -21,6 +21,9 @@ uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node);
 CMARK_GFM_EXTENSIONS_EXPORT
 int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node);
 
+CMARK_GFM_EXTENSIONS_EXPORT
+char *cmark_gfm_extensions_get_tasklist_state(cmark_node *node);
+
 #ifdef __cplusplus
 }
 #endif
