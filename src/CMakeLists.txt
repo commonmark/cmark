@@ -58,6 +58,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
 
 include (GenerateExportHeader)
 
+include("../CheckFileOffsetBits.cmake")
+CHECK_FILE_OFFSET_BITS()
+
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 add_compiler_export_flags()
 
