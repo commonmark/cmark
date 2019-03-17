@@ -215,7 +215,7 @@ bufsize_t _scan_link_title(const unsigned char *p)
 /*!re2c
   ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
   ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
-  [(] (escaped_char|[^)\x00])* [)]  { return (bufsize_t)(p - start); }
+  [(] (escaped_char|[^()\x00])* [)]  { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
