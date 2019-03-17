@@ -34,6 +34,10 @@ static bool S_last_line_blank(const cmark_node *node) {
   return (node->flags & CMARK_NODE__LAST_LINE_BLANK) != 0;
 }
 
+static bool S_last_line_checked(const cmark_node *node) {
+  return (node->flags & CMARK_NODE__LAST_LINE_CHECKED) != 0;
+}
+
 static CMARK_INLINE cmark_node_type S_type(const cmark_node *node) {
   return (cmark_node_type)node->type;
 }
@@ -43,6 +47,10 @@ static void S_set_last_line_blank(cmark_node *node, bool is_blank) {
     node->flags |= CMARK_NODE__LAST_LINE_BLANK;
   else
     node->flags &= ~CMARK_NODE__LAST_LINE_BLANK;
+}
+
+static void S_set_last_line_checked(cmark_node *node) {
+  node->flags |= CMARK_NODE__LAST_LINE_CHECKED;
 }
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -208,20 +216,16 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
 static bool ends_with_blank_line(cmark_node *node) {
-  cmark_node *cur = node;
-  while (cur != NULL) {
-    if (S_last_line_blank(cur)) {
-      S_set_last_line_blank(node, true);
-      return true;
-    }
-    if (S_type(cur) == CMARK_NODE_LIST || S_type(cur) == CMARK_NODE_ITEM) {
-      cur = cur->last_child;
-    } else {
-      cur = NULL;
-    }
+  if (S_last_line_checked(node)) {
+    return(S_last_line_blank(node));
+  } else if ((S_type(node) == CMARK_NODE_LIST ||
+              S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
+    S_set_last_line_checked(node);
+    return(ends_with_blank_line(node->last_child));
+  } else {
+    S_set_last_line_checked(node);
+    return (S_last_line_blank(node));
   }
-  S_set_last_line_blank(node, false);
-  return false;
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
