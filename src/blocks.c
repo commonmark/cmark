@@ -322,7 +322,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       // spaces between them:
       subitem = item->first_child;
       while (subitem) {
-        if (S_ends_with_blank_line(subitem) && (item->next || subitem->next)) {
+        if ((item->next || subitem->next) &&
+            S_ends_with_blank_line(subitem)) {
           b->as.list.tight = false;
           break;
         }
