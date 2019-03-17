@@ -253,21 +253,6 @@ bufsize_t _scan_setext_heading_line(const unsigned char *p)
 */
 }
 
-// Scan a thematic break line: "...three or more hyphens, asterisks,
-// or underscores on a line by themselves. If you wish, you may use
-// spaces between the hyphens or asterisks."
-bufsize_t _scan_thematic_break(const unsigned char *p)
-{
-  const unsigned char *marker = NULL;
-  const unsigned char *start = p;
-/*!re2c
-  ([*][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  ([_][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  ([-][ \t]*){3,} [ \t]* [\r\n] { return (bufsize_t)(p - start); }
-  * { return 0; }
-*/
-}
-
 // Scan an opening code fence.
 bufsize_t _scan_open_code_fence(const unsigned char *p)
 {

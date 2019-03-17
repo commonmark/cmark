@@ -105,6 +105,7 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->column = 0;
   parser->first_nonspace = 0;
   parser->first_nonspace_column = 0;
+  parser->thematic_break_kill_pos = 0;
   parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;
@@ -615,6 +616,40 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
   }
 }
 
+// Check for thematic break.  On failure, return 0 and update
+// thematic_break_kill_pos with the index at which the
+// parse fails.  On success, return length of match.
+// "...three or more hyphens, asterisks,
+// or underscores on a line by themselves. If you wish, you may use
+// spaces between the hyphens or asterisks."
+static int S_scan_thematic_break(cmark_parser *parser, cmark_chunk *input,
+                                 bufsize_t offset) {
+  bufsize_t i;
+  char c;
+  char nextc = '\0';
+  int count;
+  i = offset;
+  c = peek_at(input, i);
+  if (!(c == '*' || c == '_' || c == '-')) {
+    parser->thematic_break_kill_pos = i;
+    return 0;
+  }
+  count = 1;
+  while ((nextc = peek_at(input, ++i))) {
+    if (nextc == c) {
+      count++;
+    } else if (nextc != ' ' && nextc != '\t') {
+      break;
+    }
+  }
+  if (count >= 3 && (nextc == '\r' || nextc == '\n')) {
+    return (i - offset) + 1;
+  } else {
+    parser->thematic_break_kill_pos = i;
+    return 0;
+  }
+}
+
 // Find first nonspace character from current offset, setting
 // parser->first_nonspace, parser->first_nonspace_column,
 // parser->indent, and parser->blank. Does not advance parser->offset.
@@ -948,7 +983,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
-               (matched = scan_thematic_break(input, parser->first_nonspace))) {
+	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
+               (matched = S_scan_thematic_break(parser, input, parser->first_nonspace))) {
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
@@ -1171,6 +1207,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   parser->column = 0;
   parser->first_nonspace = 0;
   parser->first_nonspace_column = 0;
+  parser->thematic_break_kill_pos = 0;
   parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;
