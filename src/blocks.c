@@ -215,13 +215,13 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
-static bool ends_with_blank_line(cmark_node *node) {
+static bool S_ends_with_blank_line(cmark_node *node) {
   if (S_last_line_checked(node)) {
     return(S_last_line_blank(node));
   } else if ((S_type(node) == CMARK_NODE_LIST ||
               S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
     S_set_last_line_checked(node);
-    return(ends_with_blank_line(node->last_child));
+    return(S_ends_with_blank_line(node->last_child));
   } else {
     S_set_last_line_checked(node);
     return (S_last_line_blank(node));
@@ -322,7 +322,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       // spaces between them:
       subitem = item->first_child;
       while (subitem) {
-        if (ends_with_blank_line(subitem) && (item->next || subitem->next)) {
+        if (S_ends_with_blank_line(subitem) && (item->next || subitem->next)) {
           b->as.list.tight = false;
           break;
         }
