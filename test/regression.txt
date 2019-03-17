@@ -121,3 +121,11 @@ Issue #530 - link parsing corner cases
 <p><a href="%3C%3Cb">a</a></p>
 <p><a href="%3Cb">a</a></p>
 ````````````````````````````````
+
+Issue commonmark#526 - unescaped ( in link title
+
+```````````````````````````````` example
+[link](url ((title))
+.
+<p>[link](url ((title))</p>
+````````````````````````````````
