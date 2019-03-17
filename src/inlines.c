@@ -605,7 +605,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
-  int openers_bottom_index;
+  int openers_bottom_index = 0;
   delimiter *openers_bottom[6] = {stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom};
 
