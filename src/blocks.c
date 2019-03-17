@@ -211,6 +211,7 @@ static bool ends_with_blank_line(cmark_node *node) {
   cmark_node *cur = node;
   while (cur != NULL) {
     if (S_last_line_blank(cur)) {
+      S_set_last_line_blank(node, true);
       return true;
     }
     if (S_type(cur) == CMARK_NODE_LIST || S_type(cur) == CMARK_NODE_ITEM) {
@@ -219,6 +220,7 @@ static bool ends_with_blank_line(cmark_node *node) {
       cur = NULL;
     }
   }
+  S_set_last_line_blank(node, false);
   return false;
 }
 
