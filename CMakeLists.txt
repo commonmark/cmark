@@ -1,25 +1,11 @@
-cmake_minimum_required(VERSION 2.8.9)
-
-# prevent ugly developer warnings because version is set directly, not through project()
-# it should be redone properly by using VERSION in project() if on CMake 3.x
-if(CMAKE_MAJOR_VERSION GREATER 2)
-    cmake_policy(SET CMP0048 OLD)
-endif()
-
-project(cmark)
+cmake_minimum_required(VERSION 3.0)
+project(cmark VERSION 0.28.3)
 
 include("FindAsan.cmake")
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
-
-set(PROJECT_NAME "cmark")
-
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 28)
-set(PROJECT_VERSION_PATCH 3)
-set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 option(CMARK_STATIC "Build static libcmark library" ON)
