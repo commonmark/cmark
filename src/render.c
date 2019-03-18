@@ -172,7 +172,7 @@ char *cmark_render(cmark_node *root, int options, int width,
   }
 
   // ensure final newline
-  if (renderer.buffer->ptr[renderer.buffer->size - 1] != '\n') {
+  if (renderer.buffer->size == 0 || renderer.buffer->ptr[renderer.buffer->size - 1] != '\n') {
     cmark_strbuf_putc(renderer.buffer, '\n');
   }
 
