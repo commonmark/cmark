@@ -1,4 +1,4 @@
-.TH cmark 3 "June 02, 2017" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 17, 2019" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -721,17 +721,17 @@ Render \f[C]softbreak\f[] elements as hard line breaks.
 .nf
 \fC
 .RS 0n
-#define CMARK_OPT_SAFE (1 << 3)
+#define CMARK_OPT_UNSAFE (1 << 17)
 .RE
 \f[]
 .fi
 
 .PP
-Suppress raw HTML and unsafe links (\f[C]javascript:\f[],
+Render raw HTML and unsafe links (\f[C]javascript:\f[],
 \f[C]vbscript:\f[], \f[C]file:\f[], and \f[C]data:\f[], except for
 \f[C]image/png\f[], \f[C]image/gif\f[], \f[C]image/jpeg\f[], or
-\f[C]image/webp\f[] mime types). Raw HTML is replaced by a placeholder
-HTML comment. Unsafe links are replaced by empty strings.
+\f[C]image/webp\f[] mime types). By default, raw HTML is replaced by a
+placeholder HTML comment. Unsafe links are replaced by empty strings.
 
 .PP
 .nf

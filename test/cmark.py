@@ -17,7 +17,8 @@ def to_html(lib, text):
     markdown.argtypes = [c_char_p, c_size_t, c_int]
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
-    result = markdown(textbytes, textlen, 0).decode('utf-8')
+    # 1 << 17 == CMARK_OPT_UNSAFE
+    result = markdown(textbytes, textlen, 1 << 17).decode('utf-8')
     return [0, result, '']
 
 def to_commonmark(lib, text):
@@ -37,6 +38,7 @@ class CMark:
     def __init__(self, prog=None, library_dir=None):
         self.prog = prog
         if prog:
+            prog += ' --unsafe'
             self.to_html = lambda x: pipe_through_prog(prog, x)
             self.to_commonmark = lambda x: pipe_through_prog(prog + ' -t commonmark', x)
         else:

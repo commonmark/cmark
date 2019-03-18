@@ -177,7 +177,8 @@ static void accessors(test_batch_runner *runner) {
   OK(runner, cmark_node_set_literal(string, literal + sizeof("prefix")),
      "set_literal suffix");
 
-  char *rendered_html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
+  char *rendered_html = cmark_render_html(doc,
+		          CMARK_OPT_DEFAULT | CMARK_OPT_UNSAFE);
   static const char expected_html[] =
       "<h3>Header</h3>\n"
       "<ol start=\"3\">\n"
@@ -859,7 +860,7 @@ static void test_safe(test_batch_runner *runner) {
                                  "a>\n[link](JAVAscript:alert('hi'))\n![image]("
                                  "file:my.js)\n";
   char *html = cmark_markdown_to_html(raw_html, sizeof(raw_html) - 1,
-                                      CMARK_OPT_DEFAULT | CMARK_OPT_SAFE);
+                                      CMARK_OPT_DEFAULT);
   STR_EQ(runner, html, "<!-- raw HTML omitted -->\n<p><!-- raw HTML omitted "
                        "-->hi<!-- raw HTML omitted -->\n<a "
                        "href=\"\">link</a>\n<img src=\"\" alt=\"image\" "

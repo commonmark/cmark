@@ -13,7 +13,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     memcpy(&fuzz_config, data, sizeof(fuzz_config));
 
     /* Mask off valid option bits */
-    fuzz_config.options &= (CMARK_OPT_SOURCEPOS | CMARK_OPT_HARDBREAKS | CMARK_OPT_SAFE | CMARK_OPT_NOBREAKS | CMARK_OPT_NORMALIZE | CMARK_OPT_VALIDATE_UTF8 | CMARK_OPT_SMART);
+    fuzz_config.options &= (CMARK_OPT_SOURCEPOS | CMARK_OPT_HARDBREAKS | CMARK_OPT_UNSAFE | CMARK_OPT_NOBREAKS | CMARK_OPT_NORMALIZE | CMARK_OPT_VALIDATE_UTF8 | CMARK_OPT_SMART);
 
     /* Remainder of input is the markdown */
     const char *markdown = (const char *)(data + sizeof(fuzz_config));
