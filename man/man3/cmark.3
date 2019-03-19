@@ -1,4 +1,4 @@
-.TH cmark 3 "March 17, 2019" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "March 19, 2019" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -716,6 +716,20 @@ Include a \f[C]data\-sourcepos\f[] attribute on all block elements.
 
 .PP
 Render \f[C]softbreak\f[] elements as hard line breaks.
+
+.PP
+.nf
+\fC
+.RS 0n
+#define CMARK_OPT_SAFE (1 << 3)
+.RE
+\f[]
+.fi
+
+.PP
+\f[C]CMARK_OPT_SAFE\f[] is defined here for API compatibility, but it no
+longer has any effect. "Safe" mode is now the default: set
+\f[C]CMARK_OPT_UNSAFE\f[] to disable it.
 
 .PP
 .nf
