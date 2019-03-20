@@ -970,6 +970,9 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
       else
         ++i;
     }
+    if (i >= input->len) {
+      return manual_scan_link_url_2(input, offset, output);
+    }
   } else {
     return manual_scan_link_url_2(input, offset, output);
   }
