@@ -642,7 +642,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
           if (!(closer->can_open || opener->can_close) ||
-              ((opener->length + closer->length) % 3) != 0) {
+	      closer->length % 3 == 0 ||
+              (opener->length + closer->length) % 3 != 0) {
             opener_found = true;
             break;
           }
