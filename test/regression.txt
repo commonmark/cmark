@@ -129,3 +129,19 @@ Issue commonmark#526 - unescaped ( in link title
 .
 <p>[link](url ((title))</p>
 ````````````````````````````````
+
+Issue commonamrk#517 - script, pre, style close tag without
+opener.
+
+```````````````````````````````` example
+</script>
+
+</pre>
+
+</style>
+.
+</script>
+</pre>
+</style>
+````````````````````````````````
+
