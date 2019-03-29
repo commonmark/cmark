@@ -3,7 +3,6 @@
 #include <string.h>
 #include <errno.h>
 #include "config.h"
-#include "memory.h"
 #include "cmark.h"
 #include "node.h"
 
