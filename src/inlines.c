@@ -938,10 +938,14 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
           break;
         --nb_p;
         ++i;
-      } else if (cmark_isspace(input->data[i]))
+      } else if (cmark_isspace(input->data[i])) {
+        if (i == offset) {
+	  return -1;
+	}
         break;
-      else
+      } else {
         ++i;
+      }
     }
 
   if (i >= input->len)
@@ -1337,8 +1341,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
 
   // parse link url:
   spnl(&subj);
-  if ((matchlen = manual_scan_link_url(&subj.input, subj.pos, &url)) > -1 &&
-      url.len > 0) {
+  if ((matchlen = manual_scan_link_url(&subj.input, subj.pos, &url)) > -1) {
     subj.pos += matchlen;
   } else {
     return 0;
