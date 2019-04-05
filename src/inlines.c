@@ -324,9 +324,11 @@ static bufsize_t scan_to_closing_backticks(subject *subj,
 }
 
 // Destructively modify string, converting newlines to
-// spaces, then removing a single leading + trailing space.
+// spaces, then removing a single leading + trailing space,
+// unless the code span consists entirely of space characters.
 static void S_normalize_code(cmark_strbuf *s) {
   bufsize_t r, w;
+  bool contains_nonspace = false;
 
   for (r = 0, w = 0; r < s->size; ++r) {
     switch (s->ptr[r]) {
@@ -341,10 +343,14 @@ static void S_normalize_code(cmark_strbuf *s) {
     default:
       s->ptr[w++] = s->ptr[r];
     }
+    if (s->ptr[r] != ' ') {
+      contains_nonspace = true;
+    }
   }
 
   // begins and ends with space?
-  if (s->ptr[0] == ' ' && s->ptr[w - 1] == ' ') {
+  if (contains_nonspace &&
+      s->ptr[0] == ' ' && s->ptr[w - 1] == ' ') {
     cmark_strbuf_drop(s, 1);
     cmark_strbuf_truncate(s, w - 2);
   } else {
