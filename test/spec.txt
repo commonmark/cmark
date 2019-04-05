@@ -248,7 +248,7 @@ satisfactory replacement for a spec.
 
 Because there is no unambiguous spec, implementations have diverged
 considerably.  As a result, users are often surprised to find that
-a document that renders one way on one system (say, a github wiki)
+a document that renders one way on one system (say, a GitHub wiki)
 renders differently on another (say, converting to docbook using
 pandoc).  To make matters worse, because nothing in Markdown counts
 as a "syntax error," the divergence often isn't discovered right away.
@@ -1872,7 +1872,7 @@ Code fences (opening and closing) cannot contain internal spaces:
 ``` ```
 aaa
 .
-<p><code></code>
+<p><code> </code>
 aaa</p>
 ````````````````````````````````
 
@@ -5758,7 +5758,8 @@ following ways:
 
 - First, [line endings] are converted to [spaces].
 - If the resulting string both begins *and* ends with a [space]
-  character, a single [space] character is removed from the
+  character, but does not consist entirely of [space]
+  characters, a single [space] character is removed from the
   front and back.  This allows you to include code that begins
   or ends with backtick characters, which must be separated by
   whitespace from the opening or closing backtick strings.
@@ -5816,6 +5817,16 @@ stripped in this way:
 ` b `
 .
 <p><code> b </code></p>
+````````````````````````````````
+
+No stripping occurs if the code span contains only spaces:
+
+```````````````````````````````` example
+` `
+`  `
+.
+<p><code> </code>
+<code>  </code></p>
 ````````````````````````````````
 
 
