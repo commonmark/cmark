@@ -229,11 +229,30 @@ static bool S_ends_with_blank_line(cmark_node *node) {
   }
 }
 
+// returns true if content remains after link defs are resolved.
+static bool resolve_reference_link_definitions(
+		cmark_parser *parser,
+                cmark_node *b) {
+  bufsize_t pos;
+  cmark_strbuf *node_content = &b->content;
+  cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
+  while (chunk.len && chunk.data[0] == '[' &&
+         (pos = cmark_parse_reference_inline(parser->mem, &chunk,
+					     parser->refmap))) {
+
+    chunk.data += pos;
+    chunk.len -= pos;
+  }
+  cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
+  return !is_blank(&b->content, 0);
+}
+
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   bufsize_t pos;
   cmark_node *item;
   cmark_node *subitem;
   cmark_node *parent;
+  bool has_content;
 
   parent = b->parent;
   assert(b->flags &
@@ -263,15 +282,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
   {
-    cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
-    while (chunk.len && chunk.data[0] == '[' &&
-           (pos = cmark_parse_reference_inline(parser->mem, &chunk, parser->refmap))) {
-
-      chunk.data += pos;
-      chunk.len -= pos;
-    }
-    cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
-    if (is_blank(node_content, 0)) {
+    has_content = resolve_reference_link_definitions(parser, b);
+    if (!has_content) {
       // remove blank node (former reference def)
       cmark_node_free(b);
     }
@@ -905,6 +917,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
   bufsize_t matched = 0;
   int lev = 0;
   bool save_partially_consumed_tab;
+  bool has_content;
   int save_offset;
   int save_column;
 
@@ -977,10 +990,16 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
                (lev =
                     scan_setext_heading_line(input, parser->first_nonspace))) {
-      (*container)->type = (uint16_t)CMARK_NODE_HEADING;
-      (*container)->as.heading.level = lev;
-      (*container)->as.heading.setext = true;
-      S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
+      // finalize paragraph, resolving reference links
+      has_content = resolve_reference_link_definitions(parser, *container);
+
+      if (has_content) {
+
+        (*container)->type = (uint16_t)CMARK_NODE_HEADING;
+        (*container)->as.heading.level = lev;
+        (*container)->as.heading.setext = true;
+        S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
+      }
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
 	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
