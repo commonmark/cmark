@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(cmark VERSION 0.28.3)
+project(cmark VERSION 0.29.0)
 
 include("FindAsan.cmake")
 
