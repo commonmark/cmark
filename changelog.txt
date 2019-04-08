@@ -1,7 +1,16 @@
 [0.29.0]
 
   * Update spec to 0.29.
-  * Makefile: For afl target, don't build tests.
+  * Make rendering safe by default (#239, #273).
+    Adds `CMARK_OPT_UNSAFE` and make `CMARK_OPT_SAFE` a no-op (for API
+    compatibility).  The new default behavior is to suppress raw HTML and
+    potentially dangerous links.  The `CMARK_OPT_UNSAFE` option has to be set
+    explicitly to prevent this.
+    **NOTE:** This change will require modifications in bindings for cmark
+    and in most libraries and programs that use cmark.
+    Borrows heavily from @kivikakk's patch in github/cmark-gfm#123.
+  * Add sourcepos info for inlines (Yuki Izumi).
+  * Disallow more than 32 nested balanced parens in a link (Yuki Izumi).
   * Resolve link references before creating setext header.
     A setext header line after a link reference should not
     create a header, according to the spec.
@@ -13,79 +22,68 @@
     kind of escaping, not a literal newline.
   * Update code span normalization to conform with spec change.
   * Allow empty `<>` link destination in reference link.
-  * Remove leftover includes of memory.h (#290).
+  * Remove leftover includes of `memory.h` (#290).
   * A link destination can't start with `<` unless it is
     an angle-bracket link that also ends with `>` (#289).
     (If your URL really starts with `<`, URL-escape it.)
   * Allow internal delimiter runs to match if both have lengths that are
     multiples of 3.  See commonmark/commonmark#528.
-  * Include references.h in parser.h (#287).
+  * Include `references.h` in `parser.h` (#287).
   * Fix `[link](<foo\>)`.
-  * build: Remove deprecated call to `add_compiler_export_flags()`
-    (Jonathan Müller).  It is deprecated in CMake 3.0, the replacement is to
-    set the CXX_VISIBILITY_PRESET (or in our case C_VISIBILITY_PRESET) and
-    VISIBILITY_INLINES_HIDDEN properties of the target.  We're already setting
-    them by setting the CMake variables anyway, so the call can be removed.
-  * Bump CMake to version 3 (Jonathan Müller).
-  * Make rendering safe by default (#239, #273).
-    Adds CMARK_OPT_UNSAFE and make CMARK_OPT_SAFE a no-op (for API
-    compatibility).  The new default behavior is to suppress raw HTML and
-    potentially dangerous links.  The CMARK_OPT_UNSAFE option has to be set
-    explicitly to prevent this.
-    NOTE: This change will require modifications in bindings for cmark and
-    in most libraries and programs that use cmark.
-    Borrows heavily from @kivikakk's patch in github/cmark-gfm#123.
   * Use hand-rolled scanner for thematic break (see #284).
     Keep track of the last position where a thematic break
     failed to match on a line, to avoid rescanning unnecessarily.
-  * Rename ends_with_blank_line with S_ prefix.
-  * Add CMARK_NODE__LAST_LINE_CHECKED flag (#284).
-    Use this to avoid unnecessary recursion in ends_with_blank_line.
-  * In ends_with_blank_line, call S_set_last_line_blank
+  * Rename `ends_with_blank_line` with `S_` prefix.
+  * Add `CMARK_NODE__LAST_LINE_CHECKED` flag (#284).
+    Use this to avoid unnecessary recursion in `ends_with_blank_line`.
+  * In `ends_with_blank_line`, call `S_set_last_line_blank`
     to avoid unnecessary repetition (#284).  Once we settle whether a list
     item ends in a blank line, we don't need to revisit this in considering
     parent list items.
   * Disallow unescaped `(` in parenthesized link title.
-  * Use pledge(2) on OpenBSD (Ashe Connor).
-  * Update the Racket wrapper (Eli Barzilay).
   * Copy line/col info straight from opener/closer (Ashe Connor).
     We can't rely on anything in `subj` since it's been modified while parsing
     the subject and could represent line info from a future line.  This is
     simple and works.
-  * render.c: reset last_breakable after cr.  Fixes jgm/pandoc#5033.
-  * Fix a typo in houdini_href_e.c (Felix Yan).
+  * `render.c`: reset `last_breakable` after cr.  Fixes jgm/pandoc#5033.
+  * Fix a typo in `houdini_href_e.c` (Felix Yan).
   * commonmark writer: use `~~~` fences if info string contains backtick.
     This is needed for round-trip tests.
   * Update scanners for new info string rules.
-  * Minor fixes to xml2md.xsl (Nick Wellnhofer).  Remove outdated comment
-    Fix code block delimiter
-  * XSLT stylesheet to convert cmark XML back to Commonmark (Nick Wellnhofer,
-    #264).  Initial version of an XSLT stylesheet that converts the XML format
-    produced by `cmark -t xml` back to Commonmark.
+  * Add XSLT stylesheet to convert cmark XML back to Commonmark
+    (Nick Wellnhofer, #264).  Initial version of an XSLT stylesheet that
+    converts the XML format produced by `cmark -t xml` back to Commonmark.
   * Check for whitespace before reference title (#263).
+  * Bump CMake to version 3 (Jonathan Müller).
+  * Build: Remove deprecated call to `add_compiler_export_flags()`
+    (Jonathan Müller).  It is deprecated in CMake 3.0, the replacement is to
+    set the `CXX_VISIBILITY_PRESET` (or in our case `C_VISIBILITY_PRESET`) and
+    `VISIBILITY_INLINES_HIDDEN` properties of the target.  We're already
+    setting them by setting the CMake variables anyway, so the call can be
+    removed.
   * Build: only attempt to install MSVC system libraries on Windows
     (Saleem Abdulrasool).  Newer versions of CMake attempt to query the system
     for information about the VS 2017 installation.  Unfortunately, this query
     fails on non-Windows systems when cross-compiling:
-    cmake_host_system_information does not recognize <key> VS_15_DIR
+    `cmake_host_system_information does not recognize <key> VS_15_DIR`.
     CMake will not find these system libraries on non-Windows hosts anyways,
     and we were silencing the warnings, so simply omit the installation when
     cross-compiling to Windows.
   * Simplify code normalization, in line with spec change.
   * Implement code span spec changes.  These affect both parsing and writing
     commonmark.
-  * entity_tests.py - omit noisy success output.
   * Add link parsing corner cases to regressions (Ashe Connor).
-  * Add xml:space="preserve" in XML output when appropriate
+  * Add `xml:space="preserve"` in XML output when appropriate
     (Nguyễn Thái Ngọc Duy).
     (For text, code, code_block, html_inline and html_block tags.)
   * Removed meta from list of block tags.  Added regression test.
     See commonmark/CommonMark#527.
-  * pathological_tests.py: make tests run faster.
+  * `entity_tests.py` - omit noisy success output.
+  * `pathological_tests.py`: make tests run faster.
     Commented out the (already ignored) "many references" test, which
     times out.  Reduced the iterations for a couple other tests.
-  * pathological_tests.py: added test for deeply nested lists.
-  * Optimize S_find_first_nonspace.  We were needlessly redoing things we'd
+  * `pathological_tests.py`: added test for deeply nested lists.
+  * Optimize `S_find_first_nonspace`.  We were needlessly redoing things we'd
     already done.  Now we skip the work if the first nonspace is greater than
     the current offset.  This fixes pathological slowdown with deeply nested
     lists (#255).  For N = 3000, the time goes from over 17s to about 0.7s.
@@ -98,32 +96,31 @@
     were being allowed in unquoted attribute values; no we forbid them.
   * Don't allow list markers to be indented >= 4 spaces.
     See commonmark/CommonMark#497.
-  * Fuzz width parameter too (Phil Turnbull).  Allow the `width` parameter to
-    be generated too so we get better fuzz-coverage.
-  * Don't discard empty fuzz test-cases (Phil Turnbull).  We currently discard
-    fuzz test-cases that are empty but empty inputs are valid markdown. This
-    improves the fuzzing coverage slightly.
   * Check for empty buffer when rendering (Phil Turnbull).
     For empty documents, `->size` is zero so
     `renderer.buffer->ptr[renderer.buffer->size - 1]` will cause an
     out-of-bounds read. Empty buffers always point to the global
     `cmark_strbuf__initbuf` buffer so we read `cmark_strbuf__initbuf[-1]`.
-  * Also run API tests with CMARK_SHARED=OFF (Nick Wellnhofer).
+  * Also run API tests with `CMARK_SHARED=OFF` (Nick Wellnhofer).
   * Rename roundtrip and entity tests (Nick Wellnhofer).
     Rename the tests to reflect that they use the library, not the
     executable.
   * Generate export header for static-only build (#247, Nick Wellnhofer).
+  * Fuzz width parameter too (Phil Turnbull).  Allow the `width` parameter to
+    be generated too so we get better fuzz-coverage.
+  * Don't discard empty fuzz test-cases (Phil Turnbull).  We currently discard
+    fuzz test-cases that are empty but empty inputs are valid markdown. This
+    improves the fuzzing coverage slightly.
   * Fixed exit code for pathological tests.
-  * Add allowed failures to pathological_tests.py.
-    This allows us to include tests that we don't yet know
-    how to pass.
-  * Add timeout to pathological_tests.py.
+  * Add allowed failures to `pathological_tests.py`.
+    This allows us to include tests that we don't yet know how to pass.
+  * Add timeout to `pathological_tests.py`.
     Tests must complete in 8 seconds or are errors.
-  * Refactored pathological_tests.py.
   * Add more pathological tests (Martin Mitas).
     These tests target the issues #214, #218, #220.
-  * Add sourcepos info for inlines (Yuki Izumi).
-  * Disallow more than 32 nested balanced parens in a link (Yuki Izumi).
+  * Use pledge(2) on OpenBSD (Ashe Connor).
+  * Update the Racket wrapper (Eli Barzilay).
+  * Makefile: For afl target, don't build tests.
 
 [0.28.3]
 
