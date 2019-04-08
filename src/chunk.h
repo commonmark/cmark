@@ -6,7 +6,6 @@
 #include <assert.h>
 #include "cmark-gfm.h"
 #include "buffer.h"
-#include "memory.h"
 #include "cmark_ctype.h"
 
 #define CMARK_CHUNK_EMPTY                                                      \

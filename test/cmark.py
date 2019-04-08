@@ -57,6 +57,7 @@ def to_html(lib, extlib, text, extensions):
     render_html = lib.cmark_render_html
     render_html.restype = c_char_p
     render_html.argtypes = [c_void_p, c_int, c_void_p]
+    # 1 << 17 == CMARK_OPT_UNSAFE
     result = render_html(document, 1 << 17, syntax_extensions).decode('utf-8')
     return [0, result, '']
 

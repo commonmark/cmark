@@ -78,7 +78,6 @@ include("../CheckFileOffsetBits.cmake")
 CHECK_FILE_OFFSET_BITS()
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
-add_compiler_export_flags()
 
 if(CMARK_SHARED)
   target_link_libraries(${PROGRAM} libcmark-gfm-extensions libcmark-gfm)
@@ -97,14 +96,9 @@ set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
 
-add_definitions(-DLIBDIR=\"${CMAKE_BINARY_DIR}\")
-
-if (${CMAKE_VERSION} VERSION_GREATER "1.8")
-  set(CMAKE_C_VISIBILITY_PRESET hidden)
-  set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-elseif(CMAKE_COMPILER_IS_GNUCC OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-endif ()
+# -fvisibility=hidden
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})

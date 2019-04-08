@@ -81,7 +81,8 @@ Issue #193 - unescaped left angle brackets in link destination
 
 [a]: <te<st>
 .
-<p><a href="%3Cte%3Cst%3E">a</a></p>
+<p>[a]</p>
+<p>[a]: &lt;te<st></p>
 ````````````````````````````````
 
 Issue #192 - escaped spaces in link destination
@@ -139,21 +140,6 @@ City:
 <span itemprop="contentLocation" itemscope itemtype="https://schema.org/City">
 <meta itemprop="name" content="Springfield">
 </span></p>
-````````````````````````````````
-
-Issue kivikakk/comrak#80 - link parsing cases
-
-```````````````````````````````` example
-[a](\ b)
-
-[a](<<b)
-
-[a](<b
-)
-.
-<p>[a](\ b)</p>
-<p><a href="%3C%3Cb">a</a></p>
-<p><a href="%3Cb">a</a></p>
 ````````````````````````````````
 
 cmark-gfm strikethrough rules
@@ -238,8 +224,40 @@ Issue #530 - link parsing corner cases
 )
 .
 <p>[a](\ b)</p>
-<p><a href="%3C%3Cb">a</a></p>
-<p><a href="%3Cb">a</a></p>
+<p>[a](&lt;&lt;b)</p>
+<p>[a](&lt;b
+)</p>
+````````````````````````````````
+
+Issue commonmark#526 - unescaped ( in link title
+
+```````````````````````````````` example
+[link](url ((title))
+.
+<p>[link](url ((title))</p>
+````````````````````````````````
+
+Issue commonamrk#517 - script, pre, style close tag without
+opener.
+
+```````````````````````````````` example
+</script>
+
+</pre>
+
+</style>
+.
+</script>
+</pre>
+</style>
+````````````````````````````````
+
+Issue #289.
+
+```````````````````````````````` example
+[a](<b) c>
+.
+<p>[a](&lt;b) c&gt;</p>
 ````````````````````````````````
 
 Pull request #128 - Buffer overread in tables extension

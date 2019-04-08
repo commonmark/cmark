@@ -34,7 +34,8 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
   needs_escaping =
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
-        (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
+        (c < 0x20 ||
+	 c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '~' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
@@ -50,14 +51,18 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
         (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
 
   if (needs_escaping) {
-    if (cmark_isspace((char)c)) {
+    if (escape == URL && cmark_isspace((char)c)) {
       // use percent encoding for spaces
-      snprintf(encoded, ENCODED_SIZE, "%%%2x", c);
+      snprintf(encoded, ENCODED_SIZE, "%%%2X", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
       renderer->column += 3;
-    } else {
+    } else if (cmark_ispunct((char)c)) {
       cmark_render_ascii(renderer, "\\");
       cmark_render_code_point(renderer, c);
+    } else { // render as entity
+      snprintf(encoded, ENCODED_SIZE, "&#%d;", c);
+      cmark_strbuf_puts(renderer->buffer, encoded);
+      renderer->column += (int)strlen(encoded);
     }
   } else {
     cmark_render_code_point(renderer, c);

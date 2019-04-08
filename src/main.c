@@ -3,7 +3,6 @@
 #include <string.h>
 #include <errno.h>
 #include "config.h"
-#include "memory.h"
 #include "cmark-gfm.h"
 #include "node.h"
 #include "cmark-gfm-extension_api.h"
@@ -53,7 +52,7 @@ void print_usage() {
   printf("  --sourcepos       Include source position attribute\n");
   printf("  --hardbreaks      Treat newlines as hard line breaks\n");
   printf("  --nobreaks        Render soft line breaks as spaces\n");
-  printf("  --unsafe          Allow raw HTML and dangerous URLs\n");
+  printf("  --unsafe          Render raw HTML and dangerous URLs\n");
   printf("  --smart           Use smart punctuation\n");
   printf("  --validate-utf8   Replace UTF-8 invalid sequences with U+FFFD\n");
   printf("  --github-pre-lang Use GitHub-style <pre lang> for code blocks\n");

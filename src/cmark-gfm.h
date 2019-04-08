@@ -690,6 +690,20 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_HARDBREAKS (1 << 2)
 
+/** `CMARK_OPT_SAFE` is defined here for API compatibility,
+    but it no longer has any effect. "Safe" mode is now the default:
+    set `CMARK_OPT_UNSAFE` to disable it.
+ */
+#define CMARK_OPT_SAFE (1 << 3)
+
+/** Render raw HTML and unsafe links (`javascript:`, `vbscript:`,
+ * `file:`, and `data:`, except for `image/png`, `image/gif`,
+ * `image/jpeg`, or `image/webp` mime types).  By default,
+ * raw HTML is replaced by a placeholder HTML comment. Unsafe
+ * links are replaced by empty strings.
+ */
+#define CMARK_OPT_UNSAFE (1 << 17)
+
 /** Render `softbreak` elements as spaces.
  */
 #define CMARK_OPT_NOBREAKS (1 << 4)
@@ -737,14 +751,6 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  * a separate attribute.
  */
 #define CMARK_OPT_FULL_INFO_STRING (1 << 16)
-
-/** Allow raw HTML and unsafe links, `javascript:`, `vbscript:`, `file:`, and
- * all `data:` URLs -- by default, only `image/png`, `image/gif`, `image/jpeg`,
- * or `image/webp` mime types are allowed. Without this option, raw HTML is
- * replaced by a placeholder HTML comment, and unsafe links are replaced by
- * empty strings.
- */
-#define CMARK_OPT_UNSAFE (1 << 17)
 
 /**
  * ## Version information

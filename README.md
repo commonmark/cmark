@@ -163,14 +163,13 @@ be found in the man pages in the `man` subdirectory.
 Security
 --------
 
-By default, the library will scrub raw HTML and potentially dangerous links
-(`javascript:`, `vbscript:`, `data:`, `file:`). Please note this is the
-_opposite_ of the upstream [`cmark`](https://github.com/CommonMark/cmark)
-library, a change introduced in `cmark-gfm` in version `0.28.3.gfm.18`.
+By default, the library will scrub raw HTML and potentially
+dangerous links (`javascript:`, `vbscript:`, `data:`, `file:`).
 
-To allow these, use the option `CMARK_OPT_UNSAFE` (or `--unsafe` with the
-command line program). If doing so, we recommend you use a HTML sanitizer
-specific to your needs to protect against [XSS
+To allow these, use the option `CMARK_OPT_UNSAFE` (or
+`--unsafe`) with the command line program. If doing so, we
+recommend you use a HTML sanitizer specific to your needs to
+protect against [XSS
 attacks](http://en.wikipedia.org/wiki/Cross-site_scripting).
 
 Contributing
