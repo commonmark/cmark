@@ -13,5 +13,9 @@ install:
 build_script:
   - 'tools\appveyor-build.bat'
 
+artifacts:
+  - path: build/src/cmark.exe
+    name: cmark.exe
+
 test_script:
   - 'nmake test'
