@@ -46,10 +46,7 @@ set(LIBRARY_SOURCES
   )
 
 set(PROGRAM "cmark")
-set(PROGRAM_SOURCES
-  ${LIBRARY_SOURCES}
-  main.c
-  )
+set(PROGRAM_SOURCES main.c)
 
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -60,9 +57,14 @@ include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 
-# Disable the PUBLIC declarations when compiling the executable:
-set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+if (CMARK_STATIC)
+  target_link_libraries(${PROGRAM} ${STATICLIBRARY})
+  # Disable the PUBLIC declarations when compiling the executable:
+  set_target_properties(${PROGRAM} PROPERTIES
+    COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+elseif (CMARK_SHARED)
+  target_link_libraries(${PROGRAM} ${LIBRARY})
+endif()
 
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
