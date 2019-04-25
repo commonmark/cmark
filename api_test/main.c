@@ -899,13 +899,16 @@ static void source_pos(test_batch_runner *runner) {
     ">    Sure.\n"
     ">\n"
     "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
+    ">    ![ok](hi \"yes\")\n"
+    "\n"
+    "This is\n"
+    "    **strong**\n";
 
   cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
   char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
   STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                       "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "<document sourcepos=\"1:1-13:14\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
                       "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
                       "    <text sourcepos=\"1:3-1:5\" xml:space=\"preserve\">Hi </text>\n"
                       "    <emph sourcepos=\"1:6-1:12\">\n"
@@ -946,7 +949,14 @@ static void source_pos(test_batch_runner *runner) {
                       "        </paragraph>\n"
                       "      </item>\n"
                       "    </list>\n"
-                      "  </block_quote>\n"
+                      "  </block_quote>\n"         
+                      "  <paragraph sourcepos=\"12:1-13:14\">\n"
+                      "    <text sourcepos=\"12:1-12:7\" xml:space=\"preserve\">This is</text>\n"
+                      "    <softbreak />\n"
+                      "    <strong sourcepos=\"13:1-13:10\">\n"
+                      "      <text sourcepos=\"13:3-13:8\" xml:space=\"preserve\">strong</text>\n"
+                      "    </strong>\n"
+                      "  </paragraph>\n"
                       "</document>\n",
          "sourcepos are as expected");
   free(xml);
