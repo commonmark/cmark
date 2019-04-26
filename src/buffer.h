@@ -72,6 +72,15 @@ void cmark_strbuf_drop(cmark_strbuf *buf, bufsize_t n);
 void cmark_strbuf_truncate(cmark_strbuf *buf, bufsize_t len);
 void cmark_strbuf_rtrim(cmark_strbuf *buf);
 void cmark_strbuf_trim(cmark_strbuf *buf);
+
+/**
+ Removes the characters in the given range.
+
+ @param buf The string buffer.
+ @param start_offset The starting character offset.
+ @param len The length of characters to remove.
+ */
+void cmark_strbuf_remove(cmark_strbuf *buf, bufsize_t start_offset, bufsize_t len);
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s);
 void cmark_strbuf_unescape(cmark_strbuf *s);
 
