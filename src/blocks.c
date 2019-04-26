@@ -183,8 +183,37 @@ static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
       cmark_strbuf_putc(&node->content, ' ');
     }
   }
-  cmark_strbuf_put(&node->content, ch->data + parser->offset,
-                   ch->len - parser->offset);
+
+  // If inserting the initial line to the node...
+  if (node->content.size == 0
+    // OR the node is a code block...
+    || node->type == CMARK_NODE_CODE_BLOCK
+    // OR the node is a HTML block.
+    || node->type == CMARK_NODE_HTML_BLOCK) {
+
+    // Then do not insert the leading trivia.
+    cmark_strbuf_put(&node->content, ch->data + parser->offset,
+                     ch->len - parser->offset);
+  } else {
+    // Special case for maintaining the source position of block quotes
+    // as they can be lazy (i.e. the block quote marker can be omitted).
+    //
+    // The simple solution is to replace any block quote markers (">")
+    // present in the leading trivia with whitespace.
+    //
+    // Note: Using `parser->offset` and not `parser->first_nonspace`
+    // because the latter encompasses the former with the addition of
+    // whitespace (which we are not interested in).
+    assert(parser->offset <= parser->first_nonspace);
+    for (int i = 0; i < parser->offset; i++) {
+      if (peek_at(ch, i) == '>')
+        ch->data[i] = ' ';
+    }
+
+    // Otherwise, do not remove leading trivia for appends (i.e. lines
+    // other than the first).
+    cmark_strbuf_put(&node->content, ch->data, ch->len);
+  }
 }
 
 static void remove_trailing_blank_lines(cmark_strbuf *ln) {
@@ -242,6 +271,12 @@ static bool resolve_reference_link_definitions(
 
     chunk.data += pos;
     chunk.len -= pos;
+
+    // Leading whitespace is not stripped.
+    while (cmark_isspace(peek_at(&chunk, 0))) {
+      chunk.data += 1;
+      chunk.len -= 1;
+    }
   }
   cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
   return !is_blank(&b->content, 0);
