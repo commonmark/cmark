@@ -889,68 +889,170 @@ static void test_feed_across_line_ending(test_batch_runner *runner) {
 }
 
 static void source_pos(test_batch_runner *runner) {
-  static const char markdown[] =
-    "# Hi *there*.\n"
-    "\n"
-    "Hello &ldquo; <http://www.google.com>\n"
-    "there `hi` -- [okay](www.google.com (ok)).\n"
-    "\n"
-    "> 1. Okay.\n"
-    ">    Sure.\n"
-    ">\n"
-    "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
+  {
+    static const char markdown[] =
+      "# Hi *there*.\n"
+      "\n"
+      "Hello &ldquo; <http://www.google.com>\n"
+      "there `hi` -- [okay](www.google.com (ok)).\n"
+      "\n"
+      "> 1. Okay.\n"
+      ">    Sure.\n"
+      ">\n"
+      "> 2. Yes, okay.\n"
+      ">    ![ok](hi \"yes\")\n";
 
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
-                      "    <text sourcepos=\"1:3-1:5\" xml:space=\"preserve\">Hi </text>\n"
-                      "    <emph sourcepos=\"1:6-1:12\">\n"
-                      "      <text sourcepos=\"1:7-1:11\" xml:space=\"preserve\">there</text>\n"
-                      "    </emph>\n"
-                      "    <text sourcepos=\"1:13-1:13\" xml:space=\"preserve\">.</text>\n"
-                      "  </heading>\n"
-                      "  <paragraph sourcepos=\"3:1-4:42\">\n"
-                      "    <text sourcepos=\"3:1-3:14\" xml:space=\"preserve\">Hello “ </text>\n"
-                      "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
-                      "      <text sourcepos=\"3:16-3:36\" xml:space=\"preserve\">http://www.google.com</text>\n"
-                      "    </link>\n"
-                      "    <softbreak />\n"
-                      "    <text sourcepos=\"4:1-4:6\" xml:space=\"preserve\">there </text>\n"
-                      "    <code sourcepos=\"4:8-4:9\" xml:space=\"preserve\">hi</code>\n"
-                      "    <text sourcepos=\"4:11-4:14\" xml:space=\"preserve\"> -- </text>\n"
-                      "    <link sourcepos=\"4:15-4:41\" destination=\"www.google.com\" title=\"ok\">\n"
-                      "      <text sourcepos=\"4:16-4:19\" xml:space=\"preserve\">okay</text>\n"
-                      "    </link>\n"
-                      "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
-                      "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
-                      "      <item sourcepos=\"6:3-8:1\">\n"
-                      "        <paragraph sourcepos=\"6:6-7:10\">\n"
-                      "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "      <item sourcepos=\"9:3-10:20\">\n"
-                      "        <paragraph sourcepos=\"9:6-10:20\">\n"
-                      "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
-                      "            <text sourcepos=\"10:8-10:9\" xml:space=\"preserve\">ok</text>\n"
-                      "          </image>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "    </list>\n"
-                      "  </block_quote>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
+                        "    <text sourcepos=\"1:3-1:5\" xml:space=\"preserve\">Hi </text>\n"
+                        "    <emph sourcepos=\"1:6-1:12\">\n"
+                        "      <text sourcepos=\"1:7-1:11\" xml:space=\"preserve\">there</text>\n"
+                        "    </emph>\n"
+                        "    <text sourcepos=\"1:13-1:13\" xml:space=\"preserve\">.</text>\n"
+                        "  </heading>\n"
+                        "  <paragraph sourcepos=\"3:1-4:42\">\n"
+                        "    <text sourcepos=\"3:1-3:14\" xml:space=\"preserve\">Hello \xe2\x80\x9c </text>\n"
+                        "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
+                        "      <text sourcepos=\"3:16-3:36\" xml:space=\"preserve\">http://www.google.com</text>\n"
+                        "    </link>\n"
+                        "    <softbreak />\n"
+                        "    <text sourcepos=\"4:1-4:6\" xml:space=\"preserve\">there </text>\n"
+                        "    <code sourcepos=\"4:8-4:9\" xml:space=\"preserve\">hi</code>\n"
+                        "    <text sourcepos=\"4:11-4:14\" xml:space=\"preserve\"> -- </text>\n"
+                        "    <link sourcepos=\"4:15-4:41\" destination=\"www.google.com\" title=\"ok\">\n"
+                        "      <text sourcepos=\"4:16-4:19\" xml:space=\"preserve\">okay</text>\n"
+                        "    </link>\n"
+                        "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
+                        "  </paragraph>\n"
+                        "  <block_quote sourcepos=\"6:1-10:20\">\n"
+                        "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
+                        "      <item sourcepos=\"6:3-8:1\">\n"
+                        "        <paragraph sourcepos=\"6:6-7:10\">\n"
+                        "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
+                        "          <softbreak />\n"
+                        "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
+                        "        </paragraph>\n"
+                        "      </item>\n"
+                        "      <item sourcepos=\"9:3-10:20\">\n"
+                        "        <paragraph sourcepos=\"9:6-10:20\">\n"
+                        "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
+                        "          <softbreak />\n"
+                        "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
+                        "            <text sourcepos=\"10:8-10:9\" xml:space=\"preserve\">ok</text>\n"
+                        "          </image>\n"
+                        "        </paragraph>\n"
+                        "      </item>\n"
+                        "    </list>\n"
+                        "  </block_quote>\n"
+                        "</document>\n",
+           "sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+    "1.  **Start condition:**  line begins with the string `<script`,\n"
+    "     `<pre`, or `<style` (case-insensitive), followed by whitespace,\n"
+    "the string `>`, or the end of the line.\\\n"
+    "    **End condition:**  line contains an end tag\n"
+    "  `</script>`, `</pre>`, or `</style>` (case-insensitive; it\n"
+    "   need not match the start tag).\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-6:33\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <list sourcepos=\"1:1-6:33\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"true\">\n"
+           "    <item sourcepos=\"1:1-6:33\">\n"
+           "      <paragraph sourcepos=\"1:5-6:33\">\n"
+           "        <strong sourcepos=\"1:5-1:24\">\n"
+           "          <text sourcepos=\"1:7-1:22\" xml:space=\"preserve\">Start condition:</text>\n"
+           "        </strong>\n"
+           "        <text sourcepos=\"1:25-1:54\" xml:space=\"preserve\">  line begins with the string </text>\n"
+           "        <code sourcepos=\"1:56-1:62\" xml:space=\"preserve\">&lt;script</code>\n"
+           "        <text sourcepos=\"1:64-1:64\" xml:space=\"preserve\">,</text>\n"
+           "        <softbreak />\n"
+           "        <code sourcepos=\"2:7-2:10\" xml:space=\"preserve\">&lt;pre</code>\n"
+           "        <text sourcepos=\"2:12-2:16\" xml:space=\"preserve\">, or </text>\n"
+           "        <code sourcepos=\"2:18-2:23\" xml:space=\"preserve\">&lt;style</code>\n"
+           "        <text sourcepos=\"2:25-2:68\" xml:space=\"preserve\"> (case-insensitive), followed by whitespace,</text>\n"
+           "        <softbreak />\n"
+           "        <text sourcepos=\"3:1-3:11\" xml:space=\"preserve\">the string </text>\n"
+           "        <code sourcepos=\"3:13-3:13\" xml:space=\"preserve\">&gt;</code>\n"
+           "        <text sourcepos=\"3:15-3:39\" xml:space=\"preserve\">, or the end of the line.</text>\n"
+           "        <linebreak />\n"
+           "        <strong sourcepos=\"4:5-4:22\">\n"
+           "          <text sourcepos=\"4:7-4:20\" xml:space=\"preserve\">End condition:</text>\n"
+           "        </strong>\n"
+           "        <text sourcepos=\"4:23-4:48\" xml:space=\"preserve\">  line contains an end tag</text>\n"
+           "        <softbreak />\n"
+           "        <code sourcepos=\"5:4-5:12\" xml:space=\"preserve\">&lt;/script&gt;</code>\n"
+           "        <text sourcepos=\"5:14-5:15\" xml:space=\"preserve\">, </text>\n"
+           "        <code sourcepos=\"5:17-5:22\" xml:space=\"preserve\">&lt;/pre&gt;</code>\n"
+           "        <text sourcepos=\"5:24-5:28\" xml:space=\"preserve\">, or </text>\n"
+           "        <code sourcepos=\"5:30-5:37\" xml:space=\"preserve\">&lt;/style&gt;</code>\n"
+           "        <text sourcepos=\"5:39-5:60\" xml:space=\"preserve\"> (case-insensitive; it</text>\n"
+           "        <softbreak />\n"
+           "        <text sourcepos=\"6:4-6:33\" xml:space=\"preserve\">need not match the start tag).</text>\n"
+           "      </paragraph>\n"
+           "    </item>\n"
+           "  </list>\n"
+           "</document>\n",
+           "list (with EOL backslash) sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+    "> The overriding design goal for Markdown's formatting syntax is\n"
+    "  > to make it as **readable as possible**. The idea is that a\n"
+    "> Markdown-formatted document should be publishable as-is, as\n"
+    "  > plain text, without *looking like* it's been marked up with tags\n"
+    " > or formatting instructions.\n"
+    "> (<http://daringfireball.net/projects/markdown/>)\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-6:50\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <block_quote sourcepos=\"1:1-6:50\">\n"
+           "    <paragraph sourcepos=\"1:3-6:50\">\n"
+           "      <text sourcepos=\"1:3-1:64\" xml:space=\"preserve\">The overriding design goal for Markdown's formatting syntax is</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"2:5-2:18\" xml:space=\"preserve\">to make it as </text>\n"
+           "      <strong sourcepos=\"2:19-2:42\">\n"
+           "        <text sourcepos=\"2:21-2:40\" xml:space=\"preserve\">readable as possible</text>\n"
+           "      </strong>\n"
+           "      <text sourcepos=\"2:43-2:62\" xml:space=\"preserve\">. The idea is that a</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"3:3-3:61\" xml:space=\"preserve\">Markdown-formatted document should be publishable as-is, as</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"4:5-4:24\" xml:space=\"preserve\">plain text, without </text>\n"
+           "      <emph sourcepos=\"4:25-4:38\">\n"
+           "        <text sourcepos=\"4:26-4:37\" xml:space=\"preserve\">looking like</text>\n"
+           "      </emph>\n"
+           "      <text sourcepos=\"4:39-4:68\" xml:space=\"preserve\"> it's been marked up with tags</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"5:4-5:30\" xml:space=\"preserve\">or formatting instructions.</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"6:3-6:3\" xml:space=\"preserve\">(</text>\n"
+           "      <link sourcepos=\"6:4-6:49\" destination=\"http://daringfireball.net/projects/markdown/\" title=\"\">\n"
+           "        <text sourcepos=\"6:-283-6:-240\" xml:space=\"preserve\">http://daringfireball.net/projects/markdown/</text>\n"
+           "      </link>\n"
+           "      <text sourcepos=\"6:50-6:50\" xml:space=\"preserve\">)</text>\n"
+           "    </paragraph>\n"
+           "  </block_quote>\n"
+           "</document>\n",
+           "inconsistently indented blockquote sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
 }
 
 static void source_pos_inlines(test_batch_runner *runner) {
@@ -995,6 +1097,33 @@ static void source_pos_inlines(test_batch_runner *runner) {
                         "  </paragraph>\n"
                         "</document>\n",
                         "sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+    "This link will have two [soft \n"
+    "line\n"
+    " breaks](https://commonmark.org).";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-3:33\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph sourcepos=\"1:1-3:33\">\n"
+           "    <text sourcepos=\"1:1-1:26\" xml:space=\"preserve\">This link will have three </text>\n"
+           "    <link sourcepos=\"1:27-3:32\" destination=\"https://commonmark.org\" title=\"\">\n"
+           "      <text sourcepos=\"1:28-1:32\" xml:space=\"preserve\">soft</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"2:1-2:4\" xml:space=\"preserve\">line</text>\n"
+           "      <softbreak />\n"
+           "      <text sourcepos=\"3:2-3:7\" xml:space=\"preserve\">breaks</text>\n"
+           "    </link>\n"
+           "    <text sourcepos=\"3:33-3:33\" xml:space=\"preserve\">.</text>\n"
+           "  </paragraph>\n"
+           "</document>\n",
+           "autolink sourcepos are as expected");
     free(xml);
     cmark_node_free(doc);
   }
