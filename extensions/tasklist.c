@@ -17,7 +17,7 @@ char *cmark_gfm_extensions_get_tasklist_state(cmark_node *node) {
   if (!node || ((int)node->as.opaque != CMARK_TASKLIST_CHECKED && (int)node->as.opaque != CMARK_TASKLIST_NOCHECKED))
     return 0;
 
-  if ((int)node->as.opaque != CMARK_TASKLIST_CHECKED) {
+  if ((int)node->as.opaque == CMARK_TASKLIST_CHECKED) {
     return "checked";
   }
   else {
@@ -74,7 +74,8 @@ static cmark_node *open_tasklist_item(cmark_syntax_extension *self,
   cmark_node_set_syntax_extension(parent_container, self);
   cmark_parser_advance_offset(parser, (char *)input, 3, false);
 
-  if (strstr((char*)input, "[x]")) {
+  // Either an upper or lower case X means the task is completed.
+  if (strstr((char*)input, "[x]") || strstr((char*)input, "[X]")) {
     parent_container->as.opaque = (void *)CMARK_TASKLIST_CHECKED;
   } else {
     parent_container->as.opaque = (void *)CMARK_TASKLIST_NOCHECKED;
