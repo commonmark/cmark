@@ -121,6 +121,15 @@ static void html_render(cmark_syntax_extension *extension,
   }
 }
 
+static const char *xml_attr(cmark_syntax_extension *extension,
+                            cmark_node *node) {
+  if ((int)node->as.opaque == CMARK_TASKLIST_CHECKED) {
+    return " completed=\"true\"";
+  } else {
+    return " completed=\"false\"";
+  }
+}
+
 cmark_syntax_extension *create_tasklist_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("tasklist");
 
@@ -131,6 +140,7 @@ cmark_syntax_extension *create_tasklist_extension(void) {
   cmark_syntax_extension_set_commonmark_render_func(ext, commonmark_render);
   cmark_syntax_extension_set_plaintext_render_func(ext, commonmark_render);
   cmark_syntax_extension_set_html_render_func(ext, html_render);
+  cmark_syntax_extension_set_xml_attr_func(ext, xml_attr);
 
   return ext;
 }
