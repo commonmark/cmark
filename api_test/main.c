@@ -1043,7 +1043,7 @@ static void source_pos(test_batch_runner *runner) {
            "      <softbreak />\n"
            "      <text sourcepos=\"6:3-6:3\" xml:space=\"preserve\">(</text>\n"
            "      <link sourcepos=\"6:4-6:49\" destination=\"http://daringfireball.net/projects/markdown/\" title=\"\">\n"
-           "        <text sourcepos=\"6:-283-6:-240\" xml:space=\"preserve\">http://daringfireball.net/projects/markdown/</text>\n"
+           "        <text sourcepos=\"6:5-6:48\" xml:space=\"preserve\">http://daringfireball.net/projects/markdown/</text>\n"
            "      </link>\n"
            "      <text sourcepos=\"6:50-6:50\" xml:space=\"preserve\">)</text>\n"
            "    </paragraph>\n"
@@ -1124,6 +1124,34 @@ static void source_pos_inlines(test_batch_runner *runner) {
            "  </paragraph>\n"
            "</document>\n",
            "autolink sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+    " 1. <http://www.google.com>\n"
+    "    <http://www.google.com>\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-2:27\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <list sourcepos=\"1:2-2:27\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"true\">\n"
+           "    <item sourcepos=\"1:2-2:27\">\n"
+           "      <paragraph sourcepos=\"1:5-2:27\">\n"
+           "        <link sourcepos=\"1:5-1:27\" destination=\"http://www.google.com\" title=\"\">\n"
+           "          <text sourcepos=\"1:6-1:26\" xml:space=\"preserve\">http://www.google.com</text>\n"
+           "        </link>\n"
+           "        <softbreak />\n"
+           "        <link sourcepos=\"2:5-2:27\" destination=\"http://www.google.com\" title=\"\">\n"
+           "          <text sourcepos=\"2:6-2:26\" xml:space=\"preserve\">http://www.google.com</text>\n"
+           "        </link>\n"
+           "      </paragraph>\n"
+           "    </item>\n"
+           "  </list>\n"
+           "</document>\n",
+           "autolink (in list) sourcepos are as expected");
     free(xml);
     cmark_node_free(doc);
   }
