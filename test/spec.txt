@@ -9242,16 +9242,22 @@ Visit www.commonmark.org/a.b.
 
 When an autolink ends in `)`, we scan the entire autolink for the total number
 of parentheses.  If there is a greater number of closing parentheses than
-opening ones, we don't consider the last character part of the autolink, in
-order to facilitate including an autolink inside a parenthesis:
+opening ones, we don't consider the unmatched trailing parentheses part of the
+autolink, in order to facilitate including an autolink inside a parenthesis:
 
 ```````````````````````````````` example autolink
 www.google.com/search?q=Markup+(business)
 
+www.google.com/search?q=Markup+(business)))
+
 (www.google.com/search?q=Markup+(business))
+
+(www.google.com/search?q=Markup+(business)
 .
 <p><a href="http://www.google.com/search?q=Markup+(business)">www.google.com/search?q=Markup+(business)</a></p>
+<p><a href="http://www.google.com/search?q=Markup+(business)">www.google.com/search?q=Markup+(business)</a>))</p>
 <p>(<a href="http://www.google.com/search?q=Markup+(business)">www.google.com/search?q=Markup+(business)</a>)</p>
+<p>(<a href="http://www.google.com/search?q=Markup+(business)">www.google.com/search?q=Markup+(business)</a></p>
 ````````````````````````````````
 
 This check is only done when the link ends in a closing parentheses `)`, so if
