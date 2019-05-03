@@ -9318,10 +9318,10 @@ the following rules:
 
 * One ore more characters which are alphanumeric, or `.`, `-`, `_`, or `+`.
 * An `@` symbol.
-* One or more characters which are alphanumeric, or `.`, `-`, or `_`. At least
-  one of the characters here must be a period (`.`).  The last character must
-  not be one of `-` or `_`.  If the last character is a period (`.`), it will
-  be excluded from the autolink.
+* One or more characters which are alphanumeric, or `-` or `_`,
+  separated by periods (`.`).
+  There must be at least one period.
+  The last character must not be one of `-` or `_`.
 
 The scheme `mailto:` will automatically be added to the generated link:
 
