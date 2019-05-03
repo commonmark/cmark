@@ -1155,6 +1155,28 @@ static void source_pos_inlines(test_batch_runner *runner) {
     free(xml);
     cmark_node_free(doc);
   }
+  {
+    static const char markdown[] =
+    "Level 1 Heading\n"
+    "===============\n"
+    "A paragraph.\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-3:12\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <heading sourcepos=\"1:1-2:15\" level=\"1\">\n"
+           "    <text sourcepos=\"1:1-1:15\" xml:space=\"preserve\">Level 1 Heading</text>\n"
+           "  </heading>\n"
+           "  <paragraph sourcepos=\"3:1-3:12\">\n"
+           "    <text sourcepos=\"3:1-3:12\" xml:space=\"preserve\">A paragraph.</text>\n"
+           "  </paragraph>\n"
+           "</document>\n",
+           "heading sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
 }
 
 static void ref_source_pos(test_batch_runner *runner) {
