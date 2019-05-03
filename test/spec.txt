@@ -9203,11 +9203,13 @@ circumstances.  All such recognized autolinks can only come at the beginning of
 a line, after whitespace, or any of the delimiting characters `*`, `_`, `~`,
 and `(`.
 
-An [extended www autolink](@) will be recognized when the text `www.` is found
-followed by a [valid domain]. A [valid domain](@) consists of alphanumeric
-characters, underscores (`_`), hyphens (`-`) and periods (`.`).  There must be
-at least one period, and no underscores may be present in the last two segments
-of the domain.
+An [extended www autolink](@) will be recognized
+when the text `www.` is found followed by a [valid domain].
+A [valid domain](@) consists of segments
+of alphanumeric characters, underscores (`_`) and hyphens (`-`)
+separated by periods (`.`).
+There must be at least one period,
+and no underscores may be present in the last two segments of the domain.
 
 The scheme `http` will be inserted automatically:
 
