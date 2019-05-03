@@ -294,6 +294,10 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
          CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
   b->flags &= ~CMARK_NODE__OPEN;
 
+  if (S_type(b) == CMARK_NODE_HEADING && !b->as.heading.setext) {
+    parser->last_line_length += b->end_column;
+  }
+
   if (parser->curline.size == 0) {
     // end of input - line number has not been incremented
     b->end_line = parser->line_number;
@@ -1219,7 +1223,10 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
     } else if (accepts_lines(S_type(container))) {
       if (S_type(container) == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
+        bufsize_t original_len = input->len;
         chop_trailing_hashtags(input);
+        // Substract one to exclude the trailing newline.
+        container->end_column += original_len - input->len - 1;
       }
       S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                        false);
