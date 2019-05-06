@@ -1053,6 +1053,54 @@ static void source_pos(test_batch_runner *runner) {
     free(xml);
     cmark_node_free(doc);
   }
+  {
+    static const char markdown[] =
+    "\n"
+    "\n"
+    "<pre lang=\"no-highlight\"><code>```javascript\n"
+    "var s = \"JavaScript syntax highlighting\";\n"
+    "alert(s);\n"
+    "```\n"
+    " \n"
+    "```python\n"
+    "s = \"Python syntax highlighting\"\n"
+    "print s\n"
+    "```\n"
+    " \n"
+    "```\n"
+    "No language indicated, so no syntax highlighting. \n"
+    "But let's throw in a &lt;b&gt;tag&lt;/b&gt;.\n"
+    "```\n"
+    "</code></pre>\n"
+    "\n"
+    "\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-19:0\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <html_block sourcepos=\"3:1-17:13\" xml:space=\"preserve\">&lt;pre lang=&quot;no-highlight&quot;&gt;&lt;code&gt;```javascript\n"
+           "var s = &quot;JavaScript syntax highlighting&quot;;\n"
+           "alert(s);\n"
+           "```\n"
+           " \n"
+           "```python\n"
+           "s = &quot;Python syntax highlighting&quot;\n"
+           "print s\n"
+           "```\n"
+           " \n"
+           "```\n"
+           "No language indicated, so no syntax highlighting. \n"
+           "But let's throw in a &amp;lt;b&amp;gt;tag&amp;lt;/b&amp;gt;.\n"
+           "```\n"
+           "&lt;/code&gt;&lt;/pre&gt;\n"
+           "</html_block>\n"
+           "</document>\n",
+           "html block sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
 }
 
 static void source_pos_inlines(test_batch_runner *runner) {
