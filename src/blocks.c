@@ -294,6 +294,11 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
          CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
   b->flags &= ~CMARK_NODE__OPEN;
 
+  if (S_type(b) == CMARK_NODE_THEMATIC_BREAK) {
+    // Already been "finalized".
+    return parent;
+  }
+
   if (S_type(b) == CMARK_NODE_HEADING && !b->as.heading.setext) {
     parser->last_line_length += b->end_column;
   }
@@ -1046,6 +1051,10 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
+      // A thematic break can only be on a single line, so we can set the
+      // end source position here.
+      (*container)->end_line = parser->line_number;
+      (*container)->end_column = input->len - 1;
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
 	       parser->indent < 4 &&
