@@ -307,6 +307,12 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       && b->last_child) {
     b->end_line = b->last_child->end_line;
     b->end_column = b->last_child->end_column;
+
+    if (S_type(b) == CMARK_NODE_ITEM && b->parent) {
+      // The finalization order is not deterministic...
+      b->parent->end_line = b->end_line;
+      b->parent->end_column = b->end_column;
+    }
   } else if (parser->curline.size == 0) {
     // end of input - line number has not been incremented
     b->end_line = parser->line_number;
