@@ -930,7 +930,7 @@ static void source_pos(test_batch_runner *runner) {
                         "  </paragraph>\n"
                         "  <block_quote sourcepos=\"6:1-10:20\">\n"
                         "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
-                        "      <item sourcepos=\"6:3-8:1\">\n"
+                        "      <item sourcepos=\"6:3-7:10\">\n"
                         "        <paragraph sourcepos=\"6:6-7:10\">\n"
                         "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
                         "          <softbreak />\n"
@@ -1116,6 +1116,51 @@ static void source_pos(test_batch_runner *runner) {
            "  <thematic_break sourcepos=\"1:1-1:3\" />\n"
            "</document>\n",
            "thematic break sourcepos are as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+    "1. List 1, Item A.\n"
+    "    1. List 2, Item A.\n"
+    "       Second line.\n"
+    "\n"
+    "2. List 1, Item B.\n"
+    "   Second line.\n"
+    "\n"
+    "\n"
+    "\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-9:0\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <list sourcepos=\"1:1-6:15\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
+           "    <item sourcepos=\"1:1-3:19\">\n"
+           "      <paragraph sourcepos=\"1:4-1:18\">\n"
+           "        <text sourcepos=\"1:4-1:18\" xml:space=\"preserve\">List 1, Item A.</text>\n"
+           "      </paragraph>\n"
+           "      <list sourcepos=\"2:5-3:19\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"true\">\n"
+           "        <item sourcepos=\"2:5-3:19\">\n"
+           "          <paragraph sourcepos=\"2:8-3:19\">\n"
+           "            <text sourcepos=\"2:8-2:22\" xml:space=\"preserve\">List 2, Item A.</text>\n"
+           "            <softbreak />\n"
+           "            <text sourcepos=\"3:8-3:19\" xml:space=\"preserve\">Second line.</text>\n"
+           "          </paragraph>\n"
+           "        </item>\n"
+           "      </list>\n"
+           "    </item>\n"
+           "    <item sourcepos=\"5:1-6:15\">\n"
+           "      <paragraph sourcepos=\"5:4-6:15\">\n"
+           "        <text sourcepos=\"5:4-5:18\" xml:space=\"preserve\">List 1, Item B.</text>\n"
+           "        <softbreak />\n"
+           "        <text sourcepos=\"6:4-6:15\" xml:space=\"preserve\">Second line.</text>\n"
+           "      </paragraph>\n"
+           "    </item>\n"
+           "  </list>\n"
+           "</document>\n",
+           "list sourcepos are as expected");
     free(xml);
     cmark_node_free(doc);
   }
