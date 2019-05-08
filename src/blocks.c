@@ -303,7 +303,11 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     parser->last_line_length += b->end_column;
   }
 
-  if (parser->curline.size == 0) {
+  if ((S_type(b) == CMARK_NODE_ITEM || S_type(b) == CMARK_NODE_LIST)
+      && b->last_child) {
+    b->end_line = b->last_child->end_line;
+    b->end_column = b->last_child->end_column;
+  } else if (parser->curline.size == 0) {
     // end of input - line number has not been incremented
     b->end_line = parser->line_number;
     b->end_column = parser->last_line_length;
@@ -1111,6 +1115,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // add the list item
       *container = add_child(parser, *container, CMARK_NODE_ITEM,
                              parser->first_nonspace + 1);
+//      (*container)->end_line = parser->line_number;
+//      (*container)->end_column = parser->column;
       /* TODO: static */
       memcpy(&((*container)->as.list), data, sizeof(*data));
       parser->mem->free(data);
