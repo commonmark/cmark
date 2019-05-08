@@ -9756,10 +9756,10 @@ bar</em></p>
 Line breaks do not occur inside code spans
 
 ```````````````````````````````` example
-`code 
+`code  
 span`
 .
-<p><code>code  span</code></p>
+<p><code>code   span</code></p>
 ````````````````````````````````
 
 
