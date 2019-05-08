@@ -16,6 +16,7 @@ cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
 
 typedef struct {
   uint16_t n_columns;
+  int paragraph_offset;
   cmark_llist *cells;
 } table_row;
 
@@ -115,6 +116,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
                                   int len) {
   table_row *row = NULL;
   bufsize_t cell_matched = 1, pipe_matched = 1, offset;
+  int cell_end_offset;
 
   row = (table_row *)parser->mem->calloc(1, sizeof(table_row));
   row->n_columns = 0;
@@ -129,20 +131,32 @@ static table_row *row_from_string(cmark_syntax_extension *self,
     pipe_matched = scan_table_cell_end(string, len, offset + cell_matched);
 
     if (cell_matched || pipe_matched) {
-      cmark_strbuf *cell_buf = unescape_pipes(parser->mem, string + offset,
-          cell_matched);
-      cmark_strbuf_trim(cell_buf);
+      cell_end_offset = offset + cell_matched - 1;
 
-      node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
-      cell->buf = cell_buf;
-      cell->start_offset = offset;
-      cell->end_offset = offset + cell_matched - 1;
-      while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
-        --cell->start_offset;
-        ++cell->internal_offset;
+      if (string[cell_end_offset] == '\n' || string[cell_end_offset] == '\r') {
+        row->paragraph_offset = cell_end_offset;
+
+        cmark_llist_free_full(parser->mem, row->cells, (cmark_free_func)free_table_cell);
+        row->cells = NULL;
+        row->n_columns = 0;
+      } else {
+        cmark_strbuf *cell_buf = unescape_pipes(parser->mem, string + offset,
+            cell_matched);
+        cmark_strbuf_trim(cell_buf);
+
+        node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
+        cell->buf = cell_buf;
+        cell->start_offset = offset;
+        cell->end_offset = cell_end_offset;
+
+        while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
+          --cell->start_offset;
+          ++cell->internal_offset;
+        }
+
+        row->n_columns += 1;
+        row->cells = cmark_llist_append(parser->mem, row->cells, cell);
       }
-      row->n_columns += 1;
-      row->cells = cmark_llist_append(parser->mem, row->cells, cell);
     }
 
     offset += cell_matched + pipe_matched;
@@ -159,6 +173,26 @@ static table_row *row_from_string(cmark_syntax_extension *self,
   }
 
   return row;
+}
+
+static void try_inserting_table_header_paragraph(cmark_parser *parser,
+                                                 cmark_node *parent_container,
+                                                 unsigned char *parent_string,
+                                                 int paragraph_offset) {
+  cmark_node *paragraph;
+  cmark_strbuf *paragraph_content;
+
+  paragraph = cmark_node_new_with_mem(CMARK_NODE_PARAGRAPH, parser->mem);
+
+  paragraph_content = unescape_pipes(parser->mem, parent_string, paragraph_offset);
+  cmark_strbuf_trim(paragraph_content);
+  cmark_node_set_string_content(paragraph, (char *) paragraph_content->ptr);
+  cmark_strbuf_free(paragraph_content);
+  parser->mem->free(paragraph_content);
+
+  if (!cmark_node_insert_before(parent_container, paragraph)) {
+    parser->mem->free(paragraph);
+  }
 }
 
 static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
@@ -215,6 +249,11 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     free_table_row(parser->mem, header_row);
     free_table_row(parser->mem, marker_row);
     return parent_container;
+  }
+
+  if (header_row->paragraph_offset) {
+    try_inserting_table_header_paragraph(parser, parent_container, (unsigned char *)parent_string,
+                                         header_row->paragraph_offset);
   }
 
   cmark_node_set_syntax_extension(parent_container, self);

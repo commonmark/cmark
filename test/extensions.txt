@@ -472,6 +472,32 @@ Here's a link to [Freedom Planet 2][].
 </table>
 ````````````````````````````````
 
+### a table can be recognised when separated from a paragraph of text without an empty line
+
+```````````````````````````````` example
+123
+456
+| a | b |
+| ---| --- |
+d | e
+.
+<p>123
+456</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>d</td>
+<td>e</td>
+</tr>
+</tbody>
+</table>
+````````````````````````````````
 
 ## Strikethroughs
 
