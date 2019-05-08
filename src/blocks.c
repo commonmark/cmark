@@ -1115,8 +1115,6 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // add the list item
       *container = add_child(parser, *container, CMARK_NODE_ITEM,
                              parser->first_nonspace + 1);
-//      (*container)->end_line = parser->line_number;
-//      (*container)->end_column = parser->column;
       /* TODO: static */
       memcpy(&((*container)->as.list), data, sizeof(*data));
       parser->mem->free(data);
