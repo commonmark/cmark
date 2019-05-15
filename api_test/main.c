@@ -1164,6 +1164,39 @@ static void source_pos(test_batch_runner *runner) {
     free(xml);
     cmark_node_free(doc);
   }
+  {
+    static const char markdown[] =
+    "* List 1, item A.\n"
+    "\n"
+    "  <script>\n"
+    "- List 2, item A.\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document sourcepos=\"1:1-4:17\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <list sourcepos=\"1:1-3:10\" type=\"bullet\" tight=\"false\">\n"
+           "    <item sourcepos=\"1:1-3:10\">\n"
+           "      <paragraph sourcepos=\"1:3-1:17\">\n"
+           "        <text sourcepos=\"1:3-1:17\" xml:space=\"preserve\">List 1, item A.</text>\n"
+           "      </paragraph>\n"
+           "      <html_block sourcepos=\"3:3-3:10\" xml:space=\"preserve\">&lt;script&gt;\n"
+           "</html_block>\n"
+           "    </item>\n"
+           "  </list>\n"
+           "  <list sourcepos=\"4:1-4:17\" type=\"bullet\" tight=\"true\">\n"
+           "    <item sourcepos=\"4:1-4:17\">\n"
+           "      <paragraph sourcepos=\"4:3-4:17\">\n"
+           "        <text sourcepos=\"4:3-4:17\" xml:space=\"preserve\">List 2, item A.</text>\n"
+           "      </paragraph>\n"
+           "    </item>\n"
+           "  </list>\n"
+           "</document>\n",
+           "sourcepos of HTML block without end condition is as expected");
+    free(xml);
+    cmark_node_free(doc);
+  }
 }
 
 static void source_pos_inlines(test_batch_runner *runner) {
