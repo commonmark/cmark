@@ -60,9 +60,7 @@ set(LIBRARY_SOURCES
   )
 
 set(PROGRAM "cmark-gfm")
-set(PROGRAM_SOURCES
-  main.c
-  )
+set(PROGRAM_SOURCES main.c)
 
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
