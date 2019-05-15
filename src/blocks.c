@@ -319,7 +319,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   } else if (S_type(b) == CMARK_NODE_DOCUMENT ||
              (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (S_type(b) == CMARK_NODE_HTML_BLOCK)) {
+             (S_type(b) == CMARK_NODE_HTML_BLOCK && b->end_line == b->start_line && b->end_column == 0)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline.size;
     if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\n')
@@ -1193,6 +1193,12 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
     while (parser->current != last_matched_container) {
+      if (S_type(parser->current) == CMARK_NODE_HTML_BLOCK) {
+        // Edge case: Closing an HTML block without a matching end condition.
+        parser->current->end_line = parser->line_number - 1;
+        parser->current->end_column = parser->last_line_length;
+      }
+
       parser->current = finalize(parser, parser->current);
       assert(parser->current != NULL);
     }
