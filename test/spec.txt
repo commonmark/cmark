@@ -5995,12 +5995,12 @@ Here are some nonentities:
 
 ```````````````````````````````` example
 &nbsp &x; &#; &#x;
-&#987654321;
+&#87654321;
 &#abcdef0;
 &ThisIsNotDefined; &hi?;
 .
 <p>&amp;nbsp &amp;x; &amp;#; &amp;#x;
-&amp;#987654321;
+&amp;#87654321;
 &amp;#abcdef0;
 &amp;ThisIsNotDefined; &amp;hi?;</p>
 ````````````````````````````````
@@ -8232,9 +8232,8 @@ perform the *Unicode case fold*, strip leading and trailing
 matching reference link definitions, the one that comes first in the
 document is used.  (It is desirable in such cases to emit a warning.)
 
-The contents of the first link label are parsed as inlines, which are
-used as the link's text.  The link's URI and title are provided by the
-matching [link reference definition].
+The link's URI and title are provided by the matching [link
+reference definition].
 
 Here is a simple example:
 
@@ -8327,11 +8326,11 @@ emphasis grouping:
 
 
 ```````````````````````````````` example
-[foo *bar][ref]
+[foo *bar][ref]*
 
 [ref]: /uri
 .
-<p><a href="/uri">foo *bar</a></p>
+<p><a href="/uri">foo *bar</a>*</p>
 ````````````````````````````````
 
 
@@ -8379,11 +8378,11 @@ Matching is case-insensitive:
 Unicode case fold is used:
 
 ```````````````````````````````` example
-[Толпой][Толпой] is a Russian word.
+[ẞ]
 
-[ТОЛПОЙ]: /url
+[SS]: /url
 .
-<p><a href="/url">Толпой</a> is a Russian word.</p>
+<p><a href="/url">ẞ</a></p>
 ````````````````````````````````
 
 
