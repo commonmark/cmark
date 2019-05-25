@@ -12,6 +12,10 @@ option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
+if(NOT APPLE AND CMARK_STATIC)
+  string(REGEX REPLACE "( |^)-rdynamic( |$)" " " CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ${CMAKE_SHARED_LIBRARY_LINK_C_FLAGS})
+endif()
+
 add_subdirectory(src)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
