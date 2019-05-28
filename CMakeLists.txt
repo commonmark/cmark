@@ -13,7 +13,7 @@ option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
 if(CMARK_STATIC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  string(REGEX REPLACE "( |^)-rdynamic( |$)" " " CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ${CMAKE_SHARED_LIBRARY_LINK_C_FLAGS})
+  SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 endif()
 
 add_subdirectory(src)
