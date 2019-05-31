@@ -9,19 +9,22 @@ typedef enum {
   CMARK_TASKLIST_CHECKED,
 } cmark_tasklist_type;
 
+// Local constants
+static const char *TYPE_STRING = "tasklist";
+
 static const char *get_type_string(cmark_syntax_extension *extension, cmark_node *node) {
-  return "tasklist";
+  return TYPE_STRING;
 }
 
-char *cmark_gfm_extensions_get_tasklist_state(cmark_node *node) {
-  if (!node || ((int)node->as.opaque != CMARK_TASKLIST_CHECKED && (int)node->as.opaque != CMARK_TASKLIST_NOCHECKED))
-    return 0;
+bool cmark_gfm_extensions_tasklist_state_is_checked(cmark_node *node) {
+  if (!node || !node->extension || strcmp(cmark_node_get_type_string(node), TYPE_STRING))
+    return false;
 
   if ((int)node->as.opaque == CMARK_TASKLIST_CHECKED) {
-    return "checked";
+    return true;
   }
   else {
-    return "unchecked";
+    return false;
   }
 }
 

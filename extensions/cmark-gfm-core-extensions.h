@@ -7,6 +7,7 @@ extern "C" {
 
 #include "cmark-gfm-extension_api.h"
 #include "cmark-gfm-extensions_export.h"
+#include "config.h"
 #include <stdint.h>
 
 CMARK_GFM_EXTENSIONS_EXPORT
@@ -22,7 +23,7 @@ CMARK_GFM_EXTENSIONS_EXPORT
 int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node);
 
 CMARK_GFM_EXTENSIONS_EXPORT
-char *cmark_gfm_extensions_get_tasklist_state(cmark_node *node);
+bool cmark_gfm_extensions_tasklist_state_is_checked(cmark_node *node);
 
 #ifdef __cplusplus
 }
