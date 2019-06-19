@@ -16,7 +16,24 @@ static const char *get_type_string(cmark_syntax_extension *extension, cmark_node
   return TYPE_STRING;
 }
 
-bool cmark_gfm_extensions_tasklist_state_is_checked(cmark_node *node) {
+
+// Return 1 if state was set, 0 otherwise
+int cmark_gfm_extensions_set_tasklist_item_checked(cmark_node *node, bool is_checked) {
+  // The node has to exist, and be an extension, and actually be the right type in order to get the value.
+  if (!node || !node->extension || strcmp(cmark_node_get_type_string(node), TYPE_STRING))
+    return 0;
+
+  if (is_checked) {
+    node->as.opaque = (void *)CMARK_TASKLIST_CHECKED;
+    return 1;
+  }
+  else {
+    node->as.opaque = (void *)CMARK_TASKLIST_NOCHECKED;
+    return 1;
+  }
+}
+
+bool cmark_gfm_extensions_get_tasklist_item_checked(cmark_node *node) {
   if (!node || !node->extension || strcmp(cmark_node_get_type_string(node), TYPE_STRING))
     return false;
 
