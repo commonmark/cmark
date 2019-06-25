@@ -750,11 +750,24 @@ Autolink and tables.
 </ul>
 ````````````````````````````````
 
+Show that a task list and a regular list get processed the same in
+the way that sublists are created. If something works in a list
+item, then it should work the same way with a task.  The only
+difference should be the tasklist marker. So, if we use something
+other than a space or x, it won't be recognized as a task item, and
+so will be treated as a regular item.
+
 ```````````````````````````````` example
 - [x] foo
   - [ ] bar
   - [x] baz
 - [ ] bim
+
+Show a regular (non task) list to show that it has the same structure
+- [@] foo
+  - [@] bar
+  - [@] baz
+- [@] bim
 .
 <ul>
 <li><input type="checkbox" checked="" disabled="" /> foo
@@ -764,5 +777,50 @@ Autolink and tables.
 </ul>
 </li>
 <li><input type="checkbox" disabled="" /> bim</li>
+</ul>
+<p>Show a regular (non task) list to show that it has the same structure</p>
+<ul>
+<li>[@] foo
+<ul>
+<li>[@] bar</li>
+<li>[@] baz</li>
+</ul>
+</li>
+<li>[@] bim</li>
+</ul>
+````````````````````````````````
+Use a larger indent -- a task list and a regular list should produce
+the same structure.
+
+```````````````````````````````` example
+- [x] foo
+    - [ ] bar
+    - [x] baz
+- [ ] bim
+
+Show a regular (non task) list to show that it has the same structure
+- [@] foo
+    - [@] bar
+    - [@] baz
+- [@] bim
+.
+<ul>
+<li><input type="checkbox" checked="" disabled="" /> foo
+<ul>
+<li><input type="checkbox" disabled="" /> bar</li>
+<li><input type="checkbox" checked="" disabled="" /> baz</li>
+</ul>
+</li>
+<li><input type="checkbox" disabled="" /> bim</li>
+</ul>
+<p>Show a regular (non task) list to show that it has the same structure</p>
+<ul>
+<li>[@] foo
+<ul>
+<li>[@] bar</li>
+<li>[@] baz</li>
+</ul>
+</li>
+<li>[@] bim</li>
 </ul>
 ````````````````````````````````
