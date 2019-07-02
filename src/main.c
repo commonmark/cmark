@@ -39,7 +39,7 @@ void print_usage() {
   printf("  --nobreaks       Render soft line breaks as spaces\n");
   printf("  --unsafe         Render raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
-  printf("  --validate-utf8  Replace UTF-8 invalid sequences with U+FFFD\n");
+  printf("  --validate-utf8  Replace invalid UTF-8 sequences with U+FFFD\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
