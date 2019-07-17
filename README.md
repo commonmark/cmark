@@ -66,6 +66,7 @@ There are also libraries that wrap `libcmark` for
 [Perl](https://metacpan.org/release/CommonMark),
 [Python](https://pypi.python.org/pypi/paka.cmark),
 [R](https://cran.r-project.org/package=commonmark),
+[Tcl](https://github.com/apnadkarni/tcl-cmark),
 [Scala](https://github.com/sparsetech/cmark-scala) and
 [Node.js](https://github.com/killa123/node-cmark).
 
