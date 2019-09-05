@@ -14,8 +14,8 @@ build_script:
   - 'tools\appveyor-build.bat'
 
 artifacts:
-  - path: build/src/cmark.exe
-    name: cmark.exe
+  - path: build/src/cmark-gfm.exe
+    name: cmark-gfm.exe
 
 test_script:
   - 'nmake test'
