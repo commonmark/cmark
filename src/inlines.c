@@ -930,30 +930,30 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
   bufsize_t i = offset;
   size_t nb_p = 0;
 
-    while (i < input->len) {
-      if (input->data[i] == '\\' &&
-	  i + 1 < input-> len &&
-          cmark_ispunct(input->data[i+1]))
-        i += 2;
-      else if (input->data[i] == '(') {
-        ++nb_p;
-        ++i;
-        if (nb_p > 32)
-          return -1;
-      } else if (input->data[i] == ')') {
-        if (nb_p == 0)
-          break;
-        --nb_p;
-        ++i;
-      } else if (cmark_isspace(input->data[i])) {
-        if (i == offset) {
-	  return -1;
-	}
+  while (i < input->len) {
+    if (input->data[i] == '\\' &&
+        i + 1 < input-> len &&
+        cmark_ispunct(input->data[i+1]))
+      i += 2;
+    else if (input->data[i] == '(') {
+      ++nb_p;
+      ++i;
+      if (nb_p > 32)
+        return -1;
+    } else if (input->data[i] == ')') {
+      if (nb_p == 0)
         break;
-      } else {
-        ++i;
+      --nb_p;
+      ++i;
+    } else if (cmark_isspace(input->data[i])) {
+      if (i == offset) {
+        return -1;
       }
+      break;
+    } else {
+      ++i;
     }
+  }
 
   if (i >= input->len || nb_p != 0)
     return -1;
