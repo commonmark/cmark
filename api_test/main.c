@@ -837,11 +837,11 @@ static void numeric_entities(test_batch_runner *runner) {
                   "Valid numeric entity 0x10FFFF");
   test_md_to_html(runner, "&#x110000;", "<p>" UTF8_REPL "</p>\n",
                   "Invalid numeric entity 0x110000");
-  test_md_to_html(runner, "&#x80000000;", "<p>" UTF8_REPL "</p>\n",
+  test_md_to_html(runner, "&#x80000000;", "<p>&amp;#x80000000;</p>\n",
                   "Invalid numeric entity 0x80000000");
-  test_md_to_html(runner, "&#xFFFFFFFF;", "<p>" UTF8_REPL "</p>\n",
+  test_md_to_html(runner, "&#xFFFFFFFF;", "<p>&amp;#xFFFFFFFF;</p>\n",
                   "Invalid numeric entity 0xFFFFFFFF");
-  test_md_to_html(runner, "&#99999999;", "<p>" UTF8_REPL "</p>\n",
+  test_md_to_html(runner, "&#99999999;", "<p>&amp;#99999999;</p>\n",
                   "Invalid numeric entity 99999999");
 
   test_md_to_html(runner, "&#;", "<p>&amp;#;</p>\n",
