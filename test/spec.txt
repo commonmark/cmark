@@ -326,6 +326,9 @@ A [space](@) is `U+0020`.
 A [non-whitespace character](@) is any character
 that is not a [whitespace character].
 
+An [ASCII control character](@) is a character between `U+0000–1F` (both
+including) or `U+007F`.
+
 An [ASCII punctuation character](@)
 is `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`,
 `*`, `+`, `,`, `-`, `.`, `/` (U+0021–2F), 
@@ -477,6 +480,347 @@ bar
 
 For security reasons, the Unicode character `U+0000` must be replaced
 with the REPLACEMENT CHARACTER (`U+FFFD`).
+
+
+## Backslash escapes
+
+Any ASCII punctuation character may be backslash-escaped:
+
+```````````````````````````````` example
+\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
+.
+<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
+````````````````````````````````
+
+
+Backslashes before other characters are treated as literal
+backslashes:
+
+```````````````````````````````` example
+\→\A\a\ \3\φ\«
+.
+<p>\→\A\a\ \3\φ\«</p>
+````````````````````````````````
+
+
+Escaped characters are treated as regular characters and do
+not have their usual Markdown meanings:
+
+```````````````````````````````` example
+\*not emphasized*
+\<br/> not a tag
+\[not a link](/foo)
+\`not code`
+1\. not a list
+\* not a list
+\# not a heading
+\[foo]: /url "not a reference"
+\&ouml; not a character entity
+.
+<p>*not emphasized*
+&lt;br/&gt; not a tag
+[not a link](/foo)
+`not code`
+1. not a list
+* not a list
+# not a heading
+[foo]: /url &quot;not a reference&quot;
+&amp;ouml; not a character entity</p>
+````````````````````````````````
+
+
+If a backslash is itself escaped, the following character is not:
+
+```````````````````````````````` example
+\\*emphasis*
+.
+<p>\<em>emphasis</em></p>
+````````````````````````````````
+
+
+A backslash at the end of the line is a [hard line break]:
+
+```````````````````````````````` example
+foo\
+bar
+.
+<p>foo<br />
+bar</p>
+````````````````````````````````
+
+
+Backslash escapes do not work in code blocks, code spans, autolinks, or
+raw HTML:
+
+```````````````````````````````` example
+`` \[\` ``
+.
+<p><code>\[\`</code></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+    \[\]
+.
+<pre><code>\[\]
+</code></pre>
+````````````````````````````````
+
+
+```````````````````````````````` example
+~~~
+\[\]
+~~~
+.
+<pre><code>\[\]
+</code></pre>
+````````````````````````````````
+
+
+```````````````````````````````` example
+<http://example.com?find=\*>
+.
+<p><a href="http://example.com?find=%5C*">http://example.com?find=\*</a></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+<a href="/bar\/)">
+.
+<a href="/bar\/)">
+````````````````````````````````
+
+
+But they work in all other contexts, including URLs and link titles,
+link references, and [info strings] in [fenced code blocks]:
+
+```````````````````````````````` example
+[foo](/bar\* "ti\*tle")
+.
+<p><a href="/bar*" title="ti*tle">foo</a></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+[foo]
+
+[foo]: /bar\* "ti\*tle"
+.
+<p><a href="/bar*" title="ti*tle">foo</a></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+``` foo\+bar
+foo
+```
+.
+<pre><code class="language-foo+bar">foo
+</code></pre>
+````````````````````````````````
+
+
+## Entity and numeric character references
+
+Valid HTML entity references and numeric character references
+can be used in place of the corresponding Unicode character,
+with the following exceptions:
+
+- Entity and character references are not recognized in code
+  blocks and code spans.
+
+- Entity and character references cannot stand in place of
+  special characters that define structural elements in
+  CommonMark.  For example, although `&#42;` can be used
+  in place of a literal `*` character, `&#42;` cannot replace
+  `*` in emphasis delimiters, bullet list markers, or thematic
+  breaks.
+
+Conforming CommonMark parsers need not store information about
+whether a particular character was represented in the source
+using a Unicode character or an entity reference.
+
+[Entity references](@) consist of `&` + any of the valid
+HTML5 entity names + `;`. The
+document <https://html.spec.whatwg.org/entities.json>
+is used as an authoritative source for the valid entity
+references and their corresponding code points.
+
+```````````````````````````````` example
+&nbsp; &amp; &copy; &AElig; &Dcaron;
+&frac34; &HilbertSpace; &DifferentialD;
+&ClockwiseContourIntegral; &ngE;
+.
+<p>  &amp; © Æ Ď
+¾ ℋ ⅆ
+∲ ≧̸</p>
+````````````````````````````````
+
+
+[Decimal numeric character
+references](@)
+consist of `&#` + a string of 1--7 arabic digits + `;`. A
+numeric character reference is parsed as the corresponding
+Unicode character. Invalid Unicode code points will be replaced by
+the REPLACEMENT CHARACTER (`U+FFFD`).  For security reasons,
+the code point `U+0000` will also be replaced by `U+FFFD`.
+
+```````````````````````````````` example
+&#35; &#1234; &#992; &#0;
+.
+<p># Ӓ Ϡ �</p>
+````````````````````````````````
+
+
+[Hexadecimal numeric character
+references](@) consist of `&#` +
+either `X` or `x` + a string of 1-6 hexadecimal digits + `;`.
+They too are parsed as the corresponding Unicode character (this
+time specified with a hexadecimal numeral instead of decimal).
+
+```````````````````````````````` example
+&#X22; &#XD06; &#xcab;
+.
+<p>&quot; ആ ಫ</p>
+````````````````````````````````
+
+
+Here are some nonentities:
+
+```````````````````````````````` example
+&nbsp &x; &#; &#x;
+&#87654321;
+&#abcdef0;
+&ThisIsNotDefined; &hi?;
+.
+<p>&amp;nbsp &amp;x; &amp;#; &amp;#x;
+&amp;#87654321;
+&amp;#abcdef0;
+&amp;ThisIsNotDefined; &amp;hi?;</p>
+````````````````````````````````
+
+
+Although HTML5 does accept some entity references
+without a trailing semicolon (such as `&copy`), these are not
+recognized here, because it makes the grammar too ambiguous:
+
+```````````````````````````````` example
+&copy
+.
+<p>&amp;copy</p>
+````````````````````````````````
+
+
+Strings that are not on the list of HTML5 named entities are not
+recognized as entity references either:
+
+```````````````````````````````` example
+&MadeUpEntity;
+.
+<p>&amp;MadeUpEntity;</p>
+````````````````````````````````
+
+
+Entity and numeric character references are recognized in any
+context besides code spans or code blocks, including
+URLs, [link titles], and [fenced code block][] [info strings]:
+
+```````````````````````````````` example
+<a href="&ouml;&ouml;.html">
+.
+<a href="&ouml;&ouml;.html">
+````````````````````````````````
+
+
+```````````````````````````````` example
+[foo](/f&ouml;&ouml; "f&ouml;&ouml;")
+.
+<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+[foo]
+
+[foo]: /f&ouml;&ouml; "f&ouml;&ouml;"
+.
+<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+``` f&ouml;&ouml;
+foo
+```
+.
+<pre><code class="language-föö">foo
+</code></pre>
+````````````````````````````````
+
+
+Entity and numeric character references are treated as literal
+text in code spans and code blocks:
+
+```````````````````````````````` example
+`f&ouml;&ouml;`
+.
+<p><code>f&amp;ouml;&amp;ouml;</code></p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+    f&ouml;f&ouml;
+.
+<pre><code>f&amp;ouml;f&amp;ouml;
+</code></pre>
+````````````````````````````````
+
+
+Entity and numeric character references cannot be used
+in place of symbols indicating structure in CommonMark
+documents.
+
+```````````````````````````````` example
+&#42;foo&#42;
+*foo*
+.
+<p>*foo*
+<em>foo</em></p>
+````````````````````````````````
+
+```````````````````````````````` example
+&#42; foo
+
+* foo
+.
+<p>* foo</p>
+<ul>
+<li>foo</li>
+</ul>
+````````````````````````````````
+
+```````````````````````````````` example
+foo&#10;&#10;bar
+.
+<p>foo
+
+bar</p>
+````````````````````````````````
+
+```````````````````````````````` example
+&#9;foo
+.
+<p>→foo</p>
+````````````````````````````````
+
+
+```````````````````````````````` example
+[a](url &quot;tit&quot;)
+.
+<p>[a](url &quot;tit&quot;)</p>
+````````````````````````````````
+
+
 
 # Blocks and inlines
 
@@ -2045,7 +2389,7 @@ need not match the start tag).
 **End condition:** line contains the string `?>`.
 
 4.  **Start condition:** line begins with the string `<!`
-followed by an uppercase ASCII letter.\
+followed by an ASCII letter.\
 **End condition:** line contains the character `>`.
 
 5.  **Start condition:**  line begins with the string
@@ -5506,345 +5850,6 @@ Thus, for example, in
 backtick.
 
 
-## Backslash escapes
-
-Any ASCII punctuation character may be backslash-escaped:
-
-```````````````````````````````` example
-\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
-.
-<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
-````````````````````````````````
-
-
-Backslashes before other characters are treated as literal
-backslashes:
-
-```````````````````````````````` example
-\→\A\a\ \3\φ\«
-.
-<p>\→\A\a\ \3\φ\«</p>
-````````````````````````````````
-
-
-Escaped characters are treated as regular characters and do
-not have their usual Markdown meanings:
-
-```````````````````````````````` example
-\*not emphasized*
-\<br/> not a tag
-\[not a link](/foo)
-\`not code`
-1\. not a list
-\* not a list
-\# not a heading
-\[foo]: /url "not a reference"
-\&ouml; not a character entity
-.
-<p>*not emphasized*
-&lt;br/&gt; not a tag
-[not a link](/foo)
-`not code`
-1. not a list
-* not a list
-# not a heading
-[foo]: /url &quot;not a reference&quot;
-&amp;ouml; not a character entity</p>
-````````````````````````````````
-
-
-If a backslash is itself escaped, the following character is not:
-
-```````````````````````````````` example
-\\*emphasis*
-.
-<p>\<em>emphasis</em></p>
-````````````````````````````````
-
-
-A backslash at the end of the line is a [hard line break]:
-
-```````````````````````````````` example
-foo\
-bar
-.
-<p>foo<br />
-bar</p>
-````````````````````````````````
-
-
-Backslash escapes do not work in code blocks, code spans, autolinks, or
-raw HTML:
-
-```````````````````````````````` example
-`` \[\` ``
-.
-<p><code>\[\`</code></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-    \[\]
-.
-<pre><code>\[\]
-</code></pre>
-````````````````````````````````
-
-
-```````````````````````````````` example
-~~~
-\[\]
-~~~
-.
-<pre><code>\[\]
-</code></pre>
-````````````````````````````````
-
-
-```````````````````````````````` example
-<http://example.com?find=\*>
-.
-<p><a href="http://example.com?find=%5C*">http://example.com?find=\*</a></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-<a href="/bar\/)">
-.
-<a href="/bar\/)">
-````````````````````````````````
-
-
-But they work in all other contexts, including URLs and link titles,
-link references, and [info strings] in [fenced code blocks]:
-
-```````````````````````````````` example
-[foo](/bar\* "ti\*tle")
-.
-<p><a href="/bar*" title="ti*tle">foo</a></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-[foo]
-
-[foo]: /bar\* "ti\*tle"
-.
-<p><a href="/bar*" title="ti*tle">foo</a></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-``` foo\+bar
-foo
-```
-.
-<pre><code class="language-foo+bar">foo
-</code></pre>
-````````````````````````````````
-
-
-
-## Entity and numeric character references
-
-Valid HTML entity references and numeric character references
-can be used in place of the corresponding Unicode character,
-with the following exceptions:
-
-- Entity and character references are not recognized in code
-  blocks and code spans.
-
-- Entity and character references cannot stand in place of
-  special characters that define structural elements in
-  CommonMark.  For example, although `&#42;` can be used
-  in place of a literal `*` character, `&#42;` cannot replace
-  `*` in emphasis delimiters, bullet list markers, or thematic
-  breaks.
-
-Conforming CommonMark parsers need not store information about
-whether a particular character was represented in the source
-using a Unicode character or an entity reference.
-
-[Entity references](@) consist of `&` + any of the valid
-HTML5 entity names + `;`. The
-document <https://html.spec.whatwg.org/multipage/entities.json>
-is used as an authoritative source for the valid entity
-references and their corresponding code points.
-
-```````````````````````````````` example
-&nbsp; &amp; &copy; &AElig; &Dcaron;
-&frac34; &HilbertSpace; &DifferentialD;
-&ClockwiseContourIntegral; &ngE;
-.
-<p>  &amp; © Æ Ď
-¾ ℋ ⅆ
-∲ ≧̸</p>
-````````````````````````````````
-
-
-[Decimal numeric character
-references](@)
-consist of `&#` + a string of 1--7 arabic digits + `;`. A
-numeric character reference is parsed as the corresponding
-Unicode character. Invalid Unicode code points will be replaced by
-the REPLACEMENT CHARACTER (`U+FFFD`).  For security reasons,
-the code point `U+0000` will also be replaced by `U+FFFD`.
-
-```````````````````````````````` example
-&#35; &#1234; &#992; &#0;
-.
-<p># Ӓ Ϡ �</p>
-````````````````````````````````
-
-
-[Hexadecimal numeric character
-references](@) consist of `&#` +
-either `X` or `x` + a string of 1-6 hexadecimal digits + `;`.
-They too are parsed as the corresponding Unicode character (this
-time specified with a hexadecimal numeral instead of decimal).
-
-```````````````````````````````` example
-&#X22; &#XD06; &#xcab;
-.
-<p>&quot; ആ ಫ</p>
-````````````````````````````````
-
-
-Here are some nonentities:
-
-```````````````````````````````` example
-&nbsp &x; &#; &#x;
-&#987654321;
-&#abcdef0;
-&ThisIsNotDefined; &hi?;
-.
-<p>&amp;nbsp &amp;x; &amp;#; &amp;#x;
-&amp;#987654321;
-&amp;#abcdef0;
-&amp;ThisIsNotDefined; &amp;hi?;</p>
-````````````````````````````````
-
-
-Although HTML5 does accept some entity references
-without a trailing semicolon (such as `&copy`), these are not
-recognized here, because it makes the grammar too ambiguous:
-
-```````````````````````````````` example
-&copy
-.
-<p>&amp;copy</p>
-````````````````````````````````
-
-
-Strings that are not on the list of HTML5 named entities are not
-recognized as entity references either:
-
-```````````````````````````````` example
-&MadeUpEntity;
-.
-<p>&amp;MadeUpEntity;</p>
-````````````````````````````````
-
-
-Entity and numeric character references are recognized in any
-context besides code spans or code blocks, including
-URLs, [link titles], and [fenced code block][] [info strings]:
-
-```````````````````````````````` example
-<a href="&ouml;&ouml;.html">
-.
-<a href="&ouml;&ouml;.html">
-````````````````````````````````
-
-
-```````````````````````````````` example
-[foo](/f&ouml;&ouml; "f&ouml;&ouml;")
-.
-<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-[foo]
-
-[foo]: /f&ouml;&ouml; "f&ouml;&ouml;"
-.
-<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-``` f&ouml;&ouml;
-foo
-```
-.
-<pre><code class="language-föö">foo
-</code></pre>
-````````````````````````````````
-
-
-Entity and numeric character references are treated as literal
-text in code spans and code blocks:
-
-```````````````````````````````` example
-`f&ouml;&ouml;`
-.
-<p><code>f&amp;ouml;&amp;ouml;</code></p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-    f&ouml;f&ouml;
-.
-<pre><code>f&amp;ouml;f&amp;ouml;
-</code></pre>
-````````````````````````````````
-
-
-Entity and numeric character references cannot be used
-in place of symbols indicating structure in CommonMark
-documents.
-
-```````````````````````````````` example
-&#42;foo&#42;
-*foo*
-.
-<p>*foo*
-<em>foo</em></p>
-````````````````````````````````
-
-```````````````````````````````` example
-&#42; foo
-
-* foo
-.
-<p>* foo</p>
-<ul>
-<li>foo</li>
-</ul>
-````````````````````````````````
-
-```````````````````````````````` example
-foo&#10;&#10;bar
-.
-<p>foo
-
-bar</p>
-````````````````````````````````
-
-```````````````````````````````` example
-&#9;foo
-.
-<p>→foo</p>
-````````````````````````````````
-
-
-```````````````````````````````` example
-[a](url &quot;tit&quot;)
-.
-<p>[a](url &quot;tit&quot;)</p>
-````````````````````````````````
-
 
 ## Code spans
 
@@ -7461,10 +7466,11 @@ A [link destination](@) consists of either
   closing `>` that contains no line breaks or unescaped
   `<` or `>` characters, or
 
-- a nonempty sequence of characters that does not start with
-  `<`, does not include ASCII space or control characters, and
-  includes parentheses only if (a) they are backslash-escaped or
-  (b) they are part of a balanced pair of unescaped parentheses.
+- a nonempty sequence of characters that does not start with `<`,
+  does not include [ASCII control characters][ASCII control character]
+  or [whitespace][], and includes parentheses only if (a) they are
+  backslash-escaped or (b) they are part of a balanced pair of
+  unescaped parentheses.
   (Implementations may impose limits on parentheses nesting to
   avoid performance issues, but at least three levels of nesting
   should be supported.)
@@ -7614,6 +7620,13 @@ balanced:
 
 However, if you have unbalanced parentheses, you need to escape or use the
 `<...>` form:
+
+```````````````````````````````` example
+[link](foo(and(bar))
+.
+<p>[link](foo(and(bar))</p>
+````````````````````````````````
+
 
 ```````````````````````````````` example
 [link](foo\(and\(bar\))
@@ -7923,9 +7936,8 @@ perform the *Unicode case fold*, strip leading and trailing
 matching reference link definitions, the one that comes first in the
 document is used.  (It is desirable in such cases to emit a warning.)
 
-The contents of the first link label are parsed as inlines, which are
-used as the link's text.  The link's URI and title are provided by the
-matching [link reference definition].
+The link's URI and title are provided by the matching [link
+reference definition].
 
 Here is a simple example:
 
@@ -8018,11 +8030,11 @@ emphasis grouping:
 
 
 ```````````````````````````````` example
-[foo *bar][ref]
+[foo *bar][ref]*
 
 [ref]: /uri
 .
-<p><a href="/uri">foo *bar</a></p>
+<p><a href="/uri">foo *bar</a>*</p>
 ````````````````````````````````
 
 
@@ -8070,11 +8082,11 @@ Matching is case-insensitive:
 Unicode case fold is used:
 
 ```````````````````````````````` example
-[Толпой][Толпой] is a Russian word.
+[ẞ]
 
-[ТОЛПОЙ]: /url
+[SS]: /url
 .
-<p><a href="/url">Толпой</a> is a Russian word.</p>
+<p><a href="/url">ẞ</a></p>
 ````````````````````````````````
 
 
@@ -8707,9 +8719,9 @@ a link to the URI, with the URI as the link's label.
 
 An [absolute URI](@),
 for these purposes, consists of a [scheme] followed by a colon (`:`)
-followed by zero or more characters other than ASCII
-[whitespace] and control characters, `<`, and `>`.  If
-the URI includes these characters, they must be percent-encoded
+followed by zero or more characters other [ASCII control
+characters][ASCII control character] or [whitespace][] , `<`, and `>`.
+If the URI includes these characters, they must be percent-encoded
 (e.g. `%20` for a space).
 
 For purposes of this spec, a [scheme](@) is any sequence
@@ -8942,10 +8954,8 @@ consists of the string `<?`, a string
 of characters not including the string `?>`, and the string
 `?>`.
 
-A [declaration](@) consists of the
-string `<!`, a name consisting of one or more uppercase ASCII letters,
-[whitespace], a string of characters not including the
-character `>`, and the character `>`.
+A [declaration](@) consists of the string `<!`, an ASCII letter, zero or more
+characters not including the character `>`, and the character `>`.
 
 A [CDATA section](@) consists of
 the string `<![CDATA[`, a string of characters not including the string
@@ -9444,7 +9454,7 @@ blocks.  But we cannot close unmatched blocks yet, because we may have a
 blocks, we look for new block starts (e.g. `>` for a block quote).
 If we encounter a new block start, we close any blocks unmatched
 in step 1 before creating the new block as a child of the last
-matched block.
+matched container block.
 
 3.  Finally, we look at the remainder of the line (after block
 markers like `>`, list markers, and indentation have been consumed).
