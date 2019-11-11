@@ -784,18 +784,13 @@ static cmark_node *handle_backslash(subject *subj) {
 static cmark_node *handle_entity(subject *subj) {
   cmark_strbuf ent = CMARK_BUF_INIT(subj->mem);
   bufsize_t len;
-  int length_limit = 256;
 
   advance(subj);
 
   len = houdini_unescape_ent(&ent, subj->input.data + subj->pos,
                              subj->input.len - subj->pos);
 
-  if (peek_char(subj) == '#') {
-     length_limit = 9; // includes #, optional x for hex, and ;
-  }
-
-  if (len <= 0 || len > length_limit)
+  if (len <= 0)
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("&"));
 
   subj->pos += len;
