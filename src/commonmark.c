@@ -182,6 +182,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   char *emph_delim;
   bool first_in_list_item;
   bufsize_t marker_width;
+  bool has_nonspace;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options) &&
                     !(CMARK_OPT_HARDBREAKS & options);
 
@@ -371,9 +372,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     code = cmark_node_get_literal(node);
     code_len = strlen(code);
     numticks = shortest_unused_backtick_sequence(code);
+    has_nonspace = false;
+    for (i=0; i < code_len; i++) {
+      if (code[i] != ' ') {
+        has_nonspace = true;
+        break;
+      }
+    }
     extra_spaces = code_len == 0 ||
 	    code[0] == '`' || code[code_len - 1] == '`' ||
-	    code[0] == ' ' || code[code_len - 1] == ' ';
+	    (has_nonspace && code[0] == ' ' && code[code_len - 1] == ' ');
     for (i = 0; i < numticks; i++) {
       LIT("`");
     }
