@@ -277,6 +277,15 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CODE_BLOCK:
+    if (entering && node->prev &&
+		    (node->prev->type == CMARK_NODE_CODE_BLOCK)) {
+      // this ensures that consecutive indented code blocks will not
+      // be merged (#317)
+      CR();
+      LIT("<!-- end code block -->");
+      BLANKLINE();
+    }
+
     first_in_list_item = node->prev == NULL && node->parent &&
                          node->parent->type == CMARK_NODE_ITEM;
 
