@@ -59,7 +59,11 @@ add_subdirectory(src)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
 endif()
-add_subdirectory(man)
+# TODO(compnerd) should this be enabled for MinGW, which sets CMAKE_SYSTEM_NAME
+# to Windows, but defines `MINGW`.
+if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
+  add_subdirectory(man)
+endif()
 if(CMARK_TESTS)
   enable_testing()
   add_subdirectory(test testdir)
