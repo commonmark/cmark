@@ -64,17 +64,14 @@ endif()
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
-  # Include minor version and patch level in soname for now.
   set_target_properties(${LIBRARY} PROPERTIES
+    MACOSX_RPATH TRUE
     OUTPUT_NAME "cmark"
+    # Avoid name clash between PROGRAM and LIBRARY pdb files.
+    PDB_NAME cmark_dll
+    # Include minor version and patch level in soname for now.
     SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     VERSION ${PROJECT_VERSION})
-
-  set_property(TARGET ${LIBRARY}
-    APPEND PROPERTY MACOSX_RPATH true)
-
-  # Avoid name clash between PROGRAM and LIBRARY pdb files.
-  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark_dll)
 
   generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
@@ -86,17 +83,9 @@ if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
   set_target_properties(${STATICLIBRARY} PROPERTIES
     COMPILE_FLAGS -DCMARK_STATIC_DEFINE
-    POSITION_INDEPENDENT_CODE ON)
-
-  if (MSVC)
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark_static"
-      VERSION ${PROJECT_VERSION})
-  else()
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark"
-      VERSION ${PROJECT_VERSION})
-  endif(MSVC)
+    OUTPUT_NAME "cmark$<$<BOOL:MSVC>:_static>"
+    POSITION_INDEPENDENT_CODE ON
+    VERSION ${PROJECT_VERSION})
 
   if (NOT CMARK_SHARED)
     generate_export_header(${STATICLIBRARY}
