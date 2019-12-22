@@ -202,6 +202,7 @@ if(CMARK_LIB_FUZZER)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize-coverage=trace-pc-guard")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
-  # needs to link against the C++ runtime. Explicitly link it into cmark-fuzz
-  set_target_properties(cmark-fuzz PROPERTIES LINK_FLAGS "-lstdc++")
+  # needs to link against the C++ runtime.
+  set_target_properties(cmark-fuzz PROPERTIES
+    LINKER_LANGUAGE CXX)
 endif()
