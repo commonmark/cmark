@@ -12,11 +12,46 @@ option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
+if(NOT MSVC)
+  set(CMAKE_C_STANDARD 99)
+  set(CMAKE_C_STANDARD_REQUIRED YES)
+  set(CMAKE_C_EXTENSIONS NO)
+endif()
+
+# -fvisibility=hidden
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
 # The Linux modules distributed with CMake add "-rdynamic" to the build flags
 # which is incompatible with static linking under certain configurations.
 # Unsetting CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ensures this does not happen.
 if(CMARK_STATIC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
+endif()
+
+# Compiler flags
+if(MSVC)
+  # Force to always compile with W4
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:/W4>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:/wd4706>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
+  add_compile_definitions($<$<COMPILE_LANGUAGE:C>:/D_CRT_SECURE_NO_WARNINGS>)
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wall>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wextra>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-pedantic>)
+endif()
+
+# Check integrity of node structure when compiled as debug
+add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
+
+add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
+
+if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
+endif()
+if(CMARK_LIB_FUZZER)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize-coverage=trace-pc-guard>)
 endif()
 
 add_subdirectory(src)

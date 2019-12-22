@@ -66,17 +66,6 @@ elseif (CMARK_SHARED)
   target_link_libraries(${PROGRAM} ${LIBRARY})
 endif()
 
-# Check integrity of node structure when compiled as debug:
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES")
-set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
-
-set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
-set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
-
-# -fvisibility=hidden
-set(CMAKE_C_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   # Include minor version and patch level in soname for now.
@@ -159,8 +148,6 @@ endif()
 # Feature tests
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
-include(CheckCSourceRuns)
-include(CheckSymbolExists)
 CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
 CHECK_C_SOURCE_COMPILES(
   "int main() { __builtin_expect(0,0); return 0; }"
@@ -174,35 +161,12 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-# Always compile with warnings
-if(MSVC)
-  # Force to always compile with W4
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
-  endif()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4706 /D_CRT_SECURE_NO_WARNINGS")
-elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -pedantic")
-endif()
-
-# Compile as C++ under MSVC older than 12.0
-if(MSVC AND MSVC_VERSION LESS 1800)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-endif()
-
 if(CMARK_LIB_FUZZER)
-  set(FUZZ_HARNESS "cmark-fuzz")
-  add_executable(${FUZZ_HARNESS} ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
-  target_link_libraries(${FUZZ_HARNESS} "${CMAKE_LIB_FUZZER_PATH}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize-coverage=trace-pc-guard")
+  add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
+  target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
-  # needs to link against the C++ runtime. Explicitly link it into cmark-fuzz
-  set_target_properties(${FUZZ_HARNESS} PROPERTIES LINK_FLAGS "-lstdc++")
+  # needs to link against the C++ runtime.
+  set_target_properties(cmark-fuzz PROPERTIES
+    LINKER_LANGUAGE CXX)
 endif()
