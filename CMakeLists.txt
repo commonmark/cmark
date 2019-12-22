@@ -45,6 +45,8 @@ endif()
 # Check integrity of node structure when compiled as debug
 add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
 
+add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
+
 if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
 endif()

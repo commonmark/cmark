@@ -66,7 +66,6 @@ elseif (CMARK_SHARED)
   target_link_libraries(${PROGRAM} ${LIBRARY})
 endif()
 
-set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
 
 if (CMARK_SHARED)
