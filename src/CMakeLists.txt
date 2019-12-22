@@ -174,11 +174,6 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-# Compile as C++ under MSVC older than 12.0
-if(MSVC AND MSVC_VERSION LESS 1800)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
-endif()
-
 if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
 endif()
