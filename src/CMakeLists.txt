@@ -66,8 +66,6 @@ elseif (CMARK_SHARED)
   target_link_libraries(${PROGRAM} ${LIBRARY})
 endif()
 
-set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
-
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   # Include minor version and patch level in soname for now.
