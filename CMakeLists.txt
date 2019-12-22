@@ -38,6 +38,13 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-pedantic>)
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
+endif()
+if(CMARK_LIB_FUZZER)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize-coverage=trace-pc-guard>)
+endif()
+
 add_subdirectory(src)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
