@@ -1,7 +1,4 @@
 if (NOT MSVC)
-
-include(GNUInstallDirs)
-
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/man1/cmark.1
     DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 

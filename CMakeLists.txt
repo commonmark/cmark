@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(cmark VERSION 0.29.0)
 
 include("FindAsan.cmake")
+include(GNUInstallDirs)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
