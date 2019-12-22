@@ -197,12 +197,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
 endif()
 
 if(CMARK_LIB_FUZZER)
-  set(FUZZ_HARNESS "cmark-fuzz")
-  add_executable(${FUZZ_HARNESS} ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
-  target_link_libraries(${FUZZ_HARNESS} "${CMAKE_LIB_FUZZER_PATH}")
+  add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
+  target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize-coverage=trace-pc-guard")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
   # needs to link against the C++ runtime. Explicitly link it into cmark-fuzz
-  set_target_properties(${FUZZ_HARNESS} PROPERTIES LINK_FLAGS "-lstdc++")
+  set_target_properties(cmark-fuzz PROPERTIES LINK_FLAGS "-lstdc++")
 endif()
