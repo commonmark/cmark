@@ -23,6 +23,8 @@ endif()
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 # The Linux modules distributed with CMake add "-rdynamic" to the build flags
 # which is incompatible with static linking under certain configurations.
 # Unsetting CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ensures this does not happen.
