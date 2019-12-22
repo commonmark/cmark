@@ -46,8 +46,6 @@ set(LIBRARY_SOURCES
 set(PROGRAM "cmark")
 set(PROGRAM_SOURCES main.c)
 
-include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
