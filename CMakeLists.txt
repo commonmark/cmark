@@ -12,6 +12,12 @@ option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
+if(NOT MSVC)
+  set(CMAKE_C_STANDARD 99)
+  set(CMAKE_C_STANDARD_REQUIRED YES)
+  set(CMAKE_C_EXTENSIONS NO)
+endif()
+
 # The Linux modules distributed with CMake add "-rdynamic" to the build flags
 # which is incompatible with static linking under certain configurations.
 # Unsetting CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ensures this does not happen.
