@@ -72,6 +72,10 @@ if (CMARK_SHARED)
     # Include minor version and patch level in soname for now.
     SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     VERSION ${PROJECT_VERSION})
+  target_include_directories(${LIBRARY} INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
   generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
@@ -86,6 +90,10 @@ if (CMARK_STATIC)
     OUTPUT_NAME "cmark$<$<BOOL:MSVC>:_static>"
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION})
+  target_include_directories(${STATICLIBRARY} INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
   if (NOT CMARK_SHARED)
     generate_export_header(${STATICLIBRARY}
