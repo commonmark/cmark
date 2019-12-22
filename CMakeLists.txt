@@ -42,6 +42,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-pedantic>)
 endif()
 
+# Check integrity of node structure when compiled as debug
+add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
+
 if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
 endif()
