@@ -1,0 +1,7 @@
+set(HAVE_LIBCMARK_STATIC @CMARK_STATIC@)
+set(HAVE_LIBCMARK_SHARED @CMARK_SHARED@)
+
+if((HAVE_LIBCMARK_STATIC AND NOT TARGET libcmark_static) OR
+   (HAVE_LIBCMARK_SHARED AND NOT TARGET libcmark))
+  include(cmarkTargets.cmake)
+endif()
