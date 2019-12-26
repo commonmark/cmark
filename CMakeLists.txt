@@ -35,7 +35,7 @@ if(MSVC)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/W4>)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/wd4706>)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
-  add_compile_definitions($<$<COMPILE_LANGUAGE:C>:/D_CRT_SECURE_NO_WARNINGS>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:/D_CRT_SECURE_NO_WARNINGS>)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wall>)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wextra>)
@@ -43,7 +43,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
 endif()
 
 # Check integrity of node structure when compiled as debug
-add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
+add_compile_options($<$<CONFIG:Debug>:-DCMARK_DEBUG_NODES>)
 
 add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
 
