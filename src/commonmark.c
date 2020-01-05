@@ -171,9 +171,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   cmark_node *tmp;
   int list_number;
   cmark_delim_type list_delim;
-  int numticks;
+  size_t numticks;
   bool extra_spaces;
-  int i;
+  size_t i;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
   char fencechar[2] = {'\0', '\0'};
