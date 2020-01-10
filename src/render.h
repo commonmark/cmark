@@ -12,6 +12,7 @@ extern "C" {
 typedef enum { LITERAL, NORMAL, TITLE, URL } cmark_escaping;
 
 struct cmark_renderer {
+  int options;
   cmark_mem *mem;
   cmark_strbuf *buffer;
   cmark_strbuf *prefix;

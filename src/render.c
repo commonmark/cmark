@@ -159,7 +159,8 @@ char *cmark_render(cmark_node *root, int options, int width,
   char *result;
   cmark_iter *iter = cmark_iter_new(root);
 
-  cmark_renderer renderer = {mem,   &buf, &pref, 0,           width,
+  cmark_renderer renderer = {options,
+	                     mem,   &buf, &pref, 0,           width,
                              0,     0,    true,  true,        false,
                              false, outc, S_cr,  S_blankline, S_out};
 
