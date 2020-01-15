@@ -33,7 +33,10 @@ if(MSVC)
   # Force to always compile with W4
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/W4>)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/wd4706>)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
+  # Compile as C++ under MSVC older than 12.0
+  if(MSVC_VERSION LESS 1800)
+    add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
+  endif()
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/D_CRT_SECURE_NO_WARNINGS>)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wall>)
