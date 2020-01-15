@@ -4,22 +4,21 @@ from spec_tests import get_tests, do_test
 from cmark import CMark
 import argparse
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run cmark roundtrip tests.')
-    parser.add_argument('-p', '--program', dest='program', nargs='?', default=None,
-            help='program to test')
-    parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='spec.txt',
-            help='path to spec')
-    parser.add_argument('-P', '--pattern', dest='pattern', nargs='?',
-            default=None, help='limit to sections matching regex pattern')
-    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-            default=None, help='directory containing dynamic library')
-    parser.add_argument('--no-normalize', dest='normalize',
-            action='store_const', const=False, default=True,
-            help='do not normalize HTML')
-    parser.add_argument('-n', '--number', type=int, default=None,
-            help='only consider the test with the given number')
-    args = parser.parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(description='Run cmark roundtrip tests.')
+parser.add_argument('-p', '--program', dest='program', nargs='?', default=None,
+        help='program to test')
+parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='spec.txt',
+        help='path to spec')
+parser.add_argument('-P', '--pattern', dest='pattern', nargs='?',
+        default=None, help='limit to sections matching regex pattern')
+parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+        default=None, help='directory containing dynamic library')
+parser.add_argument('--no-normalize', dest='normalize',
+        action='store_const', const=False, default=True,
+        help='do not normalize HTML')
+parser.add_argument('-n', '--number', type=int, default=None,
+        help='only consider the test with the given number')
+args = parser.parse_args(sys.argv[1:])
 
 spec = sys.argv[1]
 

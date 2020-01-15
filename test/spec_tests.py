@@ -9,28 +9,27 @@ import json
 from cmark import CMark
 from normalize import normalize_html
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run cmark tests.')
-    parser.add_argument('-p', '--program', dest='program', nargs='?', default=None,
-            help='program to test')
-    parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='spec.txt',
-            help='path to spec')
-    parser.add_argument('-P', '--pattern', dest='pattern', nargs='?',
-            default=None, help='limit to sections matching regex pattern')
-    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-            default=None, help='directory containing dynamic library')
-    parser.add_argument('--no-normalize', dest='normalize',
-            action='store_const', const=False, default=True,
-            help='do not normalize HTML')
-    parser.add_argument('-d', '--dump-tests', dest='dump_tests',
-            action='store_const', const=True, default=False,
-            help='dump tests in JSON format')
-    parser.add_argument('--debug-normalization', dest='debug_normalization',
-            action='store_const', const=True,
-            default=False, help='filter stdin through normalizer for testing')
-    parser.add_argument('-n', '--number', type=int, default=None,
-            help='only consider the test with the given number')
-    args = parser.parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(description='Run cmark tests.')
+parser.add_argument('-p', '--program', dest='program', nargs='?', default=None,
+        help='program to test')
+parser.add_argument('-s', '--spec', dest='spec', nargs='?', default='spec.txt',
+        help='path to spec')
+parser.add_argument('-P', '--pattern', dest='pattern', nargs='?',
+        default=None, help='limit to sections matching regex pattern')
+parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+        default=None, help='directory containing dynamic library')
+parser.add_argument('--no-normalize', dest='normalize',
+        action='store_const', const=False, default=True,
+        help='do not normalize HTML')
+parser.add_argument('-d', '--dump-tests', dest='dump_tests',
+        action='store_const', const=True, default=False,
+        help='dump tests in JSON format')
+parser.add_argument('--debug-normalization', dest='debug_normalization',
+        action='store_const', const=True,
+        default=False, help='filter stdin through normalizer for testing')
+parser.add_argument('-n', '--number', type=int, default=None,
+        help='only consider the test with the given number')
+args = parser.parse_args(sys.argv[1:])
 
 def out(str):
     sys.stdout.buffer.write(str.encode('utf-8')) 
