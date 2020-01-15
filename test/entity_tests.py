@@ -19,13 +19,12 @@ def get_entities():
         entities.append((entity, utf8))
     return entities
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run cmark tests.')
-    parser.add_argument('--program', dest='program', nargs='?', default=None,
-            help='program to test')
-    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-            default=None, help='directory containing dynamic library')
-    args = parser.parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(description='Run cmark tests.')
+parser.add_argument('--program', dest='program', nargs='?', default=None,
+        help='program to test')
+parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+        default=None, help='directory containing dynamic library')
+args = parser.parse_args(sys.argv[1:])
 
 cmark = CMark(prog=args.program, library_dir=args.library_dir)
 
