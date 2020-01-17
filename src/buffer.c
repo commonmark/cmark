@@ -242,6 +242,11 @@ void cmark_strbuf_trim(cmark_strbuf *buf) {
   cmark_strbuf_rtrim(buf);
 }
 
+void cmark_strbuf_remove(cmark_strbuf *buf, bufsize_t start_offset, bufsize_t len) {
+  memmove(buf->ptr + start_offset, buf->ptr + start_offset + len, buf->size - (start_offset + len));
+  buf->size -= len;
+}
+
 // Destructively modify string, collapsing consecutive
 // space and newline characters into a single space.
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s) {

@@ -183,8 +183,37 @@ static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
       cmark_strbuf_putc(&node->content, ' ');
     }
   }
-  cmark_strbuf_put(&node->content, ch->data + parser->offset,
-                   ch->len - parser->offset);
+
+  // If inserting the initial line to the node...
+  if (node->content.size == 0
+    // OR the node is a code block...
+    || node->type == CMARK_NODE_CODE_BLOCK
+    // OR the node is a HTML block.
+    || node->type == CMARK_NODE_HTML_BLOCK) {
+
+    // Then do not insert the leading trivia.
+    cmark_strbuf_put(&node->content, ch->data + parser->offset,
+                     ch->len - parser->offset);
+  } else {
+    // Special case for maintaining the source position of block quotes
+    // as they can be lazy (i.e. the block quote marker can be omitted).
+    //
+    // The simple solution is to replace any block quote markers (">")
+    // present in the leading trivia with whitespace.
+    //
+    // Note: Using `parser->offset` and not `parser->first_nonspace`
+    // because the latter encompasses the former with the addition of
+    // whitespace (which we are not interested in).
+    assert(parser->offset <= parser->first_nonspace);
+    for (int i = 0; i < parser->offset; i++) {
+      if (peek_at(ch, i) == '>')
+        ch->data[i] = ' ';
+    }
+
+    // Otherwise, do not remove leading trivia for appends (i.e. lines
+    // other than the first).
+    cmark_strbuf_put(&node->content, ch->data, ch->len);
+  }
 }
 
 static void remove_trailing_blank_lines(cmark_strbuf *ln) {
@@ -242,6 +271,12 @@ static bool resolve_reference_link_definitions(
 
     chunk.data += pos;
     chunk.len -= pos;
+
+    // Leading whitespace is not stripped.
+    while (cmark_isspace(peek_at(&chunk, 0))) {
+      chunk.data += 1;
+      chunk.len -= 1;
+    }
   }
   cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
   return !is_blank(&b->content, 0);
@@ -259,13 +294,33 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
          CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
   b->flags &= ~CMARK_NODE__OPEN;
 
-  if (parser->curline.size == 0) {
+  if (S_type(b) == CMARK_NODE_THEMATIC_BREAK) {
+    // Already been "finalized".
+    return parent;
+  }
+
+  if (S_type(b) == CMARK_NODE_HEADING && !b->as.heading.setext) {
+    parser->last_line_length += b->end_column;
+  }
+
+  if ((S_type(b) == CMARK_NODE_ITEM || S_type(b) == CMARK_NODE_LIST)
+      && b->last_child) {
+    b->end_line = b->last_child->end_line;
+    b->end_column = b->last_child->end_column;
+
+    if (S_type(b) == CMARK_NODE_ITEM && b->parent) {
+      // The finalization order is not deterministic...
+      b->parent->end_line = b->end_line;
+      b->parent->end_column = b->end_column;
+    }
+  } else if (parser->curline.size == 0) {
     // end of input - line number has not been incremented
     b->end_line = parser->line_number;
     b->end_column = parser->last_line_length;
   } else if (S_type(b) == CMARK_NODE_DOCUMENT ||
              (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext)) {
+             (S_type(b) == CMARK_NODE_HTML_BLOCK
+              && b->end_line == b->start_line && b->end_column == 0)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline.size;
     if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\n')
@@ -1007,6 +1062,10 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
+      // A thematic break can only be on a single line, so we can set the
+      // end source position here.
+      (*container)->end_line = parser->line_number;
+      (*container)->end_column = input->len - 1;
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
 	       parser->indent < 4 &&
@@ -1135,6 +1194,12 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
     while (parser->current != last_matched_container) {
+      if (S_type(parser->current) == CMARK_NODE_HTML_BLOCK) {
+        // Edge case: Closing an HTML block without a matching end condition.
+        parser->current->end_line = parser->line_number - 1;
+        parser->current->end_column = parser->last_line_length;
+      }
+
       parser->current = finalize(parser, parser->current);
       assert(parser->current != NULL);
     }
@@ -1185,7 +1250,10 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
     } else if (accepts_lines(S_type(container))) {
       if (S_type(container) == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
+        bufsize_t original_len = input->len;
         chop_trailing_hashtags(input);
+        // Substract one to exclude the trailing newline.
+        container->end_column += original_len - input->len - 1;
       }
       S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                        false);
