@@ -117,36 +117,27 @@ static cmark_node *make_str_with_entities(subject *subj,
 
 // Duplicate a chunk by creating a copy of the buffer not by reusing the
 // buffer like cmark_chunk_dup does.
-static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
-  cmark_chunk c;
-  bufsize_t len = src->len;
-
-  c.len = len;
-  c.data = (unsigned char *)mem->calloc(len + 1, 1);
-  c.alloc = 1;
-  if (len)
-    memcpy(c.data, src->data, len);
-  c.data[len] = '\0';
-
-  return c;
+static unsigned char *cmark_strdup(cmark_mem *mem, unsigned char *src) {
+  if (src == NULL) {
+    return NULL;
+  }
+  size_t len = strlen((char *)src);
+  unsigned char *data = (unsigned char *)mem->realloc(NULL, len + 1);
+  memcpy(data, src, len + 1);
+  return data;
 }
 
-static cmark_chunk cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
-                                        int is_email) {
+static unsigned char *cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
+                                           int is_email) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
   cmark_chunk_trim(url);
-
-  if (url->len == 0) {
-    cmark_chunk result = CMARK_CHUNK_EMPTY;
-    return result;
-  }
 
   if (is_email)
     cmark_strbuf_puts(&buf, "mailto:");
 
   houdini_unescape_html_f(&buf, url->data, url->len);
-  return cmark_chunk_buf_detach(&buf);
+  return cmark_strbuf_detach(&buf);
 }
 
 static CMARK_INLINE cmark_node *make_autolink(subject *subj,
@@ -154,7 +145,7 @@ static CMARK_INLINE cmark_node *make_autolink(subject *subj,
                                               cmark_chunk url, int is_email) {
   cmark_node *link = make_simple(subj->mem, CMARK_NODE_LINK);
   link->as.link.url = cmark_clean_autolink(subj->mem, &url, is_email);
-  link->as.link.title = cmark_chunk_literal("");
+  link->as.link.title = NULL;
   link->start_line = link->end_line = subj->line;
   link->start_column = start_column + 1;
   link->end_column = end_column + 1;
@@ -799,29 +790,23 @@ static cmark_node *handle_entity(subject *subj) {
 
 // Clean a URL: remove surrounding whitespace, and remove \ that escape
 // punctuation.
-cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
+unsigned char *cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
   cmark_chunk_trim(url);
 
-  if (url->len == 0) {
-    cmark_chunk result = CMARK_CHUNK_EMPTY;
-    return result;
-  }
-
-    houdini_unescape_html_f(&buf, url->data, url->len);
+  houdini_unescape_html_f(&buf, url->data, url->len);
 
   cmark_strbuf_unescape(&buf);
-  return cmark_chunk_buf_detach(&buf);
+  return cmark_strbuf_detach(&buf);
 }
 
-cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
+unsigned char *cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
   unsigned char first, last;
 
   if (title->len == 0) {
-    cmark_chunk result = CMARK_CHUNK_EMPTY;
-    return result;
+    return NULL;
   }
 
   first = title->data[0];
@@ -836,7 +821,7 @@ cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
   }
 
   cmark_strbuf_unescape(&buf);
-  return cmark_chunk_buf_detach(&buf);
+  return cmark_strbuf_detach(&buf);
 }
 
 // Parse an autolink or HTML tag.
@@ -1003,7 +988,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   bufsize_t sps, n;
   cmark_reference *ref = NULL;
   cmark_chunk url_chunk, title_chunk;
-  cmark_chunk url, title;
+  unsigned char *url, *title;
   bracket *opener;
   cmark_node *inl;
   cmark_chunk raw_label;
@@ -1090,8 +1075,8 @@ static cmark_node *handle_close_bracket(subject *subj) {
   }
 
   if (ref != NULL) { // found
-    url = chunk_clone(subj->mem, &ref->url);
-    title = chunk_clone(subj->mem, &ref->title);
+    url = cmark_strdup(subj->mem, ref->url);
+    title = cmark_strdup(subj->mem, ref->title);
     goto match;
   } else {
     goto noMatch;

@@ -37,8 +37,8 @@ typedef struct {
 } cmark_heading;
 
 typedef struct {
-  cmark_chunk url;
-  cmark_chunk title;
+  unsigned char *url;
+  unsigned char *title;
 } cmark_link;
 
 typedef struct {
