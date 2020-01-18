@@ -95,13 +95,14 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       cmark_strbuf_puts(xml, buffer);
       break;
     case CMARK_NODE_CODE_BLOCK:
-      if (node->as.code.info.len > 0) {
+      if (node->as.code.info) {
         cmark_strbuf_puts(xml, " info=\"");
-        escape_xml(xml, node->as.code.info.data, node->as.code.info.len);
+        escape_xml(xml, node->as.code.info, strlen((char *)node->as.code.info));
         cmark_strbuf_putc(xml, '"');
       }
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
-      escape_xml(xml, node->as.code.literal.data, node->as.code.literal.len);
+      escape_xml(xml, node->as.code.literal,
+                 strlen((char *)node->as.code.literal));
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
