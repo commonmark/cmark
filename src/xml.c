@@ -110,12 +110,12 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_CUSTOM_BLOCK:
     case CMARK_NODE_CUSTOM_INLINE:
       cmark_strbuf_puts(xml, " on_enter=\"");
-      escape_xml(xml, node->as.custom.on_enter.data,
-                 node->as.custom.on_enter.len);
+      escape_xml(xml, node->as.custom.on_enter,
+                 strlen((char *)node->as.custom.on_enter));
       cmark_strbuf_putc(xml, '"');
       cmark_strbuf_puts(xml, " on_exit=\"");
-      escape_xml(xml, node->as.custom.on_exit.data,
-                 node->as.custom.on_exit.len);
+      escape_xml(xml, node->as.custom.on_exit,
+                 strlen((char *)node->as.custom.on_exit));
       cmark_strbuf_putc(xml, '"');
       break;
     case CMARK_NODE_LINK:

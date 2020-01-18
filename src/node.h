@@ -42,8 +42,8 @@ typedef struct {
 } cmark_link;
 
 typedef struct {
-  cmark_chunk on_enter;
-  cmark_chunk on_exit;
+  unsigned char *on_enter;
+  unsigned char *on_exit;
 } cmark_custom;
 
 enum cmark_node__internal_flags {
