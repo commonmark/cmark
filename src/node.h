@@ -23,8 +23,8 @@ typedef struct {
 } cmark_list;
 
 typedef struct {
-  cmark_chunk info;
-  cmark_chunk literal;
+  unsigned char *info;
+  unsigned char *literal;
   uint8_t fence_length;
   uint8_t fence_offset;
   unsigned char fence_char;

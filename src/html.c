@@ -146,25 +146,26 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_CODE_BLOCK:
     cr(html);
 
-    if (node->as.code.info.len == 0) {
+    if (node->as.code.info == NULL || node->as.code.info[0] == 0) {
       cmark_strbuf_puts(html, "<pre");
       S_render_sourcepos(node, html, options);
       cmark_strbuf_puts(html, "><code>");
     } else {
       bufsize_t first_tag = 0;
-      while (first_tag < node->as.code.info.len &&
-             !cmark_isspace(node->as.code.info.data[first_tag])) {
+      while (node->as.code.info[first_tag] &&
+             !cmark_isspace(node->as.code.info[first_tag])) {
         first_tag += 1;
       }
 
       cmark_strbuf_puts(html, "<pre");
       S_render_sourcepos(node, html, options);
       cmark_strbuf_puts(html, "><code class=\"language-");
-      escape_html(html, node->as.code.info.data, first_tag);
+      escape_html(html, node->as.code.info, first_tag);
       cmark_strbuf_puts(html, "\">");
     }
 
-    escape_html(html, node->as.code.literal.data, node->as.code.literal.len);
+    escape_html(html, node->as.code.literal,
+                strlen((char *)node->as.code.literal));
     cmark_strbuf_puts(html, "</code></pre>\n");
     break;
 
