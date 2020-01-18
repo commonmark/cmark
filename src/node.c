@@ -249,6 +249,26 @@ cmark_node *cmark_node_last_child(cmark_node *node) {
   }
 }
 
+static bufsize_t cmark_set_cstr(cmark_mem *mem, unsigned char **dst,
+                                const char *src) {
+  unsigned char *old = *dst;
+  bufsize_t len;
+
+  if (src && src[0]) {
+      len = (bufsize_t)strlen(src);
+      *dst = (unsigned char *)mem->realloc(NULL, len + 1);
+      memcpy(*dst, src, len + 1);
+  } else {
+      len = 0;
+      *dst = NULL;
+  }
+  if (old) {
+    mem->free(old);
+  }
+
+  return len;
+}
+
 void *cmark_node_get_user_data(cmark_node *node) {
   if (node == NULL) {
     return NULL;
