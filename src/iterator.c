@@ -111,8 +111,9 @@ void cmark_consolidate_text_nodes(cmark_node *root) {
         cmark_node_free(tmp);
         tmp = next;
       }
-      cmark_chunk_free(iter->mem, &cur->as.literal);
-      cur->as.literal = cmark_chunk_buf_detach(&buf);
+      iter->mem->free(cur->as.literal.data);
+      cur->as.literal.len = buf.size;
+      cur->as.literal.data = cmark_strbuf_detach(&buf);
     }
   }
 

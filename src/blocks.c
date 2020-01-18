@@ -322,7 +322,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     break;
 
   case CMARK_NODE_HTML_BLOCK:
-    b->as.literal = cmark_chunk_buf_detach(node_content);
+    b->as.literal.len = node_content->size;
+    b->as.literal.data = cmark_strbuf_detach(node_content);
     break;
 
   case CMARK_NODE_LIST:      // determine tight/loose status
