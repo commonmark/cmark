@@ -18,8 +18,8 @@ static void reference_free(cmark_reference_map *map, cmark_reference *ref) {
   cmark_mem *mem = map->mem;
   if (ref != NULL) {
     mem->free(ref->label);
-    cmark_chunk_free(mem, &ref->url);
-    cmark_chunk_free(mem, &ref->title);
+    mem->free(ref->url);
+    mem->free(ref->title);
     mem->free(ref);
   }
 }

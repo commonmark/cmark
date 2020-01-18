@@ -280,13 +280,14 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     if (entering) {
       cmark_strbuf_puts(html, "<a href=\"");
       if ((options & CMARK_OPT_UNSAFE) ||
-            !(scan_dangerous_url(&node->as.link.url, 0))) {
-        houdini_escape_href(html, node->as.link.url.data,
-                            node->as.link.url.len);
+            !(_scan_dangerous_url(node->as.link.url))) {
+        houdini_escape_href(html, node->as.link.url,
+                            strlen((char *)node->as.link.url));
       }
-      if (node->as.link.title.len) {
+      if (node->as.link.title) {
         cmark_strbuf_puts(html, "\" title=\"");
-        escape_html(html, node->as.link.title.data, node->as.link.title.len);
+        escape_html(html, node->as.link.title,
+                    strlen((char *)node->as.link.title));
       }
       cmark_strbuf_puts(html, "\">");
     } else {
@@ -298,16 +299,17 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     if (entering) {
       cmark_strbuf_puts(html, "<img src=\"");
       if ((options & CMARK_OPT_UNSAFE) ||
-            !(scan_dangerous_url(&node->as.link.url, 0))) {
-        houdini_escape_href(html, node->as.link.url.data,
-                            node->as.link.url.len);
+            !(_scan_dangerous_url(node->as.link.url))) {
+        houdini_escape_href(html, node->as.link.url,
+                            strlen((char *)node->as.link.url));
       }
       cmark_strbuf_puts(html, "\" alt=\"");
       state->plain = node;
     } else {
-      if (node->as.link.title.len) {
+      if (node->as.link.title) {
         cmark_strbuf_puts(html, "\" title=\"");
-        escape_html(html, node->as.link.title.data, node->as.link.title.len);
+        escape_html(html, node->as.link.title,
+                    strlen((char *)node->as.link.title));
       }
 
       cmark_strbuf_puts(html, "\" />");
