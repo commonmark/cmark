@@ -243,6 +243,21 @@ static void accessors(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void free_parent(test_batch_runner *runner) {
+  static const char markdown[] = "text\n";
+
+  cmark_node *doc =
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+
+  cmark_node *para = cmark_node_first_child(doc);
+  cmark_node *text = cmark_node_first_child(para);
+  cmark_node_unlink(text);
+  cmark_node_free(doc);
+  STR_EQ(runner, cmark_node_get_literal(text), "text",
+         "inline content after freeing parent block");
+  cmark_node_free(text);
+}
+
 static void node_check(test_batch_runner *runner) {
   // Construct an incomplete tree.
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
@@ -381,9 +396,6 @@ static void create_tree(test_batch_runner *runner) {
   free(html);
 
   cmark_node_free(doc);
-
-  // TODO: Test that the contents of an unlinked inline are valid
-  // after the parent block was destroyed. This doesn't work so far.
   cmark_node_free(emph);
 }
 
@@ -1031,6 +1043,7 @@ int main() {
   version(runner);
   constructor(runner);
   accessors(runner);
+  free_parent(runner);
   node_check(runner);
   iterator(runner);
   iterator_delete(runner);
