@@ -69,7 +69,7 @@ static void print_document(cmark_node *document, writer_format writer,
     exit(1);
   }
   printf("%s", result);
-  cmark_node_mem(document)->free(result);
+  document->mem->free(result);
 }
 
 int main(int argc, char *argv[]) {

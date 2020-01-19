@@ -80,7 +80,7 @@ static bufsize_t subject_find_special_char(subject *subj, int options);
 static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
                                              int start_column, int end_column) {
   cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
-  cmark_strbuf_init(subj->mem, &e->content, 0);
+  e->mem = subj->mem;
   e->type = (uint16_t)t;
   e->start_line = e->end_line = subj->line;
   // columns are 1 based.
@@ -92,25 +92,25 @@ static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
 // Create an inline with no value.
 static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
-  cmark_strbuf_init(mem, &e->content, 0);
+  e->mem = mem;
   e->type = t;
   return e;
 }
 
 static cmark_node *make_str(subject *subj, int sc, int ec, cmark_chunk s) {
   cmark_node *e = make_literal(subj, CMARK_NODE_TEXT, sc, ec);
-  e->as.literal.data = (unsigned char *)subj->mem->realloc(NULL, s.len + 1);
-  memcpy(e->as.literal.data, s.data, s.len);
-  e->as.literal.data[s.len] = 0;
-  e->as.literal.len = s.len;
+  e->data = (unsigned char *)subj->mem->realloc(NULL, s.len + 1);
+  memcpy(e->data, s.data, s.len);
+  e->data[s.len] = 0;
+  e->len = s.len;
   return e;
 }
 
 static cmark_node *make_str_from_buf(subject *subj, int sc, int ec,
                                      cmark_strbuf *buf) {
   cmark_node *e = make_literal(subj, CMARK_NODE_TEXT, sc, ec);
-  e->as.literal.len = buf->size;
-  e->as.literal.data = cmark_strbuf_detach(buf);
+  e->len = buf->size;
+  e->data = cmark_strbuf_detach(buf);
   return e;
 }
 
@@ -382,8 +382,8 @@ static cmark_node *handle_backticks(subject *subj, int options) {
 
     cmark_node *node = make_literal(subj, CMARK_NODE_CODE, startpos,
                                     endpos - openticks.len - 1);
-    node->as.literal.len = buf.size;
-    node->as.literal.data = cmark_strbuf_detach(&buf);
+    node->len = buf.size;
+    node->data = cmark_strbuf_detach(&buf);
     adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
     return node;
   }
@@ -503,7 +503,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   delim->can_open = can_open;
   delim->can_close = can_close;
   delim->inl_text = inl_text;
-  delim->length = inl_text->as.literal.len;
+  delim->length = inl_text->len;
   delim->previous = subj->last_delim;
   delim->next = NULL;
   if (delim->previous != NULL) {
@@ -709,8 +709,8 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   bufsize_t use_delims;
   cmark_node *opener_inl = opener->inl_text;
   cmark_node *closer_inl = closer->inl_text;
-  bufsize_t opener_num_chars = opener_inl->as.literal.len;
-  bufsize_t closer_num_chars = closer_inl->as.literal.len;
+  bufsize_t opener_num_chars = opener_inl->len;
+  bufsize_t closer_num_chars = closer_inl->len;
   cmark_node *tmp, *tmpnext, *emph;
 
   // calculate the actual number of characters used from this closer
@@ -719,10 +719,10 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   // remove used characters from associated inlines.
   opener_num_chars -= use_delims;
   closer_num_chars -= use_delims;
-  opener_inl->as.literal.len = opener_num_chars;
-  opener_inl->as.literal.data[opener_num_chars] = 0;
-  closer_inl->as.literal.len = closer_num_chars;
-  closer_inl->as.literal.data[closer_num_chars] = 0;
+  opener_inl->len = opener_num_chars;
+  opener_inl->data[opener_num_chars] = 0;
+  closer_inl->len = closer_num_chars;
+  closer_inl->data[closer_num_chars] = 0;
 
   // free delimiters between opener and closer
   delim = closer->previous;
@@ -866,15 +866,15 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
   // finally, try to match an html tag
   matchlen = scan_html_tag(&subj->input, subj->pos);
   if (matchlen > 0) {
-    unsigned char *src = subj->input.data + subj->pos - 1;
+    const unsigned char *src = subj->input.data + subj->pos - 1;
     bufsize_t len = matchlen + 1;
     subj->pos += matchlen;
     cmark_node *node = make_literal(subj, CMARK_NODE_HTML_INLINE,
                                     subj->pos - matchlen - 1, subj->pos - 1);
-    node->as.literal.data = (unsigned char *)subj->mem->realloc(NULL, len + 1);
-    memcpy(node->as.literal.data, src, len);
-    node->as.literal.data[len] = 0;
-    node->as.literal.len = len;
+    node->data = (unsigned char *)subj->mem->realloc(NULL, len + 1);
+    memcpy(node->data, src, len);
+    node->data[len] = 0;
+    node->len = len;
     adjust_subj_node_newlines(subj, node, matchlen, 1, options);
     return node;
   }
@@ -963,7 +963,7 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
     return -1;
 
   {
-    cmark_chunk result = {input->data + offset, i - offset, 0};
+    cmark_chunk result = {input->data + offset, i - offset};
     *output = result;
   }
   return i - offset;
@@ -994,7 +994,7 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
     return -1;
 
   {
-    cmark_chunk result = {input->data + offset + 1, i - 2 - offset, 0};
+    cmark_chunk result = {input->data + offset + 1, i - 2 - offset};
     *output = result;
   }
   return i - offset;
@@ -1061,8 +1061,8 @@ static cmark_node *handle_close_bracket(subject *subj) {
           cmark_chunk_dup(&subj->input, starttitle, endtitle - starttitle);
       url = cmark_clean_url(subj->mem, &url_chunk);
       title = cmark_clean_title(subj->mem, &title_chunk);
-      cmark_chunk_free(subj->mem, &url_chunk);
-      cmark_chunk_free(subj->mem, &title_chunk);
+      cmark_chunk_free(&url_chunk);
+      cmark_chunk_free(&title_chunk);
       goto match;
 
     } else {
@@ -1082,7 +1082,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   }
 
   if ((!found_label || raw_label.len == 0) && !opener->bracket_after) {
-    cmark_chunk_free(subj->mem, &raw_label);
+    cmark_chunk_free(&raw_label);
     raw_label = cmark_chunk_dup(&subj->input, opener->position,
                                 initial_pos - opener->position - 1);
     found_label = true;
@@ -1090,7 +1090,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
 
   if (found_label) {
     ref = cmark_reference_lookup(subj->refmap, &raw_label);
-    cmark_chunk_free(subj->mem, &raw_label);
+    cmark_chunk_free(&raw_label);
   }
 
   if (ref != NULL) { // found
@@ -1294,10 +1294,10 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 }
 
 // Parse inlines from parent's string_content, adding as children of parent.
-extern void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
-                                cmark_reference_map *refmap, int options) {
+void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
+                         cmark_reference_map *refmap, int options) {
   subject subj;
-  cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
+  cmark_chunk content = {parent->data, parent->len};
   subject_from_buf(mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
