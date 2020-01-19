@@ -92,7 +92,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     break;
 
   case CMARK_NODE_LIST: {
-    cmark_list_type list_type = node->as.list.list_type;
+    cmark_list_type list_type = (cmark_list_type)node->as.list.list_type;
     int start = node->as.list.start;
 
     if (entering) {

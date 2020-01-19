@@ -17,11 +17,11 @@ typedef struct {
 } cmark_literal;
 
 typedef struct {
-  cmark_list_type list_type;
   int marker_offset;
   int padding;
   int start;
-  cmark_delim_type delimiter;
+  unsigned char list_type;
+  unsigned char delimiter;
   unsigned char bullet_char;
   bool tight;
 } cmark_list;
