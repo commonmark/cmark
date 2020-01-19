@@ -61,7 +61,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_HTML_INLINE:
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
-      escape_xml(xml, node->as.literal.data, node->as.literal.len);
+      escape_xml(xml, node->data, node->len);
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
@@ -101,8 +101,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         cmark_strbuf_putc(xml, '"');
       }
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
-      escape_xml(xml, node->as.code.literal,
-                 strlen((char *)node->as.code.literal));
+      escape_xml(xml, node->data, node->len);
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
@@ -153,7 +152,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
 
 char *cmark_render_xml(cmark_node *root, int options) {
   char *result;
-  cmark_strbuf xml = CMARK_BUF_INIT(cmark_node_mem(root));
+  cmark_strbuf xml = CMARK_BUF_INIT(root->mem);
   cmark_event_type ev_type;
   cmark_node *cur;
   struct render_state state = {&xml, 0};

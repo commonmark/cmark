@@ -154,7 +154,7 @@ char *cmark_render(cmark_node *root, int options, int width,
                    int (*render_node)(cmark_renderer *renderer,
                                       cmark_node *node,
                                       cmark_event_type ev_type, int options)) {
-  cmark_mem *mem = cmark_node_mem(root);
+  cmark_mem *mem = root->mem;
   cmark_strbuf pref = CMARK_BUF_INIT(mem);
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
   cmark_node *cur;
