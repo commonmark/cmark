@@ -141,9 +141,10 @@ if(CMARK_SHARED OR CMARK_STATIC)
 
   install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 
+  set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
   configure_file(cmarkConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmarkConfig.cmake)
-  export(TARGETS ${CMARK_INSTALL} FILE cmarkTargets.cmake)
+  export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
 endif()
 
 # Feature tests
