@@ -143,7 +143,7 @@ static bool is_autolink(cmark_node *node) {
     return false;
   }
   cmark_consolidate_text_nodes(link_text);
-  if (strcmp((const char *)url, "mailto:") == 0) {
+  if (strncmp((const char *)url, "mailto:", 7) == 0) {
     url += 7;
   }
   return link_text->data != NULL &&
