@@ -146,7 +146,8 @@ static bool is_autolink(cmark_node *node) {
   if (strcmp((const char *)url, "mailto:") == 0) {
     url += 7;
   }
-  return strcmp((const char *)url, (char *)link_text->data) == 0;
+  return link_text->data != NULL &&
+         strcmp((const char *)url, (char *)link_text->data) == 0;
 }
 
 // if node is a block node, returns node.
