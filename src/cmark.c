@@ -30,6 +30,11 @@ static void *xrealloc(void *ptr, size_t size) {
 
 cmark_mem DEFAULT_MEM_ALLOCATOR = {xcalloc, xrealloc, free};
 
+cmark_mem *cmark_get_default_mem_allocator() {
+  return &DEFAULT_MEM_ALLOCATOR;
+}
+
+
 char *cmark_markdown_to_html(const char *text, size_t len, int options) {
   cmark_node *doc;
   char *result;

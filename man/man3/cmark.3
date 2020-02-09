@@ -1,4 +1,4 @@
-.TH cmark 3 "March 19, 2019" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "February 09, 2020" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -114,6 +114,12 @@ typedef struct cmark_mem {
 .PP
 Defines the memory allocation functions to be used by CMark when parsing
 and allocating a document tree
+
+.PP
+\fIcmark_mem *\f[] \fBcmark_get_default_mem_allocator\f[](\fI\f[])
+
+.PP
+Returns a pointer to the default memory allocator.
 
 .SS
 Creating and Destroying Nodes

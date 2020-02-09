@@ -320,7 +320,9 @@ static void iterator_delete(test_batch_runner *runner) {
                                  "<p>a  c</p>\n";
   STR_EQ(runner, html, expected, "iterate and delete nodes");
 
-  free(html);
+  cmark_mem *allocator = cmark_get_default_mem_allocator();
+
+  allocator->free(html);
   cmark_iter_free(iter);
   cmark_node_free(doc);
 }
