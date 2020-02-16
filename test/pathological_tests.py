@@ -5,9 +5,12 @@ import re
 import argparse
 import sys
 import platform
+import itertools
 import multiprocessing
 import time
 from cmark import CMark
+
+TIMEOUT = 5
 
 parser = argparse.ArgumentParser(description='Run cmark tests.')
 parser.add_argument('--program', dest='program', nargs='?', default=None,
@@ -19,6 +22,29 @@ args = parser.parse_args(sys.argv[1:])
 allowed_failures = {"many references": True}
 
 cmark = CMark(prog=args.program, library_dir=args.library_dir)
+
+def hash_collisions():
+    REFMAP_SIZE = 16
+    COUNT = 50000
+
+    def badhash(ref):
+        h = 0
+        for c in ref:
+            a = (h << 6) & 0xFFFFFFFF
+            b = (h << 16) & 0xFFFFFFFF
+            h = ord(c) + a + b - h
+            h = h & 0xFFFFFFFF
+
+        return (h % REFMAP_SIZE) == 0
+
+    keys = ("x%d" % i for i in itertools.count())
+    collisions = itertools.islice((k for k in keys if badhash(k)), COUNT)
+    bad_key = next(collisions)
+
+    document = ''.join("[%s]: /url\n\n[%s]\n\n" % (key, bad_key) for key in collisions)
+
+    return document, re.compile("(<p>\[%s\]</p>\n){%d}" % (bad_key, COUNT-1))
+
 
 # list of pairs consisting of input and a regex that must match the output.
 pathological = {
@@ -74,6 +100,7 @@ pathological = {
     "unclosed links B":
                  ("[a](b" * 30000,
                   re.compile("(\[a\]\(b){30000}")),
+    "reference collisions": hash_collisions()
 #    "many references":
 #                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
 #                  re.compile("(\[0\] ){4999}"))
@@ -111,8 +138,8 @@ def run_tests():
         p = multiprocessing.Process(target=run_pathological_test,
                   args=(description, results,))
         p.start()
-        # wait 4 seconds or until it finishes
-        p.join(4)
+        # wait TIMEOUT seconds or until it finishes
+        p.join(TIMEOUT)
         # kill it if still active
         if p.is_alive():
             print(description, '[TIMEOUT]')
