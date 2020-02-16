@@ -82,14 +82,14 @@ refcmp(const void *p1, const void *p2) {
 static int
 refsearch(const void *label, const void *p2) {
   cmark_reference *ref = *(cmark_reference **)p2;
-  return labelcmp(label, ref->label);
+  return labelcmp((const unsigned char *)label, ref->label);
 }
 
 static void sort_references(cmark_reference_map *map) {
   unsigned int i = 0, last = 0, size = map->size;
   cmark_reference *r = map->refs, **sorted = NULL;
 
-  sorted = map->mem->calloc(size, sizeof(cmark_reference *));
+  sorted = (cmark_reference **)map->mem->calloc(size, sizeof(cmark_reference *));
   while (r) {
     sorted[i++] = r;
     r = r->next;
@@ -125,7 +125,7 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
   if (!map->sorted)
     sort_references(map);
 
-  ref = bsearch(norm, map->sorted, map->size, sizeof(cmark_reference *),
+  ref = (cmark_reference **)bsearch(norm, map->sorted, map->size, sizeof(cmark_reference *),
                 refsearch);
   map->mem->free(norm);
   return ref ? ref[0] : NULL;
