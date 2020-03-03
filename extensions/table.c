@@ -127,8 +127,8 @@ static table_row *row_from_string(cmark_syntax_extension *self,
 
   table_row *row = NULL;
   bufsize_t cell_matched = 1, pipe_matched = 1, offset;
-  int cell_end_offset;
   int expect_more_cells = 1;
+  int row_end_offset = 0;
 
   row = (table_row *)parser->mem->calloc(1, sizeof(table_row));
   row->n_columns = 0;
@@ -144,35 +144,25 @@ static table_row *row_from_string(cmark_syntax_extension *self,
     pipe_matched = scan_table_cell_end(string, len, offset + cell_matched);
 
     if (cell_matched || pipe_matched) {
-      cell_end_offset = offset + cell_matched - 1;
+      // We are guaranteed to have a cell, since (1) either we found some
+      // content and cell_matched, or (2) we found an empty cell followed by a
+      // pipe.
+      cmark_strbuf *cell_buf = unescape_pipes(parser->mem, string + offset,
+          cell_matched);
+      cmark_strbuf_trim(cell_buf);
 
-      if (string[cell_end_offset] == '\n' || string[cell_end_offset] == '\r') {
-        row->paragraph_offset = cell_end_offset;
+      node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
+      cell->buf = cell_buf;
+      cell->start_offset = offset;
+      cell->end_offset = offset + cell_matched - 1;
 
-        cmark_llist_free_full(parser->mem, row->cells, (cmark_free_func)free_table_cell);
-        row->cells = NULL;
-        row->n_columns = 0;
-      } else {
-        // We are guaranteed to have a cell, since (1) either we found some
-        // content and cell_matched, or (2) we found an empty cell followed by a
-        // pipe.
-        cmark_strbuf *cell_buf = unescape_pipes(parser->mem, string + offset,
-            cell_matched);
-        cmark_strbuf_trim(cell_buf);
-
-        node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
-        cell->buf = cell_buf;
-        cell->start_offset = offset;
-        cell->end_offset = offset + cell_matched - 1;
-
-        while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
-          --cell->start_offset;
-          ++cell->internal_offset;
-        }
-
-        row->n_columns += 1;
-        row->cells = cmark_llist_append(parser->mem, row->cells, cell);
+      while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
+        --cell->start_offset;
+        ++cell->internal_offset;
       }
+
+      row->n_columns += 1;
+      row->cells = cmark_llist_append(parser->mem, row->cells, cell);
     }
 
     offset += cell_matched + pipe_matched;
@@ -180,9 +170,27 @@ static table_row *row_from_string(cmark_syntax_extension *self,
     if (pipe_matched) {
       expect_more_cells = 1;
     } else {
-      // We've scanned the last cell. Skip over the final newline and stop.
-      offset += scan_table_row_end(string, len, offset);
-      expect_more_cells = 0;
+      // We've scanned the last cell. Check if we have reached the end of the row
+      row_end_offset = scan_table_row_end(string, len, offset);
+      offset += row_end_offset;
+
+      // If the end of the row is not the end of the input,
+      // the row is not a real row but potentially part of the paragraph
+      // preceding the table.
+      if (row_end_offset && offset != len) {
+        row->paragraph_offset = offset;
+
+        cmark_llist_free_full(parser->mem, row->cells, (cmark_free_func)free_table_cell);
+        row->cells = NULL;
+        row->n_columns = 0;
+
+        // Scan past the (optional) leading pipe.
+        offset += scan_table_cell_end(string, len, offset);
+
+        expect_more_cells = 1;
+      } else {
+        expect_more_cells = 0;
+      }
     }
   }
 

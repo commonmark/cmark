@@ -51,6 +51,7 @@ bufsize_t _scan_table_start(const unsigned char *p)
 
 bufsize_t _scan_table_cell(const unsigned char *p)
 {
+  const unsigned char *marker = NULL;
   const unsigned char *start = p;
   /*!re2c
     // In fact, `table_cell` matches non-empty table cells only. The empty
