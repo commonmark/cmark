@@ -563,10 +563,16 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   const unsigned char *end = buffer + len;
   static const uint8_t repl[] = {239, 191, 189};
 
-  if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
+  // Skip UTF-8 BOM if present; see #334
+  if (parser->line_number == 0 && parser->column == 0 && len >= 3 &&
+      *buffer == 0xEF && *(buffer + 1) == 0xBB &&
+      *(buffer + 2) == 0xBF) {
+    buffer += 3;
+  } else if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
     // skip NL if last buffer ended with CR ; see #117
     buffer++;
   }
+
   parser->last_buffer_ended_with_cr = false;
   while (buffer < end) {
     const unsigned char *eol;
