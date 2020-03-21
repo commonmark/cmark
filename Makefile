@@ -46,6 +46,9 @@ $(BUILDDIR):
 install: $(BUILDDIR)
 	$(MAKE) -C $(BUILDDIR) install
 
+uninstall: $(BUILDDIR)/install_manifest.txt
+	xargs rm < $<
+
 debug:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
