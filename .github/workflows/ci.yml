@@ -13,6 +13,8 @@ jobs:
          CMAKE_OPTIONS: -DCMARK_SHARED=OFF
       run: |
          mkdir -p build && cd build && cmake $CMAKE_OPTIONS ..
+         make
+         du build
          make test
          make leakcheck
 
