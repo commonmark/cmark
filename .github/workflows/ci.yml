@@ -6,11 +6,12 @@ jobs:
   linux:
 
     runs-on: ubuntu-latest
-    fail-fast: false
-    matrix:
-      compiler:
-        - 'clang'
-        - 'gcc'
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - 'clang'
+          - 'gcc'
     steps:
     - uses: actions/checkout@v1
     - name: Install valgrind
