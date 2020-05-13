@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v1
     - name: clang-tidy check
-      uses: muxee/clang-tidy-action@0.0.1-rc1
+      run: |
 
   linux:
 
@@ -29,13 +30,19 @@ jobs:
             cpp: 'g++'
     env:
        CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
+       CMAKE_CXX_CLANG_TIDY: "clang-tidy -checks=-*,readability-*"
        CC: ${{ matrix.compiler.c }}
        CXX: ${{ matrix.compiler.cpp }}
+
     steps:
     - uses: actions/checkout@v1
     - name: Install valgrind
       run: |
          sudo apt install -y valgrind
+    - name: Install clang-tidy
+      run: |
+        sudo apt-get install -y clang-tidy-9
+        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 100
     - name: Build and test
       run: |
          make
