@@ -6,6 +6,11 @@ jobs:
   linux:
 
     runs-on: ubuntu-latest
+    fail-fast: false
+    matrix:
+      compiler:
+        - 'clang'
+        - 'gcc'
     steps:
     - uses: actions/checkout@v1
     - name: Install valgrind
@@ -14,6 +19,7 @@ jobs:
     - name: Build and test
       env:
          CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+         CC: ${{ matrix.compiler }}
       run: |
          make
          make test
