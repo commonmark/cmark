@@ -20,6 +20,7 @@
 #include "inlines.h"
 #include "houdini.h"
 #include "buffer.h"
+#include "chunk.h"
 
 #define CODE_INDENT 4
 #define TAB_STOP 4
