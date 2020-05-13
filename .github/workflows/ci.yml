@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Install valgrind
+      run: |
+         sudo apt install -y valgrind
     - name: Build and test
       env:
          CMAKE_OPTIONS: -DCMARK_SHARED=OFF
@@ -28,7 +31,6 @@ jobs:
       run: |
          make
          make test
-         make leakcheck
 
   windows:
 
