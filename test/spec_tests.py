@@ -60,11 +60,11 @@ def do_test(converter, test, normalize, result_counts):
                 out("Expected: " + repr(expected_html) + '\n')
                 out("Got:      " + repr(actual_html) + '\n')
             else:
-                expected_html_lines = expected_html.splitlines(False)
-                actual_html_lines = actual_html.splitlines(False)
+                expected_html_lines = expected_html.splitlines(True)
+                actual_html_lines = actual_html.splitlines(True)
                 for diffline in unified_diff(expected_html_lines, actual_html_lines,
                                 "expected HTML", "actual HTML"):
-                    out(diffline + '\n')
+                    out(diffline)
             out('\n')
             result_counts['fail'] += 1
     else:
