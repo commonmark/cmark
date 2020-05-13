@@ -41,4 +41,5 @@ jobs:
     - name: Build and test
       run: |
         nmake test
+      shell: cmd
 
