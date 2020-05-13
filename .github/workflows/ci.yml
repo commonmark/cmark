@@ -3,22 +3,32 @@ name: CI tests
 on: [push, pull_request]
 
 jobs:
+
+  linter:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: clang-tidy check
+      uses: muxee/clang-tidy-action@0.0.1-rc1
+
   linux:
 
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shared:
-          - ON
-          - OFF
+        cmake_opts:
+          - '-DCMARK_SHARED=ON'
+          - ''
         compiler:
           - c: 'clang'
             cpp: 'clang++'
           - c: 'gcc'
             cpp: 'g++'
     env:
-       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
+       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
        CC: ${{ matrix.compiler.c }}
        CXX: ${{ matrix.compiler.cpp }}
     steps:
@@ -38,16 +48,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shared:
-          - ON
-          - OFF
+        cmake_opts:
+          - '-DCMARK_SHARED=ON'
+          - ''
         compiler:
           - c: 'clang'
             cpp: 'clang++'
           - c: 'gcc'
             cpp: 'g++'
     env:
-       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
+       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
        CC: ${{ matrix.compiler.c }}
        CXX: ${{ matrix.compiler.cpp }}
 
@@ -66,11 +76,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shared:
-          - ON
-          - OFF
+        cmake_opts:
+          - '-DCMARK_SHARED=ON'
+          - ''
     env:
-       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
+       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
 
     steps:
     - uses: actions/checkout@v1
