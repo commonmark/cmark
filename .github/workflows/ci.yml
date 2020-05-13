@@ -38,6 +38,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Build and test
       run: |
         nmake.exe /nologo /f Makefile.nmake test
