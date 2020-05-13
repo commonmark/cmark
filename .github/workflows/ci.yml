@@ -41,5 +41,6 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build and test
       run: |
+        chcp 65001
         nmake.exe /nologo /f Makefile.nmake test
       shell: cmd
