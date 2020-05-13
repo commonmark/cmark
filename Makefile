@@ -93,8 +93,10 @@ libFuzzer:
 	test/run-cmark-fuzz $(CMARK_FUZZ)
 
 lint: $(BUILDDIR)
+	errs=0 ; \
 	for f in `ls src/*.[ch] | grep -v "scanners.c"` ; \
-	  do echo $$f ; clang-tidy -header-filter='^build/.*' -p=build -warnings-as-errors='*' $$f || exit 1 ; done
+	  do echo $$f ; clang-tidy -header-filter='^build/.*' -p=build -warnings-as-errors='*' $$f || errs=1 ; done ; \
+	exit $$errs
 
 mingw:
 	mkdir -p $(MINGW_BUILDDIR); \
