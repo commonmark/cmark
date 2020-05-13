@@ -285,7 +285,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     info = cmark_node_get_fence_info(node);
     fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
-    code_len = strlen(code);
 
     numticks = longest_backtick_sequence(code) + 1;
     if (numticks < 3) {
