@@ -10,17 +10,20 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - 'clang'
-          - 'gcc'
+          - c: 'clang'
+            cpp: 'clang++'
+          - c: 'gcc'
+            cpp: 'g++'
+    env:
+       CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+       CC: ${{ matrix.compiler.c }}
+       CXX: ${{ matrix.compiler.cpp }}
     steps:
     - uses: actions/checkout@v1
     - name: Install valgrind
       run: |
          sudo apt install -y valgrind
     - name: Build and test
-      env:
-         CMAKE_OPTIONS: -DCMARK_SHARED=OFF
-         CC: ${{ matrix.compiler }}
       run: |
          make
          make test
