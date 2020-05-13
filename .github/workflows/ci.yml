@@ -9,13 +9,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        shared:
+          - ON
+          - OFF
         compiler:
           - c: 'clang'
             cpp: 'clang++'
           - c: 'gcc'
             cpp: 'g++'
     env:
-       CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
        CC: ${{ matrix.compiler.c }}
        CXX: ${{ matrix.compiler.cpp }}
     steps:
@@ -32,6 +35,21 @@ jobs:
   macos:
 
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shared:
+          - ON
+          - OFF
+        compiler:
+          - c: 'clang'
+            cpp: 'clang++'
+          - c: 'gcc'
+            cpp: 'g++'
+    env:
+       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
+       CC: ${{ matrix.compiler.c }}
+       CXX: ${{ matrix.compiler.cpp }}
 
     steps:
     - uses: actions/checkout@v1
@@ -45,6 +63,14 @@ jobs:
   windows:
 
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shared:
+          - ON
+          - OFF
+    env:
+       CMAKE_OPTIONS: -DCMARK_SHARED=${{ matrix.shared }}
 
     steps:
     - uses: actions/checkout@v1
