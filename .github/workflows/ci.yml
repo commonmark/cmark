@@ -1,0 +1,42 @@
+name: CI tests
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and test
+      env:
+         CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+      run: |
+         mkdir -p build && cd build && cmake $CMAKE_OPTIONS ..
+         make test
+         make leakcheck
+
+  macos:
+
+    runs-on: macOS-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and test
+      env:
+         CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+      run: |
+         mkdir -p build && cd build && cmake $CMAKE_OPTIONS ..
+         make test
+         make leakcheck
+
+  windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and test
+      run: |
+        nmake test
+
