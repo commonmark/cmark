@@ -40,5 +40,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build and test
       run: |
-        nmake test
+        nmake.exe /nologo /f Makefile.nmake test
 
