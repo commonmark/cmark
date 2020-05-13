@@ -12,9 +12,7 @@ jobs:
       env:
          CMAKE_OPTIONS: -DCMARK_SHARED=OFF
       run: |
-         mkdir -p build && cd build && cmake $CMAKE_OPTIONS ..
          make
-         du build
          make test
          make leakcheck
 
@@ -28,7 +26,7 @@ jobs:
       env:
          CMAKE_OPTIONS: -DCMARK_SHARED=OFF
       run: |
-         mkdir -p build && cd build && cmake $CMAKE_OPTIONS ..
+         make
          make test
          make leakcheck
 
