@@ -99,9 +99,10 @@ static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
 
 static cmark_node *make_str(subject *subj, int sc, int ec, cmark_chunk s) {
   cmark_node *e = make_literal(subj, CMARK_NODE_TEXT, sc, ec);
-  // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker)
   e->data = (unsigned char *)subj->mem->realloc(NULL, s.len + 1);
-  memcpy(e->data, s.data, s.len);
+  if (s.data != NULL) {
+    memcpy(e->data, s.data, s.len);
+  }
   e->data[s.len] = 0;
   e->len = s.len;
   return e;
