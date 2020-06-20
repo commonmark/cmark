@@ -158,12 +158,20 @@ Security
 
 By default, the library will scrub raw HTML and potentially
 dangerous links (`javascript:`, `vbscript:`, `data:`, `file:`).
+This behaviour change was introduced in the 0.29.0 release.
 
-To allow these, use the option `CMARK_OPT_UNSAFE` (or
-`--unsafe`) with the command line program. If doing so, we
-recommend you use a HTML sanitizer specific to your needs to
-protect against [XSS
-attacks](http://en.wikipedia.org/wiki/Cross-site_scripting).
+In the API, you can use the option `CMARK_OPT_UNSAFE` to disable it.
+
+When calling the `cmark` command line program, you can disable it
+with `--unsafe` option.
+
+You can also disable it by setting the `CMARK_UNSAFE` environment variable.
+If you want a script to work with both older and newer versions,
+you can use `CMARK_UNSAFE=1 cmark` command.
+
+If your Markdown files come from an untrusted source,
+we recommend that you use an HTML sanitizer
+to prevent [XSS attacks](http://en.wikipedia.org/wiki/Cross-site_scripting).
 
 Contributing
 ------------

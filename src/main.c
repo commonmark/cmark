@@ -161,6 +161,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  char* unsafe_env_var = getenv("CMARK_UNSAFE");
+  if (unsafe_env_var != NULL) {
+    options |= CMARK_OPT_UNSAFE;
+  }
+
   parser = cmark_parser_new(options);
   for (i = 0; i < numfps; i++) {
     FILE *fp = fopen(argv[files[i]], "rb");
