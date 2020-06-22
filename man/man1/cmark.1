@@ -49,13 +49,17 @@ be rendered as curly quotes, depending on their position.
 \f[C]\-\-\-\f[] will be rendered as an em-dash.
 \f[C]...\f[] will be rendered as ellipses.
 .TP 12n
-.B \-\-unsafe
-Render raw HTML or potentially dangerous URLs.
-By default, raw HTML is replaced by a placeholder comment
+.B \-\-safe
+Omit raw HTML and potentially dangerous URLs (default).
+Raw HTML is replaced by a placeholder comment
 and potentially dangerous URLs are replaced by empty strings.
-Dangerous URLs are those that begin with `javascript:`,
+Potentially dangerous URLs are those that begin with `javascript:`,
 `vbscript:`, `file:`, or `data:` (except for `image/png`,
 `image/gif`, `image/jpeg`, or `image/webp` mime types).
+.TP 12n
+.B \-\-unsafe
+Render raw HTML or potentially dangerous URLs, overriding
+the default (\-\-safe) behavior.
 .TP 12n
 .B \-\-help
 Print usage information.
