@@ -276,8 +276,8 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_LINK:
     if (entering) {
       cmark_strbuf_puts(html, "<a href=\"");
-      if ((options & CMARK_OPT_UNSAFE) ||
-            !(_scan_dangerous_url(node->as.link.url))) {
+      if (node->as.link.url && ((options & CMARK_OPT_UNSAFE) ||
+                                !(_scan_dangerous_url(node->as.link.url)))) {
         houdini_escape_href(html, node->as.link.url,
                             strlen((char *)node->as.link.url));
       }
@@ -295,8 +295,8 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   case CMARK_NODE_IMAGE:
     if (entering) {
       cmark_strbuf_puts(html, "<img src=\"");
-      if ((options & CMARK_OPT_UNSAFE) ||
-            !(_scan_dangerous_url(node->as.link.url))) {
+      if (node->as.link.url && ((options & CMARK_OPT_UNSAFE) ||
+                                !(_scan_dangerous_url(node->as.link.url)))) {
         houdini_escape_href(html, node->as.link.url,
                             strlen((char *)node->as.link.url));
       }
