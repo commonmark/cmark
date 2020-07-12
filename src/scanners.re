@@ -129,7 +129,7 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
-  [<] ('script'|'pre'|'style') (spacechar | [>]) { return 1; }
+  [<] ('script'|'pre'|'textarea'|'style') (spacechar | [>]) { return 1; }
   '<!--' { return 2; }
   '<?' { return 3; }
   '<!' [A-Z] { return 4; }
@@ -156,7 +156,7 @@ bufsize_t _scan_html_block_end_1(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* [<] [/] ('script'|'pre'|'style') [>] { return (bufsize_t)(p - start); }
+  [^\n\x00]* [<] [/] ('script'|'pre'|'textarea'|'style') [>] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
