@@ -62,6 +62,11 @@ void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
   ref->age = map->size;
   ref->next = map->refs;
 
+  if (ref->url != NULL)
+    ref->size += strlen((char*)ref->url);
+  if (ref->title != NULL)
+    ref->size += strlen((char*)ref->title);
+
   map->refs = ref;
   map->size++;
 }
@@ -110,6 +115,7 @@ static void sort_references(cmark_reference_map *map) {
 cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
                                         cmark_chunk *label) {
   cmark_reference **ref = NULL;
+  cmark_reference *r = NULL;
   unsigned char *norm;
 
   if (label->len < 1 || label->len > MAX_LINK_LABEL_LENGTH)
@@ -128,7 +134,16 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
   ref = (cmark_reference **)bsearch(norm, map->sorted, map->size, sizeof(cmark_reference *),
                 refsearch);
   map->mem->free(norm);
-  return ref ? ref[0] : NULL;
+
+  if (ref != NULL) {
+    r = ref[0];
+    /* Check for expansion limit */
+    if (map->max_ref_size && r->size > map->max_ref_size - map->ref_size)
+      return NULL;
+    map->ref_size += r->size;
+  }
+
+  return r;
 }
 
 void cmark_reference_map_free(cmark_reference_map *map) {
