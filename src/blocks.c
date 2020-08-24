@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "cmark_ctype.h"
 #include "syntax_extension.h"
@@ -639,6 +640,14 @@ static cmark_node *finalize_document(cmark_parser *parser) {
   }
 
   finalize(parser, parser->root);
+
+  // Limit total size of extra content created from reference links to
+  // document size to avoid superlinear growth. Always allow 100KB.
+  if (parser->total_size > 100000)
+    parser->refmap->max_ref_size = parser->total_size;
+  else
+    parser->refmap->max_ref_size = 100000;
+
   process_inlines(parser, parser->refmap, parser->options);
   if (parser->options & CMARK_OPT_FOOTNOTES)
     process_footnotes(parser);
@@ -697,6 +706,11 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
                           size_t len, bool eof) {
   const unsigned char *end = buffer + len;
   static const uint8_t repl[] = {239, 191, 189};
+
+  if (len > UINT_MAX - parser->total_size)
+    parser->total_size = UINT_MAX;
+  else
+    parser->total_size += len;
 
   if (parser->last_buffer_ended_with_cr && *buffer == '\n') {
     // skip NL if last buffer ended with CR ; see #117

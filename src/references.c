@@ -32,6 +32,7 @@ void cmark_reference_create(cmark_map *map, cmark_chunk *label,
   ref->title = cmark_clean_title(map->mem, title);
   ref->entry.age = map->size;
   ref->entry.next = map->refs;
+  ref->entry.size = ref->url.len + ref->title.len;
 
   map->refs = (cmark_map_entry *)ref;
   map->size++;
