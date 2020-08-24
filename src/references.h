@@ -13,6 +13,7 @@ struct cmark_reference {
   unsigned char *url;
   unsigned char *title;
   unsigned int age;
+  unsigned int size;
 };
 
 typedef struct cmark_reference cmark_reference;
@@ -22,6 +23,8 @@ struct cmark_reference_map {
   cmark_reference *refs;
   cmark_reference **sorted;
   unsigned int size;
+  unsigned int ref_size;
+  unsigned int max_ref_size;
 };
 
 typedef struct cmark_reference_map cmark_reference_map;
