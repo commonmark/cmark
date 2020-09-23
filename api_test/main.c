@@ -3,9 +3,9 @@
 #include <string.h>
 
 #define CMARK_NO_SHORT_NAMES
-#include "cmark-gfm.h"
+#include <cmark-gfm.h>
 #include "node.h"
-#include "../extensions/cmark-gfm-core-extensions.h"
+#include <cmark-gfm-core-extensions.h>
 
 #include "harness.h"
 #include "cplusplus.h"

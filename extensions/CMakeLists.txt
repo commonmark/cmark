@@ -14,13 +14,13 @@ set(LIBRARY_SOURCES
    )
 
 include_directories(
-  ${PROJECT_SOURCE_DIR}/src
-  ${PROJECT_BINARY_DIR}/src
+  ${PROJECT_SOURCE_DIR}/src/include
+  ${PROJECT_BINARY_DIR}/src/include
 )
 
 include (GenerateExportHeader)
 
-include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
 set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")

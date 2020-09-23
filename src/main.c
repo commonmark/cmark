@@ -10,7 +10,7 @@
 #include "parser.h"
 #include "registry.h"
 
-#include "../extensions/cmark-gfm-core-extensions.h"
+#include <cmark-gfm-core-extensions.h>
 
 #if defined(__OpenBSD__)
 #  include <sys/param.h>

@@ -6,27 +6,7 @@ include(GNUInstallDirs)
 
 set(LIBRARY "libcmark-gfm")
 set(STATICLIBRARY "libcmark-gfm_static")
-set(HEADERS
-  cmark-gfm.h
-  cmark-gfm-extension_api.h
-  parser.h
-  buffer.h
-  node.h
-  iterator.h
-  chunk.h
-  references.h
-  footnotes.h
-  map.h
-  utf8.h
-  scanners.h
-  inlines.h
-  houdini.h
-  cmark_ctype.h
-  render.h
-  registry.h
-  syntax_extension.h
-  plugin.h
-  )
+file(GLOB HEADERS include/*.h)
 set(LIBRARY_SOURCES
   cmark.c
   node.c
@@ -62,9 +42,10 @@ set(LIBRARY_SOURCES
 set(PROGRAM "cmark-gfm")
 set(PROGRAM_SOURCES main.c)
 
-include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
-  ${PROJECT_BINARY_DIR}/extensions
+  ${PROJECT_SOURCE_DIR}/extensions/include
+  ${PROJECT_BINARY_DIR}/extensions/include
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in

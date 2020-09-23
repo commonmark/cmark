@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include "cmark-gfm.h"
+#include <cmark-gfm.h>
 #include "cplusplus.h"
 #include "harness.h"
 
