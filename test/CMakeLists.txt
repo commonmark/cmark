@@ -26,8 +26,7 @@ endif(WIN32)
 IF (PYTHONINTERP_FOUND)
 
   add_test(html_normalization
-    ${PYTHON_EXECUTABLE} "-m" "doctest"
-    "${CMAKE_CURRENT_SOURCE_DIR}/normalize.py"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/normalize_html_tests.py"
     )
 
   if (CMARK_SHARED)
