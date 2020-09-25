@@ -1,4 +1,7 @@
 # Ensures that sudo is disabled, so that containerized builds are allowed
+arch:
+ - amd64
+ - ppc64le
 sudo: false
 
 os:
