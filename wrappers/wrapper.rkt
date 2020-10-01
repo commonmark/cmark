@@ -32,15 +32,17 @@
   (define _cmark_delim_type
     (_enum '(no_delim period_delim paren_delim)))
   (define _cmark_opts
-    (_bitmask
-     '(sourcepos  = 2 ; include sourcepos attribute on block elements
-       hardbreaks = 4 ; render `softbreak` elements as hard line breaks
-       safe       = 8 ; suppress raw HTML and unsafe links
-       nobreaks   = 16 ; render `softbreak` elements as spaces
-       normalize  = 256 ; legacy (no effect)
-       validate-utf8 = 512 ; validate UTF-8 in the input
-       smart      = 1024 ; straight quotes to curly, ---/-- to em/en dashes
-       )))
+    (let ([opts '([sourcepos  1] ; include sourcepos attribute on block elements
+                  [hardbreaks 2] ; render `softbreak` elements as hard line breaks
+                  [safe       3] ; defined here for API compatibility (on by default)
+                  [unsafe    17] ; render raw HTML and unsafe links
+                  [nobreaks   4] ; render `softbreak` elements as spaces
+                  [normalize  8] ; legacy (no effect)
+                  [validate-utf8 9] ; validate UTF-8 in the input
+                  [smart     10] ; straight quotes to curly, ---/-- to em/en dashes
+                  )])
+      (_bitmask (apply append (map (λ(o) `(,(car o) = ,(expt 2 (cadr o))))
+                                   opts)))))
 
   (define-cpointer-type _node)
 
