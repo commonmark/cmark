@@ -85,8 +85,8 @@ install(TARGETS ${CMARK_INSTALL}
 
 if (CMARK_SHARED OR CMARK_STATIC)
   install(FILES
-  cmark-gfm-core-extensions.h
-  ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm-extensions_export.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extensions_export.h
   DESTINATION include
   )
 

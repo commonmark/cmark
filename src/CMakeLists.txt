@@ -149,10 +149,11 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION ${libdir}/pkgconfig)
 
   install(FILES
-    cmark-gfm.h
-    cmark-gfm-extension_api.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_export.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_config.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extension_api.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_export.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_version.h
     DESTINATION include
     )
 

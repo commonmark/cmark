@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "cmark-gfm.h"
-#include "plugin.h"
+#include "cmark-gfm-extension_api.h"
 
 CMARK_GFM_EXPORT
 void cmark_register_plugin(cmark_plugin_init_func reg_fn);

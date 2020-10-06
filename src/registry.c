@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config.h"
+#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 #include "syntax_extension.h"
 #include "registry.h"
