@@ -73,6 +73,7 @@ struct cmark_node {
   int internal_offset;
   uint16_t type;
   uint16_t flags;
+  int backtick_count;
 
   cmark_syntax_extension *extension;
 

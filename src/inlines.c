@@ -376,6 +376,7 @@ static cmark_node *handle_backticks(subject *subj, int options) {
     S_normalize_code(&buf);
 
     cmark_node *node = make_code(subj, startpos, endpos - openticks.len - 1, cmark_chunk_buf_detach(&buf));
+    node->backtick_count = openticks.len;
     adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
     return node;
   }

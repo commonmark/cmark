@@ -349,6 +349,10 @@ const char *cmark_node_get_literal(cmark_node *node) {
   return NULL;
 }
 
+int cmark_node_get_backtick_count(cmark_node *node) {
+  return node->backtick_count;
+}
+
 int cmark_node_set_literal(cmark_node *node, const char *content) {
   if (node == NULL) {
     return 0;
