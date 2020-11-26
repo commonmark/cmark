@@ -5,7 +5,7 @@ add_executable(api_test
   main.c
 )
 if(CMARK_SHARED)
-  target_link_libraries(api_test libcmark)
+  target_link_libraries(api_test cmark)
 else()
-  target_link_libraries(api_test libcmark_static)
+  target_link_libraries(api_test cmark_static)
 endif()
