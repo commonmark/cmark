@@ -1,7 +1,4 @@
-set(HAVE_LIBCMARK_STATIC @CMARK_STATIC@)
-set(HAVE_LIBCMARK_SHARED @CMARK_SHARED@)
+@PACKAGE_INIT@
 
-if((HAVE_LIBCMARK_STATIC AND NOT TARGET libcmark_static) OR
-   (HAVE_LIBCMARK_SHARED AND NOT TARGET libcmark))
-   include(@CMARK_TARGETS_FILE@)
-endif()
+include("${CMAKE_CURRENT_LIST_DIR}/cmark-targets.cmake")
+check_required_components("cmark")
