@@ -10,7 +10,7 @@ import multiprocessing
 import time
 from cmark import CMark
 
-TIMEOUT = 7
+TIMEOUT = 10
 
 parser = argparse.ArgumentParser(description='Run cmark tests.')
 parser.add_argument('--program', dest='program', nargs='?', default=None,
