@@ -49,6 +49,7 @@ set(PROGRAM_SOURCES main.c)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
+include(GNUInstallDirs)
 include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
@@ -121,26 +122,24 @@ if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
   include(InstallRequiredSystemLibraries)
 endif()
 
-set(libdir lib${LIB_SUFFIX})
-
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   EXPORT cmark-targets
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION ${libdir}
-  ARCHIVE DESTINATION ${libdir}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 if(CMARK_SHARED OR CMARK_STATIC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
-    DESTINATION ${libdir}/pkgconfig)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
   install(FILES
     cmark.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
-    DESTINATION include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
   # Include module for fuctions
@@ -151,7 +150,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
   configure_package_config_file(
     "cmarkConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config.cmake"
-    INSTALL_DESTINATION "lib/cmake/cmark")
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark")
   write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config-version.cmake"
     VERSION ${PROJECT_VERSION}
@@ -160,13 +159,13 @@ if(CMARK_SHARED OR CMARK_STATIC)
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config-version.cmake"
-    DESTINATION "lib/cmake/cmark"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark"
   )
   # install targets file
   install(
     EXPORT "cmark-targets"
     NAMESPACE "cmark::"
-    DESTINATION "lib/cmake/cmark"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark"
   )
 
 endif()
