@@ -1062,19 +1062,26 @@ static void source_pos_inlines(test_batch_runner *runner) {
   {
     static const char markdown[] =
       "*first*\n"
-      "second\n";
+      "second\n"
+      "\n"
+      "   <http://example.com>";
 
     cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
     char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
     STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                         "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                        "<document sourcepos=\"1:1-2:6\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "<document sourcepos=\"1:1-4:23\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
                         "  <paragraph sourcepos=\"1:1-2:6\">\n"
                         "    <emph sourcepos=\"1:1-1:7\">\n"
                         "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
                         "    </emph>\n"
                         "    <softbreak />\n"
                         "    <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
+                        "  </paragraph>\n"
+                        "  <paragraph sourcepos=\"4:4-4:23\">\n"
+                        "    <link sourcepos=\"4:4-4:23\" destination=\"http://example.com\" title=\"\">\n"
+                        "      <text sourcepos=\"4:5-4:22\" xml:space=\"preserve\">http://example.com</text>\n"
+                        "    </link>\n"
                         "  </paragraph>\n"
                         "</document>\n",
                         "sourcepos are as expected");
