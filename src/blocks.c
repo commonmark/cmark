@@ -289,7 +289,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   } else if (S_type(b) == CMARK_NODE_DOCUMENT ||
              (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext)) {
+             (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext) ||
+             (parser->line_number - 1 < b->end_line)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline.size;
     if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\n')
