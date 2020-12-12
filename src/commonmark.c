@@ -218,7 +218,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       // this ensures that a following indented code block or list will be
       // inteprereted correctly.
       CR();
-      LIT("<!-- end list -->");
       BLANKLINE();
     }
     break;
