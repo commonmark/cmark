@@ -191,6 +191,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_IMAGE:
     break;
 
+  case CMARK_NODE_ATTRIBUTE:
+    OUT(cmark_chunk_to_cstr(renderer->mem, &node->as.literal), false, LITERAL);
+    break;
+
   case CMARK_NODE_FOOTNOTE_REFERENCE:
     if (entering) {
       LIT("[^");

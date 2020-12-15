@@ -474,6 +474,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_ATTRIBUTE:
+    if (entering) {
+      LIT("^[");
+    } else {
+      LIT("](");
+      OUT(cmark_node_get_attributes(node), false, LITERAL);
+      LIT(")");
+    }
+    break;
+
   case CMARK_NODE_FOOTNOTE_REFERENCE:
     if (entering) {
       LIT("[^");

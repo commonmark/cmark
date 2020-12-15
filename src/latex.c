@@ -446,6 +446,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_FOOTNOTE_DEFINITION:
   case CMARK_NODE_FOOTNOTE_REFERENCE:
+  case CMARK_NODE_ATTRIBUTE:
     // TODO
     break;
 

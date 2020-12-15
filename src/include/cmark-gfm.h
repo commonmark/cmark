@@ -66,6 +66,7 @@ typedef enum {
   CMARK_NODE_LINK          = CMARK_NODE_TYPE_INLINE | 0x0009,
   CMARK_NODE_IMAGE         = CMARK_NODE_TYPE_INLINE | 0x000a,
   CMARK_NODE_FOOTNOTE_REFERENCE = CMARK_NODE_TYPE_INLINE | 0x000b,
+  CMARK_NODE_ATTRIBUTE          = CMARK_NODE_TYPE_INLINE | 0x000c,
 } cmark_node_type;
 
 extern cmark_node_type CMARK_NODE_LAST_BLOCK;
@@ -452,6 +453,17 @@ CMARK_GFM_EXPORT const char *cmark_node_get_title(cmark_node *node);
  * 0 on failure.
  */
 CMARK_GFM_EXPORT int cmark_node_set_title(cmark_node *node, const char *title);
+
+/** Returns the attributes of an attribute 'node', or an empty string
+    if no attributes are set.  Returns NULL if called on a node that is
+    not an attribute.
+ */
+CMARK_GFM_EXPORT const char *cmark_node_get_attributes(cmark_node *node);
+
+/** Sets the attributes of an attribute 'node'. Returns 1 on success,
+ * 0 on failure.
+ */
+CMARK_GFM_EXPORT int cmark_node_set_attributes(cmark_node *node, const char *attributes);
 
 /** Returns the literal "on enter" text for a custom 'node', or
     an empty string if no on_enter is set.  Returns NULL if called

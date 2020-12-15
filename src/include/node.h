@@ -44,6 +44,10 @@ typedef struct {
 } cmark_link;
 
 typedef struct {
+  cmark_chunk attributes;
+} cmark_attribute;
+
+typedef struct {
   cmark_chunk on_enter;
   cmark_chunk on_exit;
 } cmark_custom;
@@ -83,6 +87,7 @@ struct cmark_node {
     cmark_code code;
     cmark_heading heading;
     cmark_link link;
+    cmark_attribute attribute;
     cmark_custom custom;
     int html_block_type;
     void *opaque;

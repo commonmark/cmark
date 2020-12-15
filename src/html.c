@@ -389,6 +389,19 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_ATTRIBUTE:
+    // TODO: Output span, attributes potentially controlling class/id here. For now just output the main string.
+    /*
+    if (entering) {
+      cmark_strbuf_puts(html, "<span __attributes=\"");
+      cmark_strbuf_put(html, node->as.attribute.attributes.data, node->as.attribute.attributes.len);
+      cmark_strbuf_puts(html, "\">");
+    } else {
+      cmark_strbuf_puts(html, "</span>");
+    }
+    */
+    break;
+
   case CMARK_NODE_FOOTNOTE_DEFINITION:
     if (entering) {
       if (renderer->footnote_ix == 0) {

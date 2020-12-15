@@ -439,7 +439,7 @@ static int can_contain(cmark_syntax_extension *extension, cmark_node *node,
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
     return child_type == CMARK_NODE_TEXT || child_type == CMARK_NODE_CODE ||
            child_type == CMARK_NODE_EMPH || child_type == CMARK_NODE_STRONG ||
-           child_type == CMARK_NODE_LINK || child_type == CMARK_NODE_IMAGE ||
+           child_type == CMARK_NODE_LINK || child_type == CMARK_NODE_IMAGE || child_type == CMARK_NODE_ATTRIBUTE ||
            child_type == CMARK_NODE_STRIKETHROUGH ||
            child_type == CMARK_NODE_HTML_INLINE ||
            child_type == CMARK_NODE_FOOTNOTE_REFERENCE;

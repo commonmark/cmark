@@ -33,12 +33,18 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 
 #define MAXBACKTICKS 80
 
+typedef enum {
+  LINK,
+  IMAGE,
+  ATTRIBUTE
+} bracket_type;
+
 typedef struct bracket {
   struct bracket *previous;
   struct delimiter *previous_delimiter;
   cmark_node *inl_text;
   bufsize_t position;
-  bool image;
+  bracket_type type;
   bool active;
   bool bracket_after;
 } bracket;
@@ -513,12 +519,12 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   subj->last_delim = delim;
 }
 
-static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
+static void push_bracket(subject *subj, bracket_type type, cmark_node *inl_text) {
   bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
   if (subj->last_bracket != NULL) {
     subj->last_bracket->bracket_after = true;
   }
-  b->image = image;
+  b->type = type;
   b->active = true;
   b->inl_text = inl_text;
   b->previous = subj->last_bracket;
@@ -1032,7 +1038,91 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
   return i - offset;
 }
 
-// Return a link, an image, or a literal close bracket.
+static bufsize_t manual_scan_attribute_attributes(cmark_chunk *input, bufsize_t offset,
+                                                cmark_chunk *output) {
+  bufsize_t i = offset;
+  size_t nb_p = 0;
+
+  while (i < input->len) {
+    if (input->data[i] == '\\' &&
+        i + 1 < input->len &&
+        cmark_ispunct(input->data[i+1]))
+      i += 2;
+    else if (input->data[i] == '(') {
+      ++nb_p;
+      ++i;
+      if (nb_p > 32)
+        return -1;
+    } else if (input->data[i] == ')') {
+      if (nb_p == 0)
+        break;
+      --nb_p;
+      ++i;
+    } else {
+      ++i;
+    }
+  }
+
+  if (i >= input->len)
+    return -1;
+
+  {
+    cmark_chunk result = {input->data + offset, i - offset, 0};
+    *output = result;
+  }
+  return i - offset;
+}
+
+static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject *subj, bracket *opener) {
+  bufsize_t startattributes, endattributes;
+  cmark_chunk attributes;
+  bufsize_t n;
+  cmark_node *inl;
+  cmark_chunk raw_label;
+  int found_label;
+  cmark_node *tmp, *tmpnext;
+
+  // ^name[content](attributes)
+  // TODO: support name. we will not even enter this with a name because we fail the match first
+
+  startattributes = subj->pos + 1;
+
+  if (peek_char(subj) == '(' &&
+      ((n = manual_scan_attribute_attributes(&subj->input, subj->pos + 1,
+                                 &attributes)) > -1)) {
+
+    endattributes = subj->pos + 1 + n;
+
+    if (peek_at(subj, endattributes) == ')') {
+      subj->pos = endattributes + 1;
+      attributes = cmark_chunk_dup(&subj->input, startattributes, endattributes - startattributes);
+    }
+  }
+  
+  inl = make_simple(subj->mem, CMARK_NODE_ATTRIBUTE);
+  inl->as.attribute.attributes = attributes;
+  inl->start_line = inl->end_line = subj->line;
+  inl->start_column = opener->inl_text->start_column;
+  inl->end_column = subj->pos + subj->column_offset + subj->block_offset;
+  cmark_node_insert_before(opener->inl_text, inl);
+  // Add content text:
+  tmp = opener->inl_text->next;
+  while (tmp) {
+    tmpnext = tmp->next;
+    cmark_node_append_child(inl, tmp);
+    tmp = tmpnext;
+  }
+
+  // Free the bracket ^[:
+  cmark_node_free(opener->inl_text);
+
+  process_emphasis(parser, subj, opener->previous_delimiter);
+  pop_bracket(subj);
+
+  return NULL;
+}
+
+// Return a link, an image, an attribute, or a literal close bracket.
 static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
   bufsize_t initial_pos, after_link_text_pos;
   bufsize_t endurl, starttitle, endtitle, endall;
@@ -1050,7 +1140,7 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
   advance(subj); // advance past ]
   initial_pos = subj->pos;
 
-  // get last [ or ![
+  // get last [ or ![ or ^[
   opener = subj->last_bracket;
 
   if (opener == NULL) {
@@ -1063,9 +1153,13 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
   }
 
+  if (opener->type == ATTRIBUTE) {
+    return handle_close_bracket_attribute(parser, subj, opener);
+  }
+
   // If we got here, we matched a potential link/image text.
   // Now we check to see if it's a link/image.
-  is_image = opener->image;
+  is_image = opener->type == IMAGE;
 
   after_link_text_pos = subj->pos;
 
@@ -1188,7 +1282,7 @@ match:
   if (!is_image) {
     opener = subj->last_bracket;
     while (opener != NULL) {
-      if (!opener->image) {
+      if (opener->type == LINK) {
         if (!opener->active) {
           break;
         } else {
@@ -1341,7 +1435,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
   case '[':
     advance(subj);
     new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("["));
-    push_bracket(subj, false, new_inl);
+    push_bracket(subj, LINK, new_inl);
     break;
   case ']':
     new_inl = handle_close_bracket(parser, subj);
@@ -1351,9 +1445,20 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     if (peek_char(subj) == '[' && peek_char_n(subj, 1) != '^') {
       advance(subj);
       new_inl = make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_literal("!["));
-      push_bracket(subj, true, new_inl);
+      push_bracket(subj, IMAGE, new_inl);
     } else {
       new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("!"));
+    }
+    break;
+  case '^':
+    advance(subj);
+    // TODO: Support a name between ^ and [
+    if (peek_char(subj) == '[') {
+      advance(subj);
+      new_inl = make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_literal("^["));
+      push_bracket(subj, ATTRIBUTE, new_inl);
+    } else {
+      new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("^"));
     }
     break;
   default:
@@ -1604,10 +1709,19 @@ cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser) {
   return &parser->input;
 }
 
-int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int image) {
-  for (bracket *b = parser->last_bracket; b; b = b->previous)
-    if (b->active && b->image == (image != 0))
-      return 1;
+int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int type) {
+  for (bracket *b = parser->last_bracket; b; b = b->previous) {
+    if (b->active) {
+      switch (type) {
+        case 0:
+          return b->type == LINK;
+        case 1:
+          return b->type == IMAGE;
+        case 2:
+          return b->type == ATTRIBUTE;
+      }
+    }
+  }
   return 0;
 }
 
