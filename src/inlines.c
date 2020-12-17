@@ -1258,8 +1258,9 @@ match:
   inl = make_simple(subj->mem, is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK);
   inl->as.link.url = url;
   inl->as.link.title = title;
-  inl->start_line = inl->end_line = subj->line;
+  inl->start_line = opener->inl_text->start_line;
   inl->start_column = opener->inl_text->start_column;
+  inl->end_line = subj->line;
   inl->end_column = subj->pos + subj->column_offset + subj->block_offset;
   cmark_node_insert_before(opener->inl_text, inl);
   // Add link text:
