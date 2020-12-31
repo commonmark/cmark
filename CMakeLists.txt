@@ -1,17 +1,23 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(cmark VERSION 0.29.0)
 
 include("FindAsan.cmake")
 include(GNUInstallDirs)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-    message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
+  message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
+option(CMARK_EXE "Build cmark executable" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
+
+set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES};Release;Profile;Asan;Ubsan" CACHE STRING "" FORCE) 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 if(NOT MSVC)
   set(CMAKE_C_STANDARD 99)
@@ -25,7 +31,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # which is incompatible with static linking under certain configurations.
 # Unsetting CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ensures this does not happen.
 if(CMARK_STATIC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
+  set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 endif()
 
 # Compiler flags
@@ -60,17 +66,10 @@ add_subdirectory(src)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
 endif()
-# TODO(compnerd) should this be enabled for MinGW, which sets CMAKE_SYSTEM_NAME
-# to Windows, but defines `MINGW`.
-if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
+if(NOT WIN32 AND NOT MINGW)
   add_subdirectory(man)
 endif()
 if(CMARK_TESTS)
   enable_testing()
   add_subdirectory(test testdir)
 endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-  "Choose the type of build, options are: Debug Profile Release Asan Ubsan." FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
