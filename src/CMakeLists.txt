@@ -1,6 +1,7 @@
-if(${CMAKE_VERSION} VERSION_GREATER "3.3")
-    cmake_policy(SET CMP0063 NEW)
-endif()
+include(CheckCSourceCompiles)
+include(CheckIncludeFile)
+include(CMakePackageConfigHelpers)
+include(GenerateExportHeader)
 
 set(PROGRAM "cmark_exe")
 set(FUZZ "cmark-fuzz")
@@ -51,25 +52,20 @@ set(LIBRARY_SOURCES
 )
 set(PROGRAM_SOURCES main.c)
 
+# Feature tests
+check_include_file(stdbool.h HAVE_STDBOOL_H)
+check_c_source_compiles(
+  "int main() { __builtin_expect(0,0); return 0; }"
+  HAVE___BUILTIN_EXPECT)
+check_c_source_compiles("
+  int f(void) __attribute__ (());
+  int main() { return 0; }
+" HAVE___ATTRIBUTE__)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
-
-include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
-include(GenerateExportHeader)
-
-add_executable(${PROGRAM} ${PROGRAM_SOURCES})
-set_target_properties(${PROGRAM} PROPERTIES
-  OUTPUT_NAME "cmark")
-
-if (CMARK_STATIC)
-  target_link_libraries(${PROGRAM} PRIVATE ${STATICLIBRARY})
-  # Disable the PUBLIC declarations when compiling the executable:
-  set_target_properties(${PROGRAM} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
-elseif (CMARK_SHARED)
-  target_link_libraries(${PROGRAM} PRIVATE ${LIBRARY})
-endif()
 
 # -fvisibility=hidden
 set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -77,6 +73,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+  cmark_target_properties(${LIBRARY})
   set_target_properties(${LIBRARY} PROPERTIES
     MACOSX_RPATH TRUE
     OUTPUT_NAME "cmark"
@@ -100,8 +97,8 @@ endif()
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+  cmark_target_properties(${STATICLIBRARY})
   set_target_properties(${STATICLIBRARY} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE
     OUTPUT_NAME "cmark$<$<BOOL:${MSVC}>:_static>"
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION})
@@ -112,7 +109,7 @@ if (CMARK_STATIC)
   add_library(cmark::cmark_static ALIAS ${STATICLIBRARY})
 
   if (NOT CMARK_SHARED)
-    # linking against cmark::cmark shouldn't cause errors just because shared
+    # Linking against cmark::cmark shouldn't cause errors just because shared
     # builds weren't enabled.
     add_library(cmark::cmark ALIAS ${STATICLIBRARY})
     generate_export_header(${STATICLIBRARY}
@@ -122,17 +119,34 @@ if (CMARK_STATIC)
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
-if (MSVC)
-  set_property(TARGET ${PROGRAM}
-    APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
-endif(MSVC)
+if(CMARK_EXE)
+  add_executable(${PROGRAM} ${PROGRAM_SOURCES})
+  cmark_target_properties(${PROGRAM})
+  set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME "cmark")
+
+  if (CMARK_STATIC)
+    target_link_libraries(${PROGRAM} PRIVATE ${STATICLIBRARY})
+  elseif (CMARK_SHARED)
+    target_link_libraries(${PROGRAM} PRIVATE ${LIBRARY})
+  endif()
+
+  if (MSVC)
+    set_target_properties(${PROGRAM} PROPERTIES LINK_FLAGS /INCREMENTAL:NO)
+  endif()
+
+  # Disables -rdynamic, which is incompatible with static linking under certain
+  # configurations.
+  set_target_properties(${PROGRAM} PROPERTIES ENABLE_EXPORTS OFF)
+
+  list(APPEND CMARK_INSTALL ${PROGRAM})
+endif()
 
 if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   include(InstallRequiredSystemLibraries)
 endif()
 
-install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
+install(TARGETS ${CMARK_INSTALL}
   EXPORT cmark-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -177,34 +191,17 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION "${CMAKE_INSTALL_CMAKEDIR}"
   )
   # install targets file
-  install(EXPORT "cmark-targets"
-    NAMESPACE "cmark::"
+  install(EXPORT cmark-targets
+    NAMESPACE cmark::
     DESTINATION "${CMAKE_INSTALL_CMAKEDIR}"
   )
 endif()
 
-# Feature tests
-include(CheckIncludeFile)
-include(CheckCSourceCompiles)
-CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
-CHECK_C_SOURCE_COMPILES(
-  "int main() { __builtin_expect(0,0); return 0; }"
-  HAVE___BUILTIN_EXPECT)
-CHECK_C_SOURCE_COMPILES("
-  int f(void) __attribute__ (());
-  int main() { return 0; }
-" HAVE___ATTRIBUTE__)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
 if(CMARK_LIB_FUZZER)
   add_executable(${FUZZ} ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
-  target_link_libraries(${FUZZ} PRIVATE "${CMAKE_LIB_FUZZER_PATH}")
+  target_link_libraries(${FUZZ} PRIVATE ${CMAKE_LIB_FUZZER_PATH})
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
   # needs to link against the C++ runtime.
-  set_target_properties(${FUZZ} PROPERTIES
-    LINKER_LANGUAGE CXX)
+  set_target_properties(${FUZZ} PROPERTIES LINKER_LANGUAGE CXX)
 endif()
