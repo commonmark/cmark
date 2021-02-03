@@ -542,7 +542,10 @@ static void render_xml(test_batch_runner *runner) {
 
   static const char markdown[] = "foo *bar*\n"
                                  "\n"
-                                 "paragraph 2\n"
+                                 "control -\x0C-\n"
+                                 "fffe -\xEF\xBF\xBE-\n"
+                                 "ffff -\xEF\xBF\xBF-\n"
+                                 "escape <>&\"\n"
                                  "\n"
                                  "```\ncode\n```\n";
   cmark_node *doc =
@@ -559,7 +562,13 @@ static void render_xml(test_batch_runner *runner) {
                       "    </emph>\n"
                       "  </paragraph>\n"
                       "  <paragraph>\n"
-                      "    <text xml:space=\"preserve\">paragraph 2</text>\n"
+                      "    <text xml:space=\"preserve\">control -" UTF8_REPL "-</text>\n"
+                      "    <softbreak />\n"
+                      "    <text xml:space=\"preserve\">fffe -" UTF8_REPL "-</text>\n"
+                      "    <softbreak />\n"
+                      "    <text xml:space=\"preserve\">ffff -" UTF8_REPL "-</text>\n"
+                      "    <softbreak />\n"
+                      "    <text xml:space=\"preserve\">escape &lt;&gt;&amp;&quot;</text>\n"
                       "  </paragraph>\n"
                       "  <code_block xml:space=\"preserve\">code\n"
                       "</code_block>\n"
