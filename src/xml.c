@@ -7,16 +7,69 @@
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
-#include "houdini.h"
 
 #define BUFFER_SIZE 100
 #define MAX_INDENT 40
 
 // Functions to convert cmark_nodes to XML strings.
 
-static void escape_xml(cmark_strbuf *dest, const unsigned char *source,
-                       bufsize_t length) {
-  houdini_escape_html0(dest, source, length, 0);
+// C0 control characters, U+FFFE and U+FFF aren't allowed in XML.
+static const char XML_ESCAPE_TABLE[256] = {
+    /* 0x00 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1,
+    /* 0x10 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    /* 0x20 */ 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x30 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0,
+    /* 0x40 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x50 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x60 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x70 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x80 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0x90 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0xA0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0xB0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9,
+    /* 0xC0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0xD0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0xE0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 0xF0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+// U+FFFD Replacement Character encoded in UTF-8
+#define UTF8_REPL "\xEF\xBF\xBD"
+
+static const char *XML_ESCAPES[] = {
+  "", UTF8_REPL, "&quot;", "&amp;", "&lt;", "&gt;"
+};
+
+static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
+                       bufsize_t size) {
+  bufsize_t i = 0, org, esc = 0;
+
+  while (i < size) {
+    org = i;
+    while (i < size && (esc = XML_ESCAPE_TABLE[src[i]]) == 0)
+      i++;
+
+    if (i > org)
+      cmark_strbuf_put(ob, src + org, i - org);
+
+    if (i >= size)
+      break;
+
+    if (esc == 9) {
+      // To replace U+FFFE and U+FFFF with U+FFFD, only the last byte has to
+      // be changed.
+      // We know that src[i] is 0xBE or 0xBF.
+      if (i >= 2 && src[i-2] == 0xEF && src[i-1] == 0xBF) {
+        cmark_strbuf_putc(ob, 0xBD);
+      } else {
+        cmark_strbuf_putc(ob, src[i]);
+      }
+    } else {
+      cmark_strbuf_puts(ob, XML_ESCAPES[esc]);
+    }
+
+    i++;
+  }
 }
 
 static void escape_xml_str(cmark_strbuf *dest, const unsigned char *source) {
