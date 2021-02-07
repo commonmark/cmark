@@ -1014,6 +1014,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented && ((matched = scan_html_block_start(
                                   input, parser->first_nonspace)) ||
                              (cont_type != CMARK_NODE_PARAGRAPH &&
+			      !maybe_lazy &&
                               (matched = scan_html_block_start_7(
                                    input, parser->first_nonspace))))) {
       *container = add_child(parser, *container, CMARK_NODE_HTML_BLOCK,

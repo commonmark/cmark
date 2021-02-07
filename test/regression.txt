@@ -162,3 +162,23 @@ Issue #334 - UTF-8 BOM
 .
 <h1>Hi</h1>
 ````````````````````````````````
+
+Issue commonmark.js#213 - type 7 blocks can't interrupt
+paragraph
+
+```````````````````````````````` example
+- <script>
+- some text
+some other text
+</script>
+.
+<ul>
+<li>
+<script>
+</li>
+<li>some text
+some other text
+</script></li>
+</ul>
+````````````````````````````````
+
