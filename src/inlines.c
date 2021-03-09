@@ -111,6 +111,24 @@ static cmark_node *make_str_with_entities(subject *subj,
   }
 }
 
+// Like cmark_node_append_child but without costly sanity checks.
+// Assumes that child was newly created.
+static void append_child(cmark_node *node, cmark_node *child) {
+  cmark_node *old_last_child = node->last_child;
+
+  child->next = NULL;
+  child->prev = old_last_child;
+  child->parent = node;
+  node->last_child = child;
+
+  if (old_last_child) {
+    old_last_child->next = child;
+  } else {
+    // Also set first_child if node previously had no children.
+    node->first_child = child;
+  }
+}
+
 // Duplicate a chunk by creating a copy of the buffer not by reusing the
 // buffer like cmark_chunk_dup does.
 static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
@@ -154,7 +172,7 @@ static CMARK_INLINE cmark_node *make_autolink(subject *subj,
   link->start_line = link->end_line = subj->line;
   link->start_column = start_column + 1;
   link->end_column = end_column + 1;
-  cmark_node_append_child(link, make_str_with_entities(subj, start_column + 1, end_column - 1, &url));
+  append_child(link, make_str_with_entities(subj, start_column + 1, end_column - 1, &url));
   return link;
 }
 
@@ -768,7 +786,8 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   tmp = opener_inl->next;
   while (tmp && tmp != closer_inl) {
     tmpnext = tmp->next;
-    cmark_node_append_child(emph, tmp);
+    cmark_node_unlink(tmp);
+    append_child(emph, tmp);
     tmp = tmpnext;
   }
   cmark_node_insert_after(opener_inl, emph);
@@ -1238,7 +1257,8 @@ match:
   tmp = opener->inl_text->next;
   while (tmp) {
     tmpnext = tmp->next;
-    cmark_node_append_child(inl, tmp);
+    cmark_node_unlink(tmp);
+    append_child(inl, tmp);
     tmp = tmpnext;
   }
 
@@ -1451,7 +1471,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = make_str(subj, startpos, endpos - 1, contents);
   }
   if (new_inl != NULL) {
-    cmark_node_append_child(parent, new_inl);
+    append_child(parent, new_inl);
   }
 
   return 1;
