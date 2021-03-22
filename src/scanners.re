@@ -37,7 +37,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 
   tagname = [A-Za-z][A-Za-z0-9-]*;
 
-  blocktagname = 'address'|'article'|'aside'|'base'|'basefont'|'blockquote'|'body'|'caption'|'center'|'col'|'colgroup'|'dd'|'details'|'dialog'|'dir'|'div'|'dl'|'dt'|'fieldset'|'figcaption'|'figure'|'footer'|'form'|'frame'|'frameset'|'h1'|'h2'|'h3'|'h4'|'h5'|'h6'|'head'|'header'|'hr'|'html'|'iframe'|'legend'|'li'|'link'|'main'|'menu'|'menuitem'|'nav'|'noframes'|'ol'|'optgroup'|'option'|'p'|'param'|'section'|'title'|'summary'|'table'|'tbody'|'td'|'tfoot'|'th'|'thead'|'title'|'tr'|'track'|'ul';
+  blocktagname = 'address'|'article'|'aside'|'base'|'basefont'|'blockquote'|'body'|'caption'|'center'|'col'|'colgroup'|'dd'|'details'|'dialog'|'dir'|'div'|'dl'|'dt'|'fieldset'|'figcaption'|'figure'|'footer'|'form'|'frame'|'frameset'|'h1'|'h2'|'h3'|'h4'|'h5'|'h6'|'head'|'header'|'hr'|'html'|'iframe'|'legend'|'li'|'link'|'main'|'menu'|'menuitem'|'nav'|'noframes'|'ol'|'optgroup'|'option'|'p'|'param'|'section'|'source'|'title'|'summary'|'table'|'tbody'|'td'|'tfoot'|'th'|'thead'|'title'|'tr'|'track'|'ul';
 
   attributename = [a-zA-Z_:][a-zA-Z0-9:._-]*;
 
@@ -54,16 +54,15 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   opentag = tagname attribute* spacechar* [/]? [>];
   closetag = [/] tagname spacechar* [>];
 
-  htmlcomment = "!---->" | ("!--" ([-]? [^\x00>-]) ([-]? [^\x00-])* "-->");
+  htmlcomment = "--" ([^\x00-]+ | "-" [^\x00-] | "--" [^\x00>])* "-->";
 
-  processinginstruction = "?" ([^?>\x00]+ | [?][^>\x00] | [>])* "?>";
+  processinginstruction = ([^?>\x00]+ | [?][^>\x00] | [>])+;
 
-  declaration = "!" [A-Z]+ spacechar+ [^>\x00]* ">";
+  declaration = [A-Z]+ spacechar+ [^>\x00]*;
 
-  cdata = "![CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])* "]]>";
+  cdata = "CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])*;
 
-  htmltag = opentag | closetag | htmlcomment | processinginstruction |
-            declaration | cdata;
+  htmltag = opentag | closetag;
 
   in_parens_nosp   = [(] (reg_char|escaped_char|[\\])* [)];
 
@@ -133,6 +132,46 @@ bufsize_t _scan_liberal_html_tag(const unsigned char *p)
 */
 }
 
+bufsize_t _scan_html_comment(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  htmlcomment { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_pi(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  processinginstruction { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_declaration(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  declaration { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_cdata(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  cdata { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
 // Try to match an HTML block tag start line, returning
 // an integer code for the type of block (1-6, matching the spec).
 // #7 is handled by a separate function, below.
@@ -140,7 +179,7 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
-  [<] ('script'|'pre'|'style') (spacechar | [>]) { return 1; }
+  [<] ('script'|'pre'|'textarea'|'style') (spacechar | [>]) { return 1; }
   '<!--' { return 2; }
   '<?' { return 3; }
   '<!' [A-Z] { return 4; }
@@ -167,7 +206,7 @@ bufsize_t _scan_html_block_end_1(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* [<] [/] ('script'|'pre'|'style') [>] { return (bufsize_t)(p - start); }
+  [^\n\x00]* [<] [/] ('script'|'pre'|'textarea'|'style') [>] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
