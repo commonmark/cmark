@@ -54,16 +54,15 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   opentag = tagname attribute* spacechar* [/]? [>];
   closetag = [/] tagname spacechar* [>];
 
-  htmlcomment = "!---->" | ("!--" ([-]? [^\x00>-]) ([-]? [^\x00-])* "-->");
+  htmlcomment = "--->" | ("-" ([-]? [^\x00>-]) ([-]? [^\x00-])* "-->");
 
-  processinginstruction = "?" ([^?>\x00]+ | [?][^>\x00] | [>])* "?>";
+  processinginstruction = ([^?>\x00]+ | [?][^>\x00] | [>])+;
 
-  declaration = "!" [A-Z]+ spacechar+ [^>\x00]* ">";
+  declaration = [A-Z]+ spacechar+ [^>\x00]*;
 
-  cdata = "![CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])* "]]>";
+  cdata = "CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])*;
 
-  htmltag = opentag | closetag | htmlcomment | processinginstruction |
-            declaration | cdata;
+  htmltag = opentag | closetag;
 
   in_parens_nosp   = [(] (reg_char|escaped_char|[\\])* [)];
 
@@ -118,6 +117,46 @@ bufsize_t _scan_html_tag(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   htmltag { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_comment(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  htmlcomment { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_pi(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  processinginstruction { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_declaration(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  declaration { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_html_cdata(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  cdata { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
