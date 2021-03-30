@@ -6,6 +6,11 @@
 #include "cmark.h"
 #include "node.h"
 
+#if defined(HAVE_LIBSECCOMP)
+#  include <seccomp.h>
+#  include <fcntl.h>         /* O_RDONLY */
+#endif
+
 #if defined(__OpenBSD__)
 #  include <sys/param.h>
 #  if OpenBSD >= 201605
@@ -73,6 +78,70 @@ static void print_document(cmark_node *document, writer_format writer,
   document->mem->free(result);
 }
 
+#ifdef HAVE_LIBSECCOMP
+static void enable_seccomp(int argc, char *argv[]) {
+  int i;
+  int rc = -1;
+  scmp_filter_ctx ctx;
+
+  ctx = seccomp_init(SCMP_ACT_KILL);
+  if (ctx == NULL)
+    goto out;
+
+  /* Allow opening files on the command line, and only as read-only */
+  for (i = 1; i < argc; i++) {
+    rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat), 2,
+      SCMP_A1(SCMP_CMP_EQ, (size_t)argv[i]),
+      SCMP_A2(SCMP_CMP_EQ, O_RDONLY));
+    if (rc < 0)
+      goto out;
+  }
+
+  /* Allow reading from open file descriptors */
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(read), 0);
+  if (rc < 0)
+    goto out;
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(close), 0);
+  if (rc < 0)
+    goto out;
+
+  /* Allow fstat (needed by C stdio) */
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fstatat64), 0);
+  if (rc < 0)
+    goto out;
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(newfstatat), 0);
+  if (rc < 0)
+    goto out;
+
+  /* Gracefully reject ioctl (needed by C stdio) */
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(ioctl), 0);
+  if (rc < 0)
+    goto out;
+
+  /* Allow writing to stdout */
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 1,
+    SCMP_A0(SCMP_CMP_EQ, 1));
+  if (rc < 0)
+    goto out;
+
+  /* Allow exiting */
+  rc = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit_group), 0);
+  if (rc < 0)
+    goto out;
+
+  rc = seccomp_load(ctx);
+  if (rc < 0)
+    goto out;
+
+  rc = 0;
+out:
+  if (rc < 0) {
+    fprintf(stderr, "seccomp initialization failed: %d\n", rc);
+  }
+  seccomp_release(ctx);
+}
+#endif
+
 int main(int argc, char *argv[]) {
   int i, numfps = 0;
   int *files;
@@ -90,6 +159,9 @@ int main(int argc, char *argv[]) {
     perror("pledge");
     return 1;
   }
+#endif
+#ifdef HAVE_LIBSECCOMP
+  enable_seccomp(argc, argv);
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
