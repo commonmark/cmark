@@ -8,10 +8,17 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
-static CMARK_INLINE void initialize_mutex_once(pthread_mutex_t *m, atomic_int *latch) {
+static CMARK_INLINE bool check_latch(atomic_int *latch) {
   int expected = 0;
-  
   if (atomic_compare_exchange_strong(latch, &expected, 1)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+static CMARK_INLINE void initialize_mutex_once(pthread_mutex_t *m, atomic_int *latch) {
+  if (check_latch(latch)) {
     pthread_mutex_init(m, NULL);
   }
 }
@@ -26,11 +33,28 @@ pthread_mutex_lock(&NAME##_lock);
 
 #define CMARK_UNLOCK(NAME) pthread_mutex_unlock(&NAME##_lock);
 
+#define CMARK_DEFINE_LATCH(NAME) static atomic_int NAME = 0;
+
+#define CMARK_CHECK_LATCH(NAME) check_latch(&NAME)
+
 #else // no threading support
+
+static CMARK_INLINE bool check_latch(int *latch) {
+  if (!*latch) {
+    *latch = 1;
+    return true;
+  } else {
+    return false;
+  }
+}
 
 #define CMARK_DEFINE_LOCK(NAME)
 #define CMARK_INITIALIZE_AND_LOCK(NAME)
 #define CMARK_UNLOCK(NAME)
+
+#define CMARK_DEFINE_LATCH static int NAME = 0;
+
+#define CMARK_CHECK_LATCH check_latch(&NAME)
 
 #endif // CMARK_THREADING
 
