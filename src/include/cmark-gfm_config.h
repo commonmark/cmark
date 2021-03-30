@@ -17,6 +17,8 @@ extern "C" {
 
 #define HAVE___ATTRIBUTE__
 
+#define CMARK_THREADING
+
 #ifdef HAVE___ATTRIBUTE__
   #define CMARK_ATTRIBUTE(list) __attribute__ (list)
 #else

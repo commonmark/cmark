@@ -1,5 +1,3 @@
-#include <pthread.h>
-#include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -7,8 +5,7 @@
 #include "cmark-gfm-extension_api.h"
 #include "mutex.h"
 
-static pthread_mutex_t arena_lock;
-static atomic_int arena_latch = 0;
+CMARK_DEFINE_LOCK(arena)
 
 static struct arena_chunk {
   size_t sz, used;
@@ -30,13 +27,12 @@ static struct arena_chunk *alloc_arena_chunk(size_t sz, struct arena_chunk *prev
 }
 
 void cmark_arena_push(void) {
-  initialize_mutex_once(&arena_lock, &arena_latch);
-  pthread_mutex_lock(&arena_lock);
+  CMARK_INITIALIZE_AND_LOCK(arena);
   if (!A)
     return;
   A->push_point = 1;
   A = alloc_arena_chunk(10240, A);
-  pthread_mutex_unlock(&arena_lock);
+  CMARK_UNLOCK(arena);
 }
 
 int cmark_arena_pop(void) {
@@ -77,8 +73,7 @@ static void *arena_calloc(size_t nmem, size_t size) {
   const size_t align = sizeof(size_t) - 1;
   sz = (sz + align) & ~align;
 
-  // the arena lock will have already been set up by a previous call to init_arena
-  pthread_mutex_lock(&arena_lock);
+  CMARK_INITIALIZE_AND_LOCK(arena);
   
   if (sz > A->sz) {
     A->prev = alloc_arena_chunk(sz, A->prev);
@@ -90,7 +85,7 @@ static void *arena_calloc(size_t nmem, size_t size) {
   void *ptr = (uint8_t *) A->ptr + A->used;
   A->used += sz;
   
-  pthread_mutex_unlock(&arena_lock);
+  CMARK_UNLOCK(arena);
   
   *((size_t *) ptr) = sz - sizeof(size_t);
   return (uint8_t *) ptr + sizeof(size_t);

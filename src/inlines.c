@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <pthread.h>
-#include <stdatomic.h>
 
 #include "cmark_ctype.h"
 #include "cmark-gfm_config.h"
@@ -69,8 +67,7 @@ typedef struct subject{
 // Extensions may populate this.
 static int8_t SKIP_CHARS[256];
 
-pthread_mutex_t chars_lock;
-static atomic_int chars_latch = 0;
+CMARK_DEFINE_LOCK(chars);
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
@@ -411,8 +408,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   } else {
     before_char_pos = subj->pos - 1;
     
-    initialize_mutex_once(&chars_lock, &chars_latch);
-    pthread_mutex_lock(&chars_lock);
+    CMARK_INITIALIZE_AND_LOCK(chars);
     
     // walk back to the beginning of the UTF_8 sequence:
     while ((peek_at(subj, before_char_pos) >> 6 == 2 || SKIP_CHARS[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
@@ -424,7 +420,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
       before_char = 10;
     }
     
-    pthread_mutex_unlock(&chars_lock);
+    CMARK_UNLOCK(chars);
   }
 
   if (c == '\'' || c == '"') {
@@ -442,8 +438,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   } else {
     after_char_pos = subj->pos;
     
-    initialize_mutex_once(&chars_lock, &chars_latch);
-    pthread_mutex_lock(&chars_lock);
+    CMARK_INITIALIZE_AND_LOCK(chars);
     
     while (SKIP_CHARS[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
       after_char_pos += 1;
@@ -454,7 +449,7 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
       after_char = 10;
     }
     
-    pthread_mutex_unlock(&chars_lock);
+    CMARK_UNLOCK(chars);
   }
 
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
@@ -1382,21 +1377,19 @@ static bufsize_t subject_find_special_char(subject *subj, int options) {
 }
 
 void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
-  initialize_mutex_once(&chars_lock, &chars_latch);
-  pthread_mutex_lock(&chars_lock);
+  CMARK_INITIALIZE_AND_LOCK(chars);
   SPECIAL_CHARS[c] = 1;
   if (emphasis)
     SKIP_CHARS[c] = 1;
-  pthread_mutex_unlock(&chars_lock);
+  CMARK_UNLOCK(chars);
 }
 
 void cmark_inlines_remove_special_character(unsigned char c, bool emphasis) {
-  initialize_mutex_once(&chars_lock, &chars_latch);
-  pthread_mutex_lock(&chars_lock);
+  CMARK_INITIALIZE_AND_LOCK(chars);
   SPECIAL_CHARS[c] = 0;
   if (emphasis)
     SKIP_CHARS[c] = 0;
-  pthread_mutex_unlock(&chars_lock);
+  CMARK_UNLOCK(chars);
 }
 
 static cmark_node *try_extensions(cmark_parser *parser,

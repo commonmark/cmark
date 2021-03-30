@@ -18,6 +18,7 @@ option(CMARK_TESTS "Build cmark-gfm tests and enable testing" ON)
 option(CMARK_STATIC "Build static libcmark-gfm library" ON)
 option(CMARK_SHARED "Build shared libcmark-gfm library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
+option(CMARK_THREADING "Add locks around static accesses via pthreads" OFF)
 
 add_subdirectory(src)
 add_subdirectory(extensions)
