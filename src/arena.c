@@ -28,10 +28,10 @@ static struct arena_chunk *alloc_arena_chunk(size_t sz, struct arena_chunk *prev
 
 void cmark_arena_push(void) {
   CMARK_INITIALIZE_AND_LOCK(arena);
-  if (!A)
-    return;
-  A->push_point = 1;
-  A = alloc_arena_chunk(10240, A);
+  if (A) {
+    A->push_point = 1;
+    A = alloc_arena_chunk(10240, A);
+  }
   CMARK_UNLOCK(arena);
 }
 
