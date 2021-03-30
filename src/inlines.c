@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 #include "cmark_ctype.h"
 #include "cmark-gfm_config.h"
@@ -14,6 +15,7 @@
 #include "scanners.h"
 #include "inlines.h"
 #include "syntax_extension.h"
+#include "mutex.h"
 
 static const char *EMDASH = "\xE2\x80\x94";
 static const char *ENDASH = "\xE2\x80\x93";
@@ -65,7 +67,10 @@ typedef struct subject{
 } subject;
 
 // Extensions may populate this.
-static _Atomic int8_t SKIP_CHARS[256];
+static int8_t SKIP_CHARS[256];
+
+pthread_mutex_t chars_lock;
+static atomic_int chars_latch = 0;
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
@@ -405,6 +410,10 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     before_char = 10;
   } else {
     before_char_pos = subj->pos - 1;
+    
+    initialize_mutex_once(&chars_lock, &chars_latch);
+    pthread_mutex_lock(&chars_lock);
+    
     // walk back to the beginning of the UTF_8 sequence:
     while ((peek_at(subj, before_char_pos) >> 6 == 2 || SKIP_CHARS[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
       before_char_pos -= 1;
@@ -414,6 +423,8 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     if (len == -1 || (before_char < 256 && SKIP_CHARS[(unsigned char) before_char])) {
       before_char = 10;
     }
+    
+    pthread_mutex_unlock(&chars_lock);
   }
 
   if (c == '\'' || c == '"') {
@@ -430,14 +441,20 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     after_char = 10;
   } else {
     after_char_pos = subj->pos;
+    
+    initialize_mutex_once(&chars_lock, &chars_latch);
+    pthread_mutex_lock(&chars_lock);
+    
     while (SKIP_CHARS[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
       after_char_pos += 1;
     }
     len = cmark_utf8proc_iterate(subj->input.data + after_char_pos,
                                  subj->input.len - after_char_pos, &after_char);
     if (len == -1 || (after_char < 256 && SKIP_CHARS[(unsigned char) after_char])) {
-    after_char = 10;
-  }
+      after_char = 10;
+    }
+    
+    pthread_mutex_unlock(&chars_lock);
   }
 
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
@@ -1350,8 +1367,6 @@ static char SMART_PUNCT_CHARS[] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-pthread_mutex_t chars_lock;
-
 static bufsize_t subject_find_special_char(subject *subj, int options) {
   bufsize_t n = subj->pos + 1;
 
@@ -1367,6 +1382,7 @@ static bufsize_t subject_find_special_char(subject *subj, int options) {
 }
 
 void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
+  initialize_mutex_once(&chars_lock, &chars_latch);
   pthread_mutex_lock(&chars_lock);
   SPECIAL_CHARS[c] = 1;
   if (emphasis)
@@ -1375,6 +1391,7 @@ void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
 }
 
 void cmark_inlines_remove_special_character(unsigned char c, bool emphasis) {
+  initialize_mutex_once(&chars_lock, &chars_latch);
   pthread_mutex_lock(&chars_lock);
   SPECIAL_CHARS[c] = 0;
   if (emphasis)
