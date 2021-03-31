@@ -18,10 +18,12 @@ static int core_extensions_registration(cmark_plugin *plugin) {
   return 1;
 }
 
-CMARK_DEFINE_LATCH(registered);
+CMARK_DEFINE_ONCE(registered);
+
+static void register_plugins(void) {
+  cmark_register_plugin(core_extensions_registration);
+}
 
 void cmark_gfm_core_extensions_ensure_registered(void) {
-  if (CMARK_CHECK_LATCH(registered)) {
-    cmark_register_plugin(core_extensions_registration);
-  }
+  CMARK_RUN_ONCE(registered, register_plugins);
 }

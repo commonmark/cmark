@@ -6,36 +6,21 @@
 #ifdef CMARK_THREADING
 
 #include <pthread.h>
-#include <stdatomic.h>
 
-static CMARK_INLINE bool check_latch(atomic_int *latch) {
-  int expected = 0;
-  if (atomic_compare_exchange_strong(latch, &expected, 1)) {
-    return true;
-  } else {
-    return false;
-  }
-}
+#define CMARK_DEFINE_ONCE(NAME) static pthread_once_t NAME##_once = PTHREAD_ONCE_INIT;
 
-static CMARK_INLINE void initialize_mutex_once(pthread_mutex_t *m, atomic_int *latch) {
-  if (check_latch(latch)) {
-    pthread_mutex_init(m, NULL);
-  }
-}
+#define CMARK_RUN_ONCE(NAME, FUNC) pthread_once(&NAME##_once, FUNC)
 
 #define CMARK_DEFINE_LOCK(NAME) \
 static pthread_mutex_t NAME##_lock; \
-static atomic_int NAME##_latch = 0;
+CMARK_DEFINE_ONCE(NAME); \
+static void initialize_##NAME() { pthread_mutex_init(&NAME##_lock, NULL); }
 
 #define CMARK_INITIALIZE_AND_LOCK(NAME) \
-initialize_mutex_once(&NAME##_lock, &NAME##_latch); \
+CMARK_RUN_ONCE(NAME, initialize_##NAME); \
 pthread_mutex_lock(&NAME##_lock);
 
 #define CMARK_UNLOCK(NAME) pthread_mutex_unlock(&NAME##_lock);
-
-#define CMARK_DEFINE_LATCH(NAME) static atomic_int NAME = 0;
-
-#define CMARK_CHECK_LATCH(NAME) check_latch(&NAME)
 
 #else // no threading support
 
@@ -52,9 +37,9 @@ static CMARK_INLINE bool check_latch(int *latch) {
 #define CMARK_INITIALIZE_AND_LOCK(NAME)
 #define CMARK_UNLOCK(NAME)
 
-#define CMARK_DEFINE_LATCH static int NAME = 0;
+#define CMARK_DEFINE_ONCE(NAME) static int NAME = 0;
 
-#define CMARK_CHECK_LATCH check_latch(&NAME)
+#define CMARK_RUN_ONCE(NAME, FUNC) if (check_latch(&NAME)) FUNC();
 
 #endif // CMARK_THREADING
 
