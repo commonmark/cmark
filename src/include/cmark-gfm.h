@@ -769,6 +769,17 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_FULL_INFO_STRING (1 << 16)
 
+/** Parse only inline markdown directives. Block directives will not be
+ * parsed (their literal representations will remain in the output).
+ */
+#define CMARK_OPT_INLINE_ONLY (1 << 18)
+
+/** Parse the markdown input without removing preceding/trailing whitespace and
+ * without converting newline characters to breaks. Using this option also
+ * enables the CMARK_OPT_INLINE_ONLY option.
+ */
+#define CMARK_OPT_PRESERVE_WHITESPACE ((1 << 19) | CMARK_OPT_INLINE_ONLY)
+
 /**
  * ## Version information
  */

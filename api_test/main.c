@@ -1152,6 +1152,49 @@ static void ref_source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void inline_only_opt(test_batch_runner *runner) {
+  static const char markdown[] =
+    "# My heading\n"
+    "> My block quote\n\n"
+    "- List item\n\n"
+    "[link](https://github.com)\n";
+  
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_INLINE_ONLY);
+  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, html, "<p># My heading\n"
+         "&gt; My block quote\n"
+         "\n"
+         "- List item\n"
+         "\n"
+         "<a href=\"https://github.com\">link</a>\n"
+         "</p>\n", "html is as expected");
+  free(html);
+  cmark_node_free(doc);
+}
+
+static void check_markdown_plaintext(test_batch_runner *runner, char *markdown) {
+  cmark_node *doc = cmark_parse_document(markdown, strlen(markdown), CMARK_OPT_PRESERVE_WHITESPACE);
+  cmark_node *pg = cmark_node_first_child(doc);
+  INT_EQ(runner, cmark_node_get_type(pg), CMARK_NODE_PARAGRAPH, "markdown '%s' did not produce a paragraph node", markdown);
+  cmark_node *textNode = cmark_node_first_child(pg);
+  INT_EQ(runner, cmark_node_get_type(textNode), CMARK_NODE_TEXT, "markdown '%s' did not produce a text node inside the paragraph node", markdown);
+  const char *text = cmark_node_get_literal(textNode);
+  STR_EQ(runner, text, markdown, "markdown '%s' resulted in '%s'", markdown, text);
+}
+
+static void preserve_whitespace_opt(test_batch_runner *runner) {
+  check_markdown_plaintext(runner, "hello");
+  check_markdown_plaintext(runner, "hello ");
+  check_markdown_plaintext(runner, " hello");
+  check_markdown_plaintext(runner, "    hello");
+  check_markdown_plaintext(runner, "hello    ");
+  check_markdown_plaintext(runner, "hel\nlo");
+  check_markdown_plaintext(runner, "hel\n\nlo");
+  check_markdown_plaintext(runner, "hel\nworld\nlo");
+  check_markdown_plaintext(runner, " hel \n world \n lo ");
+  check_markdown_plaintext(runner, "  hello \n  \n world  ");
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1182,6 +1225,8 @@ int main() {
   source_pos(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  inline_only_opt(runner);
+  preserve_whitespace_opt(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

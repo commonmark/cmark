@@ -1424,7 +1424,12 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
   switch (c) {
   case '\r':
   case '\n':
-    new_inl = handle_newline(subj);
+    if (options & CMARK_OPT_PRESERVE_WHITESPACE) {
+      advance(subj);
+      new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
+    } else {
+      new_inl = handle_newline(subj);
+    }
     break;
   case '`':
     new_inl = handle_backticks(subj, options);
@@ -1490,7 +1495,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     subj->pos = endpos;
 
     // if we're at a newline, strip trailing spaces.
-    if (S_is_line_end_char(peek_char(subj))) {
+    if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0 && S_is_line_end_char(peek_char(subj))) {
       cmark_chunk_rtrim(&contents);
     }
 
@@ -1511,7 +1516,8 @@ void cmark_parse_inlines(cmark_parser *parser,
   subject subj;
   cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
   subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
-  cmark_chunk_rtrim(&subj.input);
+  if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0)
+    cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(parser, &subj, parent, options))
     ;
