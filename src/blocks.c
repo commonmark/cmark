@@ -308,7 +308,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   case CMARK_NODE_PARAGRAPH:
   {
     has_content = resolve_reference_link_definitions(parser, b);
-    if (!has_content) {
+    if (!has_content && (parser->options & CMARK_OPT_PRESERVE_WHITESPACE) == 0) {
       // remove blank node (former reference def)
       cmark_node_free(b);
     }

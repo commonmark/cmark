@@ -1179,10 +1179,18 @@ static void check_markdown_plaintext(test_batch_runner *runner, char *markdown) 
   cmark_node *textNode = cmark_node_first_child(pg);
   INT_EQ(runner, cmark_node_get_type(textNode), CMARK_NODE_TEXT, "markdown '%s' did not produce a text node inside the paragraph node", markdown);
   const char *text = cmark_node_get_literal(textNode);
-  STR_EQ(runner, text, markdown, "markdown '%s' resulted in '%s'", markdown, text);
+  OK(runner, text, "Text literal for '%s' was null", markdown);
+  if (text) {
+    STR_EQ(runner, text, markdown, "markdown '%s' resulted in '%s'", markdown, text);
+  } else {
+    SKIP(runner, 1);
+  }
+  cmark_node_free(doc);
 }
 
 static void preserve_whitespace_opt(test_batch_runner *runner) {
+  check_markdown_plaintext(runner, " ");
+  check_markdown_plaintext(runner, "    ");
   check_markdown_plaintext(runner, "hello");
   check_markdown_plaintext(runner, "hello ");
   check_markdown_plaintext(runner, " hello");
