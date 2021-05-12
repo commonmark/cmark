@@ -1376,16 +1376,23 @@ static const char SMART_PUNCT_CHARS[] = {
 
 static bufsize_t subject_find_special_char(subject *subj, int options) {
   bufsize_t n = subj->pos + 1;
+  bufsize_t ret = subj->input.len;
 
+  CMARK_INITIALIZE_AND_LOCK(chars);
   while (n < subj->input.len) {
-    if (SPECIAL_CHARS[subj->input.data[n]])
-      return n;
-    if (options & CMARK_OPT_SMART && SMART_PUNCT_CHARS[subj->input.data[n]])
-      return n;
+    if (SPECIAL_CHARS[subj->input.data[n]]) {
+      ret = n;
+      break;
+    }
+    if (options & CMARK_OPT_SMART && SMART_PUNCT_CHARS[subj->input.data[n]]) {
+      ret = n;
+      break;
+    }
     n++;
   }
+  CMARK_UNLOCK(chars);
 
-  return subj->input.len;
+  return ret;
 }
 
 void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {

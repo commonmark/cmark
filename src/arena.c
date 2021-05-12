@@ -36,30 +36,39 @@ void cmark_arena_push(void) {
 }
 
 int cmark_arena_pop(void) {
+  int ret = 1;
+  CMARK_INITIALIZE_AND_LOCK(arena);
   if (!A)
-    return 0;
-  while (A && !A->push_point) {
-    free(A->ptr);
-    struct arena_chunk *n = A->prev;
-    free(A);
-    A = n;
+    ret = 0;
+  else {
+    while (A && !A->push_point) {
+      free(A->ptr);
+      struct arena_chunk *n = A->prev;
+      free(A);
+      A = n;
+    }
+    if (A)
+      A->push_point = 0;
   }
-  if (A)
-    A->push_point = 0;
-  return 1;
+  CMARK_UNLOCK(arena);
+  return ret;
 }
 
 static void init_arena(void) {
+  CMARK_INITIALIZE_AND_LOCK(arena);
   A = alloc_arena_chunk(4 * 1048576, NULL);
+  CMARK_UNLOCK(arena);
 }
 
 void cmark_arena_reset(void) {
+  CMARK_INITIALIZE_AND_LOCK(arena);
   while (A) {
     free(A->ptr);
     struct arena_chunk *n = A->prev;
     free(A);
     A = n;
   }
+  CMARK_UNLOCK(arena);
 }
 
 static void *arena_calloc(size_t nmem, size_t size) {
@@ -74,20 +83,23 @@ static void *arena_calloc(size_t nmem, size_t size) {
   sz = (sz + align) & ~align;
 
   CMARK_INITIALIZE_AND_LOCK(arena);
-  
+
+  void *ptr = NULL;
+
   if (sz > A->sz) {
     A->prev = alloc_arena_chunk(sz, A->prev);
-    return (uint8_t *) A->prev->ptr + sizeof(size_t);
+    ptr = (uint8_t *) A->prev->ptr;
+  } else {
+    if (sz > A->sz - A->used) {
+      A = alloc_arena_chunk(A->sz + A->sz / 2, A);
+    }
+    ptr = (uint8_t *) A->ptr + A->used;
+    A->used += sz;
+    *((size_t *) ptr) = sz - sizeof(size_t);
   }
-  if (sz > A->sz - A->used) {
-    A = alloc_arena_chunk(A->sz + A->sz / 2, A);
-  }
-  void *ptr = (uint8_t *) A->ptr + A->used;
-  A->used += sz;
   
   CMARK_UNLOCK(arena);
-  
-  *((size_t *) ptr) = sz - sizeof(size_t);
+
   return (uint8_t *) ptr + sizeof(size_t);
 }
 
