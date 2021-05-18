@@ -1094,6 +1094,7 @@ static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject 
   cmark_chunk raw_label;
   int found_label;
   cmark_node *tmp, *tmpnext;
+  bool isAttributesNode = false;
 
   // ^name[content](attributes)
   // TODO: support name. we will not even enter this with a name because we fail the match first
@@ -1108,8 +1109,19 @@ static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject 
 
     if (peek_at(subj, endattributes) == ')') {
       subj->pos = endattributes + 1;
-      attributes = cmark_chunk_dup(&subj->input, startattributes, endattributes - startattributes);
+      isAttributesNode = true;
+      if (endattributes - startattributes == 0) {
+        attributes = cmark_chunk_literal(NULL);
+      } else {
+        attributes = cmark_chunk_dup(&subj->input, startattributes, endattributes - startattributes);
+      }
     }
+  }
+
+  if (!isAttributesNode) {
+    // The current node can't be parsed as attribute node, turn it to a TEXT node instead.
+    pop_bracket(subj);
+    return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
   }
   
   inl = make_simple(subj->mem, CMARK_NODE_ATTRIBUTE);

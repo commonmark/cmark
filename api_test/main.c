@@ -1203,6 +1203,37 @@ static void preserve_whitespace_opt(test_batch_runner *runner) {
   check_markdown_plaintext(runner, "  hello \n  \n world  ");
 }
 
+static void check_markdown_attributes_node(test_batch_runner *runner, char *markdown, cmark_node_type expectedType, char *expectedAttributes) {
+  cmark_node *doc = cmark_parse_document(markdown, strlen(markdown), CMARK_OPT_DEFAULT);
+  cmark_node *pg = cmark_node_first_child(doc);
+  INT_EQ(runner, cmark_node_get_type(pg), CMARK_NODE_PARAGRAPH, "markdown '%s' did not produce a paragraph node", markdown);
+  cmark_node *attributeNode = cmark_node_first_child(pg);
+  cmark_node_type nodeType = cmark_node_get_type(attributeNode);
+  INT_EQ(runner, nodeType, expectedType, "markdown '%s' did not produce the correct node type: got %d, expecting %d", markdown, nodeType, expectedType);
+  const char *attributeContent = cmark_node_get_attributes(attributeNode);
+  if (attributeContent == NULL) {
+    OK(runner, expectedAttributes == NULL, "markdown '%s' produced an unexpected NULL attribute", markdown);
+  } else if (expectedAttributes == NULL) {
+    OK(runner, attributeContent == NULL, "markdown '%s' produced an unexpected NULL attribute", markdown);
+  } else {
+    STR_EQ(runner, attributeContent, expectedAttributes, "markdown '%s' did not produce the correct attributes: got %s, expecting: %s", markdown, attributeContent, expectedAttributes);
+  }
+
+  cmark_node_free(doc);
+}
+
+static void verify_custome_attributes_node(test_batch_runner *runner) {
+  // Should produce a TEXT node since there's no `()` to signify attributes
+  check_markdown_attributes_node(runner, "^[]", CMARK_NODE_TEXT, NULL);
+  check_markdown_attributes_node(runner, "^[](", CMARK_NODE_TEXT, NULL);
+  check_markdown_attributes_node(runner, "^[])", CMARK_NODE_TEXT, NULL);
+  check_markdown_attributes_node(runner, "^[])(", CMARK_NODE_TEXT, NULL);
+  // Should produce an ATTRIBUTE node with no attributes
+  check_markdown_attributes_node(runner, "^[]()", CMARK_NODE_ATTRIBUTE, "");
+  // Should produce an ATTRIBUTE node with attributes
+  check_markdown_attributes_node(runner, "^[](rainbow: 'extreme')", CMARK_NODE_ATTRIBUTE, "rainbow: 'extreme'");
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1235,6 +1266,7 @@ int main() {
   ref_source_pos(runner);
   inline_only_opt(runner);
   preserve_whitespace_opt(runner);
+  verify_custome_attributes_node(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
