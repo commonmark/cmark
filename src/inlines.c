@@ -13,7 +13,6 @@
 #include "scanners.h"
 #include "inlines.h"
 #include "syntax_extension.h"
-#include "mutex.h"
 
 static const char *EMDASH = "\xE2\x80\x94";
 static const char *ENDASH = "\xE2\x80\x93";
@@ -64,10 +63,14 @@ typedef struct subject{
   bool scanned_for_backticks;
 } subject;
 
-// Extensions may populate this.
-static int8_t SKIP_CHARS[256];
+void cmark_set_default_skip_chars(int8_t **skip_chars, bool use_memcpy) {
+  static int8_t default_skip_chars[256];
 
-CMARK_DEFINE_LOCK(chars);
+  if (use_memcpy)
+    memcpy(*skip_chars, &default_skip_chars, 256);
+  else
+    *skip_chars = default_skip_chars;
+}
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
@@ -80,7 +83,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
                              cmark_chunk *buffer, cmark_map *refmap);
-static bufsize_t subject_find_special_char(subject *subj, int options);
+static bufsize_t subject_find_special_char(cmark_parser *parser, subject *subj, int options);
 
 // Create an inline with a literal string value.
 static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
@@ -394,8 +397,8 @@ static cmark_node *handle_backticks(subject *subj, int options) {
 
 // Scan ***, **, or * and return number scanned, or 0.
 // Advances position.
-static int scan_delims(subject *subj, unsigned char c, bool *can_open,
-                       bool *can_close) {
+static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
+                       bool *can_open, bool *can_close) {
   int numdelims = 0;
   bufsize_t before_char_pos, after_char_pos;
   int32_t after_char = 0;
@@ -408,19 +411,15 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   } else {
     before_char_pos = subj->pos - 1;
     
-    CMARK_INITIALIZE_AND_LOCK(chars);
-    
     // walk back to the beginning of the UTF_8 sequence:
-    while ((peek_at(subj, before_char_pos) >> 6 == 2 || SKIP_CHARS[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
+    while ((peek_at(subj, before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
       before_char_pos -= 1;
     }
     len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
                                  subj->pos - before_char_pos, &before_char);
-    if (len == -1 || (before_char < 256 && SKIP_CHARS[(unsigned char) before_char])) {
+    if (len == -1 || (before_char < 256 && parser->skip_chars[(unsigned char) before_char])) {
       before_char = 10;
     }
-    
-    CMARK_UNLOCK(chars);
   }
 
   if (c == '\'' || c == '"') {
@@ -438,18 +437,14 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
   } else {
     after_char_pos = subj->pos;
     
-    CMARK_INITIALIZE_AND_LOCK(chars);
-    
-    while (SKIP_CHARS[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
+    while (parser->skip_chars[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
       after_char_pos += 1;
     }
     len = cmark_utf8proc_iterate(subj->input.data + after_char_pos,
                                  subj->input.len - after_char_pos, &after_char);
-    if (len == -1 || (after_char < 256 && SKIP_CHARS[(unsigned char) after_char])) {
+    if (len == -1 || (after_char < 256 && parser->skip_chars[(unsigned char) after_char])) {
       after_char = 10;
     }
-    
-    CMARK_UNLOCK(chars);
   }
 
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
@@ -548,13 +543,13 @@ static void push_bracket(subject *subj, bracket_type type, cmark_node *inl_text)
 }
 
 // Assumes the subject has a c at the current position.
-static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart) {
+static cmark_node *handle_delim(cmark_parser *parser, subject *subj, unsigned char c, bool smart) {
   bufsize_t numdelims;
   cmark_node *inl_text;
   bool can_open, can_close;
   cmark_chunk contents;
 
-  numdelims = scan_delims(subj, c, &can_open, &can_close);
+  numdelims = scan_delims(parser, subj, c, &can_open, &can_close);
 
   if (c == '\'' && smart) {
     contents = cmark_chunk_literal(RIGHTSINGLEQUOTE);
@@ -1346,18 +1341,25 @@ static cmark_node *handle_newline(subject *subj) {
 }
 
 // "\r\n\\`&_*[]<!"
-static int8_t SPECIAL_CHARS[256] = {
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+void cmark_set_default_special_chars(int8_t **special_chars, bool use_memcpy) {
+  static int8_t default_special_chars[256] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  if (use_memcpy)
+    memcpy(*special_chars, &default_special_chars, 256);
+  else
+    *special_chars = default_special_chars;
+}
 
 // " ' . -
 static const char SMART_PUNCT_CHARS[] = {
@@ -1374,41 +1376,30 @@ static const char SMART_PUNCT_CHARS[] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static bufsize_t subject_find_special_char(subject *subj, int options) {
+static bufsize_t subject_find_special_char(cmark_parser *parser, subject *subj, int options) {
   bufsize_t n = subj->pos + 1;
-  bufsize_t ret = subj->input.len;
 
-  CMARK_INITIALIZE_AND_LOCK(chars);
   while (n < subj->input.len) {
-    if (SPECIAL_CHARS[subj->input.data[n]]) {
-      ret = n;
-      break;
-    }
-    if (options & CMARK_OPT_SMART && SMART_PUNCT_CHARS[subj->input.data[n]]) {
-      ret = n;
-      break;
-    }
+    if (parser->special_chars[subj->input.data[n]])
+      return n;
+    if (options & CMARK_OPT_SMART && SMART_PUNCT_CHARS[subj->input.data[n]])
+      return n;
     n++;
   }
-  CMARK_UNLOCK(chars);
 
-  return ret;
+  return subj->input.len;
 }
 
-void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
-  CMARK_INITIALIZE_AND_LOCK(chars);
-  SPECIAL_CHARS[c] = 1;
+void cmark_inlines_add_special_character(cmark_parser *parser, unsigned char c, bool emphasis) {
+  parser->special_chars[c] = 1;
   if (emphasis)
-    SKIP_CHARS[c] = 1;
-  CMARK_UNLOCK(chars);
+    parser->skip_chars[c] = 1;
 }
 
-void cmark_inlines_remove_special_character(unsigned char c, bool emphasis) {
-  CMARK_INITIALIZE_AND_LOCK(chars);
-  SPECIAL_CHARS[c] = 0;
+void cmark_inlines_remove_special_character(cmark_parser *parser, unsigned char c, bool emphasis) {
+  parser->special_chars[c] = 0;
   if (emphasis)
-    SKIP_CHARS[c] = 0;
-  CMARK_UNLOCK(chars);
+    parser->skip_chars[c] = 0;
 }
 
 static cmark_node *try_extensions(cmark_parser *parser,
@@ -1466,7 +1457,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
   case '_':
   case '\'':
   case '"':
-    new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0);
+    new_inl = handle_delim(parser, subj, c, (options & CMARK_OPT_SMART) != 0);
     break;
   case '-':
     new_inl = handle_hyphen(subj, (options & CMARK_OPT_SMART) != 0);
@@ -1508,7 +1499,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     if (new_inl != NULL)
       break;
 
-    endpos = subject_find_special_char(subj, options);
+    endpos = subject_find_special_char(parser, subj, options);
     contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
     startpos = subj->pos;
     subj->pos = endpos;

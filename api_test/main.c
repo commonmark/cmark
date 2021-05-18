@@ -1234,6 +1234,66 @@ static void verify_custome_attributes_node(test_batch_runner *runner) {
   check_markdown_attributes_node(runner, "^[](rainbow: 'extreme')", CMARK_NODE_ATTRIBUTE, "rainbow: 'extreme'");
 }
 
+typedef void (*reentrant_call_func) (void);
+
+static cmark_node *reentrant_parse_inline_ext(cmark_syntax_extension *self, cmark_parser *parser,
+                                              cmark_node *parent, unsigned char character,
+                                              cmark_inline_parser *inline_parser) {
+  void *priv = cmark_syntax_extension_get_private(self);
+  if (priv) {
+    reentrant_call_func func = (reentrant_call_func)priv;
+    func();
+    cmark_syntax_extension_set_private(self, NULL, NULL);
+  }
+
+  return NULL;
+}
+
+static void run_inner_parser() {
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("strikethrough"));
+
+  static const char markdown[] = "this is the ~~outer~~ inner document";
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+  cmark_node *doc = cmark_parser_finish(parser);
+  cmark_node_free(doc);
+  cmark_parser_free(parser);
+}
+
+static void parser_interrupt(test_batch_runner *runner) {
+  cmark_gfm_core_extensions_ensure_registered();
+
+  cmark_syntax_extension *my_ext = cmark_syntax_extension_new("interrupt");
+  cmark_syntax_extension_set_private(my_ext, run_inner_parser, NULL);
+  cmark_syntax_extension_set_match_inline_func(my_ext, reentrant_parse_inline_ext);
+
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("strikethrough"));
+  cmark_parser_attach_syntax_extension(parser, my_ext);
+
+  static const char markdown[] = "this is the ~~inner~~ outer document";
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+  cmark_node *doc = cmark_parser_finish(parser);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+         "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+         "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+         "  <paragraph>\n"
+         "    <text xml:space=\"preserve\">this is the </text>\n"
+         "    <strikethrough>\n"
+         "      <text xml:space=\"preserve\">inner</text>\n"
+         "    </strikethrough>\n"
+         "    <text xml:space=\"preserve\"> outer document</text>\n"
+         "  </paragraph>\n"
+         "</document>\n", "interrupting the parser should still allow extensions");
+
+  free(xml);
+  cmark_node_free(doc);
+  cmark_parser_free(parser);
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1267,6 +1327,7 @@ int main() {
   inline_only_opt(runner);
   preserve_whitespace_opt(runner);
   verify_custome_attributes_node(runner);
+  parser_interrupt(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

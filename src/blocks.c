@@ -94,6 +94,16 @@ int cmark_parser_attach_syntax_extension(cmark_parser *parser,
                                          cmark_syntax_extension *extension) {
   parser->syntax_extensions = cmark_llist_append(parser->mem, parser->syntax_extensions, extension);
   if (extension->match_inline || extension->insert_inline_from_delim) {
+    if (!parser->inline_syntax_extensions) {
+      // if we're loading an inline extension into this parser for the first time,
+      // allocate new buffers for the inline parser character arrays
+      parser->skip_chars = (int8_t *)parser->mem->calloc(sizeof(int8_t), 256);
+      cmark_set_default_skip_chars(&parser->skip_chars, true);
+
+      parser->special_chars = (int8_t *)parser->mem->calloc(sizeof(int8_t), 256);
+      cmark_set_default_special_chars(&parser->special_chars, true);
+    }
+
     parser->inline_syntax_extensions = cmark_llist_append(
       parser->mem, parser->inline_syntax_extensions, extension);
   }
@@ -132,6 +142,9 @@ static void cmark_parser_reset(cmark_parser *parser) {
   parser->syntax_extensions = saved_exts;
   parser->inline_syntax_extensions = saved_inline_exts;
   parser->options = saved_options;
+
+  cmark_set_default_skip_chars(&parser->skip_chars, false);
+  cmark_set_default_special_chars(&parser->special_chars, false);
 }
 
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
@@ -417,9 +430,9 @@ void cmark_manage_extensions_special_characters(cmark_parser *parser, int add) {
     for (tmp_char = ext->special_inline_chars; tmp_char; tmp_char=tmp_char->next) {
       unsigned char c = (unsigned char)(size_t)tmp_char->data;
       if (add)
-        cmark_inlines_add_special_character(c, ext->emphasis);
+        cmark_inlines_add_special_character(parser, c, ext->emphasis);
       else
-        cmark_inlines_remove_special_character(c, ext->emphasis);
+        cmark_inlines_remove_special_character(parser, c, ext->emphasis);
     }
   }
 }
