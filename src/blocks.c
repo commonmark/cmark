@@ -162,6 +162,12 @@ cmark_parser *cmark_parser_new(int options) {
 
 void cmark_parser_free(cmark_parser *parser) {
   cmark_mem *mem = parser->mem;
+
+  if (parser->inline_syntax_extensions) {
+    mem->free(parser->special_chars);
+    mem->free(parser->skip_chars);
+  }
+
   cmark_parser_dispose(parser);
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
