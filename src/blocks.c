@@ -162,6 +162,7 @@ cmark_parser *cmark_parser_new(int options) {
 void cmark_parser_free(cmark_parser *parser) {
   cmark_mem *mem = parser->mem;
 
+  // If any inline syntax extensions were added, free the memory allocated for the special-chars arrays
   if (parser->inline_syntax_extensions) {
     mem->free(parser->special_chars);
     mem->free(parser->skip_chars);
