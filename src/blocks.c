@@ -124,6 +124,8 @@ static void cmark_parser_reset(cmark_parser *parser) {
   cmark_llist *saved_inline_exts = parser->inline_syntax_extensions;
   int saved_options = parser->options;
   cmark_mem *saved_mem = parser->mem;
+  int8_t *saved_specials = parser->special_chars;
+  int8_t *saved_skips = parser->skip_chars;
 
   cmark_parser_dispose(parser);
 
@@ -142,15 +144,18 @@ static void cmark_parser_reset(cmark_parser *parser) {
   parser->syntax_extensions = saved_exts;
   parser->inline_syntax_extensions = saved_inline_exts;
   parser->options = saved_options;
+
+  parser->special_chars = saved_specials;
+  parser->skip_chars = saved_skips;
 }
 
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
   parser->mem = mem;
   parser->options = options;
-  cmark_parser_reset(parser);
   cmark_set_default_skip_chars(&parser->skip_chars, false);
   cmark_set_default_special_chars(&parser->special_chars, false);
+  cmark_parser_reset(parser);
   return parser;
 }
 
