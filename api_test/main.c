@@ -1292,6 +1292,7 @@ static void parser_interrupt(test_batch_runner *runner) {
   free(xml);
   cmark_node_free(doc);
   cmark_parser_free(parser);
+  cmark_syntax_extension_free(cmark_get_default_mem_allocator(), my_ext);
 }
 
 int main() {
