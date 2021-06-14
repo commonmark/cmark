@@ -1416,7 +1416,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
         container = finalize(parser, container);
         assert(parser->current != NULL);
       }
-    } else if (parser->blank) {
+    } else if (parser->blank && (parser->options & CMARK_OPT_PRESERVE_WHITESPACE) == 0) {
       // ??? do nothing
     } else if (accepts_lines(S_type(container))) {
       if (S_type(container) == CMARK_NODE_HEADING &&

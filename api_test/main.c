@@ -1201,6 +1201,11 @@ static void preserve_whitespace_opt(test_batch_runner *runner) {
   check_markdown_plaintext(runner, "hel\nworld\nlo");
   check_markdown_plaintext(runner, " hel \n world \n lo ");
   check_markdown_plaintext(runner, "  hello \n  \n world  ");
+  check_markdown_plaintext(runner, "\n");
+  check_markdown_plaintext(runner, "\n\n\n");
+  check_markdown_plaintext(runner, "\nHello");
+  check_markdown_plaintext(runner, "Hello\n");
+  check_markdown_plaintext(runner, "\nHello\n");
 }
 
 static void check_markdown_attributes_node(test_batch_runner *runner, char *markdown, cmark_node_type expectedType, char *expectedAttributes) {
