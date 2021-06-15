@@ -13,12 +13,14 @@ let package = Package(
         .library(
             name: "cmark-gfm-extensions",
             targets: ["cmark-gfm-extensions"]),
+        .executable(
+            name: "cmark-gfm-bin",
+            targets: ["cmark-gfm-bin"]),
     ],
     targets: [
         .target(name: "cmark-gfm",
           path: "src",
           exclude: [
-            "main.c",
             "scanners.re",
             "libcmark-gfm.pc.in",
             "config.h.in",
@@ -36,6 +38,16 @@ let package = Package(
           exclude: [
             "CMakeLists.txt",
             "ext_scanners.re",
+          ]
+        ),
+        .target(name: "cmark-gfm-bin",
+          dependencies: [
+            "cmark-gfm",
+            "cmark-gfm-extensions",
+          ],
+          path: "bin",
+          sources: [
+            "main.c",
           ]
         ),
     ]
