@@ -16,6 +16,8 @@ let package = Package(
         .executable(
             name: "cmark-gfm-bin",
             targets: ["cmark-gfm-bin"]),
+        .executable(name: "api_test",
+            targets: ["api_test"])
     ],
     targets: [
         .target(name: "cmark-gfm",
@@ -50,5 +52,15 @@ let package = Package(
             "main.c",
           ]
         ),
+        .target(name: "api_test",
+          dependencies: [
+            "cmark-gfm",
+            "cmark-gfm-extensions",
+          ],
+          path: "api_test",
+          exclude: [
+            "CMakeLists.txt",
+          ]
+        )
     ]
 )
