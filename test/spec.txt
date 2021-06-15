@@ -270,6 +270,16 @@ of representing the structural distinctions we need to make, and the
 choice of HTML for the tests makes it possible to run the tests against
 an implementation without writing an abstract syntax tree renderer.
 
+Note that not every feature of the HTML samples is mandated by
+the spec.  For example, the spec says what counts as a link
+destination, but it doesn't mandate that non-ASCII characters in
+the URL be percent-encoded.  To use the automatic tests,
+implementers will need to provide a renderer that conforms to
+the expectations of the spec examples (percent-encoding
+non-ASCII characters in URLs).  But a conforming implementation
+can use a different renderer and may choose not to
+percent-encode non-ASCII characters in URLs.
+
 This document is generated from a text file, `spec.txt`, written
 in Markdown with a small extension for the side-by-side tests.
 The script `tools/makespec.py` can be used to convert `spec.txt` into
@@ -851,8 +861,8 @@ one block element does not affect the inline parsing of any other.
 ## Container blocks and leaf blocks
 
 We can divide blocks into two types:
-[container blocks](@),
-which can contain other blocks, and [leaf blocks](@),
+[container blocks](#container-blocks),
+which can contain other blocks, and [leaf blocks](#leaf-blocks),
 which cannot.
 
 # Leaf blocks
@@ -2359,18 +2369,18 @@ as raw HTML (and will not be escaped in HTML output).
 There are seven kinds of [HTML block], which can be defined by their
 start and end conditions.  The block begins with a line that meets a
 [start condition](@) (after up to three optional spaces of indentation).
-It ends with the first subsequent line that meets a matching [end
-condition](@), or the last line of the document, or the last line of
+It ends with the first subsequent line that meets a matching
+[end condition](@), or the last line of the document, or the last line of
 the [container block](#container-blocks) containing the current HTML
 block, if no line is encountered that meets the [end condition].  If
 the first line meets both the [start condition] and the [end
 condition], the block will contain just that line.
 
-1.  **Start condition:**  line begins with the string `<script`,
-`<pre`, `<textarea`, or `<style` (case-insensitive), followed by a space,
+1.  **Start condition:**  line begins with the string `<pre`,
+`<script`, `<style`, or `<textarea` (case-insensitive), followed by a space,
 a tab, the string `>`, or the end of the line.\
 **End condition:**  line contains an end tag
-`</script>`, `</pre>`, `</textarea>`, or `</style>` (case-insensitive; it
+`</pre>`, `</script>`, `</style>`, or `</textarea>` (case-insensitive; it
 need not match the start tag).
 
 2.  **Start condition:** line begins with the string `<!--`.\
@@ -2403,9 +2413,9 @@ the string `/>`.\
 **End condition:** line is followed by a [blank line].
 
 7.  **Start condition:**  line begins with a complete [open tag]
-(with any [tag name] other than `script`,
-`style`, or `pre`) or a complete [closing tag],
-followed only by a space, a tab, or the end of the line.\
+(with any [tag name] other than `pre`, `script`,
+`style`, or `textarea`) or a complete [closing tag],
+followed by zero or more spaces and tabs, followed by the end of the line.\
 **End condition:** line is followed by a [blank line].
 
 HTML blocks continue until they are closed by their appropriate
@@ -2714,7 +2724,7 @@ rather than an [HTML block].)
 
 
 HTML tags designed to contain literal content
-(`script`, `style`, `pre`), comments, processing instructions,
+(`pre`, `script`, `style`, `textarea`), comments, processing instructions,
 and declarations are treated somewhat differently.
 Instead of ending at the first blank line, these blocks
 end at the first line containing a corresponding end tag.
@@ -3348,8 +3358,11 @@ case-insensitive (see [matches]).
 ````````````````````````````````
 
 
-Here is a link reference definition with no corresponding link.
-It contributes nothing to the document.
+Whether something is a [link reference definition] is
+independent of whether the link reference it defines is
+used in the document.  Thus, for example, the following
+document contains just a link reference definition, and
+no visible content:
 
 ```````````````````````````````` example
 [foo]: /url
@@ -3499,18 +3512,6 @@ are defined:
 <p><a href="/url">foo</a></p>
 <blockquote>
 </blockquote>
-````````````````````````````````
-
-
-Whether something is a [link reference definition] is
-independent of whether the link reference it defines is
-used in the document.  Thus, for example, the following
-document contains just a link reference definition, and
-no visible content:
-
-```````````````````````````````` example
-[foo]: /url
-.
 ````````````````````````````````
 
 
@@ -9284,10 +9285,10 @@ bar</em></p>
 Hard line breaks do not occur inside code spans
 
 ```````````````````````````````` example
-`code 
+`code  
 span`
 .
-<p><code>code  span</code></p>
+<p><code>code   span</code></p>
 ````````````````````````````````
 
 
