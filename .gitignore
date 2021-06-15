@@ -39,3 +39,7 @@ alltests.md
 progit/
 bench/benchinput.md
 test/afl_results/
+
+# Build directories for SwiftPM and Xcode
+.swiftpm
+.build
