@@ -167,9 +167,7 @@ progit:
 $(BENCHFILE): progit
 	echo "" > $@
 	for lang in ar az be ca cs de en eo es es-ni fa fi fr hi hu id it ja ko mk nl no-nb pl pt-br ro ru sr th tr uk vi zh zh-tw; do \
-		for i in `seq 1 10`; do \
-			cat progit/$$lang/*/*.markdown >> $@; \
-		done; \
+	cat progit/$$lang/*/*.markdown >> $@; \
 	done
 
 # for more accurate results, run with

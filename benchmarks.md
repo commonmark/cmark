@@ -1,26 +1,16 @@
 # Benchmarks
 
-Here are some benchmarks, run on an ancient Thinkpad running Intel
-Core 2 Duo at 2GHz.  The input text is a 11MB Markdown file built by
-concatenating the Markdown sources of all the localizations of the
-first edition of
-[*Pro Git*](https://github.com/progit/progit/tree/master/en) by Scott
-Chacon.
+Here are some benchmarks, run on a 2.3GHz 8-core i9 macbook pro.
+The input text is a 1106 KB Markdown file built by concatenating
+the Markdown sources of all the localizations of the first edition
+of [*Pro Git*](https://github.com/progit/progit/tree/master/en) by
+Scott Chacon.
 
 |Implementation     |  Time (sec)|
 |-------------------|-----------:|
-| Markdown.pl       | 2921.24    |
-| Python markdown   |  291.25    |
-| PHP markdown      |   20.82    |
-| kramdown          |   17.32    |
-| cheapskate        |    8.24    |
-| peg-markdown      |    5.45    |
-| parsedown         |    5.06    |
-| **commonmark.js** |    2.09    |
-| marked            |    1.99    |
-| discount          |    1.85    |
-| **cmark**         |    0.29    |
-| hoedown           |    0.21    |
+| **commonmark.js** |    0.59    |
+| **cmark**         |    0.12    |
+| **md4c**          |    0.04    |
 
 To run these benchmarks, use `make bench PROG=/path/to/program`.
 
