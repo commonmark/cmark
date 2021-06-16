@@ -1222,7 +1222,7 @@ static void check_markdown_attributes_node(test_batch_runner *runner, char *mark
   cmark_node_free(doc);
 }
 
-static void verify_custome_attributes_node(test_batch_runner *runner) {
+static void verify_custom_attributes_node(test_batch_runner *runner) {
   // Should produce a TEXT node since there's no `()` to signify attributes
   check_markdown_attributes_node(runner, "^[]", CMARK_NODE_TEXT, NULL);
   check_markdown_attributes_node(runner, "^[](", CMARK_NODE_TEXT, NULL);
@@ -1232,6 +1232,103 @@ static void verify_custome_attributes_node(test_batch_runner *runner) {
   check_markdown_attributes_node(runner, "^[]()", CMARK_NODE_ATTRIBUTE, "");
   // Should produce an ATTRIBUTE node with attributes
   check_markdown_attributes_node(runner, "^[](rainbow: 'extreme')", CMARK_NODE_ATTRIBUTE, "rainbow: 'extreme'");
+}
+
+static cmark_node* parse_custom_attributues_footnote(test_batch_runner *runner, const char *markdown, cmark_node **retdoc) {
+  cmark_node *doc = cmark_parse_document(markdown, strlen(markdown), CMARK_OPT_DEFAULT);
+  cmark_node *pg = cmark_node_first_child(doc);
+  INT_EQ(runner, cmark_node_get_type(pg), CMARK_NODE_PARAGRAPH, "markdown '%s' did not produce a paragraph node", markdown);
+  *retdoc = doc;
+  return cmark_node_first_child(pg);
+}
+
+static void verify_custom_attributes_footnote_basic(test_batch_runner *runner) {
+  static const char markdown[] =
+    "^[caffe][1]\n"
+    "\n"
+    "^[1]: rainbow: 'extreme', colors: { r: 255, g: 0, b: 0 }, corgicopter: true";
+  cmark_node *doc;
+  cmark_node *attributeNode = parse_custom_attributues_footnote(runner, markdown, &doc);
+  INT_EQ(runner, cmark_node_get_type(attributeNode), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode),
+         "rainbow: 'extreme', colors: { r: 255, g: 0, b: 0 }, corgicopter: true",
+         "markdown '%s' did not produce the right attribute in footnote", markdown);
+
+  cmark_node_free(doc);
+}
+
+static void verify_custom_attributes_footnote_multiple_footnotes(test_batch_runner *runner) {
+  static const char markdown[] =
+    "^[food][1] and ^[drinks][2]\n"
+    "\n"
+    "^[1]: rainbow: 'fun'\n"
+    "^[2]: magic: 42";
+  cmark_node *doc;
+  cmark_node *attributeNode1 = parse_custom_attributues_footnote(runner, markdown, &doc);
+  INT_EQ(runner, cmark_node_get_type(attributeNode1), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode1), "rainbow: 'fun'", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *textNode = cmark_node_next(attributeNode1); // "and"
+  cmark_node *attributeNode2 = cmark_node_next(textNode);
+  INT_EQ(runner, cmark_node_get_type(attributeNode2), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode2), "magic: 42", "markdown '%s' did not produce the right attribute in footnote", markdown);
+
+  cmark_node_free(doc);
+}
+
+static void verify_custom_attributes_footnote_reuse(test_batch_runner *runner) {
+  static const char markdown[] =
+    "^[pizza][1], ^[sandwich][2], ^[ice cream][2], and ^[salad][1]\n"
+    "\n"
+    "^[1]: has_tomato: true\n"
+    "^[2]: price: 12";
+  cmark_node *doc;
+  cmark_node *pizzaNode = parse_custom_attributues_footnote(runner, markdown, &doc);
+  INT_EQ(runner, cmark_node_get_type(pizzaNode), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(pizzaNode), "has_tomato: true", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *sandwichNode = cmark_node_next(cmark_node_next(pizzaNode));
+  INT_EQ(runner, cmark_node_get_type(sandwichNode), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(sandwichNode), "price: 12", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *icecreamNode = cmark_node_next(cmark_node_next(sandwichNode));
+  INT_EQ(runner, cmark_node_get_type(icecreamNode), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(icecreamNode), "price: 12", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *saladNode = cmark_node_next(cmark_node_next(icecreamNode));
+  INT_EQ(runner, cmark_node_get_type(saladNode), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(saladNode), "has_tomato: true", "markdown '%s' did not produce the right attribute in footnote", markdown);
+
+  cmark_node_free(doc);
+}
+
+static void verify_custom_attributes_footnote_mixed_content(test_batch_runner *runner) {
+  static const char markdown[] =
+    "^[attribute1][1], [a link][2], ^[attribute2][3], ^[attribute3][1]\n"
+    "\n"
+    "^[1]: rainbow: 'fun'\n"
+    "[2]: https://www.example.com\n"
+    "Lorem ipsum\n"
+    "\n"
+    "^[3]: universe: 42\n";
+  cmark_node *doc;
+  cmark_node *attributeNode1 = parse_custom_attributues_footnote(runner, markdown, &doc);
+  INT_EQ(runner, cmark_node_get_type(attributeNode1), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode1), "rainbow: 'fun'", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *linkNode = cmark_node_next(cmark_node_next(attributeNode1));
+  INT_EQ(runner, cmark_node_get_type(linkNode), CMARK_NODE_LINK, "markdown '%s' did not produce an link node", markdown);
+  STR_EQ(runner, cmark_node_get_url(linkNode), "https://www.example.com", "markdown '%s' did not produce the right link in footnote", markdown);
+  cmark_node *attributeNode2 = cmark_node_next(cmark_node_next(linkNode));
+  INT_EQ(runner, cmark_node_get_type(attributeNode2), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode2), "universe: 42", "markdown '%s' did not produce the right attribute in footnote", markdown);
+  cmark_node *attributeNode3 = cmark_node_next(cmark_node_next(attributeNode2));
+  INT_EQ(runner, cmark_node_get_type(attributeNode3), CMARK_NODE_ATTRIBUTE, "markdown '%s' did not produce an attribute node", markdown);
+  STR_EQ(runner, cmark_node_get_attributes(attributeNode3), "rainbow: 'fun'", "markdown '%s' did not produce the right attribute in footnote", markdown);
+
+  cmark_node_free(doc);
+}
+
+static void verify_custom_attributes_node_with_footnote(test_batch_runner *runner) {
+  verify_custom_attributes_footnote_basic(runner);
+  verify_custom_attributes_footnote_multiple_footnotes(runner);
+  verify_custom_attributes_footnote_reuse(runner);
+  verify_custom_attributes_footnote_mixed_content(runner);
 }
 
 typedef void (*reentrant_call_func) (void);
@@ -1327,7 +1424,8 @@ int main() {
   ref_source_pos(runner);
   inline_only_opt(runner);
   preserve_whitespace_opt(runner);
-  verify_custome_attributes_node(runner);
+  verify_custom_attributes_node(runner);
+  verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
 
   test_print_summary(runner);

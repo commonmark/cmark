@@ -284,9 +284,10 @@ static bool resolve_reference_link_definitions(
   bufsize_t pos;
   cmark_strbuf *node_content = &b->content;
   cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
-  while (chunk.len && chunk.data[0] == '[' &&
-         (pos = cmark_parse_reference_inline(parser->mem, &chunk,
-					     parser->refmap))) {
+  while ((chunk.len && chunk.data[0] == '[' &&
+            (pos = cmark_parse_reference_inline(parser->mem, &chunk, parser->refmap))) ||
+         (chunk.len && chunk.data[0] == '^' && chunk.data[1] == '[' &&
+            (pos = cmark_parse_reference_attributes_inline(parser->mem, &chunk, parser->refmap)))) {
 
     chunk.data += pos;
     chunk.len -= pos;
