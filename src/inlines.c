@@ -644,9 +644,10 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
+  bool mod_three_rule_invoked;
   int openers_bottom_index = 0;
   delimiter *openers_bottom[6] = {stack_bottom, stack_bottom, stack_bottom,
-                                  stack_bottom, stack_bottom, stack_bottom};
+                                  stack_bottom};
 
   // move back to first relevant delim.
   while (closer != NULL && closer->previous != stack_bottom) {
@@ -667,7 +668,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
         openers_bottom_index = 2;
         break;
       case '*':
-        openers_bottom_index = 3 + (closer->length % 3);
+        openers_bottom_index = 3;
         break;
       default:
         assert(false);
@@ -676,6 +677,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       // Now look backwards for first matching opener:
       opener = closer->previous;
       opener_found = false;
+      mod_three_rule_invoked = false;
       while (opener != NULL && opener != openers_bottom[openers_bottom_index]) {
         if (opener->can_open && opener->delim_char == closer->delim_char) {
           // interior closer of size 2 can't match opener of size 1
@@ -685,7 +687,9 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
               (opener->length + closer->length) % 3 != 0) {
             opener_found = true;
             break;
-          }
+          } else {
+	    mod_three_rule_invoked = true;
+	  }
         }
         opener = opener->previous;
       }
@@ -711,7 +715,12 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       }
       if (!opener_found) {
         // set lower bound for future searches for openers
-        openers_bottom[openers_bottom_index] = old_closer->previous;
+	// unless we failed to match because of the mod 3 rule --
+	// since in that case another closer could still match an
+	// earlier opener (see #383).
+        if (!mod_three_rule_invoked) {
+	  openers_bottom[openers_bottom_index] = old_closer->previous;
+	}
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
