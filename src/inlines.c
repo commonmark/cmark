@@ -643,8 +643,9 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   delimiter *closer = subj->last_delim;
   delimiter *opener;
   delimiter *old_closer;
+  delimiter *new_stack_bottom;
   bool opener_found;
-  bool mod_three_rule_invoked;
+
   int openers_bottom_index = 0;
   delimiter *openers_bottom[6] = {stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom};
@@ -677,7 +678,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       // Now look backwards for first matching opener:
       opener = closer->previous;
       opener_found = false;
-      mod_three_rule_invoked = false;
+      new_stack_bottom = closer->previous;
+
       while (opener != NULL && opener != openers_bottom[openers_bottom_index]) {
         if (opener->can_open && opener->delim_char == closer->delim_char) {
           // interior closer of size 2 can't match opener of size 1
@@ -688,7 +690,11 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
             opener_found = true;
             break;
           } else {
-	    mod_three_rule_invoked = true;
+	    // If we failed to match because of the mod-3 rule,
+	    // then we want to make sure the stack bottom extends
+	    // back to here at least, since a later closer might
+	    // match this same opener... (see #383)
+	    new_stack_bottom = opener->previous;
 	  }
         }
         opener = opener->previous;
@@ -714,13 +720,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
         closer = closer->next;
       }
       if (!opener_found) {
-        // set lower bound for future searches for openers
-	// unless we failed to match because of the mod 3 rule --
-	// since in that case another closer could still match an
-	// earlier opener (see #383).
-        if (!mod_three_rule_invoked) {
-	  openers_bottom[openers_bottom_index] = old_closer->previous;
-	}
+        // set lower bound for future searches for openers (see #383).
+        openers_bottom[openers_bottom_index] = new_stack_bottom;
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
