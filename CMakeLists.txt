@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(cmark VERSION 0.29.0)
+project(cmark VERSION 0.30.0)
 
 include("FindAsan.cmake")
 include(GNUInstallDirs)
