@@ -1,3 +1,198 @@
+[0.30.0]
+
+  * Use official 0.30 spec.txt.
+  * Add `cmark_get_default_mem_allocator()` (#330).  API change: this
+    adds a new exported function in cmark.h.
+  * Fix #383.  An optimization we used for emphasis parsing was
+    too aggressive, causing us to miss some emphasis that was legal
+    according to the spec.  We fix this by indexing the `openers_bottom`
+    table not just by the type of delimiter and the length of the
+    closing delimiter mod 3, but by whether the closing delimiter
+    can also be an opener.  (The algorithm for determining emphasis
+    matching depends on all these factors.)  Add regression test.
+  * Fix quadratic behavior with inline HTML (#299, Nick Wellnhofer).
+    Repeated starting sequences like `<?`, `<!DECL ` or `<![CDATA[` could
+    lead to quadratic behavior if no matching ending sequence was found.
+    Separate the inline HTML scanners. Remember if scanning the whole input
+    for a specific ending sequence failed and skip subsequent scans.
+  * Speed up hierarchy check in tree manipulation API (Nick Wellnhofer).
+    Skip hierarchy check in the common case that the inserted child has
+    no children.
+  * Fix quadratic behavior when parsing inlines (#373, Nick Wellnhofer).
+    The inline parsing code would call `cmark_node_append_child` to append
+    nodes. This public function has a sanity check which is linear in the
+    depth of the tree. Repeated calls could show quadratic behavior in
+    degenerate trees. Use a special function to append nodes without this
+    check.  (Issue found by OSS-Fuzz.)
+  * Replace invalid characters in XML output (#365, Nick wellnhofer).
+    Control characters, U+FFFE and U+FFFF aren't allowed in XML 1.0, so
+    replace them with U+FFFD (replacement character). This doesn't solve
+    the problem how to roundtrip these characters, but at least we don't
+    produce invalid XML.
+  * Avoid quadratic output growth with reference links (#354, Nick Wellnhofer).
+    Keep track of the number bytes added through expansion of reference
+    links and limit the total to the size of the input document. Always
+    allow a minimum of 100KB.  Unfortunately, cmark has no error handling,
+    so all we can do is to stop expanding reference links without returning
+    an error. This should never be an issue in practice though. The 100KB
+    minimum alone should cover all real-world cases.
+  * Fix issue with type-7 HTML blocks interrupting paragraphs
+    (see commonmark/commonmark.js#213).
+  * Treat `textarea` like `script`, `style`, `pre` (type 1 HTML block),
+    in accordance with spec change.
+  * Define whitespace per spec (Asherah Conor).
+  * Add `MAX_INDENT` for xml (#355).  Otherwise we can get quadratic
+    increase in size with deeply nested structures.
+  * Fix handling of empty strings when creating XML/HTML output
+    (Steffen Kieß).
+  * Commonmark renderer: always use fences for code (#317).
+    This solves problems with adjacent code blocks being merged.
+  * Improve rendering of commonmark code spans with spaces (#316).
+  * Cleaner approach to max digits for numeric entities.
+    This modifies unescaping in `houdini_html_u.c` rather than
+    the entity handling in `inlines.c`.  Unlike the other,
+    this approach works also in e.g. link titles.
+  * Fix entity parser (and api test) to respect length limit on
+    numeric entities.
+  * Don't allow link destinations with unbalanced unescaped parentheses.
+    See commonmark/commonmark.js#177.
+  * `print_usage()`: Minor grammar fix, swap two words (#305, Øyvind A. Holm).
+  * Don't call `memcpy` with `NULL` as first parameter.
+    This is illegal according to the C standard, sec. 7.1.4.
+    See <https://www.imperialviolet.org/2016/06/26/nonnull.html>.
+  * Add needed include in `blocks.c`.
+  * Fix unnecessary variable assignment.
+  * Skip UTF-8 BOM if present at beginning of buffer (#334).
+  * Fix URL check in `is_autolink` (Nick Wellnhofer).  In a recent commit,
+    the check was changed to `strcmp`, but we really have to use `strncmp`.
+  * Fix null pointer deref in `is_autolink` (Nick Wellnhofer).
+    Introduced by a recent commit. Found by OSS-Fuzz.
+  * Rearrange struct cmark_node (Nick Wellnhofer).  Introduce multi-purpose
+    data/len members in struct cmark_node. This is mainly used to store
+    literal text for inlines, code and HTML blocks.
+    Move the content strbuf for blocks from `cmark_node` to `cmark_parser`.
+    When finalizing nodes that allow inlines (paragraphs and headings),
+    detach the strbuf and store the block content in the node's data/len
+    members. Free the block content after processing inlines.
+    Reduces size of struct `cmark_node` by 8 bytes.
+  * Improve packing of `struct cmark_list` (Nick Wellnhofer).
+  * Use C string instead of chunk in a number of contexts (Nick Wellnhofer,
+    #309).  The node struct never references memory of other nodes now.
+    Node accessors don't have to check for delayed creation of C strings,
+    so parsing and iterating all literals using the public API should
+    actually be faster than before.  These changes also reduce the size
+    of `struct cmark_node`.
+  * Add casts for MSVC10 (from kivikakk in cmark-cfm).
+  * commonmark renderer:  better escaping in smart mode.  When
+    `CMARK_OPT_SMART` is enabled, we escape literal `-`, `.`, and quote
+    characters when needed to avoid their being "smartified."
+  * Add options field to `cmark_renderer`.
+  * commonmark.c - use `size_t` instead of `int`.
+  * Include `string.h` in `cmark-fuzz.c`.
+  * Fix #220 (hash collisions for references) (Vicent Marti via cmark-gfm).
+    Reimplemented reference storage as follows:
+    1. New references are always inserted at the end of a linked list. This
+    is an O(1) operation, and does not check whether an existing (duplicate)
+    reference with the same label already exists in the document.
+    2. Upon the first call to `cmark_reference_lookup` (when it is expected
+    that no further references will be added to the reference map), the
+    linked list of references is written into a fixed-size array.
+    3. The fixed size array can then be efficiently sorted in-place in O(n
+    log n). This operation only happens once. We perform this sort in a
+    _stable_ manner to ensure that the earliest link reference in the
+    document always has preference, as the spec dictates. To accomplish
+    this, every reference is tagged with a generation number when initially
+    inserted in the linked list.
+    4. The sorted array is then compacted in O(n). Since it was sorted in a
+    stable way, the first reference for each label is preserved and the
+    duplicates are removed, matching the spec.
+    5. We can now simply perform a binary search for the current
+    `cmark_reference_lookup` query in O(log n). Any further lookup calls
+    will also be O(log n), since the sorted references table only needs to
+    be generated once.
+    The resulting implementation is notably simple (as it uses standard
+    library builtins `qsort` and `bsearch`), whilst performing better than
+    the fixed size hash table in documents that have a high number of
+    references and never becoming pathological regardless of the input.
+  * Comment out unused function `cmark_strbuf_cstr` in `buffer.h`.
+  * Re-add `--safe` command-line option as a no-op (#344), for backwards
+    compatibility.
+  * Update to Unicode 13.0
+  * Generate and install cmake-config file (Reinhold Gschweicher).
+    Add full cmake support. The project can either be used with
+    `add_subdirectory` or be installed into the system (or some other
+    directory) and be found with `find_package(cmark)`. In both cases the
+    cmake target `cmark::cmark` and/or `cmark::cmark_static` is all that
+    is needed to be linked.  Previously the `cmarkConfig.cmake` file
+    was generated, but not installed.  As additional bonus of generation
+    by cmake we get a generated `cmake-config-version.cmake` file for
+    `find_package()` to search for the same major version.
+    The generated config file is position independent, allowing the
+    installed directory to be copied or moved and still work.
+    The following four files are generated and installed:
+    `lib/cmake/cmark/cmark-config.cmake`,
+    `lib/cmake/cmark/cmark-config-version.cmake`,
+    `lib/cmake/cmark/cmark-targets.cmake`,
+    `lib/cmake/cmark/cmark-targets-release.cmake`.
+  * Adjust the MinGW paths for MinGW64 (Daniil Baturin).
+  * Fix CMake generator expression checking for MSVC (Nick Wellnhofer).
+  * Fix `-Wconst-qual` warning (Saleem Abdulrasool).  This enables building
+    with `/Zc:strictString` with MSVC as well.
+  * Improve and modernize cmake build (Saleem Abdulrasool).
+    + Build: add exports targets for build tree usage (#307).
+    + Uuse target properties for include paths.
+    + Remove the unnecessary execute permission on CMakeLists.txt.
+    + Reduce property computation in CMake.
+    + Use `CMAKE_INCLUDE_CURRENT_DIRECTORY`.
+    + Improve man page installation.
+    + Only include `GNUInstallDirs` once.
+    + Replace `add_compile_definitions` with `add_compile_options`
+      since the former was introduced in 3.12 (#321).
+    + Cleanup CMake (#319).
+    + Inline a variable.
+    + Use `LINKER_LANGUAGE` property for C++ runtime.
+    + Use CMake to control C standard.
+    + Use the correct variable.
+    + Loosen the compiler check
+    + Hoist shared flags to top-level CMakeLists
+    + Remove duplicated flags.
+    + Use `add_compile_options` rather than modify `CMAKE_C_FLAGS`.
+    + Hoist sanitizer flags to global state.
+    + Hoist `-fvisibilty` flags to top-level.
+    + Hoist the debug flag handling.
+    + Hoist the profile flag handling.
+    + Remove incorrect variable handling.
+    + Remove unused CMake includes.
+  * Remove "-rdynamic" flag for static builds (#300, Eric Pruitt).
+  * Fixed installation on other than Ubuntu GNU/Linux distributions
+    (Vitaly Zaitsev).
+  * Link executable with static or shared library (Nick Wellnhofer).
+    If `CMARK_STATIC` is on (default), link the executable with the static
+    library. This produces exactly the same result as compiling the library
+    sources again and linking with the object files.
+    If `CMARK_STATIC` is off, link the executable with the shared library.
+    This wasn't supported before and should be the preferred way to
+    package cmark on Linux distros.
+    Building only a shared library and a statically linked executable
+    isn't supported anymore but this doesn't seem useful.
+  * Reintroduce version check for MSVC /TP flag (Nick Wellnhofer).
+    The flag is only required for old MSVC versions.
+  * normalize.py: use `html.escape` instead of `cgi.escape` (#313).
+  * Fix pathological_tests.py on Windows (Nick Wellnhofer).
+    When using multiprocessing on Windows, the main program must be
+    guarded with a `__name__` check.
+  * Remove useless `__name__` check in test scripts (Nick Wellnhofer).
+  * Add CIFuzz (Leo Neat).
+  * cmark.1 - Document --unsafe instead of --safe (#332).
+  * cmark.1: remove docs for `--normalize` which no longer exists (#332).
+  * Add lint target to Makefile.
+  * Add uninstall target to Makefile.
+  * Update benchmarks (#338).
+  * Fix typo in documentation (Tim Gates).
+  * Increase timeout for pathological tests to avoid CI failure.
+  * Update the Racket wrapper with the safe -> unsafe flag change (Eli
+    Barzilay).
+
 [0.29.0]
 
   * Update spec to 0.29.
