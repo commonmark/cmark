@@ -56,11 +56,15 @@ IF (PYTHONINTERP_FOUND)
   endif()
 
   add_test(spectest_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
 
   add_test(smartpuncttest_executable
-    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize" "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt" "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
+    ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py" "--no-normalize"
+    "--spec" "${CMAKE_CURRENT_SOURCE_DIR}/smart_punct.txt"
+    "--program" "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark --smart"
     )
 
   add_test(regressiontest_executable
@@ -70,11 +74,9 @@ IF (PYTHONINTERP_FOUND)
     "${CMAKE_CURRENT_BINARY_DIR}/../src/cmark"
     )
 
-ELSE(PYTHONINTERP_FOUND)
-
+else()
   message("\n*** A python 3 interpreter is required to run the spec tests.\n")
   add_test(skipping_spectests
     echo "Skipping spec tests, because no python 3 interpreter is available.")
-
-ENDIF(PYTHONINTERP_FOUND)
+endif()
 

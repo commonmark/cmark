@@ -4,8 +4,5 @@ add_executable(api_test
   harness.h
   main.c
 )
-if(CMARK_SHARED)
-  target_link_libraries(api_test cmark)
-else()
-  target_link_libraries(api_test cmark_static)
-endif()
+
+target_link_libraries(api_test cmark::cmark)
