@@ -4,6 +4,7 @@ add_executable(api_test
   harness.h
   main.c
 )
+cmark_add_compile_options(api_test)
 if(CMARK_SHARED)
   target_link_libraries(api_test cmark)
 else()

@@ -53,6 +53,7 @@ include(GNUInstallDirs)
 include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
+cmark_add_compile_options(${PROGRAM})
 set_target_properties(${PROGRAM} PROPERTIES
   OUTPUT_NAME "cmark")
 
@@ -71,6 +72,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+  cmark_add_compile_options(${LIBRARY})
   set_target_properties(${LIBRARY} PROPERTIES
     MACOSX_RPATH TRUE
     OUTPUT_NAME "cmark"
@@ -93,6 +95,7 @@ endif()
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+  cmark_add_compile_options(${STATICLIBRARY})
   set_target_properties(${STATICLIBRARY} PROPERTIES
     COMPILE_FLAGS -DCMARK_STATIC_DEFINE
     OUTPUT_NAME "cmark$<$<BOOL:${MSVC}>:_static>"
@@ -188,6 +191,7 @@ CONFIGURE_FILE(
 
 if(CMARK_LIB_FUZZER)
   add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
+  cmark_add_compile_options(cmark-fuzz)
   target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
