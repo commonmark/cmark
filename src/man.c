@@ -85,6 +85,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_BLOCK_QUOTE:
+  case CMARK_NODE_LIST:
     if (entering) {
       CR();
       LIT(".RS");
@@ -94,9 +95,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT(".RE");
       CR();
     }
-    break;
-
-  case CMARK_NODE_LIST:
     break;
 
   case CMARK_NODE_ITEM:

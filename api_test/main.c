@@ -605,6 +605,7 @@ static void render_man(test_batch_runner *runner) {
   man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 20);
   STR_EQ(runner, man, ".PP\n"
                       "foo \\f[I]bar\\f[]\n"
+                      ".RS\n"
                       ".IP \\[bu] 2\n"
                       "Lorem ipsum dolor\n"
                       "sit amet,\n"
@@ -614,18 +615,21 @@ static void render_man(test_batch_runner *runner) {
                       "sed do eiusmod\n"
                       "tempor incididunt ut\n"
                       "labore et dolore\n"
-                      "magna aliqua.\n",
+                      "magna aliqua.\n"
+                      ".RE\n",
          "render document with wrapping");
   free(man);
   man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 0);
   STR_EQ(runner, man, ".PP\n"
                       "foo \\f[I]bar\\f[]\n"
+                      ".RS\n"
                       ".IP \\[bu] 2\n"
                       "Lorem ipsum dolor sit amet,\n"
                       "consectetur adipiscing elit,\n"
                       ".IP \\[bu] 2\n"
                       "sed do eiusmod tempor incididunt\n"
-                      "ut labore et dolore magna aliqua.\n",
+                      "ut labore et dolore magna aliqua.\n"
+                      ".RE\n",
          "render document without wrapping");
   free(man);
   cmark_node_free(doc);
