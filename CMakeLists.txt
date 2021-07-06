@@ -28,33 +28,34 @@ if(CMARK_STATIC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 endif()
 
-# Compiler flags
-if(MSVC)
-  # Force to always compile with W4
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:/W4>)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:/wd4706>)
-  # Compile as C++ under MSVC older than 12.0
-  if(MSVC_VERSION LESS 1800)
-    add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
-  endif()
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:/D_CRT_SECURE_NO_WARNINGS>)
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES Clang)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wall>)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wextra>)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-pedantic>)
-endif()
-
 # Check integrity of node structure when compiled as debug
 add_compile_options($<$<CONFIG:Debug>:-DCMARK_DEBUG_NODES>)
 
-add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
-
-if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
-endif()
-if(CMARK_LIB_FUZZER)
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize-coverage=trace-pc-guard>)
-endif()
+# In order to maintain compatibility with older platforms which may not have a
+# recent version of CMake (i.e. are running CMake <3.3), we cannot simply use
+# the `add_compile_options` with a generator expression.  This uses the
+# `target_compile_options` with `PRIVATE` to add the flags only to the targets
+# so that CMark may be used in projects with non-C languages.
+function(cmark_add_compile_options target)
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4 /wd4706)
+    if(MSVC_VERSION LESS 1800)
+      target_compile_options(${target} PRIVATE /TP)
+    endif()
+    target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
+  else()
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
+  endif()
+  if(CMAKE_BUILD_TYPE MATCHES profile)
+    target_compile_options(${target} PRIVATE -pg)
+  endif()
+  if(CMAKE_BUILD_TYPE MATCHES ubsan)
+    target_compile_options(${target} PRIVATE -fsanitize=undefined)
+  endif()
+  if(CMARK_LIB_FUZZER)
+    target_compile_options(${target} PRIVATE -fsanitize-coverage=trace-pc-guard)
+  endif()
+endfunction()
 
 add_subdirectory(src)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
