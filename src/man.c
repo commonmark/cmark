@@ -16,6 +16,9 @@
 #define BLANKLINE() renderer->blankline(renderer)
 #define LIST_NUMBER_SIZE 20
 
+// Variable to check how many list levels we are in.
+int LIST_LEVEL = 0;
+
 // Functions to convert cmark_nodes to groff man strings.
 static void S_outc(cmark_renderer *renderer, cmark_escaping escape, int32_t c,
                    unsigned char nextc) {
@@ -85,7 +88,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_BLOCK_QUOTE:
-  case CMARK_NODE_LIST:
     if (entering) {
       CR();
       LIT(".RS");
@@ -93,6 +95,20 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     } else {
       CR();
       LIT(".RE");
+      CR();
+    }
+    break;
+
+  case CMARK_NODE_LIST:
+    if (entering) {
+      CR();
+      LIT(".RS");
+      ++LIST_LEVEL;
+      CR();
+    } else {
+      CR();
+      LIT(".RE");
+      --LIST_LEVEL;
       CR();
     }
     break;
@@ -156,18 +172,29 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_PARAGRAPH:
+    // Check if this is the first paragraph in the list.
+    // Note that the ';' is needed to declare a new var.
+    ; int first_par = node->parent
+      && node->parent->type == CMARK_NODE_ITEM
+      && node->prev == NULL;
+
     if (entering) {
       // no blank line if first paragraph in list:
-      if (node->parent && node->parent->type == CMARK_NODE_ITEM &&
-          node->prev == NULL) {
+      if (first_par) {
         // no blank line or .PP
       } else {
         CR();
+        if (LIST_LEVEL) { LIT(".RS\n"); }
         LIT(".PP");
         CR();
       }
     } else {
-      CR();
+      if (first_par) {
+        CR();
+      } else {
+        if (LIST_LEVEL) { LIT("\n.RE"); }
+        CR();
+      }
     }
     break;
 
