@@ -33,6 +33,7 @@ typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
   cmark_node *inl_text;
+  bufsize_t position;
   bufsize_t length;
   unsigned char delim_char;
   bool can_open;
@@ -41,7 +42,6 @@ typedef struct delimiter {
 
 typedef struct bracket {
   struct bracket *previous;
-  struct delimiter *previous_delimiter;
   cmark_node *inl_text;
   bufsize_t position;
   bool image;
@@ -529,6 +529,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   delim->can_open = can_open;
   delim->can_close = can_close;
   delim->inl_text = inl_text;
+  delim->position = subj->pos;
   delim->length = inl_text->len;
   delim->previous = subj->last_delim;
   delim->next = NULL;
@@ -547,7 +548,6 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   b->active = true;
   b->inl_text = inl_text;
   b->previous = subj->last_bracket;
-  b->previous_delimiter = subj->last_delim;
   b->position = subj->pos;
   b->bracket_after = false;
   subj->last_bracket = b;
@@ -639,18 +639,20 @@ static cmark_node *handle_period(subject *subj, bool smart) {
   }
 }
 
-static void process_emphasis(subject *subj, delimiter *stack_bottom) {
+static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   delimiter *closer = subj->last_delim;
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
   int openers_bottom_index = 0;
-  delimiter *openers_bottom[9] = {stack_bottom, stack_bottom, stack_bottom,
-                                  stack_bottom, stack_bottom, stack_bottom,
-                                  stack_bottom, stack_bottom, stack_bottom};
+  bufsize_t openers_bottom[9] = {stack_bottom, stack_bottom, stack_bottom,
+                                 stack_bottom, stack_bottom, stack_bottom,
+                                 stack_bottom, stack_bottom, stack_bottom};
 
   // move back to first relevant delim.
-  while (closer != NULL && closer->previous != stack_bottom) {
+  while (closer != NULL &&
+         closer->previous != NULL &&
+         closer->previous->position >= stack_bottom) {
     closer = closer->previous;
   }
 
@@ -678,7 +680,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       // Now look backwards for first matching opener:
       opener = closer->previous;
       opener_found = false;
-      while (opener != NULL && opener != openers_bottom[openers_bottom_index]) {
+      while (opener != NULL &&
+             opener->position >= openers_bottom[openers_bottom_index]) {
         if (opener->can_open && opener->delim_char == closer->delim_char) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
@@ -717,7 +720,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
       }
       if (!opener_found) {
         // set lower bound for future searches for openers
-        openers_bottom[openers_bottom_index] = old_closer->previous;
+        openers_bottom[openers_bottom_index] = old_closer->position;
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
@@ -730,7 +733,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
     }
   }
   // free all delimiters in list until stack_bottom:
-  while (subj->last_delim != NULL && subj->last_delim != stack_bottom) {
+  while (subj->last_delim != NULL &&
+         subj->last_delim->position >= stack_bottom) {
     remove_delimiter(subj, subj->last_delim);
   }
 }
@@ -1205,7 +1209,7 @@ match:
   // Free the bracket [:
   cmark_node_free(opener->inl_text);
 
-  process_emphasis(subj, opener->previous_delimiter);
+  process_emphasis(subj, opener->position);
   pop_bracket(subj);
 
   // Now, if we have a link, we also want to deactivate earlier link
@@ -1383,7 +1387,7 @@ void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))
     ;
 
-  process_emphasis(&subj, NULL);
+  process_emphasis(&subj, 0);
   // free bracket and delim stack
   while (subj.last_delim) {
     remove_delimiter(&subj, subj.last_delim);
