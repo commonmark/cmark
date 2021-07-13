@@ -696,22 +696,24 @@ static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *sta
         } else {
           closer = closer->next;
         }
-      } else if (closer->delim_char == '\'') {
+      } else if (closer->delim_char == '\'' || closer->delim_char == '"') {
         cmark_chunk_free(subj->mem, &closer->inl_text->as.literal);
-        closer->inl_text->as.literal = cmark_chunk_literal(RIGHTSINGLEQUOTE);
-        if (opener_found) {
-          cmark_chunk_free(subj->mem, &opener->inl_text->as.literal);
-          opener->inl_text->as.literal = cmark_chunk_literal(LEFTSINGLEQUOTE);
+        if (closer->delim_char == '\'') {
+          closer->inl_text->as.literal = cmark_chunk_literal(RIGHTSINGLEQUOTE);
+        } else {
+          closer->inl_text->as.literal = cmark_chunk_literal(RIGHTDOUBLEQUOTE);
         }
         closer = closer->next;
-      } else if (closer->delim_char == '"') {
-        cmark_chunk_free(subj->mem, &closer->inl_text->as.literal);
-        closer->inl_text->as.literal = cmark_chunk_literal(RIGHTDOUBLEQUOTE);
         if (opener_found) {
           cmark_chunk_free(subj->mem, &opener->inl_text->as.literal);
-          opener->inl_text->as.literal = cmark_chunk_literal(LEFTDOUBLEQUOTE);
+          if (old_closer->delim_char == '\'') {
+            opener->inl_text->as.literal = cmark_chunk_literal(LEFTSINGLEQUOTE);
+          } else {
+            opener->inl_text->as.literal = cmark_chunk_literal(LEFTDOUBLEQUOTE);
+          }
+          remove_delimiter(subj, opener);
+          remove_delimiter(subj, old_closer);
         }
-        closer = closer->next;
       }
       if (!opener_found) {
         // set lower bound for future searches for openers
