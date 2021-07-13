@@ -114,6 +114,7 @@ typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
   cmark_node *inl_text;
+  bufsize_t position;
   bufsize_t length;
   unsigned char delim_char;
   int can_open;
