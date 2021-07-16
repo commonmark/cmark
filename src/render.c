@@ -163,9 +163,10 @@ char *cmark_render(cmark_node *root, int options, int width,
   cmark_iter *iter = cmark_iter_new(root);
 
   cmark_renderer renderer = {options,
-	                     mem,   &buf, &pref, 0,           width,
-                             0,     0,    true,  true,        false,
-                             false, outc, S_cr,  S_blankline, S_out};
+	                     mem,    &buf,    &pref,      0,      width,
+                             0,      0,       true,       true,   false,
+                             false,  NULL,
+			     outc,   S_cr,    S_blankline, S_out};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);

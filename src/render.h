@@ -10,6 +10,11 @@ extern "C" {
 
 typedef enum { LITERAL, NORMAL, TITLE, URL } cmark_escaping;
 
+struct block_number {
+  int number;
+  struct block_number *parent;
+};
+
 struct cmark_renderer {
   int options;
   cmark_mem *mem;
@@ -23,6 +28,7 @@ struct cmark_renderer {
   bool begin_content;
   bool no_linebreaks;
   bool in_tight_list_item;
+  struct block_number *block_number_in_list_item;
   void (*outc)(struct cmark_renderer *, cmark_escaping, int32_t, unsigned char);
   void (*cr)(struct cmark_renderer *);
   void (*blankline)(struct cmark_renderer *);
