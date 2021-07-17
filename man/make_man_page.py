@@ -23,7 +23,7 @@ curdir = os.getcwd()
 if sysname == 'Darwin':
     cmark = CDLL(curdir + "/build/src/libcmark.dylib")
 else:
-    cmark = CDLL(curdir + "=build/src/libcmark.so")
+    cmark = CDLL(curdir + "/build/src/libcmark.so")
 
 parse_document = cmark.cmark_parse_document
 parse_document.restype = c_void_p
