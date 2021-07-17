@@ -238,7 +238,7 @@ static bool resolve_reference_link_definitions(cmark_parser *parser) {
   cmark_chunk chunk = {node_content->ptr, node_content->size};
   while (chunk.len && chunk.data[0] == '[' &&
          (pos = cmark_parse_reference_inline(parser->mem, &chunk,
-					     parser->refmap))) {
+                                             parser->refmap))) {
 
     chunk.data += pos;
     chunk.len -= pos;
@@ -1014,7 +1014,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented && ((matched = scan_html_block_start(
                                   input, parser->first_nonspace)) ||
                              (cont_type != CMARK_NODE_PARAGRAPH &&
-			      !maybe_lazy &&
+                              !maybe_lazy &&
                               (matched = scan_html_block_start_7(
                                    input, parser->first_nonspace))))) {
       *container = add_child(parser, *container, CMARK_NODE_HTML_BLOCK,
@@ -1037,14 +1037,14 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       }
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
-	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
+               (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
                S_scan_thematic_break(parser, input, parser->first_nonspace)) {
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
-	       parser->indent < 4 &&
+               parser->indent < 4 &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
                     (*container)->type == CMARK_NODE_PARAGRAPH, &data))) {

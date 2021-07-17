@@ -178,7 +178,7 @@ static void accessors(test_batch_runner *runner) {
      "set_literal suffix");
 
   char *rendered_html = cmark_render_html(doc,
-		          CMARK_OPT_DEFAULT | CMARK_OPT_UNSAFE);
+                          CMARK_OPT_DEFAULT | CMARK_OPT_UNSAFE);
   static const char expected_html[] =
       "<h3>Header</h3>\n"
       "<ol start=\"3\">\n"

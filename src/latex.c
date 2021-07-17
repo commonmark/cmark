@@ -265,7 +265,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
           case 4: LIT("iv"); break;
           case 5: LIT("v"); break;
           default: LIT("i"); break;
-	  }
+          }
           LIT("}{");
           OUT(list_number_string, false, NORMAL);
           LIT("}");

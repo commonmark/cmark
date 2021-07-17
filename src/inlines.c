@@ -363,7 +363,7 @@ static void S_normalize_code(cmark_strbuf *s) {
     switch (s->ptr[r]) {
     case '\r':
       if (s->ptr[r + 1] != '\n') {
-	s->ptr[w++] = ' ';
+        s->ptr[w++] = ' ';
       }
       break;
     case '\n':
@@ -671,7 +671,7 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
         break;
       case '*':
         openers_bottom_index = 3 +
-		(closer->can_open ? 3 : 0) + (closer->length % 3);
+                (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       default:
         assert(false);
@@ -686,7 +686,7 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
           if (!(closer->can_open || opener->can_close) ||
-	      closer->length % 3 == 0 ||
+              closer->length % 3 == 0 ||
               (opener->length + closer->length) % 3 != 0) {
             opener_found = true;
             break;

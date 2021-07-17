@@ -75,7 +75,7 @@ bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
     }
 
     if (num_digits >= 1 && num_digits <= max_digits &&
-		    i < size && src[i] == ';') {
+                    i < size && src[i] == ';') {
       if (codepoint == 0 || (codepoint >= 0xD800 && codepoint < 0xE000) ||
           codepoint >= 0x110000) {
         codepoint = 0xFFFD;

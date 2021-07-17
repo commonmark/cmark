@@ -138,7 +138,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       CR();
     } else {
       if (renderer->block_number_in_list_item) {
-	if (renderer->block_number_in_list_item->number >= 2) {
+        if (renderer->block_number_in_list_item->number >= 2) {
           CR();
           LIT(".RE"); // de-indent
         }
