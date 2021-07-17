@@ -1,3 +1,30 @@
+[0.30.1]
+
+  * Properly indent block-level contents of list items in man (#258).
+    This handles nested lists as well as items with multiple paragraphs.
+    The change requires addition of a new field block_number_in_list_item
+    to cmark_renderer, but this does not change the public API.
+  * Fix quadratic behavior when parsing emphasis (#389, Nick
+    Wellnhofer).  Delimiters can be deleted, so store delimiter positions
+    instead of pointers in `openers_bottom`. Besides causing undefined
+    behavior when reading a dangling pointer, this could also result
+    in quadratic behavior when parsing emphasis.
+  * Fix quadratic behavior when parsing smart quotes (#388, Nick Wellnhofer).
+    Remove matching smart quote delimiters.  Otherwise, the same opener
+    could be found over and over, preventing the `openers_bottom`
+    optimization from kicking in and leading to quadratic behavior when
+    processing lots of quotes.
+  * Modify CMake configuration so that the project can be built with
+    older versions of CMake (#384, Saleem Abdulrasool).  (In 0.30.0,
+    some features were used that require CMake >= 3.3.) The cost of this
+    backwards compatibility is that developers must now explicitly invoke
+    `cmark_add_compile_options` when a new compilation target is added.
+  * Remove a comma at the end of an enumerator list, which was flagged
+    by clang as a C++11 extension.
+  * make_man_page.py: use absolute path with CDLL. This avoids the error
+    "file system relative paths not allowed in hardened programs."
+  * Include cmark version in cmark(3) man page (instead of LOCAL).
+
 [0.30.0]
 
   * Use official 0.30 spec.txt.
