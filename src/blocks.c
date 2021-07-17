@@ -1038,7 +1038,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
 	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
-               (matched = S_scan_thematic_break(parser, input, parser->first_nonspace))) {
+               S_scan_thematic_break(parser, input, parser->first_nonspace)) {
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
