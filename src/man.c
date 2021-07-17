@@ -137,14 +137,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       }
       CR();
     } else {
-      if (renderer->block_number_in_list_item->number >= 2) {
-        CR();
-        LIT(".RE"); // de-indent
+      if (renderer->block_number_in_list_item) {
+	if (renderer->block_number_in_list_item->number >= 2) {
+          CR();
+          LIT(".RE"); // de-indent
+        }
+        new_block_number = renderer->block_number_in_list_item;
+        renderer->block_number_in_list_item =
+          renderer->block_number_in_list_item->parent;
+        allocator->free(new_block_number);
       }
-      new_block_number = renderer->block_number_in_list_item;
-      renderer->block_number_in_list_item =
-        renderer->block_number_in_list_item->parent;
-      allocator->free(new_block_number);
       CR();
     }
     break;
