@@ -33,6 +33,10 @@ render_man = cmark.cmark_render_man
 render_man.restype = c_char_p
 render_man.argtypes = [c_void_p, c_long, c_long]
 
+cmark_version_string = cmark.cmark_version_string
+cmark_version_string.restype = c_char_p
+cmark_version_string.argtypes = []
+
 def md2man(text):
     if sys.version_info >= (3,0):
         textbytes = text.encode('utf-8')
@@ -129,5 +133,5 @@ with open(sourcefile, 'r') as cmarkh:
             chunk = []
             mdlines.append('\n')
 
-sys.stdout.write('.TH ' + os.path.basename(sourcefile).replace('.h','') + ' 3 "' + date.today().strftime('%B %d, %Y') + '" "LOCAL" "Library Functions Manual"\n')
+sys.stdout.write('.TH ' + os.path.basename(sourcefile).replace('.h','') + ' 3 "' + date.today().strftime('%B %d, %Y') + '" "cmark ' + cmark_version_string().decode('utf-8') + '" "Library Functions Manual"\n')
 sys.stdout.write(''.join(mdlines))
