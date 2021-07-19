@@ -536,6 +536,12 @@ char *cmark_render_commonmark(cmark_node *root, int options, int width);
 CMARK_EXPORT
 char *cmark_render_latex(cmark_node *root, int options, int width);
 
+/** Render a 'node' tree as a groff mom document.
+ * It is the caller's responsibility to free the returned buffer.
+ */
+CMARK_EXPORT
+char *cmark_render_mom(cmark_node *root, int options, int width);
+
 /**
  * ## Options
  */
