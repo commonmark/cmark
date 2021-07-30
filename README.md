@@ -9,6 +9,8 @@ cmark-gfm
 repository adds GitHub Flavored Markdown extensions to
 [the upstream implementation], as defined in [the spec].
 
+Our plan is to take the changes into this repository as the upstream project evolve.
+
 The rest of the README is preserved as-is from the upstream source.  Note that
 the library and binaries produced by this fork are suffixed with `-gfm` in
 order to distinguish them from the upstream.
