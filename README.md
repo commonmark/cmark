@@ -1,19 +1,23 @@
 cmark-gfm
 =========
 
-[![Build Status]](https://travis-ci.org/github/cmark-gfm)
-[![Windows Build Status]](https://ci.appveyor.com/project/github/cmark)
-
 `cmark-gfm` is an extended version of the C reference implementation of
 [CommonMark], a rationalized version of Markdown syntax with a spec.  This
 repository adds GitHub Flavored Markdown extensions to
 [the upstream implementation], as defined in [the spec].
 
-Our plan is to take the changes into this repository as the upstream project evolve.
+Changes upstream in `cmark` will be pulled into this `cmark-gfm` project repository
+as the upstream project evolves. The original `cmark` repository can be found here:
+<https://github.com/commonmark/cmark>.
 
 The rest of the README is preserved as-is from the upstream source.  Note that
 the library and binaries produced by this fork are suffixed with `-gfm` in
 order to distinguish them from the upstream.
+
+## License
+
+The original `cmark` code is released under a BSD2 license. This same license
+applies to the Swift code included in this `cmark-gfm` repository.
 
 ---
 
