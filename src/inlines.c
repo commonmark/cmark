@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include "cmark_ctype.h"
 #include "cmark-gfm_config.h"
@@ -64,7 +65,7 @@ typedef struct subject{
 } subject;
 
 // Extensions may populate this.
-static int8_t SKIP_CHARS[256];
+static _Atomic int8_t SKIP_CHARS[256];
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
@@ -1321,7 +1322,7 @@ static cmark_node *handle_newline(subject *subj) {
 }
 
 // "\r\n\\`&_*[]<!"
-static int8_t SPECIAL_CHARS[256] = {
+static _Atomic int8_t SPECIAL_CHARS[256] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1349,6 +1350,8 @@ static char SMART_PUNCT_CHARS[] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+pthread_mutex_t chars_lock;
+
 static bufsize_t subject_find_special_char(subject *subj, int options) {
   bufsize_t n = subj->pos + 1;
 
@@ -1364,15 +1367,19 @@ static bufsize_t subject_find_special_char(subject *subj, int options) {
 }
 
 void cmark_inlines_add_special_character(unsigned char c, bool emphasis) {
+  pthread_mutex_lock(&chars_lock);
   SPECIAL_CHARS[c] = 1;
   if (emphasis)
     SKIP_CHARS[c] = 1;
+  pthread_mutex_unlock(&chars_lock);
 }
 
 void cmark_inlines_remove_special_character(unsigned char c, bool emphasis) {
+  pthread_mutex_lock(&chars_lock);
   SPECIAL_CHARS[c] = 0;
   if (emphasis)
     SKIP_CHARS[c] = 0;
+  pthread_mutex_unlock(&chars_lock);
 }
 
 static cmark_node *try_extensions(cmark_parser *parser,
