@@ -3,25 +3,6 @@ name: CI tests
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-
-  linter:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - uses: actions/checkout@v1
-    - name: Install clang-tidy
-      run: |
-        sudo apt-get install -y clang-tidy-9
-        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 100
-    - name: lint with clang-tidy
-      run: |
-        make lint
-      env:
-        CC: clang
-        CXX: clang++
-
   linux:
 
     runs-on: ubuntu-latest
