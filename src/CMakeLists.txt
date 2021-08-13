@@ -98,9 +98,15 @@ if (CMARK_STATIC)
   cmark_add_compile_options(${STATICLIBRARY})
   set_target_properties(${STATICLIBRARY} PROPERTIES
     COMPILE_FLAGS -DCMARK_STATIC_DEFINE
-    OUTPUT_NAME "cmark$<$<BOOL:${MSVC}>:_static>"
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION})
+  if(MSVC)
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME cmark_static)
+  else()
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME cmark)
+  endif()
   target_include_directories(${STATICLIBRARY} INTERFACE
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
