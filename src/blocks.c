@@ -485,6 +485,17 @@ static void process_footnotes(cmark_parser *parser) {
         if (!footnote->ix)
           footnote->ix = ++ix;
 
+        // keep track of a) how many times this footnote def has been
+        // referenced, and b) which reference count this footnote ref is at
+        // this is used by renderers when generating links and backreferences.
+        cur->footnote.ix = ++footnote->node->footnote.count;
+
+        // store the footnote reference text label in the footnote ref's node's
+        // `user_data`, so that renderers can use the label when generating
+        // links and backreferences.
+        cur->user_data = parser->mem->calloc(1, (sizeof(char) * cur->as.literal.len) + 1);
+        memmove(cur->user_data, cur->as.literal.data, cur->as.literal.len);
+
         char n[32];
         snprintf(n, sizeof(n), "%d", footnote->ix);
         cmark_chunk_free(parser->mem, &cur->as.literal);
