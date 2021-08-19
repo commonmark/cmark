@@ -702,6 +702,26 @@ Hi!
 </section>
 ````````````````````````````````
 
+## When a footnote is used multiple times, we insert multiple backrefs.
+
+```````````````````````````````` example
+This is some text. It has a footnote[^a-footnote].
+
+This footnote is referenced[^a-footnote] multiple times, in lots of different places.[^a-footnote]
+
+[^a-footnote]: This footnote definition should have three backrefs.
+.
+<p>This is some text. It has a footnote<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote">1</a></sup>.</p>
+<p>This footnote is referenced<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote:2">1</a></sup> multiple times, in lots of different places.<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote:3">1</a></sup></p>
+<section class="footnotes">
+<ol>
+<li id="fn:a-footnote">
+<p>This footnote definition should have three backrefs. <a href="#fnref:a-footnote" class="footnote-backref">↩</a> <a href="#fnref:a-footnote:2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref:a-footnote:3" class="footnote-backref">↩<sup class="footnote-ref">3</sup></a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
+
 ## Interop
 
 Autolink and strikethrough.
