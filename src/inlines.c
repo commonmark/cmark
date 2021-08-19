@@ -1141,6 +1141,13 @@ noMatch:
       !opener->inl_text->next->next) {
     cmark_chunk *literal = &opener->inl_text->next->as.literal;
     if (literal->len > 1 && literal->data[0] == '^') {
+
+      // Before we got this far, the `handle_close_bracket` function may have
+      // advanced the current state beyond our footnote's actual closing
+      // bracket, ie if it went looking for a `link_label`.
+      // Let's just rewind the subject's position:
+      subj->pos = initial_pos;
+
       inl = make_simple(subj->mem, CMARK_NODE_FOOTNOTE_REFERENCE);
       inl->as.literal = cmark_chunk_dup(literal, 1, literal->len - 1);
       inl->start_line = inl->end_line = subj->line;
