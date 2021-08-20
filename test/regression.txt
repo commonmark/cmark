@@ -313,3 +313,28 @@ This is some text. It has two footnotes references, side-by-side without any spa
 </ol>
 </section>
 ````````````````````````````````
+
+Footnotes may begin with or have a 'w' or a '_' in their reference label.
+
+```````````````````````````````` example footnotes autolink
+This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a `w`.[^widely-cited]
+
+It has another footnote that contains many different characters (the autolinker was also breaking on `_`).[^sphinx-of-black-quartz_judge-my-vow-0123456789]
+
+[^sphinx-of-black-quartz_judge-my-vow-0123456789]: so does this.
+
+[^widely-cited]: this renders properly.
+.
+<p>This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a <code>w</code>.<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+<p>It has another footnote that contains many different characters (the autolinker was also breaking on <code>_</code>).<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></p>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>this renders properly. <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<p>so does this. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
