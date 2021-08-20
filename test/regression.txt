@@ -269,3 +269,26 @@ Pull request #128 - Buffer overread in tables extension
 <p>|
 -|</p>
 ````````````````````````````````
+
+Footnotes may be nested inside other footnotes.
+
+
+```````````````````````````````` example footnotes
+This is some text. It has a citation.[^citation]
+
+[^another-citation]: My second citation.
+
+[^citation]: This is a long winded parapgraph that also has another citation.[^another-citation]
+.
+<p>This is some text. It has a citation.<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup> <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<p>My second citation. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
