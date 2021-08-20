@@ -269,3 +269,25 @@ Pull request #128 - Buffer overread in tables extension
 <p>|
 -|</p>
 ````````````````````````````````
+
+## Footnotes are similar to, but should not be confused with, link references
+
+```````````````````````````````` example footnotes
+This is some text. It has two footnotes references, side-by-side without any spaces,[^footnote1][^footnote2] which are definitely not link references.
+
+[^footnote1]: Hello.
+
+[^footnote2]: Goodbye.
+.
+<p>This is some text. It has two footnotes references, side-by-side without any spaces,<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup><sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup> which are definitely not link references.</p>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>Hello. <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<p>Goodbye. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
