@@ -175,7 +175,7 @@ A footnote in a paragraph[^1]
 
 [^1]: a footnote
 .
-<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn:1" id="fnref:1">1</a></sup></p>
 <table>
 <thead>
 <tr>
@@ -185,15 +185,15 @@ A footnote in a paragraph[^1]
 </thead>
 <tbody>
 <tr>
-<td>foot <sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></td>
+<td>foot <sup class="footnote-ref"><a href="#fn:1" id="fnref:1:2">1</a></sup></td>
 <td>note</td>
 </tr>
 </tbody>
 </table>
 <section class="footnotes">
 <ol>
-<li id="fn1">
-<p>a footnote <a href="#fnref1" class="footnote-backref">↩</a></p>
+<li id="fn:1">
+<p>a footnote <a href="#fnref:1" class="footnote-backref">↩</a> <a href="#fnref:1:2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a></p>
 </li>
 </ol>
 </section>
