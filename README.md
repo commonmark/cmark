@@ -1,6 +1,8 @@
 cmark-gfm
 =========
 
+![Actions CI](https://github.com/github/cmark-gfm/actions/workflows/ci.yml/badge.svg)
+
 `cmark-gfm` is an extended version of the C reference implementation of
 [CommonMark], a rationalized version of Markdown syntax with a spec.  This
 repository adds GitHub Flavored Markdown extensions to
