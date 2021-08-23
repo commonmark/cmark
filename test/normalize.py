@@ -14,7 +14,6 @@ except ImportError:
 from html.entities import name2codepoint
 import sys
 import re
-import cgi
 
 # Normalization code, adapted from
 # https://github.com/karlcow/markdown-testsuite/
