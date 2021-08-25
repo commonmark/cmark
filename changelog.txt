@@ -1,3 +1,8 @@
+[0.29.0.gfm.1]
+
+  * Fixed denial of service bug in GFM's table extension
+    per https://github.com/github/cmark-gfm/security/advisories/GHSA-7gc6-9qr5-hc85
+
 [0.29.0]
 
   * Update spec to 0.29.
