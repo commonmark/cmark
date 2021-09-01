@@ -484,10 +484,10 @@ static void process_footnotes(cmark_parser *parser) {
         if (!footnote->ix)
           footnote->ix = ++ix;
 
-        // keep track of a) how many times this footnote def has been
-        // referenced, and b) which reference count this footnote ref is at
+        // keep track of a) count of how many times this footnote def has been
+        // referenced, and b) which reference index this footnote ref is at.
         // this is used by renderers when generating links and backreferences.
-        cur->footnote.ix = ++footnote->node->footnote.count;
+        cur->footnote.ref_ix = ++footnote->node->footnote.def_count;
 
         // store the footnote reference text label in the footnote ref's node's
         // `user_data`, so that renderers can use the label when generating
