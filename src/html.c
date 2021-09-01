@@ -424,9 +424,9 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
   case CMARK_NODE_FOOTNOTE_REFERENCE:
     if (entering) {
       cmark_strbuf_puts(html, "<sup class=\"footnote-ref\"><a href=\"#fn:");
-      cmark_strbuf_puts(html, node->user_data);
+      cmark_strbuf_put(html, node->parent_footnote_def->as.literal.data, node->parent_footnote_def->as.literal.len);
       cmark_strbuf_puts(html, "\" id=\"fnref:");
-      cmark_strbuf_puts(html, node->user_data);
+      cmark_strbuf_put(html, node->parent_footnote_def->as.literal.data, node->parent_footnote_def->as.literal.len);
 
       if (node->footnote.ref_ix > 1) {
         char n[32];

@@ -477,7 +477,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_FOOTNOTE_REFERENCE:
     if (entering) {
       LIT("[^");
-      OUT(node->user_data, false, LITERAL);
+
+      char *footnote_label = renderer->mem->calloc(1, (sizeof(char) * node->parent_footnote_def->as.literal.len) + 1);
+      memmove(footnote_label, node->parent_footnote_def->as.literal.data, node->parent_footnote_def->as.literal.len);
+
+      OUT(footnote_label, false, LITERAL);
+      renderer->mem->free(footnote_label);
+
       LIT("]");
     }
     break;
@@ -487,10 +493,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       renderer->footnote_ix += 1;
       LIT("[^");
 
-      char *str = renderer->mem->calloc(1, (sizeof(char) * node->as.literal.len) + 1);
-      memmove(str, node->as.literal.data, node->as.literal.len);
+      char *footnote_label = renderer->mem->calloc(1, (sizeof(char) * node->as.literal.len) + 1);
+      memmove(footnote_label, node->as.literal.data, node->as.literal.len);
 
-      OUT(str, false, LITERAL);
+      OUT(footnote_label, false, LITERAL);
+      renderer->mem->free(footnote_label);
+
       LIT("]:\n");
 
       cmark_strbuf_puts(renderer->prefix, "    ");
