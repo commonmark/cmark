@@ -77,9 +77,9 @@ static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *
       cmark_strbuf_puts(html, " <a href=\"#fnref:");
       cmark_strbuf_put(html, node->as.literal.data, node->as.literal.len);
       cmark_strbuf_puts(html, ":");
-      cmark_strbuf_put(html, (const unsigned char *)n, strlen(n));
+      cmark_strbuf_puts(html, n);
       cmark_strbuf_puts(html, "\" class=\"footnote-backref\">↩<sup class=\"footnote-ref\">");
-      cmark_strbuf_put(html, (const unsigned char *)n, strlen(n));
+      cmark_strbuf_puts(html, n);
       cmark_strbuf_puts(html, "</sup></a>");
     }
   }
@@ -432,7 +432,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
         char n[32];
         snprintf(n, sizeof(n), "%d", node->footnote.ref_ix);
         cmark_strbuf_puts(html, ":");
-        cmark_strbuf_put(html, (const unsigned char *)n, strlen(n));
+        cmark_strbuf_puts(html, n);
       }
 
       cmark_strbuf_puts(html, "\">");
