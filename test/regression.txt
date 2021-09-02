@@ -338,3 +338,19 @@ It has another footnote that contains many different characters (the autolinker 
 </ol>
 </section>
 ````````````````````````````````
+
+Footnotes interacting with strikethrough should not lead to a use-after-free
+
+```````````````````````````````` example footnotes autolink strikethrough table
+|Tot.....[^_a_]|
+.
+<p>|Tot.....[^_a_]|</p>
+````````````````````````````````
+
+Footnotes interacting with strikethrough should not lead to a use-after-free pt2
+
+```````````````````````````````` example footnotes autolink strikethrough table
+[^~~is~~1]
+.
+<p>[^~~is~~1]</p>
+````````````````````````````````
