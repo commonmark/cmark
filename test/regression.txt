@@ -354,3 +354,14 @@ Footnotes interacting with strikethrough should not lead to a use-after-free pt2
 .
 <p>[^~~is~~1]</p>
 ````````````````````````````````
+
+Adjacent unused footnotes definitions should not lead to a use after free
+
+```````````````````````````````` example footnotes autolink strikethrough table
+Hello world
+
+
+[^a]:[^b]:
+.
+<p>Hello world</p>
+````````````````````````````````
