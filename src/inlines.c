@@ -1191,6 +1191,8 @@ noMatch:
       // the opener->inl_text->next.
       //
       // therefore, here we walk thru the list and free them all up
+      process_emphasis(parser, subj, opener->previous_delimiter);
+
       cmark_node *next_node;
       cmark_node *current_node = opener->inl_text->next;
       while(current_node) {
@@ -1200,7 +1202,7 @@ noMatch:
       }
 
       cmark_node_free(opener->inl_text);
-      process_emphasis(parser, subj, opener->previous_delimiter);
+
       pop_bracket(subj);
       return NULL;
     }
