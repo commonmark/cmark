@@ -1178,6 +1178,7 @@ noMatch:
       // being replacing the opening '[' text node with a `^footnote-ref]` node.
       cmark_node_insert_before(opener->inl_text, fnref);
 
+      process_emphasis(parser, subj, opener->previous_delimiter);
       // sometimes, the footnote reference text gets parsed into multiple nodes
       // i.e. '[^example]' parsed into '[', '^exam', 'ple]'.
       // this happens for ex with the autolink extension. when the autolinker
@@ -1200,7 +1201,7 @@ noMatch:
       }
 
       cmark_node_free(opener->inl_text);
-      process_emphasis(parser, subj, opener->previous_delimiter);
+
       pop_bracket(subj);
       return NULL;
     }

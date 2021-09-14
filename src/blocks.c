@@ -532,6 +532,7 @@ static void process_footnotes(cmark_parser *parser) {
     }
   }
 
+  cmark_unlink_footnotes_map(map);
   cmark_map_free(map);
 }
 
