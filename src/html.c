@@ -66,7 +66,7 @@ static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *
 
   cmark_strbuf_puts(html, "<a href=\"#fnref-");
   houdini_escape_href(html, node->as.literal.data, node->as.literal.len);
-  cmark_strbuf_puts(html, "\" class=\"footnote-backref\">↩</a>");
+  cmark_strbuf_puts(html, "\" class=\"footnote-backref\" data-footnote-backref aria-label=\"Back to content\">↩</a>");
 
   if (node->footnote.def_count > 1)
   {
@@ -78,7 +78,7 @@ static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *
       houdini_escape_href(html, node->as.literal.data, node->as.literal.len);
       cmark_strbuf_puts(html, "-");
       cmark_strbuf_puts(html, n);
-      cmark_strbuf_puts(html, "\" class=\"footnote-backref\">↩<sup class=\"footnote-ref\">");
+      cmark_strbuf_puts(html, "\" class=\"footnote-backref\" data-footnote-backref aria-label=\"Back to content\">↩<sup class=\"footnote-ref\">");
       cmark_strbuf_puts(html, n);
       cmark_strbuf_puts(html, "</sup></a>");
     }
@@ -406,7 +406,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
   case CMARK_NODE_FOOTNOTE_DEFINITION:
     if (entering) {
       if (renderer->footnote_ix == 0) {
-        cmark_strbuf_puts(html, "<section class=\"footnotes\">\n<ol>\n");
+        cmark_strbuf_puts(html, "<section class=\"footnotes\" data-footnotes>\n<ol>\n");
       }
       ++renderer->footnote_ix;
 
@@ -435,7 +435,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
         cmark_strbuf_puts(html, n);
       }
 
-      cmark_strbuf_puts(html, "\">");
+      cmark_strbuf_puts(html, "\" data-footnote-ref>");
       houdini_escape_href(html, node->as.literal.data, node->as.literal.len);
       cmark_strbuf_puts(html, "</a></sup>");
     }
