@@ -478,7 +478,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (entering) {
       LIT("[^");
 
-      char *footnote_label = renderer->mem->calloc(1, (sizeof(char) * node->parent_footnote_def->as.literal.len) + 1);
+      char *footnote_label = renderer->mem->calloc(node->parent_footnote_def->as.literal.len + 1, sizeof(char));
       memmove(footnote_label, node->parent_footnote_def->as.literal.data, node->parent_footnote_def->as.literal.len);
 
       OUT(footnote_label, false, LITERAL);
@@ -493,7 +493,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       renderer->footnote_ix += 1;
       LIT("[^");
 
-      char *footnote_label = renderer->mem->calloc(1, (sizeof(char) * node->as.literal.len) + 1);
+      char *footnote_label = renderer->mem->calloc(node->as.literal.len + 1, sizeof(char));
       memmove(footnote_label, node->as.literal.data, node->as.literal.len);
 
       OUT(footnote_label, false, LITERAL);
