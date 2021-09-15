@@ -1144,7 +1144,7 @@ noMatch:
     // look back to the opening '[', and skip ahead to the next character
     // if we're looking at a '[^' sequence, and there is other text or nodes
     // after the ^, let's call it a footnote reference.
-    if (literal->data[0] == '^' && (literal->len > 1 || opener->inl_text->next->next)) {
+    if ((literal->len > 0 && literal->data[0] == '^') && (literal->len > 1 || opener->inl_text->next->next)) {
 
       // Before we got this far, the `handle_close_bracket` function may have
       // advanced the current state beyond our footnote's actual closing
@@ -1168,7 +1168,13 @@ noMatch:
       //
       // this copies the footnote reference string, even if between the
       // `opener` and the subject's current position there are other nodes
-      fnref->as.literal = cmark_chunk_dup(literal, 1, (fnref_end_column - fnref_start_column) - 2);
+      //
+      // (first, check for underflows)
+      if ((fnref_start_column + 2) <= fnref_end_column) {
+        fnref->as.literal = cmark_chunk_dup(literal, 1, (fnref_end_column - fnref_start_column) - 2);
+      } else {
+        fnref->as.literal = cmark_chunk_dup(literal, 1, 0);
+      }
 
       fnref->start_line = fnref->end_line = subj->line;
       fnref->start_column = fnref_start_column;
