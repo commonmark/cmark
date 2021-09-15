@@ -672,31 +672,31 @@ Hi!
 
 [^unused]: This is unused.
 .
-<p>This is some text!<sup class="footnote-ref"><a href="#fn:1" id="fnref:1">1</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn:footnote" id="fnref:footnote">2</a></sup>.</p>
-<p>Here's a thing<sup class="footnote-ref"><a href="#fn:other-note" id="fnref:other-note">3</a></sup>.</p>
-<p>And another thing<sup class="footnote-ref"><a href="#fn:codeblock-note" id="fnref:codeblock-note">4</a></sup>.</p>
+<p>This is some text!<sup class="footnote-ref"><a href="#fn-1" id="fnref-1">1</a></sup>. Other text.<sup class="footnote-ref"><a href="#fn-footnote" id="fnref-footnote">2</a></sup>.</p>
+<p>Here's a thing<sup class="footnote-ref"><a href="#fn-other-note" id="fnref-other-note">3</a></sup>.</p>
+<p>And another thing<sup class="footnote-ref"><a href="#fn-codeblock-note" id="fnref-codeblock-note">4</a></sup>.</p>
 <p>This doesn't have a referent[^nope].</p>
 <p>Hi!</p>
 <section class="footnotes">
 <ol>
-<li id="fn:1">
-<p>Some <em>bolded</em> footnote definition. <a href="#fnref:1" class="footnote-backref">↩</a></p>
+<li id="fn-1">
+<p>Some <em>bolded</em> footnote definition. <a href="#fnref-1" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:footnote">
+<li id="fn-footnote">
 <blockquote>
 <p>Blockquotes can be in a footnote.</p>
 </blockquote>
 <pre><code>as well as code blocks
 </code></pre>
-<p>or, naturally, simple paragraphs. <a href="#fnref:footnote" class="footnote-backref">↩</a></p>
+<p>or, naturally, simple paragraphs. <a href="#fnref-footnote" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:other-note">
-<p>no code block here (spaces are stripped away) <a href="#fnref:other-note" class="footnote-backref">↩</a></p>
+<li id="fn-other-note">
+<p>no code block here (spaces are stripped away) <a href="#fnref-other-note" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:codeblock-note">
+<li id="fn-codeblock-note">
 <pre><code>this is now a code block (8 spaces indentation)
 </code></pre>
-<a href="#fnref:codeblock-note" class="footnote-backref">↩</a>
+<a href="#fnref-codeblock-note" class="footnote-backref">↩</a>
 </li>
 </ol>
 </section>
@@ -711,12 +711,12 @@ This footnote is referenced[^a-footnote] multiple times, in lots of different pl
 
 [^a-footnote]: This footnote definition should have three backrefs.
 .
-<p>This is some text. It has a footnote<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote">1</a></sup>.</p>
-<p>This footnote is referenced<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote:2">1</a></sup> multiple times, in lots of different places.<sup class="footnote-ref"><a href="#fn:a-footnote" id="fnref:a-footnote:3">1</a></sup></p>
+<p>This is some text. It has a footnote<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote">1</a></sup>.</p>
+<p>This footnote is referenced<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-2">1</a></sup> multiple times, in lots of different places.<sup class="footnote-ref"><a href="#fn-a-footnote" id="fnref-a-footnote-3">1</a></sup></p>
 <section class="footnotes">
 <ol>
-<li id="fn:a-footnote">
-<p>This footnote definition should have three backrefs. <a href="#fnref:a-footnote" class="footnote-backref">↩</a> <a href="#fnref:a-footnote:2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref:a-footnote:3" class="footnote-backref">↩<sup class="footnote-ref">3</sup></a></p>
+<li id="fn-a-footnote">
+<p>This footnote definition should have three backrefs. <a href="#fnref-a-footnote" class="footnote-backref">↩</a> <a href="#fnref-a-footnote-2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref-a-footnote-3" class="footnote-backref">↩<sup class="footnote-ref">3</sup></a></p>
 </li>
 </ol>
 </section>
@@ -729,11 +729,11 @@ Hello[^"><script>alert(1)</script>]
 
 [^"><script>alert(1)</script>]: pwned
 .
-<p>Hello<sup class="footnote-ref"><a href="#fn:%22%3E%3Cscript%3Ealert(1)%3C/script%3E" id="fnref:%22%3E%3Cscript%3Ealert(1)%3C/script%3E">1</a></sup></p>
+<p>Hello<sup class="footnote-ref"><a href="#fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" id="fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E">1</a></sup></p>
 <section class="footnotes">
 <ol>
-<li id="fn:%22%3E%3Cscript%3Ealert(1)%3C/script%3E">
-<p>pwned <a href="#fnref:%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref">↩</a></p>
+<li id="fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E">
+<p>pwned <a href="#fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>

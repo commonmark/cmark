@@ -175,7 +175,7 @@ A footnote in a paragraph[^1]
 
 [^1]: a footnote
 .
-<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn:1" id="fnref:1">1</a></sup></p>
+<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn-1" id="fnref-1">1</a></sup></p>
 <table>
 <thead>
 <tr>
@@ -185,15 +185,15 @@ A footnote in a paragraph[^1]
 </thead>
 <tbody>
 <tr>
-<td>foot <sup class="footnote-ref"><a href="#fn:1" id="fnref:1:2">1</a></sup></td>
+<td>foot <sup class="footnote-ref"><a href="#fn-1" id="fnref-1-2">1</a></sup></td>
 <td>note</td>
 </tr>
 </tbody>
 </table>
 <section class="footnotes">
 <ol>
-<li id="fn:1">
-<p>a footnote <a href="#fnref:1" class="footnote-backref">↩</a> <a href="#fnref:1:2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a></p>
+<li id="fn-1">
+<p>a footnote <a href="#fnref-1" class="footnote-backref">↩</a> <a href="#fnref-1-2" class="footnote-backref">↩<sup class="footnote-ref">2</sup></a></p>
 </li>
 </ol>
 </section>
@@ -279,14 +279,14 @@ This is some text. It has a citation.[^citation]
 
 [^citation]: This is a long winded parapgraph that also has another citation.[^another-citation]
 .
-<p>This is some text. It has a citation.<sup class="footnote-ref"><a href="#fn:citation" id="fnref:citation">1</a></sup></p>
+<p>This is some text. It has a citation.<sup class="footnote-ref"><a href="#fn-citation" id="fnref-citation">1</a></sup></p>
 <section class="footnotes">
 <ol>
-<li id="fn:citation">
-<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn:another-citation" id="fnref:another-citation">2</a></sup> <a href="#fnref:citation" class="footnote-backref">↩</a></p>
+<li id="fn-citation">
+<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn-another-citation" id="fnref-another-citation">2</a></sup> <a href="#fnref-citation" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:another-citation">
-<p>My second citation. <a href="#fnref:another-citation" class="footnote-backref">↩</a></p>
+<li id="fn-another-citation">
+<p>My second citation. <a href="#fnref-another-citation" class="footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
@@ -301,14 +301,14 @@ This is some text. It has two footnotes references, side-by-side without any spa
 
 [^footnote2]: Goodbye.
 .
-<p>This is some text. It has two footnotes references, side-by-side without any spaces,<sup class="footnote-ref"><a href="#fn:footnote1" id="fnref:footnote1">1</a></sup><sup class="footnote-ref"><a href="#fn:footnote2" id="fnref:footnote2">2</a></sup> which are definitely not link references.</p>
+<p>This is some text. It has two footnotes references, side-by-side without any spaces,<sup class="footnote-ref"><a href="#fn-footnote1" id="fnref-footnote1">1</a></sup><sup class="footnote-ref"><a href="#fn-footnote2" id="fnref-footnote2">2</a></sup> which are definitely not link references.</p>
 <section class="footnotes">
 <ol>
-<li id="fn:footnote1">
-<p>Hello. <a href="#fnref:footnote1" class="footnote-backref">↩</a></p>
+<li id="fn-footnote1">
+<p>Hello. <a href="#fnref-footnote1" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:footnote2">
-<p>Goodbye. <a href="#fnref:footnote2" class="footnote-backref">↩</a></p>
+<li id="fn-footnote2">
+<p>Goodbye. <a href="#fnref-footnote2" class="footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
@@ -325,15 +325,15 @@ It has another footnote that contains many different characters (the autolinker 
 
 [^widely-cited]: this renders properly.
 .
-<p>This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a <code>w</code>.<sup class="footnote-ref"><a href="#fn:widely-cited" id="fnref:widely-cited">1</a></sup></p>
-<p>It has another footnote that contains many different characters (the autolinker was also breaking on <code>_</code>).<sup class="footnote-ref"><a href="#fn:sphinx-of-black-quartz_judge-my-vow-0123456789" id="fnref:sphinx-of-black-quartz_judge-my-vow-0123456789">2</a></sup></p>
+<p>This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a <code>w</code>.<sup class="footnote-ref"><a href="#fn-widely-cited" id="fnref-widely-cited">1</a></sup></p>
+<p>It has another footnote that contains many different characters (the autolinker was also breaking on <code>_</code>).<sup class="footnote-ref"><a href="#fn-sphinx-of-black-quartz_judge-my-vow-0123456789" id="fnref-sphinx-of-black-quartz_judge-my-vow-0123456789">2</a></sup></p>
 <section class="footnotes">
 <ol>
-<li id="fn:widely-cited">
-<p>this renders properly. <a href="#fnref:widely-cited" class="footnote-backref">↩</a></p>
+<li id="fn-widely-cited">
+<p>this renders properly. <a href="#fnref-widely-cited" class="footnote-backref">↩</a></p>
 </li>
-<li id="fn:sphinx-of-black-quartz_judge-my-vow-0123456789">
-<p>so does this. <a href="#fnref:sphinx-of-black-quartz_judge-my-vow-0123456789" class="footnote-backref">↩</a></p>
+<li id="fn-sphinx-of-black-quartz_judge-my-vow-0123456789">
+<p>so does this. <a href="#fnref-sphinx-of-black-quartz_judge-my-vow-0123456789" class="footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
