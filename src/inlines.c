@@ -1144,7 +1144,7 @@ noMatch:
     // look back to the opening '[', and skip ahead to the next character
     // if we're looking at a '[^' sequence, and there is other text or nodes
     // after the ^, let's call it a footnote reference.
-    if (literal->data[0] == '^' && (literal->len > 1 || opener->inl_text->next->next)) {
+    if ((literal->len > 0 && literal->data[0] == '^') && (literal->len > 1 || opener->inl_text->next->next)) {
 
       // Before we got this far, the `handle_close_bracket` function may have
       // advanced the current state beyond our footnote's actual closing
