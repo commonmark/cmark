@@ -1168,7 +1168,13 @@ noMatch:
       //
       // this copies the footnote reference string, even if between the
       // `opener` and the subject's current position there are other nodes
-      fnref->as.literal = cmark_chunk_dup(literal, 1, (fnref_end_column - fnref_start_column) - 2);
+      //
+      // (first, check for underflows)
+      if ((fnref_start_column + 2) <= fnref_end_column) {
+        fnref->as.literal = cmark_chunk_dup(literal, 1, (fnref_end_column - fnref_start_column) - 2);
+      } else {
+        fnref->as.literal = cmark_chunk_dup(literal, 1, 0);
+      }
 
       fnref->start_line = fnref->end_line = subj->line;
       fnref->start_column = fnref_start_column;
