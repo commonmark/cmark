@@ -484,6 +484,15 @@ static void process_footnotes(cmark_parser *parser) {
         if (!footnote->ix)
           footnote->ix = ++ix;
 
+        // store a reference to this footnote reference's footnote definition
+        // this is used by renderers when generating label ids
+        cur->parent_footnote_def = footnote->node;
+
+        // keep track of a) count of how many times this footnote def has been
+        // referenced, and b) which reference index this footnote ref is at.
+        // this is used by renderers when generating links and backreferences.
+        cur->footnote.ref_ix = ++footnote->node->footnote.def_count;
+
         char n[32];
         snprintf(n, sizeof(n), "%d", footnote->ix);
         cmark_chunk_free(parser->mem, &cur->as.literal);
