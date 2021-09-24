@@ -17,7 +17,7 @@ CMARK=$(BUILDDIR)/src/cmark
 CMARK_FUZZ=$(BUILDDIR)/src/cmark-fuzz
 PROG?=$(CMARK)
 VERSION?=$(SPECVERSION)
-RELEASE?=CommonMark-$(VERSION)
+RELEASE?=cmark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
 CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
