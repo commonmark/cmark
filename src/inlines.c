@@ -640,7 +640,8 @@ static cmark_syntax_extension *get_extension_for_special_char(cmark_parser *pars
 }
 
 static void process_emphasis(cmark_parser *parser, subject *subj, bufsize_t stack_bottom) {
-  delimiter *closer = subj->last_delim;
+  delimiter *candidate;
+  delimiter *closer = NULL;
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
@@ -657,10 +658,10 @@ static void process_emphasis(cmark_parser *parser, subject *subj, bufsize_t stac
   }
 
   // move back to first relevant delim.
-  while (closer != NULL &&
-         closer->previous != NULL &&
-         closer->previous->position >= stack_bottom) {
-    closer = closer->previous;
+  candidate = subj->last_delim;
+  while (candidate != NULL && candidate->position >= stack_bottom) {
+    closer = candidate;
+    candidate = candidate->previous;
   }
 
   // now move forward, looking for closers, and handling each
