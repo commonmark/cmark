@@ -1,3 +1,22 @@
+[0.30.2]
+
+  * Fix parsing of emphasis before links (#424, Nick Wellnhofer).
+    Fixes a regression introduced with commit ed0a4bf.
+
+  * Update to Unicode 14.0 (data-man).
+
+  * Add `~` to safe href character set (#394, frogtile).
+
+  * Update CMakeLists.txt (Saleem Abdulrasool).  Bump the minimum required
+    CMake to 3.7. Imperatively define output name for static library.
+
+  * Fix install paths in libcmark.pc (Sebastián Mancilla).
+    `CMAKE_INSTALL_<dir>` can be relative or absolute path, so it is wrong to
+    prefix CMAKE_INSTALL_PREFIX because if CMAKE_INSTALL_<dir> is set to an
+    absolute path it will result in a malformed path with two absolute paths
+    joined together.  Instead, use `CMAKE_INSTALL_FULL_<dir>` from
+    GNUInstallDirs.
+
 [0.30.1]
 
   * Properly indent block-level contents of list items in man (#258).
