@@ -190,3 +190,11 @@ Issue #383 - emphasis parsing.
 <p>**<em><strong>Hello<em>world</em></strong></em></p>
 ````````````````````````````````
 
+Issue #424 - emphasis before links
+
+```````````````````````````````` example
+*text* [link](#section)
+.
+<p><em>text</em> <a href="#section">link</a></p>
+````````````````````````````````
+
