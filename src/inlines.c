@@ -392,13 +392,14 @@ static void S_normalize_code(cmark_strbuf *s) {
 // Parse backtick code section or raw backticks, return an inline.
 // Assumes that the subject has a backtick at the current position.
 static cmark_node *handle_backticks(subject *subj, int options) {
+  bufsize_t initpos = subj->pos;
   cmark_chunk openticks = take_while(subj, isbacktick);
   bufsize_t startpos = subj->pos;
   bufsize_t endpos = scan_to_closing_backticks(subj, openticks.len);
 
   if (endpos == 0) {      // not found
     subj->pos = startpos; // rewind
-    return make_str(subj, subj->pos, subj->pos, openticks);
+    return make_str(subj, initpos, initpos + openticks.len - 1, openticks);
   } else {
     cmark_strbuf buf = CMARK_BUF_INIT(subj->mem);
 
