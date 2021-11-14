@@ -100,3 +100,8 @@ jobs:
         chcp 65001
         nmake.exe /nologo /f Makefile.nmake test
       shell: cmd
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: cmark ${{ matrix.cmake_opts }}
+        path: build/src/cmark.exe
