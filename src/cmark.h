@@ -102,7 +102,7 @@ typedef struct cmark_mem {
 
 /** Returns a pointer to the default memory allocator.
  */
-CMARK_EXPORT cmark_mem *cmark_get_default_mem_allocator();
+CMARK_EXPORT cmark_mem *cmark_get_default_mem_allocator(void);
 
 /**
  * ## Creating and Destroying Nodes
