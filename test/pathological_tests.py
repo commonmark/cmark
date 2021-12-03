@@ -111,6 +111,9 @@ pathological = {
     }
 
 pathological_cmark = {
+    "nested inlines":
+                 ("*" * 40000 + "a" + "*" * 40000,
+                  re.compile("^\*+a\*+$")),
     }
 
 whitespace_re = re.compile('/s+/')
