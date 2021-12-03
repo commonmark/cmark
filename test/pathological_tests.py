@@ -7,6 +7,7 @@ import sys
 import platform
 import itertools
 import multiprocessing
+import queue
 import time
 from cmark import CMark
 
@@ -109,64 +110,75 @@ pathological = {
 #                  re.compile("(\[0\] ){4999}"))
     }
 
+pathological_cmark = {
+    }
+
 whitespace_re = re.compile('/s+/')
 
-results = {'passed': [], 'errored': [], 'failed': [], 'ignored': []}
+def run_pathological(q, inp):
+    q.put(cmark.to_html(inp))
 
-def run_pathological_test(description, results):
-    (inp, regex) = pathological[description]
-    [rc, actual, err] = cmark.to_html(inp)
-    extra = ""
-    if rc != 0:
-        print(description, '[ERRORED (return code %d)]' %rc)
-        print(err)
-        if allowed_failures[description]:
-            results['ignored'].append(description)
-        else:
-            results['errored'].append(description)
-    elif regex.search(actual):
-        print(description, '[PASSED]')
-        results['passed'].append(description)
-    else:
-        print(description, '[FAILED]')
-        print(repr(actual))
-        if allowed_failures[description]:
-            results['ignored'].append(description)
-        else:
-            results['failed'].append(description)
+def run_pathological_cmark(q, inp):
+    q.put(cmark.to_commonmark(inp))
 
 def run_tests():
+    q = multiprocessing.Queue()
+    passed = []
+    errored = []
+    failed = []
+    ignored = []
+
     print("Testing pathological cases:")
-    for description in pathological:
-        p = multiprocessing.Process(target=run_pathological_test,
-                  args=(description, results,))
+    for description in (*pathological, *pathological_cmark):
+        if description in pathological:
+            (inp, regex) = pathological[description]
+            p = multiprocessing.Process(target=run_pathological,
+                      args=(q, inp))
+        else:
+            (inp, regex) = pathological_cmark[description]
+            p = multiprocessing.Process(target=run_pathological_cmark,
+                      args=(q, inp))
         p.start()
-        # wait TIMEOUT seconds or until it finishes
-        p.join(TIMEOUT)
-        # kill it if still active
-        if p.is_alive():
-            print(description, '[TIMEOUT]')
-            if allowed_failures[description]:
-                results['ignored'].append(description)
+        try:
+            # wait TIMEOUT seconds or until it finishes
+            rc, actual, err = q.get(True, TIMEOUT)
+            p.join()
+            if rc != 0:
+                print(description, '[ERRORED (return code %d)]' %rc)
+                print(err)
+                if description in allowed_failures:
+                    ignored.append(description)
+                else:
+                    errored.append(description)
+            elif regex.search(actual):
+                print(description, '[PASSED]')
+                passed.append(description)
             else:
-                results['errored'].append(description)
+                print(description, '[FAILED]')
+                print(repr(actual[:60]))
+                if description in allowed_failures:
+                    ignored.append(description)
+                else:
+                    failed.append(description)
+        except queue.Empty:
             p.terminate()
             p.join()
+            print(description, '[TIMEOUT]')
+            if description in allowed_failures:
+                ignored.append(description)
+            else:
+                errored.append(description)
 
-    passed  = len(results['passed'])
-    failed  = len(results['failed'])
-    errored = len(results['errored'])
-    ignored = len(results['ignored'])
-
-    print("%d passed, %d failed, %d errored" % (passed, failed, errored))
-    if ignored > 0:
+    print("%d passed, %d failed, %d errored" %
+          (len(passed), len(failed), len(errored)))
+    if ignored:
         print("Ignoring these allowed failures:")
-        for x in results['ignored']:
+        for x in ignored:
             print(x)
-    if failed == 0 and errored == 0:
-        exit(0)
-    else:
+    if failed or errored:
         exit(1)
+    else:
+        exit(0)
 
 if __name__ == "__main__":
     run_tests()
