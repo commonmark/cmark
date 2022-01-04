@@ -151,7 +151,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-  # Include module for fuctions
+  # Include module for functions
   # - 'write_basic_package_version_file'
   # - 'configure_package_config_file'
   include(CMakePackageConfigHelpers)
