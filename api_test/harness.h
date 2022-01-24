@@ -12,7 +12,7 @@ typedef struct {
   int num_skipped;
 } test_batch_runner;
 
-test_batch_runner *test_batch_runner_new();
+test_batch_runner *test_batch_runner_new(void);
 
 void SKIP(test_batch_runner *runner, int num_tests);
 
