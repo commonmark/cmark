@@ -1067,7 +1067,7 @@ static void ref_source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
-int main() {
+int main(void) {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
 

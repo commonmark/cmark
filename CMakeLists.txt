@@ -44,7 +44,9 @@ function(cmark_add_compile_options target)
     endif()
     target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
   else()
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(${target} PRIVATE
+            -Wall -Wextra -pedantic
+            $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>)
   endif()
   if(CMAKE_BUILD_TYPE MATCHES profile)
     target_compile_options(${target} PRIVATE -pg)

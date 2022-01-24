@@ -28,7 +28,7 @@ typedef enum {
   FORMAT_LATEX
 } writer_format;
 
-void print_usage() {
+void print_usage(void) {
   printf("Usage:   cmark [FILE*]\n");
   printf("Options:\n");
   printf("  --to, -t FORMAT  Specify output format (html, xml, man, "
