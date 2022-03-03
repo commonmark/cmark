@@ -129,6 +129,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
   bufsize_t cell_matched = 1, pipe_matched = 1, offset;
   int expect_more_cells = 1;
   int row_end_offset = 0;
+  int int_overflow_abort = 0;
 
   row = (table_row *)parser->mem->calloc(1, sizeof(table_row));
   row->n_columns = 0;
@@ -161,6 +162,12 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         ++cell->internal_offset;
       }
 
+      // make sure we never wrap row->n_columns
+      // offset will != len and our exit will clean up as intended
+      if (row->n_columns == UINT16_MAX) {
+          int_overflow_abort = 1;
+          break;
+      }
       row->n_columns += 1;
       row->cells = cmark_llist_append(parser->mem, row->cells, cell);
     }
@@ -194,7 +201,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
     }
   }
 
-  if (offset != len || row->n_columns == 0) {
+  if (offset != len || row->n_columns == 0 || int_overflow_abort) {
     free_table_row(parser->mem, row);
     row = NULL;
   }
@@ -241,6 +248,11 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   marker_row = row_from_string(self, parser,
                                input + cmark_parser_get_first_nonspace(parser),
                                len - cmark_parser_get_first_nonspace(parser));
+  // assert may be optimized out, don't rely on it for security boundaries
+  if (!marker_row) {
+      return parent_container;
+  }
+  
   assert(marker_row);
 
   cmark_arena_push();
@@ -264,6 +276,12 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
         len - cmark_parser_get_first_nonspace(parser));
     header_row = row_from_string(self, parser, (unsigned char *)parent_string,
                                  (int)strlen(parent_string));
+    // row_from_string can return NULL, add additional check to ensure n_columns match
+    if (!marker_row || !header_row || header_row->n_columns != marker_row->n_columns) {
+        free_table_row(parser->mem, marker_row);
+        free_table_row(parser->mem, header_row);
+        return parent_container;
+    }
   }
 
   if (!cmark_node_set_type(parent_container, CMARK_NODE_TABLE)) {
@@ -281,8 +299,10 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   parent_container->as.opaque = parser->mem->calloc(1, sizeof(node_table));
   set_n_table_columns(parent_container, header_row->n_columns);
 
+  // allocate alignments based on marker_row->n_columns
+  // since we populate the alignments array based on marker_row->cells
   uint8_t *alignments =
-      (uint8_t *)parser->mem->calloc(header_row->n_columns, sizeof(uint8_t));
+      (uint8_t *)parser->mem->calloc(marker_row->n_columns, sizeof(uint8_t));
   cmark_llist *it = marker_row->cells;
   for (i = 0; it; it = it->next, ++i) {
     node_cell *node = (node_cell *)it->data;
@@ -350,6 +370,12 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
 
   row = row_from_string(self, parser, input + cmark_parser_get_first_nonspace(parser),
       len - cmark_parser_get_first_nonspace(parser));
+
+  if (!row) {
+      // clean up the dangling node
+      cmark_node_free(table_row_block);
+      return NULL;
+  }
 
   {
     cmark_llist *tmp;
