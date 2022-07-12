@@ -1,3 +1,6 @@
+[0.29.0.gfm.5]
+  * Added xmpp: and mailto: support to the autolink extension
+
 [0.29.0.gfm.4]
   * Remove `source` from list of HTML blocks
 
