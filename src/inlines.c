@@ -1381,9 +1381,11 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 // Parse inlines from parent's string_content, adding as children of parent.
 void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                          cmark_reference_map *refmap, int options) {
+  int internal_offset = parent->type == CMARK_NODE_HEADING ?
+    parent->as.heading.internal_offset : 0;
   subject subj;
   cmark_chunk content = {parent->data, parent->len};
-  subject_from_buf(mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
+  subject_from_buf(mem, parent->start_line, parent->start_column - 1 + internal_offset, &subj, &content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))

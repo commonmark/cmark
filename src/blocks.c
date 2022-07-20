@@ -995,7 +995,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       (*container)->as.heading.level = level;
       (*container)->as.heading.setext = false;
-      (*container)->internal_offset = matched;
+      (*container)->as.heading.internal_offset = matched;
 
     } else if (!indented && (matched = scan_open_code_fence(
                                  input, parser->first_nonspace))) {
