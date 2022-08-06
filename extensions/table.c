@@ -257,7 +257,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
                                             unsigned char *input, int len) {
   cmark_node *table_header;
   table_row *header_row = NULL;
-  table_row *marker_row = NULL;
+  table_row *delimiter_row = NULL;
   node_table_row *ntr;
   const char *parent_string;
   uint16_t i;
@@ -270,16 +270,16 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     return parent_container;
   }
 
-  // Since scan_table_start was successful, we must have a marker row.
-  marker_row = row_from_string(self, parser,
-                               input + cmark_parser_get_first_nonspace(parser),
-                               len - cmark_parser_get_first_nonspace(parser));
+  // Since scan_table_start was successful, we must have a delimiter row.
+  delimiter_row = row_from_string(
+    self, parser, input + cmark_parser_get_first_nonspace(parser),
+    len - cmark_parser_get_first_nonspace(parser));
   // assert may be optimized out, don't rely on it for security boundaries
-  if (!marker_row) {
+  if (!delimiter_row) {
       return parent_container;
   }
-  
-  assert(marker_row);
+
+  assert(delimiter_row);
 
   cmark_arena_push();
 
@@ -289,8 +289,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   parent_string = cmark_node_get_string_content(parent_container);
   header_row = row_from_string(self, parser, (unsigned char *)parent_string,
                                (int)strlen(parent_string));
-  if (!header_row || header_row->n_columns != marker_row->n_columns) {
-    free_table_row(parser->mem, marker_row);
+  if (!header_row || header_row->n_columns != delimiter_row->n_columns) {
+    free_table_row(parser->mem, delimiter_row);
     free_table_row(parser->mem, header_row);
     cmark_arena_pop();
     parent_container->flags |= CMARK_NODE__TABLE_VISITED;
@@ -298,14 +298,14 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   }
 
   if (cmark_arena_pop()) {
-    marker_row = row_from_string(
+    delimiter_row = row_from_string(
         self, parser, input + cmark_parser_get_first_nonspace(parser),
         len - cmark_parser_get_first_nonspace(parser));
     header_row = row_from_string(self, parser, (unsigned char *)parent_string,
                                  (int)strlen(parent_string));
     // row_from_string can return NULL, add additional check to ensure n_columns match
-    if (!marker_row || !header_row || header_row->n_columns != marker_row->n_columns) {
-        free_table_row(parser->mem, marker_row);
+    if (!delimiter_row || !header_row || header_row->n_columns != delimiter_row->n_columns) {
+        free_table_row(parser->mem, delimiter_row);
         free_table_row(parser->mem, header_row);
         return parent_container;
     }
@@ -313,7 +313,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
 
   if (!cmark_node_set_type(parent_container, CMARK_NODE_TABLE)) {
     free_table_row(parser->mem, header_row);
-    free_table_row(parser->mem, marker_row);
+    free_table_row(parser->mem, delimiter_row);
     return parent_container;
   }
 
@@ -326,12 +326,12 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   parent_container->as.opaque = parser->mem->calloc(1, sizeof(node_table));
   set_n_table_columns(parent_container, header_row->n_columns);
 
-  // allocate alignments based on marker_row->n_columns
-  // since we populate the alignments array based on marker_row->cells
+  // allocate alignments based on delimiter_row->n_columns
+  // since we populate the alignments array based on delimiter_row->cells
   uint8_t *alignments =
-      (uint8_t *)parser->mem->calloc(marker_row->n_columns, sizeof(uint8_t));
-  for (i = 0; i < marker_row->n_columns; ++i) {
-    node_cell *node = &marker_row->cells[i];
+      (uint8_t *)parser->mem->calloc(delimiter_row->n_columns, sizeof(uint8_t));
+  for (i = 0; i < delimiter_row->n_columns; ++i) {
+    node_cell *node = &delimiter_row->cells[i];
     bool left = node->buf->ptr[0] == ':', right = node->buf->ptr[node->buf->size - 1] == ':';
 
     if (left && right)
@@ -371,7 +371,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
       (int)strlen((char *)input) - 1 - cmark_parser_get_offset(parser), false);
 
   free_table_row(parser->mem, header_row);
-  free_table_row(parser->mem, marker_row);
+  free_table_row(parser->mem, delimiter_row);
   return parent_container;
 }
 
