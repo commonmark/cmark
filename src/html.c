@@ -300,16 +300,22 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         houdini_escape_href(html, node->as.link.url,
                             strlen((char *)node->as.link.url));
       }
-      cmark_strbuf_puts(html, "\" alt=\"");
+      cmark_strbuf_puts(html, "\"");
+      if (node->first_child) {
+        cmark_strbuf_puts(html, " alt=\"");
+      }
       state->plain = node;
     } else {
+      if (node->first_child) {
+        cmark_strbuf_puts(html, "\"");
+      }
       if (node->as.link.title) {
-        cmark_strbuf_puts(html, "\" title=\"");
+        cmark_strbuf_puts(html, " title=\"");
         escape_html(html, node->as.link.title,
                     strlen((char *)node->as.link.title));
+        cmark_strbuf_puts(html, "\"");
       }
-
-      cmark_strbuf_puts(html, "\" />");
+      cmark_strbuf_puts(html, " />");
     }
     break;
 
