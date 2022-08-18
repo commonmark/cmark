@@ -270,7 +270,7 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
 }
 
 static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
-  uint8_t len = strlen(protocol);
+  size_t len = strlen(protocol);
 
   for (int i = 1; i <= len; i++) {
     if (data[-rewind - i] != protocol[len - i]) {
