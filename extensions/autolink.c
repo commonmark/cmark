@@ -270,7 +270,7 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
 }
 
 static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
-  u_int8_t len = strlen(protocol);
+  uint8_t len = strlen(protocol);
 
   for (int i = 1; i <= len; i++) {
     if (data[-rewind - i] != protocol[len - i]) {
@@ -278,7 +278,7 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
     }
   }
 
-  return !cmark_isalnum(data[-rewind - len - 1]));
+  return !cmark_isalnum(data[-rewind - len - 1]);
 }
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
