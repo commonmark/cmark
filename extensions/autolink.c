@@ -278,11 +278,7 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
     }
   }
 
-  if (cmark_isalnum(data[-rewind - len - 1])) {
-    return false;
-  }
-
-  return true;
+  return !cmark_isalnum(data[-rewind - len - 1]));
 }
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
