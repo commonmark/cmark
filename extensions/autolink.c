@@ -272,13 +272,17 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
 static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
   size_t len = strlen(protocol);
 
+  // Check that the protocol matches
   for (int i = 1; i <= len; i++) {
     if (data[-rewind - i] != protocol[len - i]) {
       return false;
     }
   }
 
-  return !cmark_isalnum(data[-rewind - len - 1]);
+  char prev_char = data[-rewind - len - 1];
+
+  // Make sure the character before the protocol is non-alphanumeric
+  return !cmark_isalnum(prev_char);
 }
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
