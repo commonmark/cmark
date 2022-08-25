@@ -545,6 +545,8 @@ size (100) for parsing delimiters in inlines.c
 
 scyther@pokemon.com
 
+scy.the_rbe-edr+ill@pokemon.com
+
 scyther@pokemon.com.
 
 scyther@pokemon.com/
@@ -598,6 +600,7 @@ http://🍄.ga/ http://x🍄.ga/
 <p>: <a href="http://google.com">http://google.com</a> <a href="https://google.com">https://google.com</a></p>
 <p><a href="http://google.com/%C3%A5">http://google.com/å</a> <a href="http://google.com/%C3%A5">http://google.com/å</a></p>
 <p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a></p>
+<p><a href="mailto:scy.the_rbe-edr+ill@pokemon.com">scy.the_rbe-edr+ill@pokemon.com</a></p>
 <p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a>.</p>
 <p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a>/</p>
 <p><a href="mailto:scyther@pokemon.com">scyther@pokemon.com</a>/<a href="mailto:beedrill@pokemon.com">beedrill@pokemon.com</a></p>
