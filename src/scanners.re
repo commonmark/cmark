@@ -54,7 +54,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   opentag = tagname attribute* spacechar* [/]? [>];
   closetag = [/] tagname spacechar* [>];
 
-  htmlcomment = "--->" | ("-" ([-]? [^\x00>-]) ([-]? [^\x00-])* "-->");
+  htmlcomment = "-->" | "--->" | "--" ([^\x00-]+ | "-" [^\x00-] | "--" [^\x00>])+ "-->";
 
   processinginstruction = ([^?>\x00]+ | [?][^>\x00] | [>])+;
 
