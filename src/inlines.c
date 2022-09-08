@@ -910,9 +910,9 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
     if (c == '!') {
       c = subj->input.data[subj->pos+1];
       if (c == '-') {
-        matchlen = scan_html_comment(&subj->input, subj->pos + 2);
+        matchlen = scan_html_comment(&subj->input, subj->pos + 1);
         if (matchlen > 0)
-          matchlen += 2; // prefix "<-"
+          matchlen += 1; // prefix "<!"
       } else if (c == '[') {
         if ((subj->flags & FLAG_SKIP_HTML_CDATA) == 0) {
           matchlen = scan_html_cdata(&subj->input, subj->pos + 2);
