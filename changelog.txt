@@ -1,3 +1,6 @@
+[0.29.0.gfm.6]
+  * Fixed polynomial time complexity DoS vulnerability in autolink extension
+  
 [0.29.0.gfm.5]
   * Added xmpp: and mailto: support to the autolink extension
 
