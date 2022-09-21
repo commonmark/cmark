@@ -6308,14 +6308,18 @@ bufsize_t _scan_html_block_start(const unsigned char *p) {
     }
   yy274:
     yych = *++p;
-    if (yych <= '@') {
+    if (yych <= 'Z') {
       if (yych == '-')
         goto yy293;
-    } else {
-      if (yych <= 'Z')
+      if (yych >= 'A')
         goto yy294;
+    } else {
       if (yych <= '[')
         goto yy295;
+      if (yych <= '`')
+        goto yy275;
+      if (yych <= 'z')
+        goto yy294;
     }
   yy275:
     p = marker;

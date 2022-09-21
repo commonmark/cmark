@@ -171,7 +171,7 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
   [<] ('script'|'pre'|'textarea'|'style') (spacechar | [>]) { return 1; }
   '<!--' { return 2; }
   '<?' { return 3; }
-  '<!' [A-Z] { return 4; }
+  '<!' [A-Za-z] { return 4; }
   '<![CDATA[' { return 5; }
   [<] [/]? blocktagname (spacechar | [/]? [>])  { return 6; }
   * { return 0; }

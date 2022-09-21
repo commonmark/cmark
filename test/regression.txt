@@ -198,3 +198,9 @@ Issue #424 - emphasis before links
 <p><em>text</em> <a href="#section">link</a></p>
 ````````````````````````````````
 
+`<!doctype` is case-insensitive
+```````````````````````````````` example
+<!docType html>
+.
+<!docType html>
+````````````````````````````````
