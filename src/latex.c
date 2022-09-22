@@ -256,7 +256,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         // latex normally supports only five levels
         if (enumlevel >= 1 && enumlevel <= 5) {
           snprintf(list_number_string, LIST_NUMBER_STRING_SIZE, "%d",
-                   list_number);
+                   list_number - 1); // the next item will increment this
           LIT("\\setcounter{enum");
           switch (enumlevel) {
           case 1: LIT("i"); break;
