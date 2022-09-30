@@ -15,9 +15,14 @@ cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
     CMARK_NODE_TABLE_CELL;
 
 typedef struct {
+  cmark_strbuf *buf;
+  int start_offset, end_offset, internal_offset;
+} node_cell;
+
+typedef struct {
   uint16_t n_columns;
   int paragraph_offset;
-  cmark_llist *cells;
+  node_cell *cells;
 } table_row;
 
 typedef struct {
@@ -29,24 +34,24 @@ typedef struct {
   bool is_header;
 } node_table_row;
 
-typedef struct {
-  cmark_strbuf *buf;
-  int start_offset, end_offset, internal_offset;
-} node_cell;
-
-static void free_table_cell(cmark_mem *mem, void *data) {
-  node_cell *cell = (node_cell *)data;
+static void free_table_cell(cmark_mem *mem, node_cell *cell) {
   cmark_strbuf_free((cmark_strbuf *)cell->buf);
   mem->free(cell->buf);
-  mem->free(cell);
+}
+
+static void free_row_cells(cmark_mem *mem, table_row *row) {
+  while (row->n_columns > 0) {
+    free_table_cell(mem, &row->cells[--row->n_columns]);
+  }
+  mem->free(row->cells);
+  row->cells = NULL;
 }
 
 static void free_table_row(cmark_mem *mem, table_row *row) {
   if (!row)
     return;
 
-  cmark_llist_free_full(mem, row->cells, (cmark_free_func)free_table_cell);
-
+  free_row_cells(mem, row);
   mem->free(row);
 }
 
@@ -152,24 +157,29 @@ static table_row *row_from_string(cmark_syntax_extension *self,
           cell_matched);
       cmark_strbuf_trim(cell_buf);
 
-      node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
+      const uint32_t n_columns = row->n_columns + 1;
+      // realloc when n_columns is a power of 2
+      if ((n_columns & (n_columns-1)) == 0) {
+        // make sure we never wrap row->n_columns
+        // offset will != len and our exit will clean up as intended
+        if (n_columns > UINT16_MAX) {
+          int_overflow_abort = 1;
+          break;
+        }
+        // Use realloc to double the size of the buffer.
+        row->cells = (node_cell *)parser->mem->realloc(row->cells, (2 * n_columns - 1) * sizeof(node_cell));
+      }
+      row->n_columns = n_columns;
+      node_cell *cell = &row->cells[n_columns-1];
       cell->buf = cell_buf;
       cell->start_offset = offset;
       cell->end_offset = offset + cell_matched - 1;
+      cell->internal_offset = 0;
 
       while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
         --cell->start_offset;
         ++cell->internal_offset;
       }
-
-      // make sure we never wrap row->n_columns
-      // offset will != len and our exit will clean up as intended
-      if (row->n_columns == UINT16_MAX) {
-          int_overflow_abort = 1;
-          break;
-      }
-      row->n_columns += 1;
-      row->cells = cmark_llist_append(parser->mem, row->cells, cell);
     }
 
     offset += cell_matched + pipe_matched;
@@ -187,9 +197,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       if (row_end_offset && offset != len) {
         row->paragraph_offset = offset;
 
-        cmark_llist_free_full(parser->mem, row->cells, (cmark_free_func)free_table_cell);
-        row->cells = NULL;
-        row->n_columns = 0;
+        free_row_cells(parser->mem, row);
 
         // Scan past the (optional) leading pipe.
         offset += scan_table_cell_end(string, len, offset);
@@ -303,9 +311,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   // since we populate the alignments array based on marker_row->cells
   uint8_t *alignments =
       (uint8_t *)parser->mem->calloc(marker_row->n_columns, sizeof(uint8_t));
-  cmark_llist *it = marker_row->cells;
-  for (i = 0; it; it = it->next, ++i) {
-    node_cell *node = (node_cell *)it->data;
+  for (i = 0; i < marker_row->n_columns; ++i) {
+    node_cell *node = &marker_row->cells[i];
     bool left = node->buf->ptr[0] == ':', right = node->buf->ptr[node->buf->size - 1] == ':';
 
     if (left && right)
@@ -328,10 +335,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   ntr->is_header = true;
 
   {
-    cmark_llist *tmp;
-
-    for (tmp = header_row->cells; tmp; tmp = tmp->next) {
-      node_cell *cell = (node_cell *) tmp->data;
+    for (i = 0; i < header_row->n_columns; ++i) {
+      node_cell *cell = &header_row->cells[i];
       cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
           CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
       header_cell->start_line = header_cell->end_line = parent_container->start_line;
@@ -378,11 +383,10 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
   }
 
   {
-    cmark_llist *tmp;
     int i, table_columns = get_n_table_columns(parent_container);
 
-    for (tmp = row->cells, i = 0; tmp && i < table_columns; tmp = tmp->next, ++i) {
-      node_cell *cell = (node_cell *) tmp->data;
+    for (i = 0; i < row->n_columns && i < table_columns; ++i) {
+      node_cell *cell = &row->cells[i];
       cmark_node *node = cmark_parser_add_child(parser, table_row_block,
           CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
       node->internal_offset = cell->internal_offset;
