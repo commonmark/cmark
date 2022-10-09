@@ -240,6 +240,10 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   const char *parent_string;
   uint16_t i;
 
+  if (parent_container->flags & CMARK_NODE__TABLE_VISITED) {
+    return parent_container;
+  }
+
   if (!scan_table_start(input, len, cmark_parser_get_first_nonspace(parser))) {
     return parent_container;
   }
@@ -267,6 +271,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     free_table_row(parser->mem, marker_row);
     free_table_row(parser->mem, header_row);
     cmark_arena_pop();
+    parent_container->flags |= CMARK_NODE__TABLE_VISITED;
     return parent_container;
   }
 
