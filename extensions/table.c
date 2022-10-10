@@ -116,6 +116,24 @@ static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsi
   return res;
 }
 
+// Adds a new cell to the end of the row. A pointer to the new cell is returned
+// for the caller to initialize.
+static node_cell* append_row_cell(cmark_mem *mem, table_row *row) {
+  const uint32_t n_columns = row->n_columns + 1;
+  // realloc when n_columns is a power of 2
+  if ((n_columns & (n_columns-1)) == 0) {
+    // make sure we never wrap row->n_columns
+    // offset will != len and our exit will clean up as intended
+    if (n_columns > UINT16_MAX) {
+      return NULL;
+    }
+    // Use realloc to double the size of the buffer.
+    row->cells = (node_cell *)mem->realloc(row->cells, (2 * n_columns - 1) * sizeof(node_cell));
+  }
+  row->n_columns = n_columns;
+  return &row->cells[n_columns-1];
+}
+
 static table_row *row_from_string(cmark_syntax_extension *self,
                                   cmark_parser *parser, unsigned char *string,
                                   int len) {
@@ -157,20 +175,11 @@ static table_row *row_from_string(cmark_syntax_extension *self,
           cell_matched);
       cmark_strbuf_trim(cell_buf);
 
-      const uint32_t n_columns = row->n_columns + 1;
-      // realloc when n_columns is a power of 2
-      if ((n_columns & (n_columns-1)) == 0) {
-        // make sure we never wrap row->n_columns
-        // offset will != len and our exit will clean up as intended
-        if (n_columns > UINT16_MAX) {
-          int_overflow_abort = 1;
-          break;
-        }
-        // Use realloc to double the size of the buffer.
-        row->cells = (node_cell *)parser->mem->realloc(row->cells, (2 * n_columns - 1) * sizeof(node_cell));
+      node_cell *cell = append_row_cell(parser->mem, row);
+      if (!cell) {
+        int_overflow_abort = 1;
+        break;
       }
-      row->n_columns = n_columns;
-      node_cell *cell = &row->cells[n_columns-1];
       cell->buf = cell_buf;
       cell->start_offset = offset;
       cell->end_offset = offset + cell_matched - 1;
