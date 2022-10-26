@@ -50,7 +50,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
 include(GNUInstallDirs)
-include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 cmark_add_compile_options(${PROGRAM})
@@ -87,11 +86,14 @@ if (CMARK_SHARED)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
   add_library(cmark::cmark ALIAS ${LIBRARY})
 
-  generate_export_header(${LIBRARY}
-    BASE_NAME ${PROJECT_NAME})
-
   list(APPEND CMARK_INSTALL ${LIBRARY})
+  set(CMARK_STATIC_DEFINE 0)
+else()
+  set(CMARK_STATIC_DEFINE 1)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_export.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h)
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
@@ -112,11 +114,6 @@ if (CMARK_STATIC)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
   add_library(cmark::cmark_static ALIAS ${STATICLIBRARY})
-
-  if (NOT CMARK_SHARED)
-    generate_export_header(${STATICLIBRARY}
-      BASE_NAME ${PROJECT_NAME})
-  endif()
 
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()

@@ -1,0 +1,38 @@
+#ifndef CMARK_EXPORT_H
+#define CMARK_EXPORT_H
+
+/* Is this an exclusively static build */
+#if @CMARK_STATIC_DEFINE@ && ! defined CMARK_STATIC_DEFINE
+#  define CMARK_STATIC_DEFINE
+#endif
+
+/*
+ * Here is the complicated part. Windows is special -- you cannot just define
+ * entry points unconditionally.
+ * */
+#if defined _WIN32 || defined __CYGWIN__
+   /* When building static libraries, avoid marking public ones */
+#  if defined CMARK_STATIC_DEFINE
+#    define CMARK_EXPORT
+   /* We are building this library */
+#  elif defined libcmark_EXPORTS
+#    define CMARK_EXPORT __declspec(dllexport)
+   /* We are using this library */
+#  else
+#    define CMARK_EXPORT __declspec(dllimport)
+#  endif
+
+/* On to the easy part. GCC and lookalikes such as clang just work */
+#elif defined __GNUC__ && __GNUC__ >= 4
+#  define CMARK_EXPORT __attribute__((visibility("default")))
+
+/* Older solaris support, why not */
+#elif defined __SUNPRO_C && __SUNPRO_C >= 0x550
+#  define CMARK_EXPORT __global
+
+/* All else failed, and we don't know about this compiler. Be conservative. */
+#else
+#  define CMARK_EXPORT
+#endif
+
+#endif /* CMARK_EXPORT_H */
