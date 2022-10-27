@@ -1,7 +1,7 @@
 ---
 title: GitHub Flavored Markdown Spec
-version: 0.29
-date: '2019-04-06'
+version: 0.29.0.gfm.6
+date: '2022-09-14'
 license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 ...
 
@@ -2077,7 +2077,7 @@ followed by one of the strings (case-insensitive) `address`,
 `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `head`, `header`, `hr`,
 `html`, `iframe`, `legend`, `li`, `link`, `main`, `menu`, `menuitem`,
 `nav`, `noframes`, `ol`, `optgroup`, `option`, `p`, `param`,
-`section`, `summary`, `table`, `tbody`, `td`,
+`section`, `source`, `summary`, `table`, `tbody`, `td`,
 `tfoot`, `th`, `thead`, `title`, `tr`, `track`, `ul`, followed
 by [whitespace], the end of the line, the string `>`, or
 the string `/>`.\
@@ -5995,12 +5995,12 @@ Here are some nonentities:
 
 ```````````````````````````````` example
 &nbsp &x; &#; &#x;
-&#987654321;
+&#87654321;
 &#abcdef0;
 &ThisIsNotDefined; &hi?;
 .
 <p>&amp;nbsp &amp;x; &amp;#; &amp;#x;
-&amp;#987654321;
+&amp;#87654321;
 &amp;#abcdef0;
 &amp;ThisIsNotDefined; &amp;hi?;</p>
 ````````````````````````````````
@@ -7712,12 +7712,13 @@ __a<http://foo.bar/?q=__>
 GFM enables the `strikethrough` extension, where an additional emphasis type is
 available.
 
-Strikethrough text is any text wrapped in two tildes (`~`).
+Strikethrough text is any text wrapped in a matching pair of one or two tildes
+(`~`).
 
 ```````````````````````````````` example strikethrough
-~~Hi~~ Hello, world!
+~~Hi~~ Hello, ~there~ world!
 .
-<p><del>Hi</del> Hello, world!</p>
+<p><del>Hi</del> Hello, <del>there</del> world!</p>
 ````````````````````````````````
 
 As with regular emphasis delimiters, a new paragraph will cause strikethrough
@@ -7730,6 +7731,14 @@ new paragraph~~.
 .
 <p>This ~~has a</p>
 <p>new paragraph~~.</p>
+````````````````````````````````
+
+Three or more tildes do not create a strikethrough:
+
+```````````````````````````````` example strikethrough
+This will ~~~not~~~ strike.
+.
+<p>This will ~~~not~~~ strike.</p>
 ````````````````````````````````
 
 </div>
@@ -8232,9 +8241,8 @@ perform the *Unicode case fold*, strip leading and trailing
 matching reference link definitions, the one that comes first in the
 document is used.  (It is desirable in such cases to emit a warning.)
 
-The contents of the first link label are parsed as inlines, which are
-used as the link's text.  The link's URI and title are provided by the
-matching [link reference definition].
+The link's URI and title are provided by the matching [link
+reference definition].
 
 Here is a simple example:
 
@@ -8327,11 +8335,11 @@ emphasis grouping:
 
 
 ```````````````````````````````` example
-[foo *bar][ref]
+[foo *bar][ref]*
 
 [ref]: /uri
 .
-<p><a href="/uri">foo *bar</a></p>
+<p><a href="/uri">foo *bar</a>*</p>
 ````````````````````````````````
 
 
@@ -8379,11 +8387,11 @@ Matching is case-insensitive:
 Unicode case fold is used:
 
 ```````````````````````````````` example
-[Толпой][Толпой] is a Russian word.
+[ẞ]
 
-[ТОЛПОЙ]: /url
+[SS]: /url
 .
-<p><a href="/url">Толпой</a> is a Russian word.</p>
+<p><a href="/url">ẞ</a></p>
 ````````````````````````````````
 
 
@@ -9295,7 +9303,7 @@ www.commonmark.org/he<lp
 ````````````````````````````````
 
 An [extended url autolink](@) will be recognised when one of the schemes
-`http://`, `https://`, or `ftp://`, followed by a [valid domain], then zero or
+`http://`, or `https://`, followed by a [valid domain], then zero or
 more non-space non-`<` characters according to
 [extended autolink path validation]:
 
@@ -9303,12 +9311,9 @@ more non-space non-`<` characters according to
 http://commonmark.org
 
 (Visit https://encrypted.google.com/search?q=Markup+(business))
-
-Anonymous FTP is available at ftp://foo.bar.baz.
 .
 <p><a href="http://commonmark.org">http://commonmark.org</a></p>
 <p>(Visit <a href="https://encrypted.google.com/search?q=Markup+(business)">https://encrypted.google.com/search?q=Markup+(business)</a>)</p>
-<p>Anonymous FTP is available at <a href="ftp://foo.bar.baz">ftp://foo.bar.baz</a>.</p>
 ````````````````````````````````
 
 
@@ -9356,6 +9361,66 @@ a.b-c_d@a.b_
 <p><a href="mailto:a.b-c_d@a.b">a.b-c_d@a.b</a>.</p>
 <p>a.b-c_d@a.b-</p>
 <p>a.b-c_d@a.b_</p>
+````````````````````````````````
+
+An [extended protocol autolink](@) will be recognised when a protocol is
+recognised within any text node.  Valid protocols are:
+
+* `mailto:`
+* `xmpp:`
+
+The scheme of the protocol will automatically be added to the generated link.
+All the rules of email address autolinking apply.
+
+```````````````````````````````` example autolink
+mailto:foo@bar.baz
+
+mailto:a.b-c_d@a.b
+
+mailto:a.b-c_d@a.b.
+
+mailto:a.b-c_d@a.b/
+
+mailto:a.b-c_d@a.b-
+
+mailto:a.b-c_d@a.b_
+
+xmpp:foo@bar.baz
+
+xmpp:foo@bar.baz.
+.
+<p><a href="mailto:foo@bar.baz">mailto:foo@bar.baz</a></p>
+<p><a href="mailto:a.b-c_d@a.b">mailto:a.b-c_d@a.b</a></p>
+<p><a href="mailto:a.b-c_d@a.b">mailto:a.b-c_d@a.b</a>.</p>
+<p><a href="mailto:a.b-c_d@a.b">mailto:a.b-c_d@a.b</a>/</p>
+<p>mailto:a.b-c_d@a.b-</p>
+<p>mailto:a.b-c_d@a.b_</p>
+<p><a href="xmpp:foo@bar.baz">xmpp:foo@bar.baz</a></p>
+<p><a href="xmpp:foo@bar.baz">xmpp:foo@bar.baz</a>.</p>
+````````````````````````````````
+
+A described in the [specification](https://datatracker.ietf.org/doc/rfc7622/)
+`xmpp` offers an optional `/` followed by a resource. The resource can contain
+all alphanumeric characters, as well as `@` and `.`.
+
+```````````````````````````````` example autolink
+xmpp:foo@bar.baz/txt
+
+xmpp:foo@bar.baz/txt@bin
+
+xmpp:foo@bar.baz/txt@bin.com
+.
+<p><a href="xmpp:foo@bar.baz/txt">xmpp:foo@bar.baz/txt</a></p>
+<p><a href="xmpp:foo@bar.baz/txt@bin">xmpp:foo@bar.baz/txt@bin</a></p>
+<p><a href="xmpp:foo@bar.baz/txt@bin.com">xmpp:foo@bar.baz/txt@bin.com</a></p>
+````````````````````````````````
+
+Further `/` characters are not considered part of the domain:
+
+```````````````````````````````` example autolink
+xmpp:foo@bar.baz/txt/bin
+.
+<p><a href="xmpp:foo@bar.baz/txt">xmpp:foo@bar.baz/txt</a>/bin</p>
 ````````````````````````````````
 
 </div>
@@ -10224,3 +10289,4 @@ closers:
 
 After we're done, we remove all delimiters above `stack_bottom` from the
 delimiter stack.
+
