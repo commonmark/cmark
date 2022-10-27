@@ -14,9 +14,6 @@
 *.so.*
 *.dylib
 
-# MacOS Files
-*.DS_Store
-
 # Executables
 *.exe
 *.out
