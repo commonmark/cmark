@@ -127,8 +127,17 @@ static size_t check_domain(uint8_t *data, size_t size, int allow_short) {
       break;
   }
 
-  if (uscore1 > 0 || uscore2 > 0)
-    return 0;
+  if (uscore1 > 0 || uscore2 > 0) {
+    /* If the url is very long then accept it despite the underscores,
+     * to avoid quadratic behavior causing a denial of service. See:
+     * https://github.com/github/cmark-gfm/security/advisories/GHSA-29g3-96g3-jg6c
+     * Reasonable urls are unlikely to have more than 10 segments, so
+     * this extra condition shouldn't have any impact on normal usage.
+     */
+    if (np <= 10) {
+      return 0;
+    }
+  }
 
   if (allow_short) {
     /* We don't need a valid domain in the strict sense (with
