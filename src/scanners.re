@@ -58,7 +58,7 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 
   processinginstruction = ([^?>\x00]+ | [?][^>\x00] | [>])+;
 
-  declaration = [A-Z]+ spacechar+ [^>\x00]*;
+  declaration = [A-Z]+ [^>\x00]*;
 
   cdata = "CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])*;
 

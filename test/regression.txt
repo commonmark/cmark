@@ -204,3 +204,12 @@ Issue #424 - emphasis before links
 .
 <!docType html>
 ````````````````````````````````
+
+Declarations don't need spaces, according to the spec
+```````````````````````````````` example
+x <!A>
+.
+<p>x <!A></p>
+````````````````````````````````
+
+
