@@ -269,14 +269,20 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
-static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
+static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int max_rewind) {
   size_t len = strlen(protocol);
 
+  if (len > (size_t)(max_rewind - rewind)) {
+    return false;
+  }
+
   // Check that the protocol matches
-  for (int i = 1; i <= len; i++) {
-    if (data[-rewind - i] != protocol[len - i]) {
-      return false;
-    }
+  if (memcmp(data - rewind - len, protocol, len) != 0) {
+    return false;
+  }
+
+  if (len == (size_t)(max_rewind - rewind)) {
+    return true;
   }
 
   char prev_char = data[-rewind - len - 1];
@@ -323,12 +329,12 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
       continue;
 
     if (strchr(":", c) != NULL) {
-      if (validate_protocol("mailto:", data, rewind)) {
+      if (validate_protocol("mailto:", data, rewind, max_rewind)) {
         auto_mailto = false;
         continue;
       }
 
-      if (validate_protocol("xmpp:", data, rewind)) {
+      if (validate_protocol("xmpp:", data, rewind, max_rewind)) {
         auto_mailto = false;
         is_xmpp = true;
         continue;
