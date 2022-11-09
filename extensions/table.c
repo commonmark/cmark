@@ -157,7 +157,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       cell->start_offset = offset;
       cell->end_offset = offset + cell_matched - 1;
 
-      while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
+      while (cell->start_offset > row->paragraph_offset && string[cell->start_offset - 1] != '|') {
         --cell->start_offset;
         ++cell->internal_offset;
       }
