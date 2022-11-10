@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
   wget \
   clang \
   man \
-  clang-format-3.5 \
+  clang-format \
   && apt-get clean
 
 RUN wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz && \
