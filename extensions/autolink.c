@@ -165,7 +165,7 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   if (link_end == 0)
     return NULL;
 
-  while (link_end < size && !cmark_isspace(data[link_end]))
+  while (link_end < size && !cmark_isspace(data[link_end]) && data[link_end] != '<')
     link_end++;
 
   link_end = autolink_delim(data, link_end);
@@ -225,7 +225,7 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
     return 0;
 
   link_end += domain_len;
-  while (link_end < size && !cmark_isspace(data[link_end]))
+  while (link_end < size && !cmark_isspace(data[link_end]) && data[link_end] != '<')
     link_end++;
 
   link_end = autolink_delim(data, link_end);
