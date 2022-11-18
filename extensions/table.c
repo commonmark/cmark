@@ -178,6 +178,8 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       node_cell *cell = append_row_cell(parser->mem, row);
       if (!cell) {
         int_overflow_abort = 1;
+        cmark_strbuf_free(cell_buf);
+        parser->mem->free(cell_buf);
         break;
       }
       cell->buf = cell_buf;
