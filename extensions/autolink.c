@@ -414,8 +414,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
     text->as.literal.len = offset + max_rewind - rewind;
     text->as.literal.data[text->as.literal.len] = 0;
 
-    postprocess_text(parser, post, 0, depth + 1);
-    return;
+    text = post;
+    offset = 0;
+    depth++;
   }
 }
 
