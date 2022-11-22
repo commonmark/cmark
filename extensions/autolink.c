@@ -292,6 +292,7 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int ma
 }
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
+  while (true) {
   // postprocess_text can recurse very deeply if there is a very long line of
   // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
   if (depth > 1000) return;
@@ -345,8 +346,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
   }
 
   if (rewind == 0 || ns > 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
+    offset += max_rewind + 1;
+    depth++;
+    continue;
   }
 
   for (link_end = 0; link_end < size; ++link_end) {
@@ -367,15 +369,17 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
 
   if (link_end < 2 || nb != 1 || np == 0 ||
       (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
+    offset += max_rewind + 1;
+    depth++;
+    continue;
   }
 
   link_end = autolink_delim(data, link_end);
 
   if (link_end == 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
+    offset += max_rewind + 1;
+    depth++;
+    continue;
   }
 
   cmark_chunk_to_cstr(parser->mem, &text->as.literal);
@@ -411,6 +415,8 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
   text->as.literal.data[text->as.literal.len] = 0;
 
   postprocess_text(parser, post, 0, depth + 1);
+  return;
+  }
 }
 
 static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *root) {
