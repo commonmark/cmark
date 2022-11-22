@@ -293,129 +293,129 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int ma
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
   while (true) {
-  // postprocess_text can recurse very deeply if there is a very long line of
-  // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
-  if (depth > 1000) return;
+    // postprocess_text can recurse very deeply if there is a very long line of
+    // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
+    if (depth > 1000) return;
 
-  size_t link_end;
-  uint8_t *data = text->as.literal.data,
-    *at;
-  size_t size = text->as.literal.len;
-  bool auto_mailto = true;
-  bool is_xmpp = false;
-  int rewind, max_rewind,
+    size_t link_end;
+    uint8_t *data = text->as.literal.data,
+      *at;
+    size_t size = text->as.literal.len;
+    bool auto_mailto = true;
+    bool is_xmpp = false;
+    int rewind, max_rewind,
       nb = 0, np = 0, ns = 0;
 
-  if (offset < 0 || (size_t)offset >= size)
-    return;
+    if (offset < 0 || (size_t)offset >= size)
+      return;
 
-  data += offset;
-  size -= offset;
+    data += offset;
+    size -= offset;
 
-  at = (uint8_t *)memchr(data, '@', size);
-  if (!at)
-    return;
+    at = (uint8_t *)memchr(data, '@', size);
+    if (!at)
+      return;
 
-  max_rewind = (int)(at - data);
-  data += max_rewind;
-  size -= max_rewind;
+    max_rewind = (int)(at - data);
+    data += max_rewind;
+    size -= max_rewind;
 
-  for (rewind = 0; rewind < max_rewind; ++rewind) {
-    uint8_t c = data[-rewind - 1];
+    for (rewind = 0; rewind < max_rewind; ++rewind) {
+      uint8_t c = data[-rewind - 1];
 
-    if (cmark_isalnum(c))
-      continue;
-
-    if (strchr(".+-_", c) != NULL)
-      continue;
-
-    if (strchr(":", c) != NULL) {
-      if (validate_protocol("mailto:", data, rewind, max_rewind)) {
-        auto_mailto = false;
+      if (cmark_isalnum(c))
         continue;
+
+      if (strchr(".+-_", c) != NULL)
+        continue;
+
+      if (strchr(":", c) != NULL) {
+        if (validate_protocol("mailto:", data, rewind, max_rewind)) {
+          auto_mailto = false;
+          continue;
+        }
+
+        if (validate_protocol("xmpp:", data, rewind, max_rewind)) {
+          auto_mailto = false;
+          is_xmpp = true;
+          continue;
+        }
       }
 
-      if (validate_protocol("xmpp:", data, rewind, max_rewind)) {
-        auto_mailto = false;
-        is_xmpp = true;
-        continue;
-      }
+      break;
     }
 
-    break;
-  }
-
-  if (rewind == 0 || ns > 0) {
-    offset += max_rewind + 1;
-    depth++;
-    continue;
-  }
-
-  for (link_end = 0; link_end < size; ++link_end) {
-    uint8_t c = data[link_end];
-
-    if (cmark_isalnum(c))
+    if (rewind == 0 || ns > 0) {
+      offset += max_rewind + 1;
+      depth++;
       continue;
+    }
 
-    if (c == '@')
-      nb++;
-    else if (c == '.' && link_end < size - 1 && cmark_isalnum(data[link_end + 1]))
-      np++;
-    else if (c == '/' && is_xmpp)
+    for (link_end = 0; link_end < size; ++link_end) {
+      uint8_t c = data[link_end];
+
+      if (cmark_isalnum(c))
+        continue;
+
+      if (c == '@')
+        nb++;
+      else if (c == '.' && link_end < size - 1 && cmark_isalnum(data[link_end + 1]))
+        np++;
+      else if (c == '/' && is_xmpp)
+        continue;
+      else if (c != '-' && c != '_')
+        break;
+    }
+
+    if (link_end < 2 || nb != 1 || np == 0 ||
+        (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
+      offset += max_rewind + 1;
+      depth++;
       continue;
-    else if (c != '-' && c != '_')
-      break;
-  }
+    }
 
-  if (link_end < 2 || nb != 1 || np == 0 ||
-      (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
-    offset += max_rewind + 1;
-    depth++;
-    continue;
-  }
+    link_end = autolink_delim(data, link_end);
 
-  link_end = autolink_delim(data, link_end);
+    if (link_end == 0) {
+      offset += max_rewind + 1;
+      depth++;
+      continue;
+    }
 
-  if (link_end == 0) {
-    offset += max_rewind + 1;
-    depth++;
-    continue;
-  }
+    cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
-  cmark_chunk_to_cstr(parser->mem, &text->as.literal);
+    cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
+    cmark_strbuf buf;
+    cmark_strbuf_init(parser->mem, &buf, 10);
+    if (auto_mailto)
+      cmark_strbuf_puts(&buf, "mailto:");
+    cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
+    link_node->as.link.url = cmark_chunk_buf_detach(&buf);
 
-  cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
-  cmark_strbuf buf;
-  cmark_strbuf_init(parser->mem, &buf, 10);
-  if (auto_mailto)
-    cmark_strbuf_puts(&buf, "mailto:");
-  cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
-  link_node->as.link.url = cmark_chunk_buf_detach(&buf);
-
-  cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  cmark_chunk email = cmark_chunk_dup(
+    cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    cmark_chunk email = cmark_chunk_dup(
       &text->as.literal,
       offset + max_rewind - rewind,
       (bufsize_t)(link_end + rewind));
-  cmark_chunk_to_cstr(parser->mem, &email);
-  link_text->as.literal = email;
-  cmark_node_append_child(link_node, link_text);
+    cmark_chunk_to_cstr(parser->mem, &email);
+    link_text->as.literal = email;
+    cmark_node_append_child(link_node, link_text);
 
-  cmark_node_insert_after(text, link_node);
+    cmark_node_insert_after(text, link_node);
 
-  cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  post->as.literal = cmark_chunk_dup(&text->as.literal,
-    (bufsize_t)(offset + max_rewind + link_end),
-    (bufsize_t)(size - link_end));
-  cmark_chunk_to_cstr(parser->mem, &post->as.literal);
+    cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    post->as.literal = cmark_chunk_dup(&text->as.literal,
+                                       (bufsize_t)(offset + max_rewind + link_end),
+                                       (bufsize_t)(size - link_end));
+    cmark_chunk_to_cstr(parser->mem, &post->as.literal);
 
-  cmark_node_insert_after(link_node, post);
+    cmark_node_insert_after(link_node, post);
 
-  text->as.literal.len = offset + max_rewind - rewind;
-  text->as.literal.data[text->as.literal.len] = 0;
+    text->as.literal.len = offset + max_rewind - rewind;
+    text->as.literal.data[text->as.literal.len] = 0;
 
-  postprocess_text(parser, post, 0, depth + 1);
-  return;
+    postprocess_text(parser, post, 0, depth + 1);
+    return;
   }
 }
 
