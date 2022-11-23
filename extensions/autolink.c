@@ -416,11 +416,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
 
     cmark_node_insert_after(link_node, post);
 
-    text->as.literal.len = offset + max_rewind - rewind;
-    text->as.literal.data[text->as.literal.len] = 0;
-
-    // Convert the reference to allocated memory.
-    assert(!text->as.literal.alloc);
+    text->as.literal = cmark_chunk_dup(&text->as.literal, 0, offset + max_rewind - rewind);
     cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
     text = post;
