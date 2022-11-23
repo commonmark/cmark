@@ -312,7 +312,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
     bool auto_mailto = true;
     bool is_xmpp = false;
     int rewind, max_rewind,
-      nb = 0, np = 0, ns = 0;
+      nb = 0, np = 0;
 
     if (offset < 0 || (size_t)offset >= size)
       break;
@@ -353,7 +353,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
       break;
     }
 
-    if (rewind == 0 || ns > 0) {
+    if (rewind == 0) {
       offset += max_rewind + 1;
       depth++;
       continue;
