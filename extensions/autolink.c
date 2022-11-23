@@ -291,7 +291,9 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int ma
   return !cmark_isalnum(prev_char);
 }
 
-static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
+static void postprocess_text(cmark_parser *parser, cmark_node *text) {
+  size_t offset = 0;
+  size_t depth = 0;
   // `text` is going to be split into a list of nodes containing shorter segments
   // of text, so we detach the memory buffer from text and use `cmark_chunk_dup` to
   // create references to it. Later, `cmark_chunk_to_cstr` is used to convert
@@ -311,10 +313,12 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
     size_t size = text->as.literal.len;
     bool auto_mailto = true;
     bool is_xmpp = false;
-    int rewind, max_rewind,
-      nb = 0, np = 0;
+    size_t rewind;
+    size_t max_rewind;
+    size_t nb = 0;
+    size_t np = 0;
 
-    if (offset < 0 || (size_t)offset >= size)
+    if (offset >= size)
       break;
 
     data += offset;
@@ -324,7 +328,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
     if (!at)
       break;
 
-    max_rewind = (int)(at - data);
+    max_rewind = at - data;
     data += max_rewind;
     size -= max_rewind;
 
@@ -456,7 +460,7 @@ static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser
     }
 
     if (ev == CMARK_EVENT_ENTER && node->type == CMARK_NODE_TEXT) {
-      postprocess_text(parser, node, 0, /*depth*/0);
+      postprocess_text(parser, node);
     }
   }
 
