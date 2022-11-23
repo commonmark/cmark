@@ -295,7 +295,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
   while (true) {
     // postprocess_text can recurse very deeply if there is a very long line of
     // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
-    if (depth > 1000) return;
+    if (depth > 1000) break;
 
     size_t link_end;
     uint8_t *data = text->as.literal.data,
@@ -307,14 +307,14 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
       nb = 0, np = 0, ns = 0;
 
     if (offset < 0 || (size_t)offset >= size)
-      return;
+      break;
 
     data += offset;
     size -= offset;
 
     at = (uint8_t *)memchr(data, '@', size);
     if (!at)
-      return;
+      break;
 
     max_rewind = (int)(at - data);
     data += max_rewind;
