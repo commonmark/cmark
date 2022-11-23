@@ -292,6 +292,14 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int ma
 }
 
 static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
+  // `text` is going to be split into a list of nodes containing shorter segments
+  // of text, so we detach the memory buffer from text and use `cmark_chunk_dup` to
+  // create references to it. Later, `cmark_chunk_to_cstr` is used to convert
+  // the references into allocated buffers. The detached buffer is freed before we
+  // return.
+  cmark_chunk detached_chunk = text->as.literal;
+  text->as.literal = cmark_chunk_dup(&detached_chunk, 0, detached_chunk.len);
+
   while (true) {
     // postprocess_text can recurse very deeply if there is a very long line of
     // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
@@ -382,8 +390,6 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
       continue;
     }
 
-    cmark_chunk_to_cstr(parser->mem, &text->as.literal);
-
     cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
     cmark_strbuf buf;
     cmark_strbuf_init(parser->mem, &buf, 10);
@@ -407,17 +413,27 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset,
     post->as.literal = cmark_chunk_dup(&text->as.literal,
                                        (bufsize_t)(offset + max_rewind + link_end),
                                        (bufsize_t)(size - link_end));
-    cmark_chunk_to_cstr(parser->mem, &post->as.literal);
 
     cmark_node_insert_after(link_node, post);
 
     text->as.literal.len = offset + max_rewind - rewind;
     text->as.literal.data[text->as.literal.len] = 0;
 
+    // Convert the reference to allocated memory.
+    assert(!text->as.literal.alloc);
+    cmark_chunk_to_cstr(parser->mem, &text->as.literal);
+
     text = post;
     offset = 0;
     depth++;
   }
+
+  // Convert the reference to allocated memory.
+  assert(!text->as.literal.alloc);
+  cmark_chunk_to_cstr(parser->mem, &text->as.literal);
+
+  // Free the detached buffer.
+  cmark_chunk_free(parser->mem, &detached_chunk);
 }
 
 static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *root) {
