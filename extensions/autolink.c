@@ -425,13 +425,13 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     cmark_node_insert_after(text, link_node);
 
     cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-    post->as.literal = cmark_chunk_dup(&text->as.literal,
-                                       (bufsize_t)(offset + max_rewind + link_end),
+    post->as.literal = cmark_chunk_dup(&detached_chunk,
+                                       (bufsize_t)(start + link_end),
                                        (bufsize_t)(remaining - link_end));
 
     cmark_node_insert_after(link_node, post);
 
-    text->as.literal = cmark_chunk_dup(&text->as.literal, 0, offset + max_rewind - rewind);
+    text->as.literal = cmark_chunk_dup(&detached_chunk, start - offset - max_rewind, offset + max_rewind - rewind);
     cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
     text = post;
