@@ -403,8 +403,8 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
     cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
     cmark_chunk email = cmark_chunk_dup(
-      &text->as.literal,
-      offset + max_rewind - rewind,
+      &detached_chunk,
+      start + offset + max_rewind - rewind,
       (bufsize_t)(link_end + rewind));
     cmark_chunk_to_cstr(parser->mem, &email);
     link_text->as.literal = email;
