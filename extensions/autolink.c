@@ -323,19 +323,14 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     if (offset >= remaining)
       break;
 
-    start += offset;
-    remaining -= offset;
-
-    at = (uint8_t *)memchr(data + start, '@', remaining);
+    at = (uint8_t *)memchr(data + start + offset, '@', remaining - offset);
     if (!at)
       break;
 
-    max_rewind = at - (data + start);
-    start += max_rewind;
-    remaining -= max_rewind;
+    max_rewind = at - (data + start + offset);
 
     for (rewind = 0; rewind < max_rewind; ++rewind) {
-      uint8_t c = data[start - rewind - 1];
+      uint8_t c = data[start + offset + max_rewind - rewind - 1];
 
       if (cmark_isalnum(c))
         continue;
@@ -344,12 +339,12 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
         continue;
 
       if (strchr(":", c) != NULL) {
-        if (validate_protocol("mailto:", data + start, rewind, max_rewind)) {
+        if (validate_protocol("mailto:", data + start + offset + max_rewind, rewind, max_rewind)) {
           auto_mailto = false;
           continue;
         }
 
-        if (validate_protocol("xmpp:", data + start, rewind, max_rewind)) {
+        if (validate_protocol("xmpp:", data + start + offset + max_rewind, rewind, max_rewind)) {
           auto_mailto = false;
           is_xmpp = true;
           continue;
@@ -360,23 +355,21 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     }
 
     if (rewind == 0) {
-      // Reset start, remaining back to their values at the start of the loop.
-      start -= offset + max_rewind;
-      remaining += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
     }
 
-    for (link_end = 0; link_end < remaining; ++link_end) {
-      uint8_t c = data[start + link_end];
+    for (link_end = 0; link_end < remaining - offset - max_rewind; ++link_end) {
+      uint8_t c = data[start + offset + max_rewind + link_end];
 
       if (cmark_isalnum(c))
         continue;
 
       if (c == '@')
         nb++;
-      else if (c == '.' && link_end < remaining - 1 && cmark_isalnum(data[start + link_end + 1]))
+      else if (c == '.' && link_end < remaining - offset - max_rewind - 1 &&
+               cmark_isalnum(data[start + offset + max_rewind + link_end + 1]))
         np++;
       else if (c == '/' && is_xmpp)
         continue;
@@ -385,21 +378,16 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     }
 
     if (link_end < 2 || nb != 1 || np == 0 ||
-        (!cmark_isalpha(data[start + link_end - 1]) && data[start + link_end - 1] != '.')) {
-      // Reset start, remaining back to their values at the start of the loop.
-      start -= offset + max_rewind;
-      remaining += offset + max_rewind;
+        (!cmark_isalpha(data[start + offset + max_rewind + link_end - 1]) &&
+         data[start + offset + max_rewind + link_end - 1] != '.')) {
       offset += max_rewind + 1;
       depth++;
       continue;
     }
 
-    link_end = autolink_delim(data + start, link_end);
+    link_end = autolink_delim(data + start + offset + max_rewind, link_end);
 
     if (link_end == 0) {
-      // Reset start, remaining back to their values at the start of the loop.
-      start -= offset + max_rewind;
-      remaining += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -410,7 +398,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     cmark_strbuf_init(parser->mem, &buf, 10);
     if (auto_mailto)
       cmark_strbuf_puts(&buf, "mailto:");
-    cmark_strbuf_put(&buf, data + start - rewind, (bufsize_t)(link_end + rewind));
+    cmark_strbuf_put(&buf, data + start + offset + max_rewind - rewind, (bufsize_t)(link_end + rewind));
     link_node->as.link.url = cmark_chunk_buf_detach(&buf);
 
     cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
@@ -426,17 +414,17 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
     cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
     post->as.literal = cmark_chunk_dup(&detached_chunk,
-                                       (bufsize_t)(start + link_end),
-                                       (bufsize_t)(remaining - link_end));
+                                       (bufsize_t)(start + offset + max_rewind + link_end),
+                                       (bufsize_t)(remaining - offset - max_rewind - link_end));
 
     cmark_node_insert_after(link_node, post);
 
-    text->as.literal = cmark_chunk_dup(&detached_chunk, start - offset - max_rewind, offset + max_rewind - rewind);
+    text->as.literal = cmark_chunk_dup(&detached_chunk, start, offset + max_rewind - rewind);
     cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
     text = post;
-    start += link_end;
-    remaining -= link_end;
+    start += offset + max_rewind + link_end;
+    remaining -= offset + max_rewind + link_end;
     offset = 0;
     depth++;
   }
