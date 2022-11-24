@@ -302,15 +302,16 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
   cmark_chunk detached_chunk = text->as.literal;
   text->as.literal = cmark_chunk_dup(&detached_chunk, 0, detached_chunk.len);
 
+  uint8_t *data = text->as.literal.data;
+  size_t size = text->as.literal.len;
+
   while (true) {
     // postprocess_text can recurse very deeply if there is a very long line of
     // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
     if (depth > 1000) break;
 
     size_t link_end;
-    uint8_t *data = text->as.literal.data,
-      *at;
-    size_t size = text->as.literal.len;
+    uint8_t *at;
     bool auto_mailto = true;
     bool is_xmpp = false;
     size_t rewind;
@@ -358,6 +359,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     }
 
     if (rewind == 0) {
+      // Reset data, size back to their values at the start of the loop.
+      data -= offset + max_rewind;
+      size += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -381,6 +385,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
     if (link_end < 2 || nb != 1 || np == 0 ||
         (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
+      // Reset data, size back to their values at the start of the loop.
+      data -= offset + max_rewind;
+      size += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -389,6 +396,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     link_end = autolink_delim(data, link_end);
 
     if (link_end == 0) {
+      // Reset data, size back to their values at the start of the loop.
+      data -= offset + max_rewind;
+      size += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -424,6 +434,8 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
     text = post;
+    data += link_end;
+    size -= link_end;
     offset = 0;
     depth++;
   }
