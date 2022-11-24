@@ -304,7 +304,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
   text->as.literal = cmark_chunk_dup(&detached_chunk, 0, detached_chunk.len);
 
   uint8_t *data = text->as.literal.data;
-  size_t size = text->as.literal.len;
+  size_t remaining = text->as.literal.len;
 
   while (true) {
     // postprocess_text can recurse very deeply if there is a very long line of
@@ -320,19 +320,19 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     size_t nb = 0;
     size_t np = 0;
 
-    if (offset >= size)
+    if (offset >= remaining)
       break;
 
     start += offset;
-    size -= offset;
+    remaining -= offset;
 
-    at = (uint8_t *)memchr(data + start, '@', size);
+    at = (uint8_t *)memchr(data + start, '@', remaining);
     if (!at)
       break;
 
     max_rewind = at - (data + start);
     start += max_rewind;
-    size -= max_rewind;
+    remaining -= max_rewind;
 
     for (rewind = 0; rewind < max_rewind; ++rewind) {
       uint8_t c = data[start - rewind - 1];
@@ -360,15 +360,15 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     }
 
     if (rewind == 0) {
-      // Reset start, size back to their values at the start of the loop.
+      // Reset start, remaining back to their values at the start of the loop.
       start -= offset + max_rewind;
-      size += offset + max_rewind;
+      remaining += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
     }
 
-    for (link_end = 0; link_end < size; ++link_end) {
+    for (link_end = 0; link_end < remaining; ++link_end) {
       uint8_t c = data[start + link_end];
 
       if (cmark_isalnum(c))
@@ -376,7 +376,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
       if (c == '@')
         nb++;
-      else if (c == '.' && link_end < size - 1 && cmark_isalnum(data[start + link_end + 1]))
+      else if (c == '.' && link_end < remaining - 1 && cmark_isalnum(data[start + link_end + 1]))
         np++;
       else if (c == '/' && is_xmpp)
         continue;
@@ -386,9 +386,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
     if (link_end < 2 || nb != 1 || np == 0 ||
         (!cmark_isalpha(data[start + link_end - 1]) && data[start + link_end - 1] != '.')) {
-      // Reset start, size back to their values at the start of the loop.
+      // Reset start, remaining back to their values at the start of the loop.
       start -= offset + max_rewind;
-      size += offset + max_rewind;
+      remaining += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -397,9 +397,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     link_end = autolink_delim(data + start, link_end);
 
     if (link_end == 0) {
-      // Reset start, size back to their values at the start of the loop.
+      // Reset start, remaining back to their values at the start of the loop.
       start -= offset + max_rewind;
-      size += offset + max_rewind;
+      remaining += offset + max_rewind;
       offset += max_rewind + 1;
       depth++;
       continue;
@@ -427,7 +427,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
     post->as.literal = cmark_chunk_dup(&text->as.literal,
                                        (bufsize_t)(offset + max_rewind + link_end),
-                                       (bufsize_t)(size - link_end));
+                                       (bufsize_t)(remaining - link_end));
 
     cmark_node_insert_after(link_node, post);
 
@@ -436,7 +436,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
     text = post;
     start += link_end;
-    size -= link_end;
+    remaining -= link_end;
     offset = 0;
     depth++;
   }
