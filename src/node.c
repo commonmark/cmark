@@ -9,9 +9,9 @@ static void S_node_unlink(cmark_node *node);
 
 #define NODE_MEM(node) cmark_node_mem(node)
 
-cmark_node__internal_flags CMARK_NODE__OPEN = 0;
-cmark_node__internal_flags CMARK_NODE__LAST_LINE_BLANK = 0;
-cmark_node__internal_flags CMARK_NODE__LAST_LINE_CHECKED = 0;
+cmark_node__internal_flags CMARK_NODE__OPEN;
+cmark_node__internal_flags CMARK_NODE__LAST_LINE_BLANK;
+cmark_node__internal_flags CMARK_NODE__LAST_LINE_CHECKED;
 
 void cmark_register_node_flag(cmark_node__internal_flags *flags) {
   static uint8_t shift = 0;
