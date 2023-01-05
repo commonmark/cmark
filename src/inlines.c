@@ -52,6 +52,7 @@ typedef struct bracket {
 #define FLAG_SKIP_HTML_CDATA        (1u << 0)
 #define FLAG_SKIP_HTML_DECLARATION  (1u << 1)
 #define FLAG_SKIP_HTML_PI           (1u << 2)
+#define FLAG_SKIP_HTML_COMMENT      (1u << 3)
 
 typedef struct {
   cmark_mem *mem;
@@ -905,7 +906,7 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
   // finally, try to match an html tag
   if (subj->pos + 2 <= subj->input.len) {
     int c = subj->input.data[subj->pos];
-    if (c == '!') {
+    if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
       c = subj->input.data[subj->pos+1];
       if (c == '-' && subj->input.data[subj->pos+2] == '-') {
 	if (subj->input.data[subj->pos+3] == '>') {
@@ -915,8 +916,12 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
           matchlen = 5;
         } else {
           matchlen = scan_html_comment(&subj->input, subj->pos + 1);
-          if (matchlen > 0)
+          if (matchlen > 0) {
             matchlen += 1; // prefix "<"
+	  } else { // no match through end of input: set a flag so
+		   // we don't reparse looking for -->:
+	    subj->flags |= FLAG_SKIP_HTML_COMMENT;
+	  }
 	}
       } else if (c == '[') {
         if ((subj->flags & FLAG_SKIP_HTML_CDATA) == 0) {
