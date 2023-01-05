@@ -63,6 +63,9 @@ pathological = {
     "pattern [ (]( repeated":
                  (("[ (](" * 80000),
                   re.compile("(\[ \(\]\(){80000}")),
+    "pattern ![[]() repeated":
+                 ("![[]()" * 160000,
+                  re.compile("(!\[<a href=\"\"></a>){160000}")),
     "hard link/emph case":
                  ("**x [a*b**c*](d)",
                   re.compile("\\*\\*x <a href=\"d\">a<em>b\\*\\*c</em></a>")),
