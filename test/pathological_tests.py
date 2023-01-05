@@ -87,6 +87,9 @@ pathological = {
     "unclosed links B":
                  ("[a](b" * 30000,
                   re.compile("(\[a\]\(b){30000}")),
+    "unclosed <!--":
+                 ("</" + "<!--" * 300000,
+                  re.compile("\&lt;\/(\&lt;!--){300000}")),
     "tables":
                  ("aaa\rbbb\n-\v\n" * 30000,
                   re.compile("^<p>aaa</p>\n<table>\n<thead>\n<tr>\n<th>bbb</th>\n</tr>\n</thead>\n<tbody>\n(<tr>\n<td>aaa</td>\n</tr>\n<tr>\n<td>bbb</td>\n</tr>\n<tr>\n<td>-\x0b</td>\n</tr>\n){29999}</tbody>\n</table>\n$")),
