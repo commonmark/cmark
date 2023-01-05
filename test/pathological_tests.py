@@ -104,6 +104,9 @@ pathological = {
     "unclosed links B":
                  ("[a](b" * 30000,
                   re.compile("(\[a\]\(b){30000}")),
+    "unclosed <!--":
+                 ("</" + "<!--" * 300000,
+                  re.compile("\&lt;\/(\&lt;!--){300000}")),
     "reference collisions": hash_collisions()
 #    "many references":
 #                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
