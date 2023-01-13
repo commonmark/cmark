@@ -13,8 +13,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Install clang-tidy
       run: |
-        sudo apt-get install -y clang-tidy-9
-        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 100
+        sudo apt-get install -y clang-tidy-11
+        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 100
     - name: lint with clang-tidy
       run: |
         make lint
