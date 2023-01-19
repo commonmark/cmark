@@ -911,20 +911,20 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
     if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
       c = subj->input.data[subj->pos+1];
       if (c == '-' && subj->input.data[subj->pos+2] == '-') {
-	if (subj->input.data[subj->pos+3] == '>') {
-	  matchlen = 4;
-	} else if (subj->input.data[subj->pos+3] == '-' &&
+        if (subj->input.data[subj->pos+3] == '>') {
+          matchlen = 4;
+        } else if (subj->input.data[subj->pos+3] == '-' &&
                    subj->input.data[subj->pos+4] == '>') {
           matchlen = 5;
         } else {
           matchlen = scan_html_comment(&subj->input, subj->pos + 1);
           if (matchlen > 0) {
             matchlen += 1; // prefix "<"
-	  } else { // no match through end of input: set a flag so
-		   // we don't reparse looking for -->:
-	    subj->flags |= FLAG_SKIP_HTML_COMMENT;
-	  }
-	}
+          } else { // no match through end of input: set a flag so
+                   // we don't reparse looking for -->:
+            subj->flags |= FLAG_SKIP_HTML_COMMENT;
+          }
+        }
       } else if (c == '[') {
         if ((subj->flags & FLAG_SKIP_HTML_CDATA) == 0) {
           matchlen = scan_html_cdata(&subj->input, subj->pos + 2);
