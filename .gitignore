@@ -32,3 +32,4 @@ bstrlib.txt
 build
 cmark.dSYM/*
 cmark
+/compile_commands.json
