@@ -12,6 +12,8 @@
   * We removed an unneeded .DS_Store file (#291)
   * We added a test for domains with underscores and fix roundtrip behavior (#292)
   * We now use an up-to-date clang-format (#294)
+  * We made a variety of implicit integer trunctions explicit by moving to
+    size_t as our standard size integer type (#302)
 
 [0.29.0.gfm.6]
   * Fixed polynomial time complexity DoS vulnerability in autolink extension
