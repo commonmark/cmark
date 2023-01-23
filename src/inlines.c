@@ -35,7 +35,6 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 
 typedef struct bracket {
   struct bracket *previous;
-  struct delimiter *previous_delimiter;
   cmark_node *inl_text;
   bufsize_t position;
   bool image;
@@ -511,6 +510,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   delim->can_open = can_open;
   delim->can_close = can_close;
   delim->inl_text = inl_text;
+  delim->position = subj->pos;
   delim->length = inl_text->as.literal.len;
   delim->previous = subj->last_delim;
   delim->next = NULL;
@@ -531,7 +531,6 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   b->active = true;
   b->inl_text = inl_text;
   b->previous = subj->last_bracket;
-  b->previous_delimiter = subj->last_delim;
   b->position = subj->pos;
   b->bracket_after = false;
   if (image) {
@@ -646,12 +645,13 @@ static cmark_syntax_extension *get_extension_for_special_char(cmark_parser *pars
   return NULL;
 }
 
-static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *stack_bottom) {
-  delimiter *closer = subj->last_delim;
+static void process_emphasis(cmark_parser *parser, subject *subj, bufsize_t stack_bottom) {
+  delimiter *candidate;
+  delimiter *closer = NULL;
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
-  delimiter *openers_bottom[3][128];
+  bufsize_t openers_bottom[3][128];
   int i;
 
   // initialize openers_bottom:
@@ -664,8 +664,10 @@ static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *sta
   }
 
   // move back to first relevant delim.
-  while (closer != NULL && closer->previous != stack_bottom) {
-    closer = closer->previous;
+  candidate = subj->last_delim;
+  while (candidate != NULL && candidate->position >= stack_bottom) {
+    closer = candidate;
+    candidate = candidate->previous;
   }
 
   // now move forward, looking for closers, and handling each
@@ -675,8 +677,8 @@ static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *sta
       // Now look backwards for first matching opener:
       opener = closer->previous;
       opener_found = false;
-      while (opener != NULL && opener != stack_bottom &&
-             opener != openers_bottom[closer->length % 3][closer->delim_char]) {
+      while (opener != NULL && opener->position >= stack_bottom &&
+             opener->position >= openers_bottom[closer->length % 3][closer->delim_char]) {
         if (opener->can_open && opener->delim_char == closer->delim_char) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
@@ -722,7 +724,7 @@ static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *sta
       if (!opener_found) {
         // set lower bound for future searches for openers
         openers_bottom[old_closer->length % 3][old_closer->delim_char] =
-		old_closer->previous;
+		old_closer->position;
         if (!old_closer->can_open) {
           // we can remove a closer that can't be an
           // opener, once we've seen there's no
@@ -735,7 +737,8 @@ static void process_emphasis(cmark_parser *parser, subject *subj, delimiter *sta
     }
   }
   // free all delimiters in list until stack_bottom:
-  while (subj->last_delim != NULL && subj->last_delim != stack_bottom) {
+  while (subj->last_delim != NULL &&
+         subj->last_delim->position >= stack_bottom) {
     remove_delimiter(subj, subj->last_delim);
   }
 }
@@ -1251,7 +1254,7 @@ noMatch:
       // being replacing the opening '[' text node with a `^footnote-ref]` node.
       cmark_node_insert_before(opener->inl_text, fnref);
 
-      process_emphasis(parser, subj, opener->previous_delimiter);
+      process_emphasis(parser, subj, opener->position);
       // sometimes, the footnote reference text gets parsed into multiple nodes
       // i.e. '[^example]' parsed into '[', '^exam', 'ple]'.
       // this happens for ex with the autolink extension. when the autolinker
@@ -1303,7 +1306,7 @@ match:
   // Free the bracket [:
   cmark_node_free(opener->inl_text);
 
-  process_emphasis(parser, subj, opener->previous_delimiter);
+  process_emphasis(parser, subj, opener->position);
   pop_bracket(subj);
 
   // Now, if we have a link, we also want to deactivate earlier link
@@ -1528,7 +1531,7 @@ void cmark_parse_inlines(cmark_parser *parser,
   while (!is_eof(&subj) && parse_inline(parser, &subj, parent, options))
     ;
 
-  process_emphasis(parser, &subj, NULL);
+  process_emphasis(parser, &subj, 0);
   // free bracket and delim stack
   while (subj.last_delim) {
     remove_delimiter(&subj, subj.last_delim);
