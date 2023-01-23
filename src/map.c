@@ -51,7 +51,7 @@ refsearch(const void *label, const void *p2) {
 }
 
 static void sort_map(cmark_map *map) {
-  unsigned int i = 0, last = 0, size = map->size;
+  size_t i = 0, last = 0, size = map->size;
   cmark_map_entry *r = map->refs, **sorted = NULL;
 
   sorted = (cmark_map_entry **)map->mem->calloc(size, sizeof(cmark_map_entry *));

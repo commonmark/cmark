@@ -9,6 +9,14 @@
 #include <strings.h>
 #endif
 
+// for ssize_t
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
+#include <unistd.h>
+#endif
+
 static int is_valid_hostchar(const uint8_t *link, size_t link_len) {
   int32_t ch;
   int r = cmark_utf8proc_iterate(link, (bufsize_t)link_len, &ch);
@@ -290,10 +298,10 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
-static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int max_rewind) {
+static bool validate_protocol(char protocol[], uint8_t *data, size_t rewind, size_t max_rewind) {
   size_t len = strlen(protocol);
 
-  if (len > (size_t)(max_rewind - rewind)) {
+  if (len > (max_rewind - rewind)) {
     return false;
   }
 
@@ -302,11 +310,11 @@ static bool validate_protocol(char protocol[], uint8_t *data, int rewind, int ma
     return false;
   }
 
-  if (len == (size_t)(max_rewind - rewind)) {
+  if (len == (max_rewind - rewind)) {
     return true;
   }
 
-  char prev_char = data[-rewind - len - 1];
+  char prev_char = data[-((ssize_t)rewind) - len - 1];
 
   // Make sure the character before the protocol is non-alphanumeric
   return !cmark_isalnum(prev_char);
@@ -421,7 +429,7 @@ found_at:
     cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
     cmark_chunk email = cmark_chunk_dup(
       &detached_chunk,
-      start + offset + max_rewind - rewind,
+      (bufsize_t)(start + offset + max_rewind - rewind),
       (bufsize_t)(link_end + rewind));
     cmark_chunk_to_cstr(parser->mem, &email);
     link_text->as.literal = email;
@@ -436,7 +444,7 @@ found_at:
 
     cmark_node_insert_after(link_node, post);
 
-    text->as.literal = cmark_chunk_dup(&detached_chunk, start, offset + max_rewind - rewind);
+    text->as.literal = cmark_chunk_dup(&detached_chunk, (bufsize_t)start, (bufsize_t)(offset + max_rewind - rewind));
     cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
     text = post;
