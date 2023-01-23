@@ -1,3 +1,52 @@
+[0.30.3]
+
+  * Fix quadratic complexity bug with repeated `![[]()`.
+    Resolves CVE-2023-22486. Add new pathological test. (John MacFarlane)
+
+  * Allow declarations with no space, as per spec (#456, John MacFarlane).
+
+  * Set `enumi*` counter correctly in LaTeX output (#451, John MacFarlane).
+
+  * Allow `<!DOCTYPE` to be case-insensitive. (This conforms to the
+    existing spec.) (John MacFarlane)
+
+  * Fixed HTML comment scanning. Need to handle this case: `<!--> and -->`.
+    Since the scanner finds the longest match, we had to
+    move some of the logic outside of the scanner. (John MacFarlane)
+
+  * Fix quadratic parsing issue with repeated `<!--` (this was not
+    introduced by the previous fix, and not in a released version of cmark).
+    Resolves CVE-2023-22484. Add new pathological test. (John MacFarlane)
+
+  * Update HTML comment scanner to accord with commonmark/commonmark-spec#713
+    (John MacFarlane).
+
+  * Pathological tests: half the number of repetitions, and the timeout.
+    This reduces the time needed for the pathological tests.
+    (John MacFarlane)
+
+  * Shrink `struct cmark_node` (#446). The `internal_offset` member is
+    only used for headings and can be moved to `struct cmark_heading`.
+    This reduces the size of `struct cmark_node` from 112 to 104 bytes on
+    64-bit systems. (Nick Wellnhofer)
+
+  * Add `-Wstrict-prototypes` and fix offending functions. (Nick
+    Wellnhofer, Dan Cîrnaț)
+
+  * Fix quadratic behavior involving `get_containing_block` (#431).
+    Instead of searching for the containing block, update the tight list
+    status when entering a child of a list item or exiting a list.
+    (Nick Wellnhofer)
+
+  * Fix `pathological_tests.py` (Nick Wellnhofer):
+    - Use a multiprocessing.Queue to actually get results from spawned
+      tests processes.
+    - Fix the `allowed_failures` test.
+    - Truncate actual output when printed.
+    - Prepare for testing pathological behavior of the Commonmark renderer.
+
+  * Fix source position bug with backticks (kyle).
+
 [0.30.2]
 
   * Fix parsing of emphasis before links (#424, Nick Wellnhofer).
