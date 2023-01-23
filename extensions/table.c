@@ -133,7 +133,7 @@ static node_cell* append_row_cell(cmark_mem *mem, table_row *row) {
     // Use realloc to double the size of the buffer.
     row->cells = (node_cell *)mem->realloc(row->cells, (2 * n_columns - 1) * sizeof(node_cell));
   }
-  row->n_columns = n_columns;
+  row->n_columns = (uint16_t)n_columns;
   return &row->cells[n_columns-1];
 }
 
