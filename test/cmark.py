@@ -13,6 +13,7 @@ def pipe_through_prog(prog, text):
 
 def parse(lib, extlib, text, extensions):
     cmark_gfm_core_extensions_ensure_registered = extlib.cmark_gfm_core_extensions_ensure_registered
+    cmark_init_standard_node_flags = lib.cmark_init_standard_node_flags
 
     find_syntax_extension = lib.cmark_find_syntax_extension
     find_syntax_extension.restype = c_void_p
@@ -32,6 +33,7 @@ def parse(lib, extlib, text, extensions):
     parser_finish.restype = c_void_p
     parser_finish.argtypes = [c_void_p]
 
+    cmark_init_standard_node_flags()
     cmark_gfm_core_extensions_ensure_registered()
 
     parser = parser_new(0)

@@ -11,6 +11,9 @@
 #include "table.h"
 #include "cmark-gfm-core-extensions.h"
 
+// Custom node flag, initialized in `create_table_extension`.
+static cmark_node__internal_flags CMARK_NODE__TABLE_VISITED;
+
 cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
     CMARK_NODE_TABLE_CELL;
 
@@ -240,6 +243,10 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   const char *parent_string;
   uint16_t i;
 
+  if (parent_container->flags & CMARK_NODE__TABLE_VISITED) {
+    return parent_container;
+  }
+
   if (!scan_table_start(input, len, cmark_parser_get_first_nonspace(parser))) {
     return parent_container;
   }
@@ -267,6 +274,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     free_table_row(parser->mem, marker_row);
     free_table_row(parser->mem, header_row);
     cmark_arena_pop();
+    parent_container->flags |= CMARK_NODE__TABLE_VISITED;
     return parent_container;
   }
 
@@ -785,6 +793,7 @@ static int escape(cmark_syntax_extension *self, cmark_node *node, int c) {
 cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension *self = cmark_syntax_extension_new("table");
 
+  cmark_register_node_flag(&CMARK_NODE__TABLE_VISITED);
   cmark_syntax_extension_set_match_block_func(self, matches);
   cmark_syntax_extension_set_open_block_func(self, try_opening_table_block);
   cmark_syntax_extension_set_get_type_string_func(self, get_type_string);
