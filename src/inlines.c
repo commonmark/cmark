@@ -45,9 +45,15 @@ typedef struct bracket {
   bool in_bracket_image1;
 } bracket;
 
+#define FLAG_SKIP_HTML_CDATA        (1u << 0)
+#define FLAG_SKIP_HTML_DECLARATION  (1u << 1)
+#define FLAG_SKIP_HTML_PI           (1u << 2)
+#define FLAG_SKIP_HTML_COMMENT      (1u << 3)
+
 typedef struct subject{
   cmark_mem *mem;
   cmark_chunk input;
+  unsigned flags;
   int line;
   bufsize_t pos;
   int block_offset;
@@ -164,6 +170,7 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   int i;
   e->mem = mem;
   e->input = *chunk;
+  e->flags = 0;
   e->line = line_number;
   e->pos = 0;
   e->block_offset = block_offset;
@@ -904,7 +911,63 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
   }
 
   // finally, try to match an html tag
-  matchlen = scan_html_tag(&subj->input, subj->pos);
+  if (subj->pos + 2 <= subj->input.len) {
+    int c = subj->input.data[subj->pos];
+    if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
+      c = subj->input.data[subj->pos+1];
+      if (c == '-' && subj->input.data[subj->pos+2] == '-') {
+        if (subj->input.data[subj->pos+3] == '>') {
+          matchlen = 4;
+        } else if (subj->input.data[subj->pos+3] == '-' &&
+                   subj->input.data[subj->pos+4] == '>') {
+          matchlen = 5;
+        } else {
+          matchlen = scan_html_comment(&subj->input, subj->pos + 1);
+          if (matchlen > 0) {
+            matchlen += 1; // prefix "<"
+          } else { // no match through end of input: set a flag so
+                   // we don't reparse looking for -->:
+            subj->flags |= FLAG_SKIP_HTML_COMMENT;
+          }
+        }
+      } else if (c == '[') {
+        if ((subj->flags & FLAG_SKIP_HTML_CDATA) == 0) {
+          matchlen = scan_html_cdata(&subj->input, subj->pos + 2);
+          if (matchlen > 0) {
+            // The regex doesn't require the final "]]>". But if we're not at
+            // the end of input, it must come after the match. Otherwise,
+            // disable subsequent scans to avoid quadratic behavior.
+            matchlen += 5; // prefix "![", suffix "]]>"
+            if (subj->pos + matchlen > subj->input.len) {
+              subj->flags |= FLAG_SKIP_HTML_CDATA;
+              matchlen = 0;
+            }
+          }
+        }
+      } else if ((subj->flags & FLAG_SKIP_HTML_DECLARATION) == 0) {
+        matchlen = scan_html_declaration(&subj->input, subj->pos + 1);
+        if (matchlen > 0) {
+          matchlen += 2; // prefix "!", suffix ">"
+          if (subj->pos + matchlen > subj->input.len) {
+            subj->flags |= FLAG_SKIP_HTML_DECLARATION;
+            matchlen = 0;
+          }
+        }
+      }
+    } else if (c == '?') {
+      if ((subj->flags & FLAG_SKIP_HTML_PI) == 0) {
+        // Note that we allow an empty match.
+        matchlen = scan_html_pi(&subj->input, subj->pos + 1);
+        matchlen += 3; // prefix "?", suffix "?>"
+        if (subj->pos + matchlen > subj->input.len) {
+          subj->flags |= FLAG_SKIP_HTML_PI;
+          matchlen = 0;
+        }
+      }
+    } else {
+      matchlen = scan_html_tag(&subj->input, subj->pos);
+    }
+  }
   if (matchlen > 0) {
     contents = cmark_chunk_dup(&subj->input, subj->pos - 1, matchlen + 1);
     subj->pos += matchlen;
