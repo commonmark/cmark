@@ -2,19 +2,12 @@
 #include <parser.h>
 #include <string.h>
 #include <utf8.h>
+#include <stddef.h>
 
 #if defined(_WIN32)
 #define strncasecmp _strnicmp
 #else
 #include <strings.h>
-#endif
-
-// for ssize_t
-#ifdef _MSC_VER
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#else
-#include <unistd.h>
 #endif
 
 static int is_valid_hostchar(const uint8_t *link, size_t link_len) {
@@ -314,7 +307,7 @@ static bool validate_protocol(char protocol[], uint8_t *data, size_t rewind, siz
     return true;
   }
 
-  char prev_char = data[-((ssize_t)rewind) - len - 1];
+  char prev_char = data[-((ptrdiff_t)rewind) - len - 1];
 
   // Make sure the character before the protocol is non-alphanumeric
   return !cmark_isalnum(prev_char);
