@@ -115,7 +115,20 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
 static size_t check_domain(uint8_t *data, size_t size, int allow_short) {
   size_t i, np = 0, uscore1 = 0, uscore2 = 0;
 
+  /* The purpose of this code is to reject urls that contain an underscore
+   * in one of the last two segments. Examples:
+   *
+   *   www.xxx.yyy.zzz     autolinked
+   *   www.xxx.yyy._zzz    not autolinked
+   *   www.xxx._yyy.zzz    not autolinked
+   *   www._xxx.yyy.zzz    autolinked
+   *
+   * The reason is that domain names are allowed to include underscores,
+   * but host names are not. See: https://stackoverflow.com/a/2183140
+   */
   for (i = 1; i < size - 1; i++) {
+    if (data[i] == '\\' && i < size - 2)
+      i++;
     if (data[i] == '_')
       uscore2++;
     else if (data[i] == '.') {
