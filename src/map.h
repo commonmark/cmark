@@ -11,6 +11,7 @@ struct cmark_map_entry {
   struct cmark_map_entry *next;
   unsigned char *label;
   unsigned int age;
+  unsigned int size;
 };
 
 typedef struct cmark_map_entry cmark_map_entry;
@@ -24,6 +25,8 @@ struct cmark_map {
   cmark_map_entry *refs;
   cmark_map_entry **sorted;
   unsigned int size;
+  unsigned int ref_size;
+  unsigned int max_ref_size;
   cmark_map_free_f free;
 };
 
