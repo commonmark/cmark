@@ -17,7 +17,6 @@ const char *extension_names[] = {
 };
 
 int LLVMFuzzerInitialize(int *argc, char ***argv) {
-  cmark_init_standard_node_flags();
   cmark_gfm_core_extensions_ensure_registered();
   return 0;
 }
