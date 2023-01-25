@@ -737,7 +737,7 @@ Hi!
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-1">
-<p>Some <em>bolded</em> footnote definition. <a href="#fnref-1" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>Some <em>bolded</em> footnote definition. <a href="#fnref-1" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
 </li>
 <li id="fn-footnote">
 <blockquote>
@@ -745,15 +745,15 @@ Hi!
 </blockquote>
 <pre><code>as well as code blocks
 </code></pre>
-<p>or, naturally, simple paragraphs. <a href="#fnref-footnote" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>or, naturally, simple paragraphs. <a href="#fnref-footnote" class="footnote-backref" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
 </li>
 <li id="fn-other-note">
-<p>no code block here (spaces are stripped away) <a href="#fnref-other-note" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>no code block here (spaces are stripped away) <a href="#fnref-other-note" class="footnote-backref" data-footnote-backref aria-label="Back to reference 3">↩</a></p>
 </li>
 <li id="fn-codeblock-note">
 <pre><code>this is now a code block (8 spaces indentation)
 </code></pre>
-<a href="#fnref-codeblock-note" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a>
+<a href="#fnref-codeblock-note" class="footnote-backref" data-footnote-backref aria-label="Back to reference 4">↩</a>
 </li>
 </ol>
 </section>
@@ -773,7 +773,7 @@ This footnote is referenced[^a-footnote] multiple times, in lots of different pl
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-a-footnote">
-<p>This footnote definition should have three backrefs. <a href="#fnref-a-footnote" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a> <a href="#fnref-a-footnote-2" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref-a-footnote-3" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩<sup class="footnote-ref">3</sup></a></p>
+<p>This footnote definition should have three backrefs. <a href="#fnref-a-footnote" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a> <a href="#fnref-a-footnote-2" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1-2">↩<sup class="footnote-ref">2</sup></a> <a href="#fnref-a-footnote-3" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1-3">↩<sup class="footnote-ref">3</sup></a></p>
 </li>
 </ol>
 </section>
@@ -790,7 +790,7 @@ Hello[^"><script>alert(1)</script>]
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-%22%3E%3Cscript%3Ealert(1)%3C/script%3E">
-<p>pwned <a href="#fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>pwned <a href="#fnref-%22%3E%3Cscript%3Ealert(1)%3C/script%3E" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
 </li>
 </ol>
 </section>

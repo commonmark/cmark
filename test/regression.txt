@@ -194,7 +194,7 @@ A footnote in a paragraph[^1]
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-1">
-<p>a footnote <a href="#fnref-1" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a> <a href="#fnref-1-2" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩<sup class="footnote-ref">2</sup></a></p>
+<p>a footnote <a href="#fnref-1" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a> <a href="#fnref-1-2" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1-2">↩<sup class="footnote-ref">2</sup></a></p>
 </li>
 </ol>
 </section>
@@ -284,10 +284,10 @@ This is some text. It has a citation.[^citation]
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-citation">
-<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn-another-citation" id="fnref-another-citation" data-footnote-ref>2</a></sup> <a href="#fnref-citation" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn-another-citation" id="fnref-another-citation" data-footnote-ref>2</a></sup> <a href="#fnref-citation" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
 </li>
 <li id="fn-another-citation">
-<p>My second citation. <a href="#fnref-another-citation" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>My second citation. <a href="#fnref-another-citation" class="footnote-backref" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
 </li>
 </ol>
 </section>
@@ -306,10 +306,10 @@ This is some text. It has two footnotes references, side-by-side without any spa
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-footnote1">
-<p>Hello. <a href="#fnref-footnote1" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>Hello. <a href="#fnref-footnote1" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
 </li>
 <li id="fn-footnote2">
-<p>Goodbye. <a href="#fnref-footnote2" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>Goodbye. <a href="#fnref-footnote2" class="footnote-backref" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
 </li>
 </ol>
 </section>
@@ -331,10 +331,10 @@ It has another footnote that contains many different characters (the autolinker 
 <section class="footnotes" data-footnotes>
 <ol>
 <li id="fn-widely-cited">
-<p>this renders properly. <a href="#fnref-widely-cited" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>this renders properly. <a href="#fnref-widely-cited" class="footnote-backref" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
 </li>
 <li id="fn-sphinx-of-black-quartz_judge-my-vow-0123456789">
-<p>so does this. <a href="#fnref-sphinx-of-black-quartz_judge-my-vow-0123456789" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+<p>so does this. <a href="#fnref-sphinx-of-black-quartz_judge-my-vow-0123456789" class="footnote-backref" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
 </li>
 </ol>
 </section>
