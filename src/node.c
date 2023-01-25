@@ -9,12 +9,8 @@ static void S_node_unlink(cmark_node *node);
 
 #define NODE_MEM(node) cmark_node_mem(node)
 
-cmark_node__internal_flags CMARK_NODE__OPEN;
-cmark_node__internal_flags CMARK_NODE__LAST_LINE_BLANK;
-cmark_node__internal_flags CMARK_NODE__LAST_LINE_CHECKED;
-
-void cmark_register_node_flag(cmark_node__internal_flags *flags) {
-  static uint8_t shift = 0;
+void cmark_register_node_flag(cmark_node_internal_flags *flags) {
+  static cmark_node_internal_flags nextflag = CMARK_NODE__REGISTER_FIRST;
 
   // flags should be a pointer to a global variable and this function
   // should only be called once to initialize its value.
@@ -24,24 +20,16 @@ void cmark_register_node_flag(cmark_node__internal_flags *flags) {
   }
 
   // Check that we haven't run out of bits.
-  if (shift >= 8 * sizeof(cmark_node__internal_flags)) {
+  if (nextflag == 0) {
     fprintf(stderr, "too many flags in cmark_register_node_flag\n");
     abort();
   }
 
-  *flags = (cmark_node__internal_flags)1 << shift;
-  shift++;
+  *flags = nextflag;
+  nextflag <<= 1;
 }
 
-void cmark_init_standard_node_flags() {
-  static int initialized = 0;
-  if (!initialized) {
-    initialized = 1;
-    cmark_register_node_flag(&CMARK_NODE__OPEN);
-    cmark_register_node_flag(&CMARK_NODE__LAST_LINE_BLANK);
-    cmark_register_node_flag(&CMARK_NODE__LAST_LINE_CHECKED);
-  }
-}
+void cmark_init_standard_node_flags() {}
 
 bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
   if (child_type == CMARK_NODE_DOCUMENT) {

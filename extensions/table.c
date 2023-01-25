@@ -12,7 +12,7 @@
 #include "cmark-gfm-core-extensions.h"
 
 // Custom node flag, initialized in `create_table_extension`.
-static cmark_node__internal_flags CMARK_NODE__TABLE_VISITED;
+static cmark_node_internal_flags CMARK_NODE__TABLE_VISITED;
 
 cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
     CMARK_NODE_TABLE_CELL;

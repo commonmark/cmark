@@ -139,7 +139,6 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  cmark_init_standard_node_flags();
   cmark_gfm_core_extensions_ensure_registered();
 
 #ifdef USE_PLEDGE
