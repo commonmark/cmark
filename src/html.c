@@ -63,11 +63,13 @@ static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *
   if (renderer->written_footnote_ix >= renderer->footnote_ix)
     return false;
   renderer->written_footnote_ix = renderer->footnote_ix;
-
+  char m[32];
+  snprintf(m, sizeof(m), "%d", renderer->written_footnote_ix);
+  
   cmark_strbuf_puts(html, "<a href=\"#fnref-");
   houdini_escape_href(html, node->as.literal.data, node->as.literal.len);
   cmark_strbuf_puts(html, "\" class=\"footnote-backref\" data-footnote-backref aria-label=\"Back to reference ");
-  houdini_escape_href(html, node->as.literal.data, node->as.literal.len);
+  cmark_strbuf_puts(html, m);
   cmark_strbuf_puts(html, "\">↩</a>");
 
   if (node->footnote.def_count > 1)
