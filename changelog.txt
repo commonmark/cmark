@@ -1,3 +1,8 @@
+[0.29.0.gfm.8]
+
+  * We restored backwards compatibility by deprecating the `cmark_init_standard_node_flags()` requirement, which is now a noop (#305)
+  * We added a quadratic complexity fuzzing target (#304)
+
 [0.29.0.gfm.7]
 
   * Fixed a polynomial time complexity issue per
