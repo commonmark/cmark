@@ -192,7 +192,5 @@ most of the C library's API and its test harness.
 [cmake]: http://www.cmake.org/download/
 [re2c]: http://re2c.org
 [commonmark.js]: https://github.com/commonmark/commonmark.js
-[Build Status]: https://img.shields.io/travis/commonmark/cmark/master.svg?style=flat
-[Windows Build Status]: https://ci.appveyor.com/api/projects/status/h3fd91vtd1xfmp69?svg=true
 [american fuzzy lop]: http://lcamtuf.coredump.cx/afl/
 [libFuzzer]: http://llvm.org/docs/LibFuzzer.html
