@@ -1178,7 +1178,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   found_label = link_label(subj, &raw_label);
   if (!found_label) {
     // If we have a shortcut reference link, back up
-    // to before the spacse we skipped.
+    // to before the spaces we skipped.
     subj->pos = initial_pos;
   }
 
