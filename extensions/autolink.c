@@ -2,6 +2,7 @@
 #include <parser.h>
 #include <string.h>
 #include <utf8.h>
+#include <stddef.h>
 
 #if defined(_WIN32)
 #define strncasecmp _strnicmp
@@ -35,30 +36,63 @@ static int sd_autolink_issafe(const uint8_t *link, size_t link_len) {
 }
 
 static size_t autolink_delim(uint8_t *data, size_t link_end) {
-  uint8_t cclose, copen;
   size_t i;
+  size_t closing = 0;
+  size_t opening = 0;
 
-  for (i = 0; i < link_end; ++i)
-    if (data[i] == '<') {
+  for (i = 0; i < link_end; ++i) {
+    const uint8_t c = data[i];
+    if (c == '<') {
       link_end = i;
       break;
+    } else if (c == '(') {
+      opening++;
+    } else if (c == ')') {
+      closing++;
     }
+  }
 
   while (link_end > 0) {
-    cclose = data[link_end - 1];
-
-    switch (cclose) {
+    switch (data[link_end - 1]) {
     case ')':
-      copen = '(';
-      break;
-    default:
-      copen = 0;
-    }
-
-    if (strchr("?!.,:*_~'\"", data[link_end - 1]) != NULL)
+      /* Allow any number of matching brackets (as recognised in copen/cclose)
+       * at the end of the URL.  If there is a greater number of closing
+       * brackets than opening ones, we remove one character from the end of
+       * the link.
+       *
+       * Examples (input text => output linked portion):
+       *
+       *        http://www.pokemon.com/Pikachu_(Electric)
+       *                => http://www.pokemon.com/Pikachu_(Electric)
+       *
+       *        http://www.pokemon.com/Pikachu_((Electric)
+       *                => http://www.pokemon.com/Pikachu_((Electric)
+       *
+       *        http://www.pokemon.com/Pikachu_(Electric))
+       *                => http://www.pokemon.com/Pikachu_(Electric)
+       *
+       *        http://www.pokemon.com/Pikachu_((Electric))
+       *                => http://www.pokemon.com/Pikachu_((Electric))
+       */
+      if (closing <= opening) {
+        return link_end;
+      }
+      closing--;
       link_end--;
-
-    else if (data[link_end - 1] == ';') {
+      break;
+    case '?':
+    case '!':
+    case '.':
+    case ',':
+    case ':':
+    case '*':
+    case '_':
+    case '~':
+    case '\'':
+    case '"':
+      link_end--;
+      break;
+    case ';': {
       size_t new_end = link_end - 2;
 
       while (new_end > 0 && cmark_isalpha(data[new_end]))
@@ -68,46 +102,12 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
         link_end = new_end;
       else
         link_end--;
-    } else if (copen != 0) {
-      size_t closing = 0;
-      size_t opening = 0;
-      i = 0;
-
-      /* Allow any number of matching brackets (as recognised in copen/cclose)
-       * at the end of the URL.  If there is a greater number of closing
-       * brackets than opening ones, we remove one character from the end of
-       * the link.
-       *
-       * Examples (input text => output linked portion):
-       *
-       *	http://www.pokemon.com/Pikachu_(Electric)
-       *		=> http://www.pokemon.com/Pikachu_(Electric)
-       *
-       *	http://www.pokemon.com/Pikachu_((Electric)
-       *		=> http://www.pokemon.com/Pikachu_((Electric)
-       *
-       *	http://www.pokemon.com/Pikachu_(Electric))
-       *		=> http://www.pokemon.com/Pikachu_(Electric)
-       *
-       *	http://www.pokemon.com/Pikachu_((Electric))
-       *		=> http://www.pokemon.com/Pikachu_((Electric))
-       */
-
-      while (i < link_end) {
-        if (data[i] == copen)
-          opening++;
-        else if (data[i] == cclose)
-          closing++;
-
-        i++;
-      }
-
-      if (closing <= opening)
-        break;
-
-      link_end--;
-    } else
       break;
+    }
+
+    default:
+      return link_end;
+    }
   }
 
   return link_end;
@@ -116,7 +116,20 @@ static size_t autolink_delim(uint8_t *data, size_t link_end) {
 static size_t check_domain(uint8_t *data, size_t size, int allow_short) {
   size_t i, np = 0, uscore1 = 0, uscore2 = 0;
 
+  /* The purpose of this code is to reject urls that contain an underscore
+   * in one of the last two segments. Examples:
+   *
+   *   www.xxx.yyy.zzz     autolinked
+   *   www.xxx.yyy._zzz    not autolinked
+   *   www.xxx._yyy.zzz    not autolinked
+   *   www._xxx.yyy.zzz    autolinked
+   *
+   * The reason is that domain names are allowed to include underscores,
+   * but host names are not. See: https://stackoverflow.com/a/2183140
+   */
   for (i = 1; i < size - 1; i++) {
+    if (data[i] == '\\' && i < size - 2)
+      i++;
     if (data[i] == '_')
       uscore2++;
     else if (data[i] == '.') {
@@ -127,8 +140,17 @@ static size_t check_domain(uint8_t *data, size_t size, int allow_short) {
       break;
   }
 
-  if (uscore1 > 0 || uscore2 > 0)
-    return 0;
+  if (uscore1 > 0 || uscore2 > 0) {
+    /* If the url is very long then accept it despite the underscores,
+     * to avoid quadratic behavior causing a denial of service. See:
+     * https://github.com/github/cmark-gfm/security/advisories/GHSA-29g3-96g3-jg6c
+     * Reasonable urls are unlikely to have more than 10 segments, so
+     * this extra condition shouldn't have any impact on normal usage.
+     */
+    if (np <= 10) {
+      return 0;
+    }
+  }
 
   if (allow_short) {
     /* We don't need a valid domain in the strict sense (with
@@ -165,7 +187,7 @@ static cmark_node *www_match(cmark_parser *parser, cmark_node *parent,
   if (link_end == 0)
     return NULL;
 
-  while (link_end < size && !cmark_isspace(data[link_end]))
+  while (link_end < size && !cmark_isspace(data[link_end]) && data[link_end] != '<')
     link_end++;
 
   link_end = autolink_delim(data, link_end);
@@ -225,7 +247,7 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
     return 0;
 
   link_end += domain_len;
-  while (link_end < size && !cmark_isspace(data[link_end]))
+  while (link_end < size && !cmark_isspace(data[link_end]) && data[link_end] != '<')
     link_end++;
 
   link_end = autolink_delim(data, link_end);
@@ -245,6 +267,11 @@ static cmark_node *url_match(cmark_parser *parser, cmark_node *parent,
   cmark_node *text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
   text->as.literal = url;
   cmark_node_append_child(node, text);
+  
+  node->start_line = text->start_line = node->end_line = text->end_line = cmark_inline_parser_get_line(inline_parser);
+
+  node->start_column = text->start_column = max_rewind - rewind;
+  node->end_column = text->end_column = cmark_inline_parser_get_column(inline_parser) - 1;
 
   return node;
 }
@@ -269,142 +296,167 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
-static bool validate_protocol(char protocol[], uint8_t *data, int rewind) {
+static bool validate_protocol(char protocol[], uint8_t *data, size_t rewind, size_t max_rewind) {
   size_t len = strlen(protocol);
 
-  // Check that the protocol matches
-  for (int i = 1; i <= len; i++) {
-    if (data[-rewind - i] != protocol[len - i]) {
-      return false;
-    }
+  if (len > (max_rewind - rewind)) {
+    return false;
   }
 
-  char prev_char = data[-rewind - len - 1];
+  // Check that the protocol matches
+  if (memcmp(data - rewind - len, protocol, len) != 0) {
+    return false;
+  }
+
+  if (len == (max_rewind - rewind)) {
+    return true;
+  }
+
+  char prev_char = data[-((ptrdiff_t)rewind) - len - 1];
 
   // Make sure the character before the protocol is non-alphanumeric
   return !cmark_isalnum(prev_char);
 }
 
-static void postprocess_text(cmark_parser *parser, cmark_node *text, int offset, int depth) {
-  // postprocess_text can recurse very deeply if there is a very long line of
-  // '@' only.  Stop at a reasonable depth to ensure it cannot crash.
-  if (depth > 1000) return;
+static void postprocess_text(cmark_parser *parser, cmark_node *text) {
+  size_t start = 0;
+  size_t offset = 0;
+  // `text` is going to be split into a list of nodes containing shorter segments
+  // of text, so we detach the memory buffer from text and use `cmark_chunk_dup` to
+  // create references to it. Later, `cmark_chunk_to_cstr` is used to convert
+  // the references into allocated buffers. The detached buffer is freed before we
+  // return.
+  cmark_chunk detached_chunk = text->as.literal;
+  text->as.literal = cmark_chunk_dup(&detached_chunk, 0, detached_chunk.len);
 
-  size_t link_end;
-  uint8_t *data = text->as.literal.data,
-    *at;
-  size_t size = text->as.literal.len;
-  bool auto_mailto = true;
-  bool is_xmpp = false;
-  int rewind, max_rewind,
-      nb = 0, np = 0, ns = 0;
+  uint8_t *data = text->as.literal.data;
+  size_t remaining = text->as.literal.len;
 
-  if (offset < 0 || (size_t)offset >= size)
-    return;
+  while (true) {
+    size_t link_end;
+    uint8_t *at;
+    bool auto_mailto = true;
+    bool is_xmpp = false;
+    size_t rewind;
+    size_t max_rewind;
+    size_t np = 0;
 
-  data += offset;
-  size -= offset;
+    if (offset >= remaining)
+      break;
 
-  at = (uint8_t *)memchr(data, '@', size);
-  if (!at)
-    return;
+    at = (uint8_t *)memchr(data + start + offset, '@', remaining - offset);
+    if (!at)
+      break;
 
-  max_rewind = (int)(at - data);
-  data += max_rewind;
-  size -= max_rewind;
+    max_rewind = at - (data + start + offset);
 
-  for (rewind = 0; rewind < max_rewind; ++rewind) {
-    uint8_t c = data[-rewind - 1];
+found_at:
+    for (rewind = 0; rewind < max_rewind; ++rewind) {
+      uint8_t c = data[start + offset + max_rewind - rewind - 1];
 
-    if (cmark_isalnum(c))
-      continue;
-
-    if (strchr(".+-_", c) != NULL)
-      continue;
-
-    if (strchr(":", c) != NULL) {
-      if (validate_protocol("mailto:", data, rewind)) {
-        auto_mailto = false;
+      if (cmark_isalnum(c))
         continue;
+
+      if (strchr(".+-_", c) != NULL)
+        continue;
+
+      if (strchr(":", c) != NULL) {
+        if (validate_protocol("mailto:", data + start + offset + max_rewind, rewind, max_rewind)) {
+          auto_mailto = false;
+          continue;
+        }
+
+        if (validate_protocol("xmpp:", data + start + offset + max_rewind, rewind, max_rewind)) {
+          auto_mailto = false;
+          is_xmpp = true;
+          continue;
+        }
       }
 
-      if (validate_protocol("xmpp:", data, rewind)) {
-        auto_mailto = false;
-        is_xmpp = true;
-        continue;
-      }
+      break;
     }
 
-    break;
-  }
-
-  if (rewind == 0 || ns > 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
-  }
-
-  for (link_end = 0; link_end < size; ++link_end) {
-    uint8_t c = data[link_end];
-
-    if (cmark_isalnum(c))
+    if (rewind == 0) {
+      offset += max_rewind + 1;
       continue;
+    }
 
-    if (c == '@')
-      nb++;
-    else if (c == '.' && link_end < size - 1 && cmark_isalnum(data[link_end + 1]))
-      np++;
-    else if (c == '/' && is_xmpp)
+    assert(data[start + offset + max_rewind] == '@');
+    for (link_end = 1; link_end < remaining - offset - max_rewind; ++link_end) {
+      uint8_t c = data[start + offset + max_rewind + link_end];
+
+      if (cmark_isalnum(c))
+        continue;
+
+      if (c == '@') {
+        // Found another '@', so go back and try again with an updated offset and max_rewind.
+        offset += max_rewind + 1;
+        max_rewind = link_end - 1;
+        goto found_at;
+      } else if (c == '.' && link_end < remaining - offset - max_rewind - 1 &&
+               cmark_isalnum(data[start + offset + max_rewind + link_end + 1]))
+        np++;
+      else if (c == '/' && is_xmpp)
+        continue;
+      else if (c != '-' && c != '_')
+        break;
+    }
+
+    if (link_end < 2 || np == 0 ||
+        (!cmark_isalpha(data[start + offset + max_rewind + link_end - 1]) &&
+         data[start + offset + max_rewind + link_end - 1] != '.')) {
+      offset += max_rewind + link_end;
       continue;
-    else if (c != '-' && c != '_')
-      break;
+    }
+
+    link_end = autolink_delim(data + start + offset + max_rewind, link_end);
+
+    if (link_end == 0) {
+      offset += max_rewind + 1;
+      continue;
+    }
+
+    cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
+    cmark_strbuf buf;
+    cmark_strbuf_init(parser->mem, &buf, 10);
+    if (auto_mailto)
+      cmark_strbuf_puts(&buf, "mailto:");
+    cmark_strbuf_put(&buf, data + start + offset + max_rewind - rewind, (bufsize_t)(link_end + rewind));
+    link_node->as.link.url = cmark_chunk_buf_detach(&buf);
+
+    cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    cmark_chunk email = cmark_chunk_dup(
+      &detached_chunk,
+      (bufsize_t)(start + offset + max_rewind - rewind),
+      (bufsize_t)(link_end + rewind));
+    cmark_chunk_to_cstr(parser->mem, &email);
+    link_text->as.literal = email;
+    cmark_node_append_child(link_node, link_text);
+
+    cmark_node_insert_after(text, link_node);
+
+    cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    post->as.literal = cmark_chunk_dup(&detached_chunk,
+                                       (bufsize_t)(start + offset + max_rewind + link_end),
+                                       (bufsize_t)(remaining - offset - max_rewind - link_end));
+
+    cmark_node_insert_after(link_node, post);
+
+    text->as.literal = cmark_chunk_dup(&detached_chunk, (bufsize_t)start, (bufsize_t)(offset + max_rewind - rewind));
+    cmark_chunk_to_cstr(parser->mem, &text->as.literal);
+
+    text = post;
+    start += offset + max_rewind + link_end;
+    remaining -= offset + max_rewind + link_end;
+    offset = 0;
   }
 
-  if (link_end < 2 || nb != 1 || np == 0 ||
-      (!cmark_isalpha(data[link_end - 1]) && data[link_end - 1] != '.')) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
-  }
-
-  link_end = autolink_delim(data, link_end);
-
-  if (link_end == 0) {
-    postprocess_text(parser, text, max_rewind + 1 + offset, depth + 1);
-    return;
-  }
-
+  // Convert the reference to allocated memory.
+  assert(!text->as.literal.alloc);
   cmark_chunk_to_cstr(parser->mem, &text->as.literal);
 
-  cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
-  cmark_strbuf buf;
-  cmark_strbuf_init(parser->mem, &buf, 10);
-  if (auto_mailto)
-    cmark_strbuf_puts(&buf, "mailto:");
-  cmark_strbuf_put(&buf, data - rewind, (bufsize_t)(link_end + rewind));
-  link_node->as.link.url = cmark_chunk_buf_detach(&buf);
-
-  cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  cmark_chunk email = cmark_chunk_dup(
-      &text->as.literal,
-      offset + max_rewind - rewind,
-      (bufsize_t)(link_end + rewind));
-  cmark_chunk_to_cstr(parser->mem, &email);
-  link_text->as.literal = email;
-  cmark_node_append_child(link_node, link_text);
-
-  cmark_node_insert_after(text, link_node);
-
-  cmark_node *post = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  post->as.literal = cmark_chunk_dup(&text->as.literal,
-    (bufsize_t)(offset + max_rewind + link_end),
-    (bufsize_t)(size - link_end));
-  cmark_chunk_to_cstr(parser->mem, &post->as.literal);
-
-  cmark_node_insert_after(link_node, post);
-
-  text->as.literal.len = offset + max_rewind - rewind;
-  text->as.literal.data[text->as.literal.len] = 0;
-
-  postprocess_text(parser, post, 0, depth + 1);
+  // Free the detached buffer.
+  cmark_chunk_free(parser->mem, &detached_chunk);
 }
 
 static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser, cmark_node *root) {
@@ -431,7 +483,7 @@ static cmark_node *postprocess(cmark_syntax_extension *ext, cmark_parser *parser
     }
 
     if (ev == CMARK_EVENT_ENTER && node->type == CMARK_NODE_TEXT) {
-      postprocess_text(parser, node, 0, /*depth*/0);
+      postprocess_text(parser, node);
     }
   }
 

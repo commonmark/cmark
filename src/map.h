@@ -10,7 +10,8 @@ extern "C" {
 struct cmark_map_entry {
   struct cmark_map_entry *next;
   unsigned char *label;
-  unsigned int age;
+  size_t age;
+  size_t size;
 };
 
 typedef struct cmark_map_entry cmark_map_entry;
@@ -23,7 +24,9 @@ struct cmark_map {
   cmark_mem *mem;
   cmark_map_entry *refs;
   cmark_map_entry **sorted;
-  unsigned int size;
+  size_t size;
+  size_t ref_size;
+  size_t max_ref_size;
   cmark_map_free_f free;
 };
 

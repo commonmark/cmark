@@ -58,10 +58,10 @@ be rendered as curly quotes, depending on their position.
 \f[C]\-\-\-\f[] will be rendered as an em-dash.
 \f[C]...\f[] will be rendered as ellipses.
 .TP 12n
-.B \-\-safe
-Do not render raw HTML or potentially dangerous URLs.
-(Raw HTML is replaced by a placeholder comment; potentially
-dangerous URLs are replaced by empty strings.)  Dangerous
+.B \-\-unsafe
+Render raw HTML and potentially dangerous URLs.
+(Raw HTML is not replaced by a placeholder comment; potentially
+dangerous URLs are not replaced by empty strings.)  Dangerous
 URLs are those that begin with `javascript:`, `vbscript:`,
 `file:`, or `data:` (except for `image/png`, `image/gif`,
 `image/jpeg`, or `image/webp` mime types).

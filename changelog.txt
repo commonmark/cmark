@@ -1,3 +1,25 @@
+[0.29.0.gfm.8]
+
+  * We restored backwards compatibility by deprecating the `cmark_init_standard_node_flags()` requirement, which is now a noop (#305)
+  * We added a quadratic complexity fuzzing target (#304)
+
+[0.29.0.gfm.7]
+
+  * Fixed a polynomial time complexity issue per
+    https://github.com/github/cmark-gfm/security/advisories/GHSA-r572-jvj2-3m8p
+  * Fixed an issue in which crafted markdown document could trigger an
+    out-of-bounds read in the validate_protocol function per
+    https://github.com/github/cmark-gfm/security/advisories/GHSA-c944-cv5f-hpvr
+  * Fixed a polynomial time complexity issue
+    https://github.com/github/cmark-gfm/security/advisories/GHSA-24f7-9frr-5h2r
+  * Fixed several polynomial time complexity issues per
+    https://github.com/github/cmark-gfm/security/advisories/GHSA-29g3-96g3-jg6c
+  * We removed an unneeded .DS_Store file (#291)
+  * We added a test for domains with underscores and fix roundtrip behavior (#292)
+  * We now use an up-to-date clang-format (#294)
+  * We made a variety of implicit integer trunctions explicit by moving to
+    size_t as our standard size integer type (#302)
+
 [0.29.0.gfm.6]
   * Fixed polynomial time complexity DoS vulnerability in autolink extension
   

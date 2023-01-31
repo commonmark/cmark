@@ -51,7 +51,7 @@ refsearch(const void *label, const void *p2) {
 }
 
 static void sort_map(cmark_map *map) {
-  unsigned int i = 0, last = 0, size = map->size;
+  size_t i = 0, last = 0, size = map->size;
   cmark_map_entry *r = map->refs, **sorted = NULL;
 
   sorted = (cmark_map_entry **)map->mem->calloc(size, sizeof(cmark_map_entry *));
@@ -73,6 +73,7 @@ static void sort_map(cmark_map *map) {
 
 cmark_map_entry *cmark_map_lookup(cmark_map *map, cmark_chunk *label) {
   cmark_map_entry **ref = NULL;
+  cmark_map_entry *r = NULL;
   unsigned char *norm;
 
   if (label->len < 1 || label->len > MAX_LINK_LABEL_LENGTH)
@@ -91,10 +92,15 @@ cmark_map_entry *cmark_map_lookup(cmark_map *map, cmark_chunk *label) {
   ref = (cmark_map_entry **)bsearch(norm, map->sorted, map->size, sizeof(cmark_map_entry *), refsearch);
   map->mem->free(norm);
 
-  if (!ref)
-    return NULL;
+  if (ref != NULL) {
+    r = ref[0];
+    /* Check for expansion limit */
+    if (r->size > map->max_ref_size - map->ref_size)
+      return NULL;
+    map->ref_size += r->size;
+  }
 
-  return ref[0];
+  return r;
 }
 
 void cmark_map_free(cmark_map *map) {
@@ -118,5 +124,6 @@ cmark_map *cmark_map_new(cmark_mem *mem, cmark_map_free_f free) {
   cmark_map *map = (cmark_map *)mem->calloc(1, sizeof(cmark_map));
   map->mem = mem;
   map->free = free;
+  map->max_ref_size = UINT_MAX;
   return map;
 }

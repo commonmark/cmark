@@ -52,7 +52,13 @@ enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
   CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
   CMARK_NODE__LAST_LINE_CHECKED = (1 << 2),
+
+  // Extensions can register custom flags by calling `cmark_register_node_flag`.
+  // This is the starting value for the custom flags.
+  CMARK_NODE__REGISTER_FIRST = (1 << 3),
 };
+
+typedef uint16_t cmark_node_internal_flags;
 
 struct cmark_node {
   cmark_strbuf content;
@@ -72,7 +78,7 @@ struct cmark_node {
   int end_column;
   int internal_offset;
   uint16_t type;
-  uint16_t flags;
+  cmark_node_internal_flags flags;
 
   cmark_syntax_extension *extension;
 
@@ -94,6 +100,26 @@ struct cmark_node {
     void *opaque;
   } as;
 };
+
+/**
+ * Syntax extensions can use this function to register a custom node
+ * flag. The flags are stored in the `flags` field of the `cmark_node`
+ * struct. The `flags` parameter should be the address of a global variable
+ * which will store the flag value.
+ */
+CMARK_GFM_EXPORT
+void cmark_register_node_flag(cmark_node_internal_flags *flags);
+
+/**
+ * DEPRECATED.
+ *
+ * This function was added in cmark-gfm version 0.29.0.gfm.7, and was
+ * required to be called at program start time, which caused
+ * backwards-compatibility issues in applications that use cmark-gfm as a
+ * library. It is now a no-op.
+ */
+CMARK_GFM_EXPORT
+void cmark_init_standard_node_flags();
 
 static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
   return node->content.mem;

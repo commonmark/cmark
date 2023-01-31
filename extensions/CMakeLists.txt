@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 2.8)
 set(LIBRARY "libcmark-gfm-extensions")
 set(STATICLIBRARY "libcmark-gfm-extensions_static")
 set(LIBRARY_SOURCES
