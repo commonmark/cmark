@@ -226,7 +226,7 @@ CMARK_GFM_EXPORT cmark_node *cmark_node_first_child(cmark_node *node);
 CMARK_GFM_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
 
 /** Returns the footnote reference of 'node', or NULL if 'node' doesn't have a
-  * footnote reference.
+ * footnote reference.
  */
 CMARK_GFM_EXPORT cmark_node *cmark_node_parent_footnote_def(cmark_node *node);
 
