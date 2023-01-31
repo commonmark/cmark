@@ -323,6 +323,14 @@ cmark_node *cmark_node_last_child(cmark_node *node) {
   }
 }
 
+cmark_node *cmark_node_parent_footnote_def(cmark_node *node) {
+  if (node == NULL) {
+    return NULL;
+  } else {
+    return node->parent_footnote_def;
+  }
+}
+
 void *cmark_node_get_user_data(cmark_node *node) {
   if (node == NULL) {
     return NULL;
