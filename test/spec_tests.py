@@ -6,6 +6,7 @@ from difflib import unified_diff
 import argparse
 import re
 import json
+import os
 from cmark import CMark
 from normalize import normalize_html
 
@@ -29,6 +30,8 @@ parser.add_argument('--debug-normalization', dest='debug_normalization',
         default=False, help='filter stdin through normalizer for testing')
 parser.add_argument('-n', '--number', type=int, default=None,
         help='only consider the test with the given number')
+parser.add_argument('--fuzz-corpus',
+        help='convert test cases to fuzz corpus')
 args = parser.parse_args(sys.argv[1:])
 
 def out(str):
@@ -124,6 +127,19 @@ if __name__ == "__main__":
         exit(0)
 
     all_tests = get_tests(args.spec)
+
+    if args.fuzz_corpus:
+        i = 1
+        base = os.path.basename(args.spec)
+        (name, ext) = os.path.splitext(base)
+        for test in all_tests:
+            filename = os.path.join(args.fuzz_corpus, '%s.%d' % (name, i))
+            with open(filename, 'wb') as f:
+                f.write(b'\0' * 8) # options header
+                f.write(test['markdown'].encode())
+            i += 1
+        exit(0)
+
     if args.pattern:
         pattern_re = re.compile(args.pattern, re.IGNORECASE)
     else:
