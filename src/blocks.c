@@ -26,6 +26,14 @@
 #define CODE_INDENT 4
 #define TAB_STOP 4
 
+/**
+ * Very deeply nested lists can cause quadratic performance issues.
+ * This constant is used in open_new_blocks() to limit the nesting
+ * depth. It is unlikely that a non-contrived markdown document will
+ * be nested this deeply.
+ */
+#define MAX_LIST_DEPTH 100
+
 #ifndef MIN
 #define MIN(x, y) ((x < y) ? x : y)
 #endif
@@ -954,10 +962,11 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
   bool has_content;
   int save_offset;
   int save_column;
+  size_t depth = 0;
 
   while (cont_type != CMARK_NODE_CODE_BLOCK &&
          cont_type != CMARK_NODE_HTML_BLOCK) {
-
+    depth++;
     S_find_first_nonspace(parser, input);
     indented = parser->indent >= CODE_INDENT;
 
@@ -1044,7 +1053,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
-               parser->indent < 4 &&
+	       parser->indent < 4 &&
+               depth < MAX_LIST_DEPTH &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
                     (*container)->type == CMARK_NODE_PARAGRAPH, &data))) {
