@@ -904,6 +904,31 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       if (!parse_block_quote_prefix(parser, input))
         goto done;
       break;
+    case CMARK_NODE_LIST:
+      // Avoid quadratic behavior caused by iterating deeply nested lists
+      // for each blank line.
+      if (parser->blank) {
+        if (container->flags & CMARK_NODE__LIST_LAST_LINE_BLANK &&
+            parser->indent == 0) {
+          // Abort early if we encounter multiple blank lines. Returning
+          // NULL will cause S_process_line to skip the calls to
+          // open_new_blocks and add_text_to_container. open_new_blocks
+          // is a no-op for blank lines. add_text_to_container closes
+          // remaining open nodes, but since we have a second blank
+          // line, all open nodes have already been closed when the
+          // first blank line was processed. Certain block types accept
+          // empty lines as content, so add them here.
+          if (parser->current->type == CMARK_NODE_CODE_BLOCK ||
+              parser->current->type == CMARK_NODE_HTML_BLOCK) {
+            add_line(input, parser);
+          }
+          return NULL;
+        }
+        container->flags |= CMARK_NODE__LIST_LAST_LINE_BLANK;
+      } else {
+        container->flags &= ~CMARK_NODE__LIST_LAST_LINE_BLANK;
+      }
+      break;
     case CMARK_NODE_ITEM:
       if (!parse_node_item_prefix(parser, input, container))
         goto done;
