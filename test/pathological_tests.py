@@ -110,6 +110,12 @@ pathological = {
     "unclosed <!--":
                  ("</" + "<!--" * 300000,
                   re.compile("\\&lt;\\/(\\&lt;!--){300000}")),
+    "empty lines in deeply nested lists":
+                 ("- " * 30000 + "x" + "\n" * 30000,
+                  re.compile(r"^(<\w+>\n?)+x(</\w+>\n)+$")),
+    "empty lines in deeply nested lists in blockquote":
+                 ("> " + "- " * 30000 + "x\n" + ">\n" * 30000,
+                  re.compile(r"^(<\w+>\n?)+x(</\w+>\n)+$")),
     "reference collisions": hash_collisions()
 #    "many references":
 #                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
