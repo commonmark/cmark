@@ -46,14 +46,17 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   // Don't adjust tight list status til we've started the list.
   // Otherwise we loose the blank line between a paragraph and
   // a following list.
-  if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL && entering)) {
-    tmp = get_containing_block(node);
-    renderer->in_tight_list_item =
-        tmp && // tmp might be NULL if there is no containing block
-        ((tmp->type == CMARK_NODE_ITEM &&
-          cmark_node_get_list_tight(tmp->parent)) ||
-         (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&
-          cmark_node_get_list_tight(tmp->parent->parent)));
+  if (entering) {
+    if (node->parent && node->parent->type == CMARK_NODE_ITEM) {
+      renderer->in_tight_list_item = node->parent->parent->as.list.tight;
+    }
+  } else {
+    if (node->type == CMARK_NODE_LIST) {
+      renderer->in_tight_list_item =
+        node->parent &&
+        node->parent->type == CMARK_NODE_ITEM &&
+        node->parent->parent->as.list.tight;
+    }
   }
 
   if (node->extension && node->extension->plaintext_render_func) {

@@ -385,10 +385,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_STRONG:
-    if (entering) {
-      LIT("\\textbf{");
-    } else {
-      LIT("}");
+    if (node->parent == NULL || node->parent->type != CMARK_NODE_STRONG) {
+      if (entering) {
+        LIT("\\textbf{");
+      } else {
+        LIT("}");
+      }
     }
     break;
 
