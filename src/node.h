@@ -50,12 +50,13 @@ typedef struct {
 
 enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
-  CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
-  CMARK_NODE__LAST_LINE_CHECKED = (1 << 2),
+  CMARK_NODE__OPEN_BLOCK = (1 << 1),
+  CMARK_NODE__LAST_LINE_BLANK = (1 << 2),
+  CMARK_NODE__LAST_LINE_CHECKED = (1 << 3),
 
   // Extensions can register custom flags by calling `cmark_register_node_flag`.
   // This is the starting value for the custom flags.
-  CMARK_NODE__REGISTER_FIRST = (1 << 3),
+  CMARK_NODE__REGISTER_FIRST = (1 << 4),
 };
 
 typedef uint16_t cmark_node_internal_flags;

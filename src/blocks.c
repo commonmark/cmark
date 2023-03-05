@@ -70,6 +70,22 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                            bufsize_t bytes);
 
+static void subtract_open_block_counts(cmark_parser *parser, cmark_node *node) {
+  do {
+    decr_open_block_count(parser, S_type(node));
+    node->flags &= ~CMARK_NODE__OPEN_BLOCK;
+    node = node->last_child;
+  } while (node);
+}
+
+static void add_open_block_counts(cmark_parser *parser, cmark_node *node) {
+  do {
+    incr_open_block_count(parser, S_type(node));
+    node->flags |= CMARK_NODE__OPEN_BLOCK;
+    node = node->last_child;
+  } while (node);
+}
+
 static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
   cmark_node *e;
@@ -129,6 +145,7 @@ static void cmark_parser_reset(cmark_parser *parser) {
   parser->refmap = cmark_reference_map_new(parser->mem);
   parser->root = document;
   parser->current = document;
+  add_open_block_counts(parser, document);
 
   parser->syntax_extensions = saved_exts;
   parser->inline_syntax_extensions = saved_inline_exts;
@@ -310,6 +327,12 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     has_content = resolve_reference_link_definitions(parser, b);
     if (!has_content) {
       // remove blank node (former reference def)
+      if (b->flags & CMARK_NODE__OPEN_BLOCK) {
+        decr_open_block_count(parser, S_type(b));
+        if (b->prev) {
+          add_open_block_counts(parser, b->prev);
+        }
+      }
       cmark_node_free(b);
     }
     break;
@@ -382,6 +405,15 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   return parent;
 }
 
+// Recalculates the number of open blocks. Returns true if it matches what's currently stored
+// in parser. (Used to check that the counts in parser, which are updated incrementally, are
+// correct.)
+bool check_open_block_counts(cmark_parser *parser) {
+  cmark_parser tmp_parser = {0}; // Only used for its open_block_counts field.
+  add_open_block_counts(&tmp_parser, parser->root);
+  return memcmp(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts)) == 0;
+}
+
 // Add a node as child of another.  Return pointer to child.
 static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
                              cmark_node_type block_type, int start_column) {
@@ -400,11 +432,14 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   if (parent->last_child) {
     parent->last_child->next = child;
     child->prev = parent->last_child;
+    subtract_open_block_counts(parser, parent->last_child);
   } else {
     parent->first_child = child;
     child->prev = NULL;
   }
   parent->last_child = child;
+  add_open_block_counts(parser, child);
+
   return child;
 }
 
@@ -1048,6 +1083,8 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
   cmark_node *container = parser->root;
   cmark_node_type cont_type;
 
+  assert(check_open_block_counts(parser));
+
   while (S_last_child_is_open(container)) {
     container = container->last_child;
     cont_type = S_type(container);
@@ -1193,8 +1230,9 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       has_content = resolve_reference_link_definitions(parser, *container);
 
       if (has_content) {
-
-        (*container)->type = (uint16_t)CMARK_NODE_HEADING;
+        cmark_node_set_type(*container, CMARK_NODE_HEADING);
+        decr_open_block_count(parser, CMARK_NODE_PARAGRAPH);
+        incr_open_block_count(parser, CMARK_NODE_HEADING);
         (*container)->as.heading.level = lev;
         (*container)->as.heading.setext = true;
         S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
@@ -1478,6 +1516,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->line_number++;
 
+  assert(parser->current->next == NULL);
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
 
   if (!last_matched_container)
