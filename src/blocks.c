@@ -1109,14 +1109,16 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       const size_t n_para = read_open_block_count(&tmp_parser, CMARK_NODE_PARAGRAPH);
       if (n_list + n_item + n_para == tmp_parser.total_open_blocks) {
         if (parser->current->flags & CMARK_NODE__OPEN_BLOCK) {
-          if (S_type(parser->current) == CMARK_NODE_PARAGRAPH) {
-            container = parser->current;
-            goto done;
-          }
-          if (S_type(parser->current) == CMARK_NODE_ITEM) {
-            if (parser->current->flags & CMARK_NODE__OPEN) {
+          if (parser->current->flags & CMARK_NODE__OPEN) {
+            switch (S_type(parser->current)) {
+            case CMARK_NODE_PARAGRAPH:
+            case CMARK_NODE_LIST:
+            case CMARK_NODE_ITEM:
               container = parser->current;
               cont_type = S_type(container);
+              break;
+            default:
+              break;
             }
           }
         }
