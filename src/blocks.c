@@ -1103,17 +1103,41 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       continue;
     }
 
-    if (parser->blank) {
-      const size_t n_list = read_open_block_count(&tmp_parser, CMARK_NODE_LIST);
-      const size_t n_item = read_open_block_count(&tmp_parser, CMARK_NODE_ITEM);
-      const size_t n_para = read_open_block_count(&tmp_parser, CMARK_NODE_PARAGRAPH);
-      if (n_list + n_item + n_para == tmp_parser.total_open_blocks) {
-        if (parser->current->flags & CMARK_NODE__OPEN_BLOCK) {
-          if (parser->current->flags & CMARK_NODE__OPEN) {
+    // This block of code is a workaround for the quadratic performance
+    // issue described here (issue 2):
+    //
+    // https://github.com/github/cmark-gfm/security/advisories/GHSA-66g8-4hjf-77xh
+    //
+    // If the current line is empty then we might be able to skip directly
+    // to the end of the list of open blocks. To determine whether this is
+    // possible, we have been maintaining a count of the number of
+    // different types of open blocks. The main criterium is that every
+    // remaining block, except the last element of the list, is a LIST or
+    // ITEM. The code below checks the conditions, and if they're ok, skips
+    // forward to parser->current.
+    if (parser->blank && parser->indent == 0) {  // Current line is empty
+      // Make sure that parser->current doesn't point to a closed block.
+      if (parser->current->flags & CMARK_NODE__OPEN_BLOCK) {
+        if (parser->current->flags & CMARK_NODE__OPEN) {
+          const size_t n_list = read_open_block_count(&tmp_parser, CMARK_NODE_LIST);
+          const size_t n_item = read_open_block_count(&tmp_parser, CMARK_NODE_ITEM);
+          // At most one block can be something other than a LIST or ITEM.
+          if (n_list + n_item + 1 >= tmp_parser.total_open_blocks) {
+            // Check that parser->current is suitable for jumping to.
             switch (S_type(parser->current)) {
-            case CMARK_NODE_PARAGRAPH:
             case CMARK_NODE_LIST:
             case CMARK_NODE_ITEM:
+              if (n_list + n_item != tmp_parser.total_open_blocks) {
+                if (parser->current->last_child == NULL) {
+                  // There's another node type somewhere in the middle of
+                  // the list, so don't attempt the optimization.
+                  break;
+                }
+              }
+              // fall through
+            case CMARK_NODE_CODE_BLOCK:
+            case CMARK_NODE_PARAGRAPH:
+              // Jump to parser->current
               container = parser->current;
               cont_type = S_type(container);
               break;
