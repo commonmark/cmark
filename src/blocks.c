@@ -259,15 +259,18 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
 static bool S_ends_with_blank_line(cmark_node *node) {
-  if (S_last_line_checked(node)) {
-    return(S_last_line_blank(node));
-  } else if ((S_type(node) == CMARK_NODE_LIST ||
-              S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
-    S_set_last_line_checked(node);
-    return(S_ends_with_blank_line(node->last_child));
-  } else {
-    S_set_last_line_checked(node);
-    return (S_last_line_blank(node));
+  while (true) {
+    if (S_last_line_checked(node)) {
+      return(S_last_line_blank(node));
+    } else if ((S_type(node) == CMARK_NODE_LIST ||
+                S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
+      S_set_last_line_checked(node);
+      node = node->last_child;
+      continue;
+    } else {
+      S_set_last_line_checked(node);
+      return (S_last_line_blank(node));
+    }
   }
 }
 
@@ -1137,6 +1140,7 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
               // fall through
             case CMARK_NODE_CODE_BLOCK:
             case CMARK_NODE_PARAGRAPH:
+            case CMARK_NODE_HTML_BLOCK:
               // Jump to parser->current
               container = parser->current;
               cont_type = S_type(container);
