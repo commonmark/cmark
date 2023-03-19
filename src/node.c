@@ -29,7 +29,7 @@ void cmark_register_node_flag(cmark_node_internal_flags *flags) {
   nextflag <<= 1;
 }
 
-void cmark_init_standard_node_flags() {}
+void cmark_init_standard_node_flags(void) {}
 
 bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
   if (child_type == CMARK_NODE_DOCUMENT) {
