@@ -28,6 +28,7 @@ struct cmark_renderer {
   bool begin_content;
   bool no_linebreaks;
   bool in_tight_list_item;
+  int list_number;
   struct block_number *block_number_in_list_item;
   void (*outc)(struct cmark_renderer *, cmark_escaping, int32_t, unsigned char);
   void (*cr)(struct cmark_renderer *);

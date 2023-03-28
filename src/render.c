@@ -165,7 +165,7 @@ char *cmark_render(cmark_node *root, int options, int width,
   cmark_renderer renderer = {options,
                              mem,    &buf,    &pref,      0,      width,
                              0,      0,       true,       true,   false,
-                             false,  NULL,
+                             false,  0,       NULL,
                              outc,   S_cr,    S_blankline, S_out};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
