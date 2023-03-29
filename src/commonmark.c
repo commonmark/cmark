@@ -153,23 +153,8 @@ static bool is_autolink(cmark_node *node) {
                   link_text->as.literal.len) == 0);
 }
 
-// if node is a block node, returns node.
-// otherwise returns first block-level node that is an ancestor of node.
-// if there is no block-level ancestor, returns NULL.
-static cmark_node *get_containing_block(cmark_node *node) {
-  while (node) {
-    if (CMARK_NODE_BLOCK_P(node)) {
-      return node;
-    } else {
-      node = node->parent;
-    }
-  }
-  return NULL;
-}
-
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
-  cmark_node *tmp;
   int list_number;
   cmark_delim_type list_delim;
   int numticks;
