@@ -19,3 +19,4 @@ macro(fuzzer name)
 endmacro()
 
 fuzzer(fuzz_quadratic)
+fuzzer(fuzz_quadratic_brackets)
