@@ -311,11 +311,17 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
     }
   }
 
+  assert(cmark_node_get_type(parent_container) == CMARK_NODE_PARAGRAPH);
   if (!cmark_node_set_type(parent_container, CMARK_NODE_TABLE)) {
     free_table_row(parser->mem, header_row);
     free_table_row(parser->mem, marker_row);
     return parent_container;
   }
+
+  // Update the node counts after parent_container changed type.
+  assert(parent_container->next == NULL);
+  decr_open_block_count(parser, CMARK_NODE_PARAGRAPH);
+  incr_open_block_count(parser, CMARK_NODE_TABLE);
 
   if (header_row->paragraph_offset) {
     try_inserting_table_header_paragraph(parser, parent_container, (unsigned char *)parent_string,

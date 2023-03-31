@@ -1133,6 +1133,7 @@ int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
 
+  cmark_enable_safety_checks(true);
   version(runner);
   constructor(runner);
   accessors(runner);

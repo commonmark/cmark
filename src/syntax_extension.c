@@ -29,7 +29,10 @@ cmark_syntax_extension *cmark_syntax_extension_new(const char *name) {
 cmark_node_type cmark_syntax_extension_add_node(int is_inline) {
   cmark_node_type *ref = !is_inline ? &CMARK_NODE_LAST_BLOCK : &CMARK_NODE_LAST_INLINE;
 
-  if ((*ref & CMARK_NODE_VALUE_MASK) == CMARK_NODE_VALUE_MASK) {
+  if ((*ref & CMARK_NODE_VALUE_MASK) >= CMARK_NODE_TYPE_BLOCK_LIMIT) {
+    // This assertion will fail if you try to register more extensions than
+    // are currently allowed by CMARK_NODE_TYPE_BLOCK_MAXNUM. Try increasing
+    // the limit.
     assert(false);
     return (cmark_node_type) 0;
   }
