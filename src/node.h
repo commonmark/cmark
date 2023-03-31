@@ -83,6 +83,14 @@ struct cmark_node {
 
   cmark_syntax_extension *extension;
 
+  /**
+   * Used during cmark_render() to cache the most recent non-NULL
+   * extension, if you go up the parent chain like this:
+   *
+   * node->parent->...parent->extension
+   */
+  cmark_syntax_extension *ancestor_extension;
+
   union {
     int ref_ix;
     int def_count;

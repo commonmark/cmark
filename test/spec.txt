@@ -6926,7 +6926,7 @@ foo__bar__
 ```````````````````````````````` example
 __foo, __bar__, baz__
 .
-<p><strong>foo, <strong>bar</strong>, baz</strong></p>
+<p><strong>foo, bar, baz</strong></p>
 ````````````````````````````````
 
 
@@ -7197,7 +7197,7 @@ foo***bar***baz
 ```````````````````````````````` example
 foo******bar*********baz
 .
-<p>foo<strong><strong><strong>bar</strong></strong></strong>***baz</p>
+<p>foo<strong>bar</strong>***baz</p>
 ````````````````````````````````
 
 
@@ -7268,21 +7268,21 @@ __foo _bar_ baz__
 ```````````````````````````````` example
 __foo __bar__ baz__
 .
-<p><strong>foo <strong>bar</strong> baz</strong></p>
+<p><strong>foo bar baz</strong></p>
 ````````````````````````````````
 
 
 ```````````````````````````````` example
 ____foo__ bar__
 .
-<p><strong><strong>foo</strong> bar</strong></p>
+<p><strong>foo bar</strong></p>
 ````````````````````````````````
 
 
 ```````````````````````````````` example
 **foo **bar****
 .
-<p><strong>foo <strong>bar</strong></strong></p>
+<p><strong>foo bar</strong></p>
 ````````````````````````````````
 
 
@@ -7567,14 +7567,14 @@ switching delimiters:
 ```````````````````````````````` example
 ****foo****
 .
-<p><strong><strong>foo</strong></strong></p>
+<p><strong>foo</strong></p>
 ````````````````````````````````
 
 
 ```````````````````````````````` example
 ____foo____
 .
-<p><strong><strong>foo</strong></strong></p>
+<p><strong>foo</strong></p>
 ````````````````````````````````
 
 
@@ -7585,7 +7585,7 @@ delimiters:
 ```````````````````````````````` example
 ******foo******
 .
-<p><strong><strong><strong>foo</strong></strong></strong></p>
+<p><strong>foo</strong></p>
 ````````````````````````````````
 
 
@@ -7601,7 +7601,7 @@ Rule 14:
 ```````````````````````````````` example
 _____foo_____
 .
-<p><em><strong><strong>foo</strong></strong></em></p>
+<p><em><strong>foo</strong></em></p>
 ````````````````````````````````
 
 

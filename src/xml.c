@@ -11,6 +11,7 @@
 #include "syntax_extension.h"
 
 #define BUFFER_SIZE 100
+#define MAX_INDENT 40
 
 // Functions to convert cmark_nodes to XML strings.
 
@@ -26,7 +27,7 @@ struct render_state {
 
 static CMARK_INLINE void indent(struct render_state *state) {
   int i;
-  for (i = 0; i < state->indent; i++) {
+  for (i = 0; i < state->indent && i < MAX_INDENT; i++) {
     cmark_strbuf_putc(state->xml, ' ');
   }
 }

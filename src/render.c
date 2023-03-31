@@ -31,13 +31,7 @@ static void S_out(cmark_renderer *renderer, cmark_node *node,
   cmark_chunk remainder = cmark_chunk_literal("");
   int k = renderer->buffer->size - 1;
 
-  cmark_syntax_extension *ext = NULL;
-  cmark_node *n = node;
-  while (n && !ext) {
-    ext = n->extension;
-    if (!ext)
-      n = n->parent;
-  }
+  cmark_syntax_extension *ext = node->ancestor_extension;
   if (ext && !ext->commonmark_escape_func)
     ext = NULL;
 
@@ -177,11 +171,16 @@ char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
 
   cmark_renderer renderer = {mem,   &buf, &pref, 0,           width,
                              0,     0,    true,  true,        false,
-                             false, outc, S_cr,  S_blankline, S_out,
-                             0};
+                             false, 0,    outc,  S_cr,        S_blankline,
+                             S_out, 0};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
+    if (cur->extension) {
+      cur->ancestor_extension = cur->extension;
+    } else if (cur->parent) {
+      cur->ancestor_extension = cur->parent->ancestor_extension;
+    }
     if (!render_node(&renderer, cur, ev_type, options)) {
       // a false value causes us to skip processing
       // the node's contents.  this is used for
