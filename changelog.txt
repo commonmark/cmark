@@ -1,3 +1,25 @@
+[0.29.0.gfm.10]
+
+  * Fixed polynomial time complexity issue per
+  https://github.com/github/cmark-gfm/security/advisories/GHSA-r8vr-c48j-fcc5
+  * Fixed polynomial time complexity issues per
+  https://github.com/github/cmark-gfm/security/advisories/GHSA-66g8-4hjf-77xh
+
+  Note: these changes remove redundant bold tag nesting which may result
+  in existing rendering tests failing, e.g. rendering "____bold____" to html
+  will no longer yield "<p><strong><strong>bold</strong></strong></p>".
+
+[0.29.0.gfm.9]
+
+  * Cleanup: Use of a private header was cleaned up (#248)
+  * Cleanup: Man page was update (#255)
+  * Cleanup: Warnings for -Wstrict-prototypes were cleaned up (#285)
+  * Cleanup: We avoid header duplication (#289)
+
+  * We now store positioning info for url_match (#201)
+  * We now expose cmark_parent_footnote_def for non-C renderers (#254)
+  * Footnote aria-label text now reference the specific footnote backref, and we include a data-footnote-backref-idx attribute so the label can be internationalized in a downstream filter (#307)
+
 [0.29.0.gfm.8]
 
   * We restored backwards compatibility by deprecating the `cmark_init_standard_node_flags()` requirement, which is now a noop (#305)
