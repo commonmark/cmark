@@ -12,7 +12,7 @@
 [0.29.0.gfm.9]
 
   * Cleanup: Use of a private header was cleaned up (#248)
-  * Cleanup: Man page was update (#255)
+  * Cleanup: Man page was updated (#255)
   * Cleanup: Warnings for -Wstrict-prototypes were cleaned up (#285)
   * Cleanup: We avoid header duplication (#289)
 
