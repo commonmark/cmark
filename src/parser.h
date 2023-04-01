@@ -52,6 +52,7 @@ struct cmark_parser {
   size_t total_open_blocks;
 };
 
+// NOLINTNEXTLINE(clang-diagnostic-unused-function)
 static CMARK_INLINE void incr_open_block_count(cmark_parser *parser, cmark_node_type type) {
   assert(type >= CMARK_NODE_FIRST_BLOCK);
   assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
@@ -59,6 +60,7 @@ static CMARK_INLINE void incr_open_block_count(cmark_parser *parser, cmark_node_
   parser->total_open_blocks++;
 }
 
+// NOLINTNEXTLINE(clang-diagnostic-unused-function)
 static CMARK_INLINE void decr_open_block_count(cmark_parser *parser, cmark_node_type type) {
   assert(type >= CMARK_NODE_FIRST_BLOCK);
   assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
@@ -68,6 +70,7 @@ static CMARK_INLINE void decr_open_block_count(cmark_parser *parser, cmark_node_
   parser->total_open_blocks--;
 }
 
+// NOLINTNEXTLINE(clang-diagnostic-unused-function)
 static CMARK_INLINE size_t read_open_block_count(cmark_parser *parser, cmark_node_type type) {
   assert(type >= CMARK_NODE_FIRST_BLOCK);
   assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
