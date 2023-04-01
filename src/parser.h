@@ -45,33 +45,33 @@ struct cmark_parser {
    * sometimes help to end the loop in check_open_blocks early, improving
    * efficiency.
    *
-   * The count is stored at this offset: type - CMARK_NODE_TYPE_BLOCK - 1
-   * For example, CMARK_NODE_LIST (0x8003) is stored at offset 2.
+   * The count is stored at this offset: type - CMARK_NODE_FIRST_BLOCK
+   * For example, CMARK_NODE_LIST (0x3) is stored at offset 2.
    */
   size_t open_block_counts[CMARK_NODE_TYPE_BLOCK_LIMIT];
   size_t total_open_blocks;
 };
 
 static CMARK_INLINE void incr_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1]++;
+  assert(type >= CMARK_NODE_FIRST_BLOCK);
+  assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
+  parser->open_block_counts[type - CMARK_NODE_FIRST_BLOCK]++;
   parser->total_open_blocks++;
 }
 
 static CMARK_INLINE void decr_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  assert(parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1] > 0);
-  parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1]--;
+  assert(type >= CMARK_NODE_FIRST_BLOCK);
+  assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
+  assert(parser->open_block_counts[type - CMARK_NODE_FIRST_BLOCK] > 0);
+  parser->open_block_counts[type - CMARK_NODE_FIRST_BLOCK]--;
   assert(parser->total_open_blocks > 0);
   parser->total_open_blocks--;
 }
 
 static CMARK_INLINE size_t read_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  return parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1];
+  assert(type >= CMARK_NODE_FIRST_BLOCK);
+  assert(type < CMARK_NODE_FIRST_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
+  return parser->open_block_counts[type - CMARK_NODE_FIRST_BLOCK];
 }
 
 #ifdef __cplusplus

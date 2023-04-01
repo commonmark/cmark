@@ -131,6 +131,7 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->last_line_length = 0;
   parser->options = options;
   parser->last_buffer_ended_with_cr = false;
+  add_open_block_counts(parser, document);
 
   return parser;
 }
@@ -1121,7 +1122,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       has_content = resolve_reference_link_definitions(parser);
 
       if (has_content) {
-        cmark_node_set_type(*container, CMARK_NODE_HEADING);
+        (*container)->type = CMARK_NODE_HEADING;
         decr_open_block_count(parser, CMARK_NODE_PARAGRAPH);
         incr_open_block_count(parser, CMARK_NODE_HEADING);
         (*container)->as.heading.level = lev;
