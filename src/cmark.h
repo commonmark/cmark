@@ -329,6 +329,17 @@ CMARK_EXPORT int cmark_node_get_list_tight(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_list_tight(cmark_node *node, int tight);
 
+/**
+ * Returns item index of 'node'. This is only used when rendering output
+ * formats such as commonmark, which need to output the index. It is not
+ * required for formats such as html or latex.
+ */
+CMARK_EXPORT int cmark_node_get_item_index(cmark_node *node);
+
+/** Sets item index of 'node'. Returns 1 on success, 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_set_item_index(cmark_node *node, int idx);
+
 /** Returns the info string from a fenced code block.
  */
 CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
