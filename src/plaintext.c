@@ -18,6 +18,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
 
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
+  cmark_node *tmp;
   int list_number;
   cmark_delim_type list_delim;
   int i;
