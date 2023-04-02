@@ -155,7 +155,6 @@ static bool is_autolink(cmark_node *node) {
 
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
-  cmark_node *tmp;
   int list_number;
   cmark_delim_type list_delim;
   int numticks;
@@ -223,13 +222,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
       marker_width = 4;
     } else {
-      list_number = cmark_node_get_list_start(node->parent);
+      list_number = cmark_node_get_item_index(node);
       list_delim = cmark_node_get_list_delim(node->parent);
-      tmp = node;
-      while (tmp->prev) {
-        tmp = tmp->prev;
-        list_number += 1;
-      }
       // we ensure a width of at least 4 so
       // we get nice transition from single digits
       // to double
