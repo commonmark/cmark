@@ -1,3 +1,19 @@
+[0.29.0.gfm.11]
+
+  * Improved fixes for polynomial time complexity issues per
+  https://github.com/github/cmark-gfm/security/advisories/GHSA-66g8-4hjf-77xh
+  (#323, #324)
+  * Added fuzzing target for bracketed patterns (#318)
+  * Fixed bug in list numbering introduced in
+  763587e8775350b8cb4a2aa0f4cec3685aa96e8b (#322) which caused list numbers
+  to increment by 2
+  * Fixed strict prototype clang warning (#310)
+  * Fixed regression test (#312)
+  
+  Note: these changes remove redundant bold tag nesting which may result
+  in existing rendering tests failing, e.g. rendering "____bold____" to html
+  will no longer yield "<p><strong><strong>bold</strong></strong></p>".
+  
 [0.29.0.gfm.10]
 
   * Fixed polynomial time complexity issue per
