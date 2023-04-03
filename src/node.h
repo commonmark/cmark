@@ -128,7 +128,7 @@ void cmark_register_node_flag(cmark_node_internal_flags *flags);
  * library. It is now a no-op.
  */
 CMARK_GFM_EXPORT
-void cmark_init_standard_node_flags();
+void cmark_init_standard_node_flags(void);
 
 static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
   return node->content.mem;
