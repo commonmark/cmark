@@ -171,8 +171,8 @@ char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
 
   cmark_renderer renderer = {mem,   &buf, &pref, 0,           width,
                              0,     0,    true,  true,        false,
-                             false, 0,    outc,  S_cr,        S_blankline,
-                             S_out, 0};
+                             false, outc, S_cr,  S_blankline, S_out,
+                             0};
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
@@ -180,6 +180,15 @@ char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
       cur->ancestor_extension = cur->extension;
     } else if (cur->parent) {
       cur->ancestor_extension = cur->parent->ancestor_extension;
+    }
+    if (cur->type == CMARK_NODE_ITEM) {
+      // Calculate the list item's index, for the benefit of output formats
+      // like commonmark and plaintext.
+      if (cur->prev) {
+        cmark_node_set_item_index(cur, 1 + cmark_node_get_item_index(cur->prev));
+      } else {
+        cmark_node_set_item_index(cur, cmark_node_get_list_start(cur->parent));
+      }
     }
     if (!render_node(&renderer, cur, ev_type, options)) {
       // a false value causes us to skip processing

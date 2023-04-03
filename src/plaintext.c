@@ -61,14 +61,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                                     node->next->type == CMARK_NODE_LIST)) {
       CR();
     }
-    renderer->list_number = cmark_node_get_list_start(node);
     break;
 
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
       marker_width = 4;
     } else {
-      list_number = renderer->list_number++;
+      list_number = cmark_node_get_item_index(node);
       list_delim = cmark_node_get_list_delim(node->parent);
       // we ensure a width of at least 4 so
       // we get nice transition from single digits
