@@ -50,46 +50,7 @@ struct cmark_parser {
   cmark_llist *syntax_extensions;
   cmark_llist *inline_syntax_extensions;
   cmark_ispunct_func backslash_ispunct;
-
-  /**
-   * The "open" blocks are the blocks visited by the loop in
-   * check_open_blocks (blocks.c). I.e. the blocks in this list:
-   *
-   *   parser->root->last_child->...->last_child
-   *
-   * open_block_counts is used to keep track of how many of each type of
-   * node are currently in the open blocks list. Knowing these counts can
-   * sometimes help to end the loop in check_open_blocks early, improving
-   * efficiency.
-   *
-   * The count is stored at this offset: type - CMARK_NODE_TYPE_BLOCK - 1
-   * For example, CMARK_NODE_LIST (0x8003) is stored at offset 2.
-   */
-  size_t open_block_counts[CMARK_NODE_TYPE_BLOCK_LIMIT];
-  size_t total_open_blocks;
 };
-
-static CMARK_INLINE void incr_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1]++;
-  parser->total_open_blocks++;
-}
-
-static CMARK_INLINE void decr_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  assert(parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1] > 0);
-  parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1]--;
-  assert(parser->total_open_blocks > 0);
-  parser->total_open_blocks--;
-}
-
-static CMARK_INLINE size_t read_open_block_count(cmark_parser *parser, cmark_node_type type) {
-  assert(type > CMARK_NODE_TYPE_BLOCK);
-  assert(type <= CMARK_NODE_TYPE_BLOCK + CMARK_NODE_TYPE_BLOCK_LIMIT);
-  return parser->open_block_counts[type - CMARK_NODE_TYPE_BLOCK - 1];
-}
 
 #ifdef __cplusplus
 }

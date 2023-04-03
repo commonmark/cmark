@@ -70,22 +70,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
                            bufsize_t bytes);
 
-static void subtract_open_block_counts(cmark_parser *parser, cmark_node *node) {
-  do {
-    decr_open_block_count(parser, S_type(node));
-    node->flags &= ~CMARK_NODE__OPEN_BLOCK;
-    node = node->last_child;
-  } while (node);
-}
-
-static void add_open_block_counts(cmark_parser *parser, cmark_node *node) {
-  do {
-    incr_open_block_count(parser, S_type(node));
-    node->flags |= CMARK_NODE__OPEN_BLOCK;
-    node = node->last_child;
-  } while (node);
-}
-
 static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
   cmark_node *e;
@@ -145,7 +129,6 @@ static void cmark_parser_reset(cmark_parser *parser) {
   parser->refmap = cmark_reference_map_new(parser->mem);
   parser->root = document;
   parser->current = document;
-  add_open_block_counts(parser, document);
 
   parser->syntax_extensions = saved_exts;
   parser->inline_syntax_extensions = saved_inline_exts;
@@ -259,18 +242,15 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
 static bool S_ends_with_blank_line(cmark_node *node) {
-  while (true) {
-    if (S_last_line_checked(node)) {
-      return(S_last_line_blank(node));
-    } else if ((S_type(node) == CMARK_NODE_LIST ||
-                S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
-      S_set_last_line_checked(node);
-      node = node->last_child;
-      continue;
-    } else {
-      S_set_last_line_checked(node);
-      return (S_last_line_blank(node));
-    }
+  if (S_last_line_checked(node)) {
+    return(S_last_line_blank(node));
+  } else if ((S_type(node) == CMARK_NODE_LIST ||
+              S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
+    S_set_last_line_checked(node);
+    return(S_ends_with_blank_line(node->last_child));
+  } else {
+    S_set_last_line_checked(node);
+    return (S_last_line_blank(node));
   }
 }
 
@@ -330,12 +310,6 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     has_content = resolve_reference_link_definitions(parser, b);
     if (!has_content) {
       // remove blank node (former reference def)
-      if (b->flags & CMARK_NODE__OPEN_BLOCK) {
-        decr_open_block_count(parser, S_type(b));
-        if (b->prev) {
-          add_open_block_counts(parser, b->prev);
-        }
-      }
       cmark_node_free(b);
     }
     break;
@@ -408,17 +382,6 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   return parent;
 }
 
-// Recalculates the number of open blocks. Returns true if it matches what's currently stored
-// in parser. (Used to check that the counts in parser, which are updated incrementally, are
-// correct.)
-bool check_open_block_counts(cmark_parser *parser) {
-  cmark_parser tmp_parser = {0}; // Only used for its open_block_counts and total_open_blocks fields.
-  add_open_block_counts(&tmp_parser, parser->root);
-  return
-    tmp_parser.total_open_blocks == parser->total_open_blocks &&
-    memcmp(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts)) == 0;
-}
-
 // Add a node as child of another.  Return pointer to child.
 static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
                              cmark_node_type block_type, int start_column) {
@@ -437,14 +400,11 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   if (parent->last_child) {
     parent->last_child->next = child;
     child->prev = parent->last_child;
-    subtract_open_block_counts(parser, parent->last_child);
   } else {
     parent->first_child = child;
     child->prev = NULL;
   }
   parent->last_child = child;
-  add_open_block_counts(parser, child);
-
   return child;
 }
 
@@ -1087,14 +1047,8 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
   *all_matched = false;
   cmark_node *container = parser->root;
   cmark_node_type cont_type;
-  cmark_parser tmp_parser; // Only used for its open_block_counts and total_open_blocks fields.
-  memcpy(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts));
-  tmp_parser.total_open_blocks = parser->total_open_blocks;
-
-  assert(check_open_block_counts(parser));
 
   while (S_last_child_is_open(container)) {
-    decr_open_block_count(&tmp_parser, S_type(container));
     container = container->last_child;
     cont_type = S_type(container);
 
@@ -1104,53 +1058,6 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       if (!parse_extension_block(parser, container, input))
         goto done;
       continue;
-    }
-
-    // This block of code is a workaround for the quadratic performance
-    // issue described here (issue 2):
-    //
-    // https://github.com/github/cmark-gfm/security/advisories/GHSA-66g8-4hjf-77xh
-    //
-    // If the current line is empty then we might be able to skip directly
-    // to the end of the list of open blocks. To determine whether this is
-    // possible, we have been maintaining a count of the number of
-    // different types of open blocks. The main criterium is that every
-    // remaining block, except the last element of the list, is a LIST or
-    // ITEM. The code below checks the conditions, and if they're ok, skips
-    // forward to parser->current.
-    if (parser->blank && parser->indent == 0) {  // Current line is empty
-      // Make sure that parser->current doesn't point to a closed block.
-      if (parser->current->flags & CMARK_NODE__OPEN_BLOCK) {
-        if (parser->current->flags & CMARK_NODE__OPEN) {
-          const size_t n_list = read_open_block_count(&tmp_parser, CMARK_NODE_LIST);
-          const size_t n_item = read_open_block_count(&tmp_parser, CMARK_NODE_ITEM);
-          // At most one block can be something other than a LIST or ITEM.
-          if (n_list + n_item + 1 >= tmp_parser.total_open_blocks) {
-            // Check that parser->current is suitable for jumping to.
-            switch (S_type(parser->current)) {
-            case CMARK_NODE_LIST:
-            case CMARK_NODE_ITEM:
-              if (n_list + n_item != tmp_parser.total_open_blocks) {
-                if (parser->current->last_child == NULL) {
-                  // There's another node type somewhere in the middle of
-                  // the list, so don't attempt the optimization.
-                  break;
-                }
-              }
-              // fall through
-            case CMARK_NODE_CODE_BLOCK:
-            case CMARK_NODE_PARAGRAPH:
-            case CMARK_NODE_HTML_BLOCK:
-              // Jump to parser->current
-              container = parser->current;
-              cont_type = S_type(container);
-              break;
-            default:
-              break;
-            }
-          }
-        }
-      }
     }
 
     switch (cont_type) {
@@ -1286,9 +1193,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       has_content = resolve_reference_link_definitions(parser, *container);
 
       if (has_content) {
-        cmark_node_set_type(*container, CMARK_NODE_HEADING);
-        decr_open_block_count(parser, CMARK_NODE_PARAGRAPH);
-        incr_open_block_count(parser, CMARK_NODE_HEADING);
+
+        (*container)->type = (uint16_t)CMARK_NODE_HEADING;
         (*container)->as.heading.level = lev;
         (*container)->as.heading.setext = true;
         S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
@@ -1443,7 +1349,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   S_set_last_line_blank(container, last_line_blank);
 
   tmp = container;
-  while (tmp->parent && S_last_line_blank(tmp->parent)) {
+  while (tmp->parent) {
     S_set_last_line_blank(tmp->parent, false);
     tmp = tmp->parent;
   }
@@ -1572,7 +1478,6 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->line_number++;
 
-  assert(parser->current->next == NULL);
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
 
   if (!last_matched_container)
