@@ -409,11 +409,9 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 // in parser. (Used to check that the counts in parser, which are updated incrementally, are
 // correct.)
 bool check_open_block_counts(cmark_parser *parser) {
-  cmark_parser tmp_parser = {0}; // Only used for its open_block_counts and total_open_blocks fields.
+  cmark_parser tmp_parser = {0}; // Only used for its open_block_counts field.
   add_open_block_counts(&tmp_parser, parser->root);
-  return
-    tmp_parser.total_open_blocks == parser->total_open_blocks &&
-    memcmp(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts)) == 0;
+  return memcmp(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts)) == 0;
 }
 
 // Add a node as child of another.  Return pointer to child.
@@ -1084,14 +1082,10 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
   *all_matched = false;
   cmark_node *container = parser->root;
   cmark_node_type cont_type;
-  cmark_parser tmp_parser; // Only used for its open_block_counts and total_open_blocks fields.
-  memcpy(tmp_parser.open_block_counts, parser->open_block_counts, sizeof(parser->open_block_counts));
-  tmp_parser.total_open_blocks = parser->total_open_blocks;
 
   assert(check_open_block_counts(parser));
 
   while (S_last_child_is_open(container)) {
-    decr_open_block_count(&tmp_parser, S_type(container));
     container = container->last_child;
     cont_type = S_type(container);
 
@@ -1101,26 +1095,6 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       if (!parse_extension_block(parser, container, input))
         goto done;
       continue;
-    }
-
-    if (parser->blank) {
-      const size_t n_list = read_open_block_count(&tmp_parser, CMARK_NODE_LIST);
-      const size_t n_item = read_open_block_count(&tmp_parser, CMARK_NODE_ITEM);
-      const size_t n_para = read_open_block_count(&tmp_parser, CMARK_NODE_PARAGRAPH);
-      if (n_list + n_item + n_para == tmp_parser.total_open_blocks) {
-        if (parser->current->flags & CMARK_NODE__OPEN_BLOCK) {
-          if (S_type(parser->current) == CMARK_NODE_PARAGRAPH) {
-            container = parser->current;
-            goto done;
-          }
-          if (S_type(parser->current) == CMARK_NODE_ITEM) {
-            if (parser->current->flags & CMARK_NODE__OPEN) {
-              container = parser->current;
-              cont_type = S_type(container);
-            }
-          }
-        }
-      }
     }
 
     switch (cont_type) {
@@ -1413,7 +1387,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   S_set_last_line_blank(container, last_line_blank);
 
   tmp = container;
-  while (tmp->parent && S_last_line_blank(tmp->parent)) {
+  while (tmp->parent) {
     S_set_last_line_blank(tmp->parent, false);
     tmp = tmp->parent;
   }
