@@ -12,6 +12,11 @@
   * Added additional output formats to quadratic fuzzer (#327)
   * Fixed buffer overflow in fuzzing harness (#326)
   
+  Note: these changes may lead to minor changes in expected output on plaintext 
+  rendering of list items. Notably, blank lines may no longer delineate the start 
+  of a list when rendering to plaintext due to changes in how the tight list status 
+  is calculated.
+  
 [0.29.0.gfm.10]
 
   * Fixed polynomial time complexity issue per
