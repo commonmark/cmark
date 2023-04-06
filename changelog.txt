@@ -1,3 +1,22 @@
+[0.29.0.gfm.11]
+
+  * Improved fixes for polynomial time complexity issues per
+  https://github.com/github/cmark-gfm/security/advisories/GHSA-66g8-4hjf-77xh
+  (#323, #324)
+  * Added fuzzing target for bracketed patterns (#318)
+  * Fixed bug in list numbering introduced in
+  763587e8775350b8cb4a2aa0f4cec3685aa96e8b (#322) which caused list numbers
+  to increment by 2
+  * Fixed strict prototype clang warning (#310)
+  * Fixed regression test (#312)
+  * Added additional output formats to quadratic fuzzer (#327)
+  * Fixed buffer overflow in fuzzing harness (#326)
+  
+  Note: these changes may lead to minor changes in expected output on plaintext 
+  rendering of list items. Notably, blank lines may no longer delineate the start 
+  of a list when rendering to plaintext due to changes in how the tight list status 
+  is calculated.
+  
 [0.29.0.gfm.10]
 
   * Fixed polynomial time complexity issue per
