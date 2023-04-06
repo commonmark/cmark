@@ -9,7 +9,8 @@
   to increment by 2
   * Fixed strict prototype clang warning (#310)
   * Fixed regression test (#312)
-  
+  * Added additional output formats to quadratic fuzzer (#327)
+  * Fixed buffer overflow in fuzzing harness (#326)
   
 [0.29.0.gfm.10]
 
