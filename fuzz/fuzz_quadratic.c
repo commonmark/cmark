@@ -75,8 +75,13 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
       cmark_parser_feed(parser, markdown, markdown_size);
       cmark_node *doc = cmark_parser_finish(parser);
- 
+
       free(cmark_render_html(doc, fuzz_config.options, NULL));
+      free(cmark_render_xml(doc, fuzz_config.options));
+      free(cmark_render_man(doc, fuzz_config.options, 80));
+      free(cmark_render_commonmark(doc, fuzz_config.options, 80));
+      free(cmark_render_plaintext(doc, fuzz_config.options, 80));
+      free(cmark_render_latex(doc, fuzz_config.options, 80));
 
       cmark_node_free(doc);
       cmark_parser_free(parser);
