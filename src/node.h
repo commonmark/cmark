@@ -85,6 +85,17 @@ struct cmark_node {
 
 CMARK_EXPORT int cmark_node_check(cmark_node *node, FILE *out);
 
+/**
+ * Returns item index of 'node'. This is only used when rendering output
+ * formats such as commonmark, which need to output the index. It is not
+ * required for formats such as html or latex.
+ */
+int cmark_node_get_item_index(cmark_node *node);
+
+/** Sets item index of 'node'. Returns 1 on success, 0 on failure.
+ */
+int cmark_node_set_item_index(cmark_node *node, int idx);
+
 #ifdef __cplusplus
 }
 #endif
