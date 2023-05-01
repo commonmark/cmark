@@ -296,7 +296,7 @@ static cmark_node *match(cmark_syntax_extension *ext, cmark_parser *parser,
   // inline was finished in inlines.c.
 }
 
-static bool validate_protocol(char protocol[], uint8_t *data, size_t rewind, size_t max_rewind) {
+static bool validate_protocol(const char protocol[], uint8_t *data, size_t rewind, size_t max_rewind) {
   size_t len = strlen(protocol);
 
   if (len > (max_rewind - rewind)) {
