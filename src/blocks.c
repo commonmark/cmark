@@ -1217,7 +1217,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if (!indented &&
-               parser->options & CMARK_OPT_FOOTNOTES &&
+               (parser->options & CMARK_OPT_FOOTNOTES) &&
+               depth < MAX_LIST_DEPTH &&
                (matched = scan_footnote_definition(input, parser->first_nonspace))) {
       cmark_chunk c = cmark_chunk_dup(input, parser->first_nonspace + 2, matched - 2);
       cmark_chunk_to_cstr(parser->mem, &c);
