@@ -165,7 +165,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   char fencechar[2] = {'\0', '\0'};
   size_t info_len, code_len;
   char listmarker[LISTMARKER_SIZE];
-  char *emph_delim;
+  const char *emph_delim;
   bool first_in_list_item;
   bufsize_t marker_width;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options) &&
