@@ -105,6 +105,7 @@ struct cmark_node {
     cmark_link link;
     cmark_custom custom;
     int html_block_type;
+    int custom_int; // For extensions to store an int
     void *opaque;
   } as;
 };

@@ -98,6 +98,23 @@ static int set_table_alignments(cmark_node *node, uint8_t *alignments) {
   return 1;
 }
 
+static uint8_t get_cell_alignment(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  const uint8_t *alignments = get_table_alignments(node->parent->parent);
+  int i = node->as.custom_int;
+  return alignments[i];
+}
+
+static int set_cell_index(cmark_node *node, int i) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  node->as.custom_int = i;
+  return 1;
+}
+
 static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len)
 {
   cmark_strbuf *res = (cmark_strbuf *)mem->calloc(1, sizeof(cmark_strbuf));
@@ -333,7 +350,6 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   for (i = 0; i < marker_row->n_columns; ++i) {
     node_cell *node = &marker_row->cells[i];
     bool left = node->buf->ptr[0] == ':', right = node->buf->ptr[node->buf->size - 1] == ':';
-
     if (left && right)
       alignments[i] = 'c';
     else if (left)
@@ -363,6 +379,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
       header_cell->end_column = parent_container->start_column + cell->end_offset;
       cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(header_cell, self);
+      set_cell_index(header_cell, i);
     }
   }
 
@@ -412,12 +429,14 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
       node->end_column = parent_container->start_column + cell->end_offset;
       cmark_node_set_string_content(node, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(node, self);
+      set_cell_index(node, i);
     }
 
     for (; i < table_columns; ++i) {
       cmark_node *node = cmark_parser_add_child(
           parser, table_row_block, CMARK_NODE_TABLE_CELL, 0);
       cmark_node_set_syntax_extension(node, self);
+      set_cell_index(node, i);
     }
   }
 
@@ -602,13 +621,7 @@ static const char *xml_attr(cmark_syntax_extension *extension,
                             cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE_CELL) {
     if (cmark_gfm_extensions_get_table_row_is_header(node->parent)) {
-      uint8_t *alignments = get_table_alignments(node->parent->parent);
-      int i = 0;
-      cmark_node *n;
-      for (n = node->parent->first_child; n; n = n->next, ++i)
-        if (n == node)
-          break;
-      switch (alignments[i]) {
+      switch (get_cell_alignment(node)) {
       case 'l': return " align=\"left\"";
       case 'c': return " align=\"center\"";
       case 'r': return " align=\"right\"";
@@ -696,7 +709,6 @@ static void html_render(cmark_syntax_extension *extension,
                         cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   cmark_strbuf *html = renderer->html;
-  cmark_node *n;
 
   // XXX: we just monopolise renderer->opaque.
   struct html_table_state *table_state =
@@ -745,7 +757,6 @@ static void html_render(cmark_syntax_extension *extension,
       }
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    uint8_t *alignments = get_table_alignments(node->parent->parent);
     if (entering) {
       cmark_html_render_cr(html);
       if (table_state->in_table_header) {
@@ -754,12 +765,7 @@ static void html_render(cmark_syntax_extension *extension,
         cmark_strbuf_puts(html, "<td");
       }
 
-      int i = 0;
-      for (n = node->parent->first_child; n; n = n->next, ++i)
-        if (n == node)
-          break;
-
-      switch (alignments[i]) {
+      switch (get_cell_alignment(node)) {
       case 'l': html_table_add_align(html, "left", options); break;
       case 'c': html_table_add_align(html, "center", options); break;
       case 'r': html_table_add_align(html, "right", options); break;
