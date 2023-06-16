@@ -1220,11 +1220,12 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                parser->options & CMARK_OPT_FOOTNOTES &&
                (matched = scan_footnote_definition(input, parser->first_nonspace))) {
       cmark_chunk c = cmark_chunk_dup(input, parser->first_nonspace + 2, matched - 2);
-      cmark_chunk_to_cstr(parser->mem, &c);
 
       while (c.data[c.len - 1] != ']')
         --c.len;
       --c.len;
+
+      cmark_chunk_to_cstr(parser->mem, &c);
 
       S_advance_offset(parser, input, parser->first_nonspace + matched - parser->offset, false);
       *container = add_child(parser, *container, CMARK_NODE_FOOTNOTE_DEFINITION, parser->first_nonspace + matched + 1);
