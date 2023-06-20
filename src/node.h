@@ -105,7 +105,7 @@ struct cmark_node {
     cmark_link link;
     cmark_custom custom;
     int html_block_type;
-    int custom_int; // For extensions to store an int
+    int cell_index; // For keeping track of TABLE_CELL table alignments
     void *opaque;
   } as;
 };
