@@ -382,6 +382,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   for (i = 0; i < marker_row->n_columns; ++i) {
     node_cell *node = &marker_row->cells[i];
     bool left = node->buf->ptr[0] == ':', right = node->buf->ptr[node->buf->size - 1] == ':';
+
     if (left && right)
       alignments[i] = 'c';
     else if (left)
