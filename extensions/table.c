@@ -135,7 +135,7 @@ static uint8_t get_cell_alignment(cmark_node *node) {
     return 0;
 
   const uint8_t *alignments = get_table_alignments(node->parent->parent);
-  int i = node->as.custom_int;
+  int i = node->as.cell_index;
   return alignments[i];
 }
 
@@ -143,7 +143,7 @@ static int set_cell_index(cmark_node *node, int i) {
   if (!node || node->type != CMARK_NODE_TABLE_CELL)
     return 0;
 
-  node->as.custom_int = i;
+  node->as.cell_index = i;
   return 1;
 }
 
