@@ -402,18 +402,16 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   table_header->as.opaque = ntr = (node_table_row *)parser->mem->calloc(1, sizeof(node_table_row));
   ntr->is_header = true;
 
-  {
-    for (i = 0; i < header_row->n_columns; ++i) {
-      node_cell *cell = &header_row->cells[i];
-      cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
-          CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
-      header_cell->start_line = header_cell->end_line = parent_container->start_line;
-      header_cell->internal_offset = cell->internal_offset;
-      header_cell->end_column = parent_container->start_column + cell->end_offset;
-      cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
-      cmark_node_set_syntax_extension(header_cell, self);
-      set_cell_index(header_cell, i);
-    }
+  for (i = 0; i < header_row->n_columns; ++i) {
+    node_cell *cell = &header_row->cells[i];
+    cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
+                                                     CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
+    header_cell->start_line = header_cell->end_line = parent_container->start_line;
+    header_cell->internal_offset = cell->internal_offset;
+    header_cell->end_column = parent_container->start_column + cell->end_offset;
+    cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
+    cmark_node_set_syntax_extension(header_cell, self);
+    set_cell_index(header_cell, i);
   }
 
   incr_table_row_count(parent_container, i);
