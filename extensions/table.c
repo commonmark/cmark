@@ -11,6 +11,9 @@
 #include "table.h"
 #include "cmark-gfm-core-extensions.h"
 
+// Limit to prevent a malicious input from causing a denial of service.
+#define MAX_AUTOCOMPLETED_CELLS 0x80000
+
 // Custom node flag, initialized in `create_table_extension`.
 static cmark_node_internal_flags CMARK_NODE__TABLE_VISITED;
 
@@ -31,6 +34,8 @@ typedef struct {
 typedef struct {
   uint16_t n_columns;
   uint8_t *alignments;
+  int n_rows;
+  int n_nonempty_cells;
 } node_table;
 
 typedef struct {
@@ -83,6 +88,33 @@ static int set_n_table_columns(cmark_node *node, uint16_t n_columns) {
   return 1;
 }
 
+// Increment the number of rows in the table. Also update n_nonempty_cells,
+// which keeps track of the number of cells which were parsed from the
+// input file. (If one of the rows is too short, then the trailing cells
+// are autocompleted. Autocompleted cells are not counted in n_nonempty_cells.)
+// The purpose of this is to prevent a malicious input from generating a very
+// large number of autocompleted cells, which could cause a denial of service
+// vulnerability.
+static int incr_table_row_count(cmark_node *node, int i) {
+  if (!node || node->type != CMARK_NODE_TABLE) {
+    return 0;
+  }
+
+  ((node_table *)node->as.opaque)->n_rows++;
+  ((node_table *)node->as.opaque)->n_nonempty_cells += i;
+  return 1;
+}
+
+// Calculate the number of autocompleted cells.
+static int get_n_autocompleted_cells(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE) {
+    return 0;
+  }
+
+  const node_table *nt = (node_table *)node->as.opaque;
+  return (nt->n_columns * nt->n_rows) - nt->n_nonempty_cells;
+}
+
 static uint8_t *get_table_alignments(cmark_node *node) {
   if (!node || node->type != CMARK_NODE_TABLE)
     return 0;
@@ -95,6 +127,23 @@ static int set_table_alignments(cmark_node *node, uint8_t *alignments) {
     return 0;
 
   ((node_table *)node->as.opaque)->alignments = alignments;
+  return 1;
+}
+
+static uint8_t get_cell_alignment(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  const uint8_t *alignments = get_table_alignments(node->parent->parent);
+  int i = node->as.cell_index;
+  return alignments[i];
+}
+
+static int set_cell_index(cmark_node *node, int i) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  node->as.cell_index = i;
   return 1;
 }
 
@@ -353,18 +402,19 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   table_header->as.opaque = ntr = (node_table_row *)parser->mem->calloc(1, sizeof(node_table_row));
   ntr->is_header = true;
 
-  {
-    for (i = 0; i < header_row->n_columns; ++i) {
-      node_cell *cell = &header_row->cells[i];
-      cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
-          CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
-      header_cell->start_line = header_cell->end_line = parent_container->start_line;
-      header_cell->internal_offset = cell->internal_offset;
-      header_cell->end_column = parent_container->start_column + cell->end_offset;
-      cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
-      cmark_node_set_syntax_extension(header_cell, self);
-    }
+  for (i = 0; i < header_row->n_columns; ++i) {
+    node_cell *cell = &header_row->cells[i];
+    cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
+                                                     CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
+    header_cell->start_line = header_cell->end_line = parent_container->start_line;
+    header_cell->internal_offset = cell->internal_offset;
+    header_cell->end_column = parent_container->start_column + cell->end_offset;
+    cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
+    cmark_node_set_syntax_extension(header_cell, self);
+    set_cell_index(header_cell, i);
   }
+
+  incr_table_row_count(parent_container, i);
 
   cmark_parser_advance_offset(
       parser, (char *)input,
@@ -384,6 +434,10 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
 
   if (cmark_parser_is_blank(parser))
     return NULL;
+
+  if (get_n_autocompleted_cells(parent_container) > MAX_AUTOCOMPLETED_CELLS) {
+    return NULL;
+  }
 
   table_row_block =
       cmark_parser_add_child(parser, parent_container, CMARK_NODE_TABLE_ROW,
@@ -412,12 +466,16 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
       node->end_column = parent_container->start_column + cell->end_offset;
       cmark_node_set_string_content(node, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(node, self);
+      set_cell_index(node, i);
     }
+
+    incr_table_row_count(parent_container, i);
 
     for (; i < table_columns; ++i) {
       cmark_node *node = cmark_parser_add_child(
           parser, table_row_block, CMARK_NODE_TABLE_CELL, 0);
       cmark_node_set_syntax_extension(node, self);
+      set_cell_index(node, i);
     }
   }
 
@@ -602,13 +660,7 @@ static const char *xml_attr(cmark_syntax_extension *extension,
                             cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE_CELL) {
     if (cmark_gfm_extensions_get_table_row_is_header(node->parent)) {
-      uint8_t *alignments = get_table_alignments(node->parent->parent);
-      int i = 0;
-      cmark_node *n;
-      for (n = node->parent->first_child; n; n = n->next, ++i)
-        if (n == node)
-          break;
-      switch (alignments[i]) {
+      switch (get_cell_alignment(node)) {
       case 'l': return " align=\"left\"";
       case 'c': return " align=\"center\"";
       case 'r': return " align=\"right\"";
@@ -696,7 +748,6 @@ static void html_render(cmark_syntax_extension *extension,
                         cmark_event_type ev_type, int options) {
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   cmark_strbuf *html = renderer->html;
-  cmark_node *n;
 
   // XXX: we just monopolise renderer->opaque.
   struct html_table_state *table_state =
@@ -745,7 +796,6 @@ static void html_render(cmark_syntax_extension *extension,
       }
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    uint8_t *alignments = get_table_alignments(node->parent->parent);
     if (entering) {
       cmark_html_render_cr(html);
       if (table_state->in_table_header) {
@@ -754,12 +804,7 @@ static void html_render(cmark_syntax_extension *extension,
         cmark_strbuf_puts(html, "<td");
       }
 
-      int i = 0;
-      for (n = node->parent->first_child; n; n = n->next, ++i)
-        if (n == node)
-          break;
-
-      switch (alignments[i]) {
+      switch (get_cell_alignment(node)) {
       case 'l': html_table_add_align(html, "left", options); break;
       case 'c': html_table_add_align(html, "center", options); break;
       case 'r': html_table_add_align(html, "right", options); break;
