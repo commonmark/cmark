@@ -1,3 +1,10 @@
+[0.29.0.gfm.12]
+
+  * Fixed polynomial time complexity issues per
+  https://github.com/github/cmark-gfm/security/advisories/GHSA-w4qg-3vf7-m9x5
+  * Added CodeQL project integration (#337)
+  * Addressed const qualifier discard compiler warnings (#330, #331)
+
 [0.29.0.gfm.11]
 
   * Improved fixes for polynomial time complexity issues per
