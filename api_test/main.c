@@ -836,7 +836,7 @@ static void test_continuation_byte(test_batch_runner *runner,
 
     char *html =
         cmark_markdown_to_html(buf, strlen(buf), CMARK_OPT_VALIDATE_UTF8);
-    STR_EQ(runner, html, expected, "invalid utf8 continuation byte %d/%d", pos,
+    STR_EQ(runner, html, expected, "invalid utf8 continuation byte %zu/%zu", pos,
            len);
     free(html);
   }
