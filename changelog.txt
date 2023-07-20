@@ -1,3 +1,8 @@
+[0.29.0.gfm.13]
+  * Normalized marker row vs. delimiter row nomenclature (#273)
+  * Exposed CMARK_NODE_FOOTNOTE_DEFINITION literal value (#336)
+  * Fix format specifier for printing a size_t (#340)
+
 [0.29.0.gfm.12]
 
   * Fixed polynomial time complexity issues per
