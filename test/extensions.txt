@@ -208,7 +208,7 @@ fff | ggg | hhh | iii | jjj
 
 ### Table cell count mismatches
 
-The header and marker row must match.
+The header and delimiter row must match.
 
 ```````````````````````````````` example
 | a | b | c |
