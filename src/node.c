@@ -377,6 +377,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
   case CMARK_NODE_FOOTNOTE_REFERENCE:
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.literal);
 
   case CMARK_NODE_CODE_BLOCK:
