@@ -213,3 +213,194 @@ x <!A>
 ````````````````````````````````
 
 
+https://github.com/commonmark/commonmark.js/pull/269
+Block-quoted blank line shouldn't make parent list loose.
+```````````````````````````````` example
+## Case 1
+
+- > a
+  >
+- b
+
+
+## Case 2
+
+- > - a
+  >
+- b
+
+
+## Case 3
+
+- > > a
+  >
+- b
+
+
+## Case 4
+
+- > # a
+  >
+- b
+
+
+## Case 5
+
+- ```
+  The following line is part of code block.
+
+- b
+
+## Case 6
+
+-     The following line is **not** part of code block.
+
+- b
+
+## Case 7
+
+- <pre>The following line is part of HTML block.
+
+- </pre>
+- b
+.
+<h2>Case 1</h2>
+<ul>
+<li>
+<blockquote>
+<p>a</p>
+</blockquote>
+</li>
+<li>b</li>
+</ul>
+<h2>Case 2</h2>
+<ul>
+<li>
+<blockquote>
+<ul>
+<li>a</li>
+</ul>
+</blockquote>
+</li>
+<li>b</li>
+</ul>
+<h2>Case 3</h2>
+<ul>
+<li>
+<blockquote>
+<blockquote>
+<p>a</p>
+</blockquote>
+</blockquote>
+</li>
+<li>b</li>
+</ul>
+<h2>Case 4</h2>
+<ul>
+<li>
+<blockquote>
+<h1>a</h1>
+</blockquote>
+</li>
+<li>b</li>
+</ul>
+<h2>Case 5</h2>
+<ul>
+<li>
+<pre><code>The following line is part of code block.
+
+</code></pre>
+</li>
+<li>b</li>
+</ul>
+<h2>Case 6</h2>
+<ul>
+<li>
+<pre><code>The following line is **not** part of code block.
+</code></pre>
+</li>
+<li>
+<p>b</p>
+</li>
+</ul>
+<h2>Case 7</h2>
+<ul>
+<li>
+<pre>The following line is part of HTML block.
+
+</li>
+<li>
+</pre>
+</li>
+<li>b</li>
+</ul>
+````````````````````````````````
+
+Link reference definitions are blocks when checking list tightness.
+```````````````````````````````` example
+## Case 1
+
+- [aaa]: /
+
+  [aaa]: /
+- b
+
+
+## Case 2
+
+- a
+
+  [aaa]: /
+- b
+
+
+## Case 3
+
+- [aaa]: /
+
+  a
+- b
+
+## Case 4
+- ***
+  [aaa]: /
+
+  bbb
+- c
+.
+<h2>Case 1</h2>
+<ul>
+<li></li>
+<li>
+<p>b</p>
+</li>
+</ul>
+<h2>Case 2</h2>
+<ul>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+</ul>
+<h2>Case 3</h2>
+<ul>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+</ul>
+<h2>Case 4</h2>
+<ul>
+<li>
+<hr />
+<p>bbb</p>
+</li>
+<li>
+<p>c</p>
+</li>
+</ul>
+````````````````````````````````
