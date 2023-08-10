@@ -127,6 +127,9 @@ static void S_free_nodes(cmark_node *e) {
       mem->free(e->as.custom.on_enter);
       mem->free(e->as.custom.on_exit);
       break;
+    case CMARK_NODE_PARAGRAPH:
+      mem->free(e->data);
+      break;
     default:
       break;
     }

@@ -135,9 +135,10 @@ void cmark_parser_free(cmark_parser *parser) {
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b);
 
 // Returns true if line has only space characters, else false.
-static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
-  while (offset < s->size) {
-    switch (s->ptr[offset]) {
+static bool is_blank_raw(const unsigned char *ptr, const bufsize_t size,
+                         bufsize_t offset) {
+  while (offset < size) {
+    switch (ptr[offset]) {
     case '\r':
     case '\n':
       return true;
@@ -154,6 +155,17 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
 
   return true;
 }
+
+// Returns true if line has only space characters, else false.
+static CMARK_INLINE bool is_blank_strbuf(cmark_strbuf *s, bufsize_t offset) {
+  return is_blank_raw(s->ptr, s->size, offset);
+}
+
+// Returns true if line has only space characters, else false.
+static CMARK_INLINE bool is_blank_chunk(cmark_chunk *s, bufsize_t offset) {
+  return is_blank_raw(s->data, s->len, offset);
+}
+
 
 static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
                                      cmark_node_type child_type) {
@@ -244,7 +256,96 @@ static bool resolve_reference_link_definitions(cmark_parser *parser) {
     chunk.len -= pos;
   }
   cmark_strbuf_drop(node_content, (node_content->size - chunk.len));
-  return !is_blank(node_content, 0);
+  return !is_blank_strbuf(node_content, 0);
+}
+
+// Parse link reference definitions in the given finalized paragraph.
+// Results are added to `refmap` of the parser.
+// `data`, `len`, `start_line`, and `start_column` of the parser will be
+// updated.
+// If the paragraph contains only link reference definitions, it is removed
+// from the tree and freed.
+static void resolve_deferred_reference_link_definitions(cmark_parser *parser,
+                                                        cmark_node *paragraph) {
+  bufsize_t pos;
+  cmark_chunk chunk = {paragraph->data, paragraph->len};
+  int new_start_line;
+  int new_start_column;
+  unsigned char *p;
+  unsigned char *resized;
+
+  while (chunk.len && chunk.data[0] == '[' &&
+         (pos = cmark_parse_reference_inline(parser->mem, &chunk,
+                                             parser->refmap))) {
+
+    chunk.data += pos;
+    chunk.len -= pos;
+  }
+
+  if (paragraph->data == chunk.data) {
+    // No definitions found.
+    return;
+  }
+
+  if (chunk.len == 0) {
+    // The paragraph contained only definitions.
+    cmark_node_free(paragraph);
+  } else {
+    // Adjust the start position and the data.
+
+    new_start_line = paragraph->start_line;
+    new_start_column = paragraph->start_column;
+
+    for (p = paragraph->data; p < chunk.data; p++) {
+      switch (*p) {
+      case '\r':
+        new_start_line++;
+        new_start_column = 0;
+        if (p + 1 < chunk.data && p[1] == '\n') {
+          p++;
+        }
+        break;
+      case '\n':
+        new_start_line++;
+        new_start_column = 0;
+        break;
+      default:
+        new_start_column++;
+        break;
+      }
+    }
+
+    paragraph->start_line = new_start_line;
+    paragraph->start_column = new_start_column;
+
+    memmove(paragraph->data, chunk.data, chunk.len);
+    resized = parser->mem->realloc(paragraph->data, chunk.len);
+    chunk.data = resized;
+    paragraph->data = resized;
+    paragraph->len = chunk.len;
+
+    if (is_blank_chunk(&chunk, 0)) {
+      cmark_node_free(paragraph);
+    }
+  }
+}
+
+static void resolve_all_reference_link_definitions(cmark_parser *parser) {
+  cmark_iter *iter = cmark_iter_new(parser->root);
+  cmark_node *cur;
+  cmark_event_type ev_type;
+
+  while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
+    cur = cmark_iter_get_node(iter);
+    // Process at exit so we can free the node if it contains only definitions.
+    if (ev_type == CMARK_EVENT_EXIT) {
+      if (S_type(cur) == CMARK_NODE_PARAGRAPH) {
+        resolve_deferred_reference_link_definitions(parser, cur);
+      }
+    }
+  }
+
+  cmark_iter_free(iter);
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
@@ -252,7 +353,6 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   cmark_node *item;
   cmark_node *subitem;
   cmark_node *parent;
-  bool has_content;
 
   parent = b->parent;
   assert(b->flags &
@@ -281,17 +381,9 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
-  {
-    has_content = resolve_reference_link_definitions(parser);
-    if (!has_content) {
-      // remove blank node (former reference def)
-      cmark_node_free(b);
-    } else {
-      b->len = node_content->size;
-      b->data = cmark_strbuf_detach(node_content);
-    }
+    b->len = node_content->size;
+    b->data = cmark_strbuf_detach(node_content);
     break;
-  }
 
   case CMARK_NODE_CODE_BLOCK:
     if (!b->as.code.fenced) { // indented code
@@ -358,6 +450,10 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       item = item->next;
     }
 
+    break;
+
+  case CMARK_NODE_DOCUMENT:
+    resolve_all_reference_link_definitions(parser);
     break;
 
   default:
