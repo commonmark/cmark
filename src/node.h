@@ -48,7 +48,6 @@ typedef struct {
 
 enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
-  CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
 };
 
 struct cmark_node {

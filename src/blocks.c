@@ -32,19 +32,8 @@
 
 #define peek_at(i, n) (i)->data[n]
 
-static bool S_last_line_blank(const cmark_node *node) {
-  return (node->flags & CMARK_NODE__LAST_LINE_BLANK) != 0;
-}
-
 static CMARK_INLINE cmark_node_type S_type(const cmark_node *node) {
   return (cmark_node_type)node->type;
-}
-
-static void S_set_last_line_blank(cmark_node *node, bool is_blank) {
-  if (is_blank)
-    node->flags |= CMARK_NODE__LAST_LINE_BLANK;
-  else
-    node->flags &= ~CMARK_NODE__LAST_LINE_BLANK;
 }
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -123,8 +112,6 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_reference_map_free(parser->refmap);
   mem->free(parser);
 }
-
-static cmark_node *finalize(cmark_parser *parser, cmark_node *b);
 
 // Returns true if line has only space characters, else false.
 static bool is_blank_raw(const unsigned char *ptr, const bufsize_t size,
@@ -209,26 +196,25 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
     return;
   }
 
+  // Scan forward until line end to keep trailing spaces of the last line.
   for (; i < ln->size; ++i) {
     c = ln->ptr[i];
 
     if (!S_is_line_end_char(c))
       continue;
 
-    cmark_strbuf_truncate(ln, i);
+    if (c == '\r' && i + 1 < ln->size && ln->ptr[i + 1] == '\n') {
+      i++;
+    }
+
+    cmark_strbuf_truncate(ln, i + 1);
     break;
   }
 }
 
-// Check to see if a node ends with a blank line, descending
-// if needed into lists and sublists.
-static bool S_ends_with_blank_line(cmark_node *node) {
-  if ((S_type(node) == CMARK_NODE_LIST ||
-       S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
-    return(S_ends_with_blank_line(node->last_child));
-  } else {
-    return (S_last_line_blank(node));
-  }
+// Check to see if a node ends with a blank line.
+static CMARK_INLINE bool S_ends_with_blank_line(cmark_node *node) {
+  return node->next && node->end_line != node->next->start_line - 1;
 }
 
 // returns true if content remains after link defs are resolved.
@@ -336,7 +322,15 @@ static void resolve_all_reference_link_definitions(cmark_parser *parser) {
   cmark_iter_free(iter);
 }
 
-static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
+// `closed_explicitly` states that the node is closed by explicit markers, or
+// the node cannot span more than one line:
+//
+// - Close tag of HTML blocks
+// - Closing code fence
+// - ATX headings
+// - Thematic breaks
+static cmark_node *finalize(cmark_parser *parser, cmark_node *b,
+                            bool closed_explicitly) {
   bufsize_t pos;
   cmark_node *item;
   cmark_node *subitem;
@@ -347,22 +341,22 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
          CMARK_NODE__OPEN); // shouldn't call finalize on closed blocks
   b->flags &= ~CMARK_NODE__OPEN;
 
-  if (parser->curline.size == 0) {
-    // end of input - line number has not been incremented
-    b->end_line = parser->line_number;
-    b->end_column = parser->last_line_length;
-  } else if (S_type(b) == CMARK_NODE_DOCUMENT ||
-             (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
-             (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext)) {
-    b->end_line = parser->line_number;
-    b->end_column = parser->curline.size;
-    if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\n')
-      b->end_column -= 1;
-    if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\r')
-      b->end_column -= 1;
-  } else {
-    b->end_line = parser->line_number - 1;
-    b->end_column = parser->last_line_length;
+  if (S_type(b) != CMARK_NODE_CODE_BLOCK || b->as.code.fenced) {
+    if (parser->curline.size == 0) {
+      // end of input - line number has not been incremented
+      b->end_line = parser->line_number;
+      b->end_column = parser->last_line_length;
+    } else if (closed_explicitly) {
+      b->end_line = parser->line_number;
+      b->end_column = parser->curline.size;
+      if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\n')
+        b->end_column -= 1;
+      if (b->end_column && parser->curline.ptr[b->end_column - 1] == '\r')
+        b->end_column -= 1;
+    } else {
+      b->end_line = parser->line_number - 1;
+      b->end_column = parser->last_line_length;
+    }
   }
 
   cmark_strbuf *node_content = &parser->content;
@@ -376,7 +370,6 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   case CMARK_NODE_CODE_BLOCK:
     if (!b->as.code.fenced) { // indented code
       remove_trailing_blank_lines(node_content);
-      cmark_strbuf_putc(node_content, '\n');
     } else {
       // first line of contents becomes info
       for (pos = 0; pos < node_content->size; ++pos) {
@@ -417,7 +410,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
 
     while (item) {
       // check for non-final non-empty list item ending with blank line:
-      if (S_last_line_blank(item) && item->next) {
+      if (item->next && S_ends_with_blank_line(item)) {
         b->as.list.tight = false;
         break;
       }
@@ -425,8 +418,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       // spaces between them:
       subitem = item->first_child;
       while (subitem) {
-        if ((item->next || subitem->next) &&
-            S_ends_with_blank_line(subitem)) {
+        if (subitem->next && S_ends_with_blank_line(subitem)) {
           b->as.list.tight = false;
           break;
         }
@@ -437,7 +429,19 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       }
       item = item->next;
     }
+    b->end_line = b->last_child->end_line;
+    b->end_column = b->last_child->end_column;
 
+    break;
+
+  case CMARK_NODE_ITEM:
+    if (b->last_child) {
+      b->end_line = b->last_child->end_line;
+      b->end_column = b->last_child->end_column;
+    }
+    // If the item is empty, it is closed when the next line is processed and
+    // the end position is set by the normal path.  Note that if the first line
+    // and second line of a item are blank, it is closed.
     break;
 
   case CMARK_NODE_DOCUMENT:
@@ -459,7 +463,7 @@ static cmark_node *add_child(cmark_parser *parser, cmark_node *parent,
   // if 'parent' isn't the kind of node that can accept this child,
   // then back up til we hit a node that can.
   while (!can_contain(S_type(parent), block_type)) {
-    parent = finalize(parser, parent);
+    parent = finalize(parser, parent, false);
   }
 
   cmark_node *child =
@@ -599,10 +603,10 @@ static int lists_match(cmark_list *list_data, cmark_list *item_data) {
 
 static cmark_node *finalize_document(cmark_parser *parser) {
   while (parser->current != parser->root) {
-    parser->current = finalize(parser, parser->current);
+    parser->current = finalize(parser, parser->current, false);
   }
 
-  finalize(parser, parser->root);
+  finalize(parser, parser->root, false);
 
   // Limit total size of extra content created from reference links to
   // document size to avoid superlinear growth. Always allow 100KB.
@@ -922,7 +926,7 @@ static bool parse_code_block_prefix(cmark_parser *parser, cmark_chunk *input,
       // the end of a line, we can stop processing it:
       *should_continue = false;
       S_advance_offset(parser, input, matched, false);
-      parser->current = finalize(parser, container);
+      parser->current = finalize(parser, container, true);
     } else {
       // skip opt. spaces of fence parser->offset
       int i = container->as.code.fence_offset;
@@ -1126,6 +1130,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
+      *container = finalize(parser, *container, true);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
                parser->indent < 4 &&
@@ -1212,34 +1217,10 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 static void add_text_to_container(cmark_parser *parser, cmark_node *container,
                                   cmark_node *last_matched_container,
                                   cmark_chunk *input) {
-  cmark_node *tmp;
   // what remains at parser->offset is a text line.  add the text to the
   // appropriate container.
 
   S_find_first_nonspace(parser, input);
-
-  if (parser->blank && container->last_child)
-    S_set_last_line_blank(container->last_child, true);
-
-  // block quote lines are never blank as they start with >
-  // and we don't count blanks in fenced code for purposes of tight/loose
-  // lists or breaking out of lists.  we also don't set last_line_blank
-  // on an empty list item.
-  const cmark_node_type ctype = S_type(container);
-  const bool last_line_blank =
-      (parser->blank && ctype != CMARK_NODE_BLOCK_QUOTE &&
-       ctype != CMARK_NODE_HEADING && ctype != CMARK_NODE_THEMATIC_BREAK &&
-       !(ctype == CMARK_NODE_CODE_BLOCK && container->as.code.fenced) &&
-       !(ctype == CMARK_NODE_ITEM && container->first_child == NULL &&
-         container->start_line == parser->line_number));
-
-  S_set_last_line_blank(container, last_line_blank);
-
-  tmp = container;
-  while (tmp->parent) {
-    S_set_last_line_blank(tmp->parent, false);
-    tmp = tmp->parent;
-  }
 
   // If the last line processed belonged to a paragraph node,
   // and we didn't match all of the line prefixes for the open containers,
@@ -1254,7 +1235,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
     while (parser->current != last_matched_container) {
-      parser->current = finalize(parser, parser->current);
+      parser->current = finalize(parser, parser->current, false);
       assert(parser->current != NULL);
     }
 
@@ -1296,7 +1277,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
       }
 
       if (matches_end_condition) {
-        container = finalize(parser, container);
+        container = finalize(parser, container, true);
         assert(parser->current != NULL);
       }
     } else if (parser->blank) {
@@ -1329,6 +1310,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   bool all_matched = true;
   cmark_node *container;
   cmark_chunk input;
+  bool need_set_end_position = false;
 
   if (parser->options & CMARK_OPT_VALIDATE_UTF8)
     cmark_utf8proc_check(&parser->curline, buffer, bytes);
@@ -1366,6 +1348,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   add_text_to_container(parser, container, last_matched_container, &input);
 
+  need_set_end_position = S_type(container) == CMARK_NODE_CODE_BLOCK &&
+    !container->as.code.fenced &&
+    !parser->blank;
+
 finished:
   parser->last_line_length = input.len;
   if (parser->last_line_length &&
@@ -1374,6 +1360,11 @@ finished:
   if (parser->last_line_length &&
       input.data[parser->last_line_length - 1] == '\r')
     parser->last_line_length -= 1;
+
+  if (need_set_end_position) {
+    container->end_line = parser->line_number;
+    container->end_column = parser->last_line_length;
+  }
 
   cmark_strbuf_clear(&parser->curline);
 }
