@@ -340,7 +340,7 @@ static void iterator_delete(test_batch_runner *runner) {
 
   cmark_mem *allocator = cmark_get_default_mem_allocator();
 
-  allocator->free(html);
+  allocator->free(allocator->ctx, html);
   cmark_iter_free(iter);
   cmark_node_free(doc);
 }
