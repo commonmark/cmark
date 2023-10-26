@@ -653,9 +653,11 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   delimiter *old_closer;
   bool opener_found;
   int openers_bottom_index = 0;
-  bufsize_t openers_bottom[9] = {stack_bottom, stack_bottom, stack_bottom,
-                                 stack_bottom, stack_bottom, stack_bottom,
-                                 stack_bottom, stack_bottom, stack_bottom};
+  bufsize_t openers_bottom[15] = {stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom};
 
   // move back to first relevant delim.
   candidate = subj->last_delim;
@@ -675,10 +677,11 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
         openers_bottom_index = 1;
         break;
       case '_':
-        openers_bottom_index = 2;
+        openers_bottom_index = 2 +
+                (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       case '*':
-        openers_bottom_index = 3 +
+        openers_bottom_index = 8 +
                 (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       default:
