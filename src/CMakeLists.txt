@@ -50,19 +50,19 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
 include(GNUInstallDirs)
-include (GenerateExportHeader)
+include(GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 cmark_add_compile_options(${PROGRAM})
 set_target_properties(${PROGRAM} PROPERTIES
   OUTPUT_NAME "cmark")
 
-if (CMARK_STATIC)
+if(CMARK_STATIC)
   target_link_libraries(${PROGRAM} ${STATICLIBRARY})
   # Disable the PUBLIC declarations when compiling the executable:
   set_target_properties(${PROGRAM} PROPERTIES
     COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
-elseif (CMARK_SHARED)
+elseif(CMARK_SHARED)
   target_link_libraries(${PROGRAM} ${LIBRARY})
 endif()
 
@@ -70,7 +70,7 @@ endif()
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-if (CMARK_SHARED)
+if(CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   cmark_add_compile_options(${LIBRARY})
   set_target_properties(${LIBRARY} PROPERTIES
@@ -93,7 +93,7 @@ if (CMARK_SHARED)
   list(APPEND CMARK_INSTALL ${LIBRARY})
 endif()
 
-if (CMARK_STATIC)
+if(CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
   cmark_add_compile_options(${STATICLIBRARY})
   set_target_properties(${STATICLIBRARY} PROPERTIES
@@ -113,7 +113,7 @@ if (CMARK_STATIC)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
   add_library(cmark::cmark_static ALIAS ${STATICLIBRARY})
 
-  if (NOT CMARK_SHARED)
+  if(NOT CMARK_SHARED)
     generate_export_header(${STATICLIBRARY}
       BASE_NAME ${PROJECT_NAME})
   endif()
@@ -121,10 +121,10 @@ if (CMARK_STATIC)
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
-if (MSVC)
+if(MSVC)
   set_property(TARGET ${PROGRAM}
     APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
-endif(MSVC)
+endif()
 
 if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
@@ -182,16 +182,16 @@ endif()
 # Feature tests
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
-CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
-CHECK_C_SOURCE_COMPILES(
+check_include_file(stdbool.h HAVE_STDBOOL_H)
+check_c_source_compiles(
   "int main() { __builtin_expect(0,0); return 0; }"
   HAVE___BUILTIN_EXPECT)
-CHECK_C_SOURCE_COMPILES("
+check_c_source_compiles("
   int f(void) __attribute__ (());
   int main() { return 0; }
 " HAVE___ATTRIBUTE__)
 
-CONFIGURE_FILE(
+configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
