@@ -205,3 +205,10 @@ if(CMARK_LIB_FUZZER)
   set_target_properties(cmark-fuzz PROPERTIES
     LINKER_LANGUAGE CXX)
 endif()
+
+find_package(PkgConfig)
+pkg_check_modules(LIBSECCOMP IMPORTED_TARGET libseccomp)
+if(LIBSECCOMP_FOUND)
+  add_definitions(-DHAVE_LIBSECCOMP)
+  target_link_libraries(${PROGRAM} PkgConfig::LIBSECCOMP)
+endif()
