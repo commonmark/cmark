@@ -19,15 +19,7 @@ else()
     IMPORTED_LOCATION ${PYTHON_EXECUTABLE})
 endif()
 
-if (CMARK_SHARED OR CMARK_STATIC)
-  add_test(NAME api_test COMMAND api_test)
-endif()
-
 if (WIN32)
-  file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/src WIN_DLL_DIR)
-  set(NEWPATH "${WIN_DLL_DIR};$ENV{PATH}")
-  string(REPLACE ";" "\\;" NEWPATH "${NEWPATH}")
-  set_tests_properties(api_test PROPERTIES ENVIRONMENT "PATH=${NEWPATH}")
   set(ROUNDTRIP "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.bat")
 else(WIN32)
   set(ROUNDTRIP "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.sh")
@@ -82,9 +74,7 @@ IF (Python_Interpreter_FOUND)
 
 ELSE(Python_Interpreter_FOUND)
 
-  message("\n*** A python 3 interpreter is required to run the spec tests.\n")
-  add_test(skipping_spectests
-    echo "Skipping spec tests, because no python 3 interpreter is available.")
+  message(WARNING "A Python 3 Interpreter is required to run the spec tests")
 
 ENDIF(Python_Interpreter_FOUND)
 

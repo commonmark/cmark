@@ -3,12 +3,12 @@ project(cmark VERSION 0.30.3)
 
 include("FindAsan.cmake")
 include(GNUInstallDirs)
+include(CTest)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
 
-option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 option(CMARK_STATIC "Build static libcmark library" ON)
 option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
@@ -60,16 +60,15 @@ function(cmark_add_compile_options target)
 endfunction()
 
 add_subdirectory(src)
-if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
-  add_subdirectory(api_test)
-endif()
 # TODO(compnerd) should this be enabled for MinGW, which sets CMAKE_SYSTEM_NAME
 # to Windows, but defines `MINGW`.
 if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_subdirectory(man)
 endif()
-if(CMARK_TESTS)
-  enable_testing()
+if(BUILD_TESTING)
+  if(CMARK_SHARED OR CMARK_STATIC)
+    add_subdirectory(api_test)
+  endif()
   add_subdirectory(test testdir)
 endif()
 
