@@ -1,7 +1,3 @@
-if(${CMAKE_VERSION} VERSION_GREATER "3.3")
-    cmake_policy(SET CMP0063 NEW)
-endif()
-
 set(LIBRARY "cmark")
 set(STATICLIBRARY "cmark_static")
 set(HEADERS
