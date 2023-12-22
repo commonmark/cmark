@@ -19,12 +19,6 @@ else()
     IMPORTED_LOCATION ${PYTHON_EXECUTABLE})
 endif()
 
-if (WIN32)
-  set(ROUNDTRIP "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.bat")
-else(WIN32)
-  set(ROUNDTRIP "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip.sh")
-endif(WIN32)
-
 IF (Python3_Interpreter_FOUND)
 
   add_test(NAME html_normalization COMMAND
@@ -77,4 +71,3 @@ ELSE(Python3_Interpreter_FOUND)
   message(WARNING "A Python 3 Interpreter is required to run the spec tests")
 
 ENDIF(Python3_Interpreter_FOUND)
-
