@@ -55,9 +55,6 @@ set_target_properties(${PROGRAM} PROPERTIES
 
 if (CMARK_STATIC)
   target_link_libraries(${PROGRAM} ${STATICLIBRARY})
-  # Disable the PUBLIC declarations when compiling the executable:
-  set_target_properties(${PROGRAM} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
 elseif (CMARK_SHARED)
   target_link_libraries(${PROGRAM} ${LIBRARY})
 endif()
@@ -92,8 +89,9 @@ endif()
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
   cmark_add_compile_options(${STATICLIBRARY})
+  target_compile_definitions(${STATICLIBRARY} PUBLIC
+    CMARK_STATIC_DEFINE)
   set_target_properties(${STATICLIBRARY} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION})
   if(MSVC)
