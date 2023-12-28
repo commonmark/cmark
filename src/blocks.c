@@ -606,7 +606,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
-    chunk_len = (eol - buffer);
+    chunk_len = (bufsize_t)(eol - buffer);
     if (process) {
       if (parser->linebuf.size > 0) {
         cmark_strbuf_put(&parser->linebuf, buffer, chunk_len);
@@ -993,7 +993,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
         hashpos++;
       }
 
-      (*container)->as.heading.level = level;
+      (*container)->as.heading.level = (int8_t)level;
       (*container)->as.heading.setext = false;
       (*container)->as.heading.internal_offset = matched;
 
@@ -1003,7 +1003,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       (*container)->as.code.fenced = true;
       (*container)->as.code.fence_char = peek_at(input, parser->first_nonspace);
-      (*container)->as.code.fence_length = (matched > 255) ? 255 : matched;
+      (*container)->as.code.fence_length = (matched > 255) ? 255 : (uint8_t)matched;
       (*container)->as.code.fence_offset =
           (int8_t)(parser->first_nonspace - parser->offset);
       (*container)->as.code.info = NULL;
@@ -1031,7 +1031,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       if (has_content) {
 
         (*container)->type = (uint16_t)CMARK_NODE_HEADING;
-        (*container)->as.heading.level = lev;
+        (*container)->as.heading.level = (int8_t)lev;
         (*container)->as.heading.setext = true;
         S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
       }
