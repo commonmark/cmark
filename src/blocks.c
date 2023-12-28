@@ -577,7 +577,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   if (len > UINT_MAX - parser->total_size)
     parser->total_size = UINT_MAX;
   else
-    parser->total_size += len;
+    parser->total_size += (int)len;
 
   // Skip UTF-8 BOM if present; see #334
   if (parser->line_number == 0 && parser->column == 0 && len >= 3 &&

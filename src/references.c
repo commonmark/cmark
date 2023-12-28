@@ -63,9 +63,9 @@ void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
   ref->next = map->refs;
 
   if (ref->url != NULL)
-    ref->size += strlen((char*)ref->url);
+    ref->size += (int)strlen((char*)ref->url);
   if (ref->title != NULL)
-    ref->size += strlen((char*)ref->title);
+    ref->size += (int)strlen((char*)ref->title);
 
   map->refs = ref;
   map->size++;
