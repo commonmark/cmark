@@ -75,7 +75,7 @@ static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
 
 static void escape_xml_str(cmark_strbuf *dest, const unsigned char *source) {
   if (source)
-    escape_xml(dest, source, strlen((char *)source));
+    escape_xml(dest, source, (bufsize_t)strlen((char *)source));
 }
 
 struct render_state {

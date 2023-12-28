@@ -46,7 +46,7 @@ add_compile_options($<$<CONFIG:Debug>:-DCMARK_DEBUG_NODES>)
 # so that CMark may be used in projects with non-C languages.
 function(cmark_add_compile_options target)
   if(MSVC)
-    target_compile_options(${target} PRIVATE /W4 /wd4706 /we4244)
+    target_compile_options(${target} PRIVATE /W4 /wd4706 /we4244 /we4267)
     if(MSVC_VERSION LESS 1800)
       target_compile_options(${target} PRIVATE /TP)
     endif()
