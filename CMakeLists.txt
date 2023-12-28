@@ -7,9 +7,14 @@ if(POLICY CMP0092)
   cmake_policy(SET CMP0092 NEW)
 endif()
 
-project(cmark VERSION 0.30.3)
+project(cmark
+  LANGUAGES C CXX
+  VERSION 0.30.3)
 
-include("FindAsan.cmake")
+if(CMAKE_BUILD_TYPE MATCHES "asan|ubsan")
+  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+  include(FindAsan)
+endif()
 include(GNUInstallDirs)
 include(CTest)
 
