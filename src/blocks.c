@@ -41,7 +41,7 @@ static bool S_last_line_checked(const cmark_node *node) {
   return (node->flags & CMARK_NODE__LAST_LINE_CHECKED) != 0;
 }
 
-static CMARK_INLINE cmark_node_type S_type(const cmark_node *node) {
+static inline cmark_node_type S_type(const cmark_node *node) {
   return (cmark_node_type)node->type;
 }
 
@@ -56,11 +56,11 @@ static void S_set_last_line_checked(cmark_node *node) {
   node->flags |= CMARK_NODE__LAST_LINE_CHECKED;
 }
 
-static CMARK_INLINE bool S_is_line_end_char(char c) {
+static inline bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
-static CMARK_INLINE bool S_is_space_or_tab(char c) {
+static inline bool S_is_space_or_tab(char c) {
   return (c == ' ' || c == '\t');
 }
 
@@ -156,21 +156,21 @@ static bool is_blank(cmark_strbuf *s, bufsize_t offset) {
   return true;
 }
 
-static CMARK_INLINE bool can_contain(cmark_node_type parent_type,
-                                     cmark_node_type child_type) {
+static inline bool can_contain(cmark_node_type parent_type,
+                               cmark_node_type child_type) {
   return (parent_type == CMARK_NODE_DOCUMENT ||
           parent_type == CMARK_NODE_BLOCK_QUOTE ||
           parent_type == CMARK_NODE_ITEM ||
           (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
 }
 
-static CMARK_INLINE bool accepts_lines(cmark_node_type block_type) {
+static inline bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
           block_type == CMARK_NODE_CODE_BLOCK);
 }
 
-static CMARK_INLINE bool contains_inlines(cmark_node_type block_type) {
+static inline bool contains_inlines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING);
 }
