@@ -1,12 +1,12 @@
 #ifndef CMARK_BUFFER_H
 #define CMARK_BUFFER_H
 
-#include <stddef.h>
-#include <stdarg.h>
-#include <string.h>
 #include <limits.h>
+#include <stdarg.h>
+#include <stddef.h>
 #include <stdint.h>
-#include "config.h"
+#include <string.h>
+
 #include "cmark.h"
 
 #ifdef __cplusplus
