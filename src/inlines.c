@@ -1,6 +1,7 @@
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "cmark_ctype.h"
 #include "config.h"

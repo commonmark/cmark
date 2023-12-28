@@ -5,10 +5,11 @@
  * see http://spec.commonmark.org/0.24/#phase-1-block-structure
  */
 
-#include <stdlib.h>
 #include <assert.h>
-#include <stdio.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "cmark_ctype.h"
 #include "config.h"
