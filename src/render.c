@@ -6,13 +6,13 @@
 #include "node.h"
 #include "cmark_ctype.h"
 
-static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
+static inline void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
     renderer->need_cr = 1;
   }
 }
 
-static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
+static inline void S_blankline(cmark_renderer *renderer) {
   if (renderer->need_cr < 2) {
     renderer->need_cr = 2;
   }

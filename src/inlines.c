@@ -71,7 +71,7 @@ typedef struct {
   bool no_link_openers;
 } subject;
 
-static CMARK_INLINE bool S_is_line_end_char(char c) {
+static inline bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
@@ -85,8 +85,8 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
-static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
-                                             int start_column, int end_column) {
+static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
+                                       int start_column, int end_column) {
   cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
   e->mem = subj->mem;
   e->type = (uint16_t)t;
@@ -98,7 +98,7 @@ static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
 }
 
 // Create an inline with no value.
-static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
+static inline cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   e->mem = mem;
   e->type = t;
@@ -180,9 +180,9 @@ static unsigned char *cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
   return cmark_strbuf_detach(&buf);
 }
 
-static CMARK_INLINE cmark_node *make_autolink(subject *subj,
-                                              int start_column, int end_column,
-                                              cmark_chunk url, int is_email) {
+static inline cmark_node *make_autolink(subject *subj, int start_column,
+                                        int end_column, cmark_chunk url,
+                                        int is_email) {
   cmark_node *link = make_simple(subj->mem, CMARK_NODE_LINK);
   link->as.link.url = cmark_clean_autolink(subj->mem, &url, is_email);
   link->as.link.title = NULL;
@@ -213,28 +213,28 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   e->no_link_openers = true;
 }
 
-static CMARK_INLINE int isbacktick(int c) { return (c == '`'); }
+static inline int isbacktick(int c) { return (c == '`'); }
 
-static CMARK_INLINE unsigned char peek_char(subject *subj) {
+static inline unsigned char peek_char(subject *subj) {
   // NULL bytes should have been stripped out by now.  If they're
   // present, it's a programming error:
   assert(!(subj->pos < subj->input.len && subj->input.data[subj->pos] == 0));
   return (subj->pos < subj->input.len) ? subj->input.data[subj->pos] : 0;
 }
 
-static CMARK_INLINE unsigned char peek_at(subject *subj, bufsize_t pos) {
+static inline unsigned char peek_at(subject *subj, bufsize_t pos) {
   return subj->input.data[pos];
 }
 
 // Return true if there are more characters in the subject.
-static CMARK_INLINE int is_eof(subject *subj) {
+static inline int is_eof(subject *subj) {
   return (subj->pos >= subj->input.len);
 }
 
 // Advance the subject.  Doesn't check for eof.
 #define advance(subj) (subj)->pos += 1
 
-static CMARK_INLINE bool skip_spaces(subject *subj) {
+static inline bool skip_spaces(subject *subj) {
   bool skipped = false;
   while (peek_char(subj) == ' ' || peek_char(subj) == '\t') {
     advance(subj);
@@ -243,7 +243,7 @@ static CMARK_INLINE bool skip_spaces(subject *subj) {
   return skipped;
 }
 
-static CMARK_INLINE bool skip_line_end(subject *subj) {
+static inline bool skip_line_end(subject *subj) {
   bool seen_line_end_char = false;
   if (peek_char(subj) == '\r') {
     advance(subj);
@@ -257,7 +257,7 @@ static CMARK_INLINE bool skip_line_end(subject *subj) {
 }
 
 // Take characters while a predicate holds, and return a string.
-static CMARK_INLINE cmark_chunk take_while(subject *subj, int (*f)(int)) {
+static inline cmark_chunk take_while(subject *subj, int (*f)(int)) {
   unsigned char c;
   bufsize_t startpos = subj->pos;
   bufsize_t len = 0;

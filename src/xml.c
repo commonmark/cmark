@@ -83,7 +83,7 @@ struct render_state {
   int indent;
 };
 
-static CMARK_INLINE void indent(struct render_state *state) {
+static inline void indent(struct render_state *state) {
   int i;
   for (i = 0; i < state->indent && i < MAX_INDENT; i++) {
     cmark_strbuf_putc(state->xml, ' ');
