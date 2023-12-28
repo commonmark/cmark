@@ -9,7 +9,6 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 
-#include "config.h"
 #include "cmark.h"
 #include "buffer.h"
 

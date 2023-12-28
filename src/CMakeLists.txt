@@ -169,16 +169,6 @@ if(CMARK_SHARED OR CMARK_STATIC)
 
 endif()
 
-# Feature tests
-include(CheckCSourceCompiles)
-CHECK_C_SOURCE_COMPILES(
-  "int main() { __builtin_expect(0,0); return 0; }"
-  HAVE___BUILTIN_EXPECT)
-
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
 if(CMARK_LIB_FUZZER)
   add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
   cmark_add_compile_options(cmark-fuzz)

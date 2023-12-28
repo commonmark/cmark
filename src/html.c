@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "cmark_ctype.h"
-#include "config.h"
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"

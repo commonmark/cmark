@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
-#include "config.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "cmark.h"
 #include "node.h"
 
