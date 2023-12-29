@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "config.h"
 #include "cmark.h"

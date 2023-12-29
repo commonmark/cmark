@@ -1,11 +1,11 @@
-#include <stdarg.h>
-#include <string.h>
 #include <assert.h>
-#include <string.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <limits.h>
+#include <string.h>
 
 #include "config.h"
 #include "cmark_ctype.h"

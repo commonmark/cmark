@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdlib.h>
+
 #include "buffer.h"
 
 typedef enum { LITERAL, NORMAL, TITLE, URL } cmark_escaping;
