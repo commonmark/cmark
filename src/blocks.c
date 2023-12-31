@@ -56,11 +56,11 @@ static void S_set_last_line_checked(cmark_node *node) {
   node->flags |= CMARK_NODE__LAST_LINE_CHECKED;
 }
 
-static CMARK_INLINE bool S_is_line_end_char(char c) {
+static CMARK_INLINE bool S_is_line_end_char(unsigned char c) {
   return (c == '\n' || c == '\r');
 }
 
-static CMARK_INLINE bool S_is_space_or_tab(char c) {
+static CMARK_INLINE bool S_is_space_or_tab(unsigned char c) {
   return (c == ' ' || c == '\t');
 }
 

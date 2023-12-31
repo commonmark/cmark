@@ -9,15 +9,15 @@ extern "C" {
  * We want cmark to behave the same no matter what the system locale.
  */
 
-int cmark_isspace(char c);
+int cmark_isspace(unsigned char c);
 
-int cmark_ispunct(char c);
+int cmark_ispunct(unsigned char c);
 
-int cmark_isalnum(char c);
+int cmark_isalnum(unsigned char c);
 
-int cmark_isdigit(char c);
+int cmark_isdigit(unsigned char c);
 
-int cmark_isalpha(char c);
+int cmark_isalpha(unsigned char c);
 
 #ifdef __cplusplus
 }
