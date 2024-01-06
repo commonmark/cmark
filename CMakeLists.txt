@@ -15,8 +15,19 @@ if(CMAKE_BUILD_TYPE MATCHES "asan|ubsan")
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
   include(FindAsan)
 endif()
-include(GNUInstallDirs)
+
+# Include module for functions
+# - 'write_basic_package_version_file'
+# - 'configure_package_config_file'
+include(CMakePackageConfigHelpers)
 include(CTest)
+include(GenerateExportHeader)
+include(GNUInstallDirs)
+
+if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  include(InstallRequiredSystemLibraries)
+endif()
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")

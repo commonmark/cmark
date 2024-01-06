@@ -45,9 +45,6 @@ set(PROGRAM_SOURCES main.c)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
-include(GNUInstallDirs)
-include (GenerateExportHeader)
-
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 cmark_add_compile_options(${PROGRAM})
 set_target_properties(${PROGRAM} PROPERTIES
@@ -116,11 +113,6 @@ if (MSVC)
     APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
 endif(MSVC)
 
-if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  include(InstallRequiredSystemLibraries)
-endif()
-
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   EXPORT cmark-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -141,10 +133,6 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-  # Include module for functions
-  # - 'write_basic_package_version_file'
-  # - 'configure_package_config_file'
-  include(CMakePackageConfigHelpers)
   # generate cmark-config.cmake and cmark-config-version.cmake files
   configure_package_config_file(
     "cmarkConfig.cmake.in"
