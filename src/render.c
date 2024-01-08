@@ -96,13 +96,13 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         // we need to escape a potential list marker after
         // a digit:
         renderer->begin_content =
-            renderer->begin_content && cmark_isdigit((char)c) == 1;
+            renderer->begin_content && cmark_isdigit(c) == 1;
       }
     } else {
       (renderer->outc)(renderer, escape, c, nextc);
       renderer->begin_line = false;
       renderer->begin_content =
-          renderer->begin_content && cmark_isdigit((char)c) == 1;
+          renderer->begin_content && cmark_isdigit(c) == 1;
     }
 
     // If adding the character went beyond width, look for an
