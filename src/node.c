@@ -348,7 +348,7 @@ int cmark_node_set_heading_level(cmark_node *node, int level) {
 
   switch (node->type) {
   case CMARK_NODE_HEADING:
-    node->as.heading.level = (int8_t)level;
+    node->as.heading.level = level;
     return 1;
 
   default:

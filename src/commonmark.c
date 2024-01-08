@@ -49,18 +49,18 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
           (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL &&
-        (c == '`' || c == '<' || c == '>' || cmark_isspace((char)c) || c == '\\' ||
+        (c == '`' || c == '<' || c == '>' || cmark_isspace(c) || c == '\\' ||
          c == ')' || c == '(')) ||
        (escape == TITLE &&
         (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
 
   if (needs_escaping) {
-    if (escape == URL && cmark_isspace((char)c)) {
+    if (escape == URL && cmark_isspace(c)) {
       // use percent encoding for spaces
       snprintf(encoded, ENCODED_SIZE, "%%%2X", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
       renderer->column += 3;
-    } else if (cmark_ispunct((char)c)) {
+    } else if (cmark_ispunct(c)) {
       cmark_render_ascii(renderer, "\\");
       cmark_render_code_point(renderer, c);
     } else { // render as entity
