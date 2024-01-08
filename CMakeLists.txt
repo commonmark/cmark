@@ -33,8 +33,6 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
 
-option(CMARK_STATIC "Build static libcmark library" ON)
-option(CMARK_SHARED "Build shared libcmark library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 
 if(NOT MSVC)
@@ -48,13 +46,6 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-# The Linux modules distributed with CMake add "-rdynamic" to the build flags
-# which is incompatible with static linking under certain configurations.
-# Unsetting CMAKE_SHARED_LIBRARY_LINK_C_FLAGS ensures this does not happen.
-if(CMARK_STATIC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
-endif()
 
 # Check integrity of node structure when compiled as debug
 add_compile_options($<$<CONFIG:Debug>:-DCMARK_DEBUG_NODES>)
@@ -90,9 +81,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_subdirectory(man)
 endif()
 if(BUILD_TESTING)
-  if(CMARK_SHARED OR CMARK_STATIC)
-    add_subdirectory(api_test)
-  endif()
+  add_subdirectory(api_test)
   add_subdirectory(test testdir)
 endif()
 

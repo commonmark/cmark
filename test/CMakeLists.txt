@@ -24,7 +24,7 @@ IF (Python3_Interpreter_FOUND)
   add_test(NAME html_normalization
            COMMAND "$<TARGET_FILE:Python3::Interpreter>" -m doctest "${CMAKE_CURRENT_SOURCE_DIR}/normalize.py")
 
-  if (CMARK_SHARED)
+  if(BUILD_SHARED_LIBS)
     add_test(NAME spectest_library
              COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py"
                                                            --no-normalize
