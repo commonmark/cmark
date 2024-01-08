@@ -5,11 +5,8 @@ add_executable(api_test
   main.c
 )
 cmark_add_compile_options(api_test)
-if(CMARK_SHARED)
-  target_link_libraries(api_test cmark)
-else()
-  target_link_libraries(api_test cmark_static)
-endif()
+target_link_libraries(api_test PRIVATE
+  cmark)
 
 add_test(NAME api_test COMMAND api_test)
 if(WIN32)

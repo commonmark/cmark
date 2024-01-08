@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake_opts:
-          - '-DCMARK_SHARED=ON'
+          - '-DBUILD_SHARED_LIBS=YES'
           - ''
         compiler:
           - c: 'clang'
@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake_opts:
-          - '-DCMARK_SHARED=ON'
+          - '-DBUILD_SHARED_LIBS=YES'
           - ''
         compiler:
           - c: 'clang'
@@ -79,7 +79,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build and test
       env:
-         CMAKE_OPTIONS: -DCMARK_SHARED=OFF
+         CMAKE_OPTIONS: -DBUILD_SHARED_LIBS=NO
       run: |
          make
          make test
@@ -91,7 +91,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake_opts:
-          - '-DCMARK_SHARED=ON'
+          - '-DBUILD_SHARED_LIBS=YES'
           - ''
     env:
        CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
