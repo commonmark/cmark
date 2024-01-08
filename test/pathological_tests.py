@@ -61,34 +61,34 @@ pathological = {
                   re.compile("(_a ){32499}_a")),
     "many link closers with no openers":
                  (("a]" * 32500),
-                  re.compile("(a\]){32500}")),
+                  re.compile("(a\\]){32500}")),
     "many link openers with no closers":
                  (("[a" * 32500),
-                  re.compile("(\[a){32500}")),
+                  re.compile("(\\[a){32500}")),
     "mismatched openers and closers":
                  (("*a_ " * 25000),
                   re.compile("([*]a[_] ){24999}[*]a_")),
     "issue #389":
                  (("*a " * 20000 + "_a*_ " * 20000),
-                  re.compile("(<em>a ){20000}(_a<\/em>_ ?){20000}")),
+                  re.compile("(<em>a ){20000}(_a<\\/em>_ ?){20000}")),
     "openers and closers multiple of 3":
                  (("a**b" + ("c* " * 25000)),
                   re.compile("a[*][*]b(c[*] ){24999}c[*]")),
     "link openers and emph closers":
                  (("[ a_" * 25000),
-                  re.compile("(\[ a_){25000}")),
+                  re.compile("(\\[ a_){25000}")),
     "pattern [ (]( repeated":
                  (("[ (](" * 40000),
-                  re.compile("(\[ \(\]\(){40000}")),
+                  re.compile("(\\[ \\(\\]\\(){40000}")),
     "pattern ![[]() repeated":
                  ("![[]()" * 160000,
-                  re.compile("(!\[<a href=\"\"></a>){160000}")),
+                  re.compile("(!\\[<a href=\"\"></a>){160000}")),
     "hard link/emph case":
                  ("**x [a*b**c*](d)",
                   re.compile("\\*\\*x <a href=\"d\">a<em>b\\*\\*c</em></a>")),
     "nested brackets":
                  (("[" * 25000) + "a" + ("]" * 25000),
-                  re.compile("\[{25000}a\]{25000}")),
+                  re.compile("\\[{25000}a\\]{25000}")),
     "nested block quotes":
                  ((("> " * 25000) + "a"),
                   re.compile("(<blockquote>\n){25000}")),
@@ -103,23 +103,23 @@ pathological = {
                   re.compile("^<p>[e`]*</p>\n$")),
     "unclosed links A":
                  ("[a](<b" * 30000,
-                  re.compile("(\[a\]\(&lt;b){30000}")),
+                  re.compile("(\\[a\]\\(&lt;b){30000}")),
     "unclosed links B":
                  ("[a](b" * 30000,
-                  re.compile("(\[a\]\(b){30000}")),
+                  re.compile("(\\[a\\]\\(b){30000}")),
     "unclosed <!--":
                  ("</" + "<!--" * 300000,
-                  re.compile("\&lt;\/(\&lt;!--){300000}")),
+                  re.compile("\\&lt;\\/(\\&lt;!--){300000}")),
     "reference collisions": hash_collisions()
 #    "many references":
 #                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
-#                  re.compile("(\[0\] ){4999}"))
+#                  re.compile("(\\[0\\] ){4999}"))
     }
 
 pathological_cmark = {
     "nested inlines":
                  ("*" * 20000 + "a" + "*" * 20000,
-                  re.compile("^\*+a\*+$")),
+                  re.compile("^\\*+a\\*+$")),
     }
 
 whitespace_re = re.compile('/s+/')
