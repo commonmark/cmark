@@ -61,7 +61,7 @@ set_target_properties(${LIBRARY} PROPERTIES
   PDB_NAME libcmark
   POSITION_INDEPENDENT_CODE YES
   # Include minor version and patch level in soname for now.
-  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+  SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 if(NOT BUILD_SHARED_LIBS)
   target_compile_definitions(${LIBRARY} PUBLIC
