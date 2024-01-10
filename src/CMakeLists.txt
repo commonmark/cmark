@@ -1,60 +1,33 @@
-set(LIBRARY "cmark")
-set(HEADERS
-  cmark.h
-  parser.h
-  buffer.h
-  node.h
-  iterator.h
-  chunk.h
-  references.h
-  utf8.h
-  scanners.h
-  inlines.h
-  houdini.h
-  cmark_ctype.h
-  render.h
-  )
-set(LIBRARY_SOURCES
-  cmark.c
-  node.c
-  iterator.c
+
+configure_file(cmark_version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
+configure_file(libcmark.pc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
+  @ONLY)
+
+add_library(cmark
   blocks.c
-  inlines.c
-  scanners.c
-  scanners.re
-  utf8.c
   buffer.c
-  references.c
-  render.c
-  man.c
-  xml.c
-  html.c
+  cmark.c
+  cmark_ctype.c
   commonmark.c
-  latex.c
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
-  cmark_ctype.c
-  ${HEADERS}
-  )
-
-set(PROGRAM "cmark_exe")
-set(PROGRAM_SOURCES main.c)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
-
-add_executable(${PROGRAM} ${PROGRAM_SOURCES})
-cmark_add_compile_options(${PROGRAM})
-set_target_properties(${PROGRAM} PROPERTIES
-  OUTPUT_NAME "cmark")
-target_link_libraries(${PROGRAM} PRIVATE
-  cmark)
-
-add_library(${LIBRARY}
-  ${LIBRARY_SOURCES})
-cmark_add_compile_options(${LIBRARY})
-set_target_properties(${LIBRARY} PROPERTIES
+  html.c
+  inlines.c
+  iterator.c
+  latex.c
+  man.c
+  node.c
+  references.c
+  render.c
+  scanners.c
+  scanners.re
+  utf8.c
+  xml.c)
+cmark_add_compile_options(cmark)
+set_target_properties(cmark PROPERTIES
   MACOSX_RPATH TRUE
   OUTPUT_NAME "cmark"
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
@@ -64,32 +37,36 @@ set_target_properties(${LIBRARY} PROPERTIES
   SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 if(NOT BUILD_SHARED_LIBS)
-  target_compile_definitions(${LIBRARY} PUBLIC
+  target_compile_definitions(cmark PUBLIC
     CMARK_STATIC_DEFINE)
 endif()
-target_include_directories(${LIBRARY} INTERFACE
+target_include_directories(cmark INTERFACE
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
-generate_export_header(${LIBRARY}
+generate_export_header(cmark
   BASE_NAME ${PROJECT_NAME})
-
-list(APPEND CMARK_INSTALL ${LIBRARY})
 
 # FIXME(compnerd) this should be removed, but exists solely to allow a migration
 # path for OSS Fuzz.
 add_custom_target(cmark_static DEPENDS cmark)
 
-install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
+add_executable(cmark_exe
+  main.c)
+cmark_add_compile_options(cmark_exe)
+set_target_properties(cmark_exe PROPERTIES
+  OUTPUT_NAME "cmark")
+target_link_libraries(cmark_exe PRIVATE
+  cmark)
+
+install(TARGETS cmark_exe cmark
   EXPORT cmark-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
@@ -123,9 +100,12 @@ install(
 )
 
 if(CMARK_LIB_FUZZER)
-  add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
+  add_executable(cmark-fuzz
+    ../test/cmark-fuzz.c)
   cmark_add_compile_options(cmark-fuzz)
-  target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
+  target_link_libraries(cmark-fuzz
+    cmark
+    "${CMAKE_LIB_FUZZER_PATH}")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which
   # needs to link against the C++ runtime.
