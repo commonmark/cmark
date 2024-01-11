@@ -784,13 +784,26 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   emph = use_delims == 1 ? make_emph(subj->mem) : make_strong(subj->mem);
 
   tmp = opener_inl->next;
-  while (tmp && tmp != closer_inl) {
-    tmpnext = tmp->next;
-    cmark_node_unlink(tmp);
-    append_child(emph, tmp);
-    tmp = tmpnext;
+  if (tmp && tmp != closer_inl) {
+    emph->first_child = tmp;
+    tmp->prev = NULL;
+
+    while (tmp && tmp != closer_inl) {
+      tmpnext = tmp->next;
+      tmp->parent = emph;
+      if (tmpnext == closer_inl) {
+        emph->last_child = tmp;
+        tmp->next = NULL;
+      }
+      tmp = tmpnext;
+    }
   }
-  cmark_node_insert_after(opener_inl, emph);
+
+  opener_inl->next = emph;
+  closer_inl->prev = emph;
+  emph->prev = opener_inl;
+  emph->next = closer_inl;
+  emph->parent = opener_inl->parent;
 
   emph->start_line = opener_inl->start_line;
   emph->end_line = closer_inl->end_line;
