@@ -80,18 +80,23 @@ afl:
 	cd $(BUILDDIR) && cmake .. -DBUILD_TESTING=NO -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-clang
 	$(MAKE)
 	$(AFL_PATH)/afl-fuzz \
-	    -i test/afl_test_cases \
-	    -o test/afl_results \
-	    -x test/fuzzing_dictionary \
+	    -i fuzz/afl_test_cases \
+	    -o fuzz/afl_results \
+	    -x fuzz/dictionary \
 	    -t 100 \
 	    $(CMARK) $(CMARK_OPTS)
 
 libFuzzer:
-	@[ -n "$(LIB_FUZZER_PATH)" ] || { echo '$$LIB_FUZZER_PATH not set'; false; }
-	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR) && cmake -DCMAKE_BUILD_TYPE=Asan -DCMARK_LIB_FUZZER=ON -DCMAKE_LIB_FUZZER_PATH=$(LIB_FUZZER_PATH) ..
-	$(MAKE) -j2 -C $(BUILDDIR) cmark-fuzz
-	test/run-cmark-fuzz $(CMARK_FUZZ)
+	CC=clang CXX=clang++ cmake -S . -B $(BUILDDIR) \
+	    -DCMAKE_BUILD_TYPE=Asan \
+	    -DCMARK_LIB_FUZZER=ON
+	cmake --build $(BUILDDIR)
+	mkdir -p fuzz/corpus
+	$(BUILDDIR)/fuzz/cmark-fuzz \
+	    -dict=fuzz/dictionary \
+	    -max_len=1000 \
+	    -timeout=1 \
+	    fuzz/corpus
 
 lint: $(BUILDDIR)
 	errs=0 ; \

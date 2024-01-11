@@ -98,17 +98,3 @@ install(
   NAMESPACE "cmark::"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark"
 )
-
-if(CMARK_LIB_FUZZER)
-  add_executable(cmark-fuzz
-    ../test/cmark-fuzz.c)
-  cmark_add_compile_options(cmark-fuzz)
-  target_link_libraries(cmark-fuzz
-    cmark
-    "${CMAKE_LIB_FUZZER_PATH}")
-
-  # cmark is written in C but the libFuzzer runtime is written in C++ which
-  # needs to link against the C++ runtime.
-  set_target_properties(cmark-fuzz PROPERTIES
-    LINKER_LANGUAGE CXX)
-endif()
