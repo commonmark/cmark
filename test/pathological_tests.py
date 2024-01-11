@@ -44,7 +44,7 @@ def hash_collisions():
 
     document = ''.join("[%s]: /url\n\n[%s]\n\n" % (key, bad_key) for key in collisions)
 
-    return document, re.compile("(<p>\[%s\]</p>\n){%d}" % (bad_key, COUNT-1))
+    return document, re.compile(r"(<p>\[%s]</p>\n){%d}" % (bad_key, COUNT-1))
 
 
 # list of pairs consisting of input and a regex that must match the output.
@@ -103,10 +103,10 @@ pathological = {
                   re.compile("^<p>[e`]*</p>\n$")),
     "unclosed links A":
                  ("[a](<b" * 30000,
-                  re.compile("(\\[a\]\\(&lt;b){30000}")),
+                  re.compile(r"(\[a]\(&lt;b){30000}")),
     "unclosed links B":
                  ("[a](b" * 30000,
-                  re.compile("(\\[a\\]\\(b){30000}")),
+                  re.compile(r"(\[a]\(b){30000}")),
     "unclosed <!--":
                  ("</" + "<!--" * 300000,
                   re.compile("\\&lt;\\/(\\&lt;!--){300000}")),
