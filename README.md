@@ -122,12 +122,9 @@ To do a more systematic fuzz test with [american fuzzy lop]:
 
     AFL_PATH=/path/to/afl_directory make afl
 
-Fuzzing with [libFuzzer] is also supported but, because libFuzzer is still
-under active development, may not work with your system-installed version of
-clang. Assuming LLVM has been built in `$HOME/src/llvm/build` the fuzzer can be
-run with:
+Fuzzing with [libFuzzer] is also supported. The fuzzer can be run with:
 
-    CC="$HOME/src/llvm/build/bin/clang" LIB_FUZZER_PATH="$HOME/src/llvm/lib/Fuzzer/libFuzzer.a" make libFuzzer
+    make libFuzzer
 
 To make a release tarball and zip archive:
 
