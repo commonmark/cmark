@@ -116,6 +116,9 @@ pathological = {
     "empty lines in deeply nested lists in blockquote":
                  ("> " + "- " * 30000 + "x\n" + ">\n" * 30000,
                   re.compile(r"^(<\w+>\n?)+x(</\w+>\n)+$")),
+    "emph in deep blockquote":
+                 (">" * 100000 + "a*" * 100000,
+                  re.compile(r"^(<\w+>\n)+<p>.*</p>\n(</\w+>\n)+$")),
     "reference collisions": hash_collisions()
 #    "many references":
 #                 ("".join(map(lambda x: ("[" + str(x) + "]: u\n"), range(1,5000 * 16))) + "[0] " * 5000,
