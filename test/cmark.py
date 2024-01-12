@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ctypes import CDLL, c_char_p, c_size_t, c_int, c_void_p
-from subprocess import *
+from subprocess import Popen, PIPE
 import platform
 import os
 
