@@ -6,20 +6,86 @@
 
 static void S_node_unlink(cmark_node *node);
 
-static inline bool S_is_block(cmark_node *node) {
+enum node_class {
+  // No node types
+  NODE_CLASS_NONE,
+  // Block node types
+  NODE_CLASS_BLOCK,
+  // Document root type only
+  NODE_CLASS_DOCUMENT,
+  // List item type only
+  NODE_CLASS_ITEM,
+  // Inline node types
+  NODE_CLASS_INLINE,
+  // All node types
+  NODE_CLASS_ANY
+};
+
+/** What node class is this node?
+ */
+static inline enum node_class S_node_class(cmark_node *node) {
   if (node == NULL) {
-    return false;
+    return NODE_CLASS_NONE;
   }
-  return node->type >= CMARK_NODE_FIRST_BLOCK &&
-         node->type <= CMARK_NODE_LAST_BLOCK;
+  // Special cases
+  if (node->type == CMARK_NODE_DOCUMENT)
+    return NODE_CLASS_DOCUMENT;
+  if (node->type == CMARK_NODE_ITEM)
+    return NODE_CLASS_ITEM;
+  // Range cases
+  if (node->type >= CMARK_NODE_FIRST_BLOCK &&
+      node->type <= CMARK_NODE_LAST_BLOCK)
+    return NODE_CLASS_BLOCK;
+  if (node->type >= CMARK_NODE_FIRST_INLINE &&
+      node->type <= CMARK_NODE_LAST_INLINE)
+    return NODE_CLASS_INLINE;
+  // Other cases
+  return NODE_CLASS_ANY;
 }
 
-static inline bool S_is_inline(cmark_node *node) {
-  if (node == NULL) {
-    return false;
+/** What node class is allowed for children of this node?
+ */
+static inline enum node_class
+S_compute_allowed_child(cmark_node_type type) {
+  switch (type) {
+  case CMARK_NODE_DOCUMENT:
+  case CMARK_NODE_BLOCK_QUOTE:
+  case CMARK_NODE_ITEM:
+    return NODE_CLASS_BLOCK;
+
+  case CMARK_NODE_LIST:
+    return NODE_CLASS_ITEM;
+
+  case CMARK_NODE_CUSTOM_BLOCK:
+    return NODE_CLASS_ANY;
+
+  case CMARK_NODE_PARAGRAPH:
+  case CMARK_NODE_HEADING:
+  case CMARK_NODE_EMPH:
+  case CMARK_NODE_STRONG:
+  case CMARK_NODE_LINK:
+  case CMARK_NODE_IMAGE:
+  case CMARK_NODE_CUSTOM_INLINE:
+    return NODE_CLASS_INLINE;
+
+  default:
+    break;
   }
-  return node->type >= CMARK_NODE_FIRST_INLINE &&
-         node->type <= CMARK_NODE_LAST_INLINE;
+
+  return NODE_CLASS_NONE;
+}
+
+/** <= for node classes
+ *
+ * i.e. is the left node class equal or more restrictive than the right.
+ */
+static inline bool S_node_class_le(enum node_class l, enum node_class r)
+{
+  if (l == NODE_CLASS_NONE)
+    return 1;
+  if (r == NODE_CLASS_ANY)
+    return 1;
+  return l == r;
 }
 
 static bool S_can_contain(cmark_node *node, cmark_node *child) {
@@ -39,36 +105,9 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     }
   }
 
-  if (child->type == CMARK_NODE_DOCUMENT) {
-    return false;
-  }
-
-  switch (node->type) {
-  case CMARK_NODE_DOCUMENT:
-  case CMARK_NODE_BLOCK_QUOTE:
-  case CMARK_NODE_ITEM:
-    return S_is_block(child) && child->type != CMARK_NODE_ITEM;
-
-  case CMARK_NODE_LIST:
-    return child->type == CMARK_NODE_ITEM;
-
-  case CMARK_NODE_CUSTOM_BLOCK:
-    return true;
-
-  case CMARK_NODE_PARAGRAPH:
-  case CMARK_NODE_HEADING:
-  case CMARK_NODE_EMPH:
-  case CMARK_NODE_STRONG:
-  case CMARK_NODE_LINK:
-  case CMARK_NODE_IMAGE:
-  case CMARK_NODE_CUSTOM_INLINE:
-    return S_is_inline(child);
-
-  default:
-    break;
-  }
-
-  return false;
+  return S_node_class_le(
+    S_node_class(child),
+    S_compute_allowed_child(node->type));
 }
 
 cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
