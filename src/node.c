@@ -131,6 +131,35 @@ static void S_cmark_node_init(cmark_node * node) {
 
 }
 
+// deinitialize the type-specific fields of a node
+static void S_cmark_node_deinit(cmark_node * e) {
+  cmark_mem *mem = e->mem;
+  switch (e->type) {
+  case CMARK_NODE_CODE_BLOCK:
+    mem->free(e->data);
+    mem->free(e->as.code.info);
+    break;
+  case CMARK_NODE_TEXT:
+  case CMARK_NODE_HTML_INLINE:
+  case CMARK_NODE_CODE:
+  case CMARK_NODE_HTML_BLOCK:
+    mem->free(e->data);
+    break;
+  case CMARK_NODE_LINK:
+  case CMARK_NODE_IMAGE:
+    mem->free(e->as.link.url);
+    mem->free(e->as.link.title);
+    break;
+  case CMARK_NODE_CUSTOM_BLOCK:
+  case CMARK_NODE_CUSTOM_INLINE:
+    mem->free(e->as.custom.on_enter);
+    mem->free(e->as.custom.on_exit);
+    break;
+  default:
+    break;
+  }
+}
+
 cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
   cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
   node->mem = mem;
@@ -151,30 +180,7 @@ static void S_free_nodes(cmark_node *e) {
   cmark_mem *mem = e->mem;
   cmark_node *next;
   while (e != NULL) {
-    switch (e->type) {
-    case CMARK_NODE_CODE_BLOCK:
-      mem->free(e->data);
-      mem->free(e->as.code.info);
-      break;
-    case CMARK_NODE_TEXT:
-    case CMARK_NODE_HTML_INLINE:
-    case CMARK_NODE_CODE:
-    case CMARK_NODE_HTML_BLOCK:
-      mem->free(e->data);
-      break;
-    case CMARK_NODE_LINK:
-    case CMARK_NODE_IMAGE:
-      mem->free(e->as.link.url);
-      mem->free(e->as.link.title);
-      break;
-    case CMARK_NODE_CUSTOM_BLOCK:
-    case CMARK_NODE_CUSTOM_INLINE:
-      mem->free(e->as.custom.on_enter);
-      mem->free(e->as.custom.on_exit);
-      break;
-    default:
-      break;
-    }
+    S_cmark_node_deinit(e);
     if (e->last_child) {
       // Splice children into list
       e->last_child->next = e->next;
