@@ -90,19 +90,17 @@ static cmark_node *make_document(cmark_mem *mem) {
   return e;
 }
 
-cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
+cmark_parser *cmark_parser_new_with_mem_into_root(int options, cmark_mem *mem, cmark_node *root) {
   cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
   parser->mem = mem;
-
-  cmark_node *document = make_document(mem);
 
   cmark_strbuf_init(mem, &parser->curline, 256);
   cmark_strbuf_init(mem, &parser->linebuf, 0);
   cmark_strbuf_init(mem, &parser->content, 0);
 
   parser->refmap = cmark_reference_map_new(mem);
-  parser->root = document;
-  parser->current = document;
+  parser->root = root;
+  parser->current = root;
   parser->line_number = 0;
   parser->offset = 0;
   parser->column = 0;
@@ -117,6 +115,11 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->last_buffer_ended_with_cr = false;
 
   return parser;
+}
+
+cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
+  cmark_node *document = make_document(mem);
+  return cmark_parser_new_with_mem_into_root(options, mem, document);
 }
 
 cmark_parser *cmark_parser_new(int options) {

@@ -467,9 +467,41 @@ CMARK_EXPORT
 cmark_parser *cmark_parser_new(int options);
 
 /** Creates a new parser object with the given memory allocator
+ *
+ * A generalization of `cmark_parser_new`:
+ * ```c
+ * cmark_parser_new(options)
+ * ```
+ * is the same as:
+ * ```c
+ * cmark_parser_new_with_mem(options, cmark_get_default_mem_allocator())
+ * ```
  */
 CMARK_EXPORT
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem);
+
+/** Creates a new parser object with the given node to use as the root
+ * node of the parsed AST.
+ *
+ * When parsing, children are always appended, not prepended; that means
+ * if `root` already has children, the newly-parsed children will appear
+ * after the given children.
+ *
+ * A generalization of `cmark_parser_new_with_mem`:
+ * ```c
+ * cmark_parser_new_with_mem(options, mem)
+ * ```
+ * is approximately the same as:
+ * ```c
+ * cmark_parser_new_with_mem_into_root(options, mem, cmark_node_new(CMARK_NODE_DOCUMENT))
+ * ```
+ *
+ * This is useful for creating a single document out of multiple parsed
+ * document fragments.
+ */
+CMARK_EXPORT
+cmark_parser *cmark_parser_new_with_mem_into_root(
+    int options, cmark_mem *mem, cmark_node *root);
 
 /** Frees memory allocated for a parser object.
  */
