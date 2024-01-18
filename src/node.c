@@ -110,11 +110,8 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     S_compute_allowed_child(node->type));
 }
 
-cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
-  cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
-  node->mem = mem;
-  node->type = (uint16_t)type;
-
+// Initialize the type-specific fields of a node
+static void S_cmark_node_init(cmark_node * node) {
   switch (node->type) {
   case CMARK_NODE_HEADING:
     node->as.heading.level = 1;
@@ -131,6 +128,15 @@ cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
   default:
     break;
   }
+
+}
+
+cmark_node *cmark_node_new_with_mem(cmark_node_type type, cmark_mem *mem) {
+  cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
+  node->mem = mem;
+  node->type = (uint16_t)type;
+
+  S_cmark_node_init(node);
 
   return node;
 }
