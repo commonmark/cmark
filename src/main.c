@@ -69,7 +69,7 @@ static void print_document(cmark_node *document, writer_format writer,
     fprintf(stderr, "Unknown format %d\n", writer);
     exit(1);
   }
-  printf("%s", result);
+  fwrite(result, strlen(result), 1, stdout);
   document->mem->free(result);
 }
 
