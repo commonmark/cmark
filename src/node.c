@@ -175,6 +175,23 @@ cmark_node *cmark_node_new(cmark_node_type type) {
   return cmark_node_new_with_mem(type, &DEFAULT_MEM_ALLOCATOR);
 }
 
+int cmake_node_convert_type(cmark_node *node, cmark_node_type type) {
+  // Only need to validate children if we have any
+  if (node->first_child) {
+    enum node_class
+      old = S_compute_allowed_child(node->type),
+      new = S_compute_allowed_child(type);
+    if (!S_node_class_le(old, new))
+      return 0;
+  }
+
+  // Success path
+  S_cmark_node_deinit(node);
+  node->type = type;
+  S_cmark_node_init(node);
+  return 1;
+}
+
 // Free a cmark_node list and any children.
 static void S_free_nodes(cmark_node *e) {
   cmark_mem *mem = e->mem;

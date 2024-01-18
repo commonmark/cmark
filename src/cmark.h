@@ -125,6 +125,16 @@ CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type,
  */
 CMARK_EXPORT void cmark_node_free(cmark_node *node);
 
+/** Convert a node from one type to another
+ *
+ * It is required that the new type allows the same type of children (or broader) as the old type.
+ *
+ * Returns 1 on success, 0 on failure. On failure the node is left as-is.
+ *
+ * O(1)
+ */
+CMARK_EXPORT int cmake_node_convert_type(cmark_node *node, cmark_node_type type);
+
 /**
  * ## Tree Traversal
  */
