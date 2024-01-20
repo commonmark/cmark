@@ -135,7 +135,7 @@ Installing (Windows)
 
 To compile with MSVC and NMAKE:
 
-    nmake
+    nmake /f Makefile.nmake
 
 You can cross-compile a Windows binary and dll on linux if you have the
 `mingw32` compiler:
