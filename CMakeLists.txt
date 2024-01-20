@@ -33,7 +33,29 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
 
+# Backwards Compatibility
+# TODO: remove this once there has been a period to enable people to migrate
+set(_CMARK_BUILD_SHARED_LIBS_DEFAULT NO)
+if(DEFINED CMARK_SHARED)
+  message(AUTHOR_WARNING [=[
+'CMARK_SHARED' has been replaced with the standard 'BUILD_SHARED_LIBS' to control the library type.
+]=])
+  set(_CMARK_BUILD_SHARED_LIBS_DEFAULT ${CMARK_SHARED})
+endif()
+if(DEFINED CMARK_STATIC)
+  message(AUTHOR_WARNING [=[
+'CMARK_STATIC' has been replaced with the standard 'BUILD_SHARED_LIBS' to control the library type.
+]=])
+  if(NOT CMARK_STATIC)
+    set(_CMARK_BUILD_SHARED_LIBS_DEFAULT YES)
+  else()
+    set(_CMARK_BUILD_SHARED_LIBS_DEFAULT NO)
+  endif()
+endif()
+
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
+option(BUILD_SHARED_LIBS "Build the CMark library as shared"
+  ${_CMARK_BUILD_SHARED_LIBS_DEFAULT})
 
 if(NOT MSVC)
   set(CMAKE_C_STANDARD 99)
