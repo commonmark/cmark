@@ -1,4 +1,4 @@
-.TH cmark 3 "September 24, 2021" "cmark 0.30.2" "Library Functions Manual"
+.TH cmark 3 "January 21, 2024" "cmark 0.30.3" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -15,7 +15,7 @@ Simple Interface
 .PP
 Convert \f[I]text\f[] (assumed to be a UTF\-8 encoded string with length
 \f[I]len\f[]) from CommonMark Markdown to HTML, returning a
-null\-terminated, UTF\-8\-encoded string. It is the caller's
+null\-terminated, UTF\-8\-encoded string. It is the caller\[cq]s
 responsibility to free the returned buffer.
 
 .SS
@@ -116,7 +116,7 @@ Defines the memory allocation functions to be used by CMark when parsing
 and allocating a document tree
 
 .PP
-\fIcmark_mem *\f[] \fBcmark_get_default_mem_allocator\f[](\fI\f[])
+\fIcmark_mem *\f[] \fBcmark_get_default_mem_allocator\f[](\fIvoid\f[])
 
 .PP
 Returns a pointer to the default memory allocator.
@@ -803,8 +803,8 @@ with the replacement character U+FFFD.
 .fi
 
 .PP
-Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
-dashes.
+Convert straight quotes to curly, \f[C]\-\-\-\f[] to em dashes,
+\f[C]\-\-\f[] to en dashes.
 
 .SS
 Version information

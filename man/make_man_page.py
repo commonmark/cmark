@@ -41,7 +41,7 @@ def md2man(text):
     if sys.version_info >= (3,0):
         textbytes = text.encode('utf-8')
         textlen = len(textbytes)
-        return render_man(parse_document(textbytes, textlen), 0, 65).decode('utf-8')
+        return render_man(parse_document(textbytes, textlen), 0, 72).decode('utf-8')
     else:
         textbytes = text
         textlen = len(text)
