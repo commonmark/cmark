@@ -587,7 +587,7 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
  */
 #define CMARK_OPT_VALIDATE_UTF8 (1 << 9)
 
-/** Convert straight quotes to curly, --- to em dashes, -- to en dashes.
+/** Convert straight quotes to curly, `---` to em dashes, `--` to en dashes.
  */
 #define CMARK_OPT_SMART (1 << 10)
 
