@@ -160,7 +160,10 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
 
       cmark_strbuf_puts(html, "<pre");
       S_render_sourcepos(node, html, options);
-      cmark_strbuf_puts(html, "><code class=\"language-");
+      cmark_strbuf_puts(html, "><code class=\"");
+      if (strncmp((char *)node->as.code.info, "language-", 9) != 0) {
+        cmark_strbuf_puts(html, "language-");
+      }
       escape_html(html, node->as.code.info, first_tag);
       cmark_strbuf_puts(html, "\">");
     }
