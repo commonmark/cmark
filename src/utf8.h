@@ -16,6 +16,7 @@ void cmark_utf8proc_check(cmark_strbuf *dest, const uint8_t *line,
                           bufsize_t size);
 int cmark_utf8proc_is_space(int32_t uc);
 int cmark_utf8proc_is_punctuation(int32_t uc);
+int cmark_utf8proc_is_punctuation_or_symbol(int32_t uc);
 
 #ifdef __cplusplus
 }
