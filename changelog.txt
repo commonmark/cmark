@@ -1,3 +1,135 @@
+[0.31.0]
+
+  * Update to 0.31.2 spec.txt.
+
+  * Treat unicode Symbols like Punctuation, as per the 0.31 spec.
+
+  * Add a new function to `utf8.h`:
+    `int cmark_utf8proc_is_punctuation_or_symbol(int32_t uc)`.
+    The old `cmark_utf8proc_is_punctuation` has been kept for
+    now, but it is no longer used.
+
+  * Add new exported function `cmark_parser_new_with_mem_into_root`
+    (API change) (John Ericson).
+
+  * Avoid repeated `language-` in info string (commonmark/commonmark.js#277).
+
+  * Fix quadratic behavior in `S_insert_emph` (Nick Wellnhofer).
+    Fixes part of GHSA-66g8-4hjf-77xh.
+
+  * Fix quadratic behavior in `check_open_blocks` (Nick Wellnhofer).
+    Fixes part of GHSA-66g8-4hjf-77xh.
+
+  * Track underscore bottom separately mod 3, like asterisk (Michael
+    Howell). This was already implemented correctly for asterisks,
+    but not for underscore.
+
+  * Use `fwrite` instead of `printf` to print results in main (#523).
+    This avoids a massive slowdown in MSYS2.
+
+  * commonmark writer: less aggressive escaping for `!` (#131).
+
+  * Update libFuzzer build (Nick Wellnhofer):
+
+    + Move fuzzing files into their own directory.
+    + Use libFuzzer the modern way by compiling and linking with
+      `-fsanitize=fuzzer(-no-link)` without requiring `LIB_FUZZER_PATH`.
+    + Update the `libFuzzer` rule in Makefile and the README.md.
+
+  * CMake build changes (Saleem Abdulrasool).
+
+    + Inline multiple variables in CMake, following CMake recommendations.
+
+    + Simplify the version computation.
+
+    + Remove the `CMARK_STATIC` and `CMARK_SHARED` options as one of the two
+      must be enabled always as the cmark executable depends on the library.
+      Instead of having a custom flag to discern between the
+      library type, use the native CMake option `BUILD_SHARED_LIBS`,
+      allowing the user to control which library to build. This matches
+      CMake recommendations to only build a single copy of the library.
+
+    + Introduce an author warning for the use of `CMARK_SHARED` and
+      `CMARK_STATIC` to redirect the author of the dependent package to
+      `BUILD_SHARED_LIBS`.
+
+    + Permit incremental linking on Windows. Although incremental linking
+      does introduce padding in the binary for incremental links, that
+      should not matter for release mode builds in theory as `/OPT:REF`
+      and `/OPT:ICF` will trigger full links, which is the default in
+      release mode.
+
+    + Hoist the CMake module inclusion to the top level.
+
+    + Minor tweaks for speeding up the configure phase.
+      Restructure the file layout to place the custom modules into the
+      `cmake/modules` directory that is the common layout for CMake based
+      projects.
+
+    + Squelch C4232 warnings on MSVC builds.
+
+    + Remove check for `__builtin_expect`. Use `__has_builtin` to check
+      at compile time if the feature is supported.
+      This macro is supported by both clang and GCC (as of 10).
+      In the case that the compiler in use is not new enough, we still
+      provide the fallback so that the code will compile but without the
+      additional hints for the branch probability. `config.h` has been
+      removed from the code base as it is no longer needed.
+
+    + Remove `/TP` usage on MSVC and replace `CMARK_INLINE` with `inline`.
+      These were workarounds for pre-VS2015 compilers, which are no longer
+      supported.
+
+    + Hoist the C visibility settings to top level
+
+    + Clean up C4267 warnings on MSVC builds.
+
+    + Remove some compiler compatibility checks that are no longer
+      needed because VS 2013 is no longer supported (#498).
+
+    + Adjust the policy to silence warnings on MSVC builds
+      CMake 3.15+ remove `/W3` from the language flags under MSVC with
+      CMP0092.  Set the policy to new to avoid the D9025 warning.
+
+    + Reflow some text to match CMake documentation style
+
+    + Use generator expression for path computation.
+
+    + Use CMake to propagate `CMARK_STATIC_DEFINE`.
+
+    + Clean up an obsoleted variable (NFC).
+
+    + Hoist the policy settings. Policy settings may impact how
+      `project` functions.  They should be set immediately after
+      `cmake_minimum_required` (which implicitly sets policies).
+      Use the `POLICY` check to see if a policy is defined rather
+      than using a version check.
+
+    + Replace `CMARK_TESTS` with CMake sanctioned `BUILD_TESTING`.
+
+    + Correct typo and adjust command invocation. Use the proper
+      generator expression for the python interpreter and adjust
+      a typo in the component name.
+
+    + Add an upgrade path for newer CMake.
+      CMake 3.12 deprecated `FindPythonInterp`, and with CMake 3.27, were
+      obsoleted with CMP0148.  Add a version check and switch to the new
+      behaviour to allow building with newer releases.
+
+  * Fix regex syntax warnings in `pathological_tests.py` (Nick Wellnhofer).
+
+  * `test/cmark.py`: avoid star imports (Jakub Wilk).
+
+  * `spec_tests.py`: Add option to generate fuzz corpus (Nick Wellnhofer).
+    Add an option `--fuzz-corpus` that writes the test cases to separate
+    files including the options header, so they can be used as seed corpus
+    for fuzz testing.
+
+  * Fix some cmark.3 man rendering issues so we can do a clean regen
+    (John Ericson).
+
+  * Update Windows compilation instructions (Pomax, #525).
+
 [0.30.3]
 
   * Fix quadratic complexity bug with repeated `![[]()`.

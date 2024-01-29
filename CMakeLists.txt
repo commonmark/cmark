@@ -9,7 +9,7 @@ endif()
 
 project(cmark
   LANGUAGES C CXX
-  VERSION 0.30.3)
+  VERSION 0.31.0)
 
 if(CMAKE_BUILD_TYPE MATCHES "asan|ubsan")
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
