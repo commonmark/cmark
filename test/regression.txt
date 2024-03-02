@@ -256,3 +256,13 @@ x <- 1
 <pre><code class="language-r">x &lt;- 1
 </code></pre>
 ````````````````````````````````
+
+https://github.com/commonmark/commonmark.js/issues/283
+```````````````````````````````` example
+x<!x>
+
+x<!>
+.
+<p>x<!x></p>
+<p>x&lt;!&gt;</p>
+````````````````````````````````
