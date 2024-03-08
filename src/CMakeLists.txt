@@ -28,7 +28,6 @@ add_library(cmark
   xml.c)
 cmark_add_compile_options(cmark)
 set_target_properties(cmark PROPERTIES
-  MACOSX_RPATH TRUE
   OUTPUT_NAME "cmark"
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
   PDB_NAME libcmark
