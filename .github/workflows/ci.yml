@@ -36,8 +36,8 @@ jobs:
           - '-DBUILD_SHARED_LIBS=YES'
           - ''
         compiler:
-          - c: 'clang'
-            cpp: 'clang++'
+          - c: 'clang -gdwarf-4'
+            cpp: 'clang++ -gdwarf-4'
           - c: 'gcc'
             cpp: 'g++'
     env:
