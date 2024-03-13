@@ -148,7 +148,7 @@ update-spec:
  > $(SPEC)
 
 test: $(SPEC) cmake_build
-	$(MAKE) -C $(BUILDDIR) test || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
+	ctest --test-dir $(BUILDDIR) --output-on-failure || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
 $(ALLTESTS): $(SPEC)
 	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
