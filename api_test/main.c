@@ -927,6 +927,7 @@ static void sub_document(test_batch_runner *runner) {
         item);
     cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
     OK(runner, cmark_parser_finish(parser) != NULL, "parser_finish_0");
+    cmark_parser_free(parser);
   }
 
   {
@@ -940,6 +941,7 @@ static void sub_document(test_batch_runner *runner) {
         item);
     cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
     OK(runner, cmark_parser_finish(parser) != NULL, "parser_finish_0");
+    cmark_parser_free(parser);
   }
 
   char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
@@ -973,6 +975,7 @@ static void sub_document(test_batch_runner *runner) {
                         "\n"
                         "  - Bye “ <http://www.geocities.com>\n",
          "nested document CommonMark is as expected");
+  free(cmark);
 
   cmark_node_free(doc);
 }
