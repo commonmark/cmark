@@ -456,6 +456,13 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
+    if (c == '*') {
+      data->marker = CMARK_ASTERISK_MARKER;
+    } else if (c == '-') {
+      data->marker = CMARK_HYPHEN_MARKER;
+    } else if (c == '+') {
+      data->marker = CMARK_PLUS_MARKER;
+    }
     data->start = 0;
     data->delimiter = CMARK_NO_DELIM;
     data->tight = false;
@@ -496,6 +503,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
       data->bullet_char = 0;
+      data->marker = CMARK_NUMERIC_MARKER;
       data->start = start;
       data->delimiter = (c == '.' ? CMARK_PERIOD_DELIM : CMARK_PAREN_DELIM);
       data->tight = false;
