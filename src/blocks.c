@@ -98,6 +98,8 @@ cmark_parser *cmark_parser_new_with_mem_into_root(int options, cmark_mem *mem, c
   cmark_strbuf_init(mem, &parser->linebuf, 0);
   cmark_strbuf_init(mem, &parser->content, 0);
 
+  root->flags = CMARK_NODE__OPEN;
+
   parser->refmap = cmark_reference_map_new(mem);
   parser->root = root;
   parser->current = root;
