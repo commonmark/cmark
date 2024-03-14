@@ -37,14 +37,17 @@ jobs:
           - '-DBUILD_SHARED_LIBS=YES'
           - ''
         compiler:
-          - c: 'clang -gdwarf-4'
-            cpp: 'clang++ -gdwarf-4'
+          - c: 'clang'
+            cpp: 'clang++'
+            cflags: '-gdwarf-4'
           - c: 'gcc'
             cpp: 'g++'
     env:
        CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
        CC: ${{ matrix.compiler.c }}
        CXX: ${{ matrix.compiler.cpp }}
+       CFLAGS: ${{ matrix.compiler.cflags }}
+       CXXFLAGS: ${{ matrix.compiler.cflags }}
 
     steps:
     - uses: actions/checkout@v4
