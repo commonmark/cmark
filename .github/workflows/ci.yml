@@ -54,8 +54,9 @@ jobs:
          sudo apt install -y valgrind
     - name: Build and test
       run: |
-         make debug
-         make test
+         cmake $CMAKE_OPTIONS -DCMAKE_BUILD_TYPE=Debug -S . -B build
+         cmake --build build
+         ctest --test-dir build --output-on-failure
          make leakcheck
 
   macos:
@@ -80,11 +81,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build and test
-      env:
-         CMAKE_OPTIONS: -DBUILD_SHARED_LIBS=NO
       run: |
-         make debug
-         make test
+         cmake $CMAKE_OPTIONS -DCMAKE_BUILD_TYPE=Debug -S . -B build
+         cmake --build build
+         ctest --test-dir build --output-on-failure
 
   windows:
 
@@ -103,6 +103,7 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build and test
       run: |
-        chcp 65001
-        nmake.exe /nologo /f Makefile.nmake test
+        cmake %CMAKE_OPTIONS%  -DCMAKE_BUILD_TYPE=Debug -S . -B build
+        cmake --build build
+        ctest --test-dir build -C Debug --output-on-failure
       shell: cmd
