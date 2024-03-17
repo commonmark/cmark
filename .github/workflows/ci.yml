@@ -27,67 +27,92 @@ jobs:
         CC: clang
         CXX: clang++
 
-  linux:
+  posix:
 
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        cmake_opts:
-          - '-DBUILD_SHARED_LIBS=YES'
-          - ''
-        compiler:
-          - c: 'clang'
-            cpp: 'clang++'
-            cflags: '-gdwarf-4'
-          - c: 'gcc'
-            cpp: 'g++'
+        os: [linux, macos]
+        cc: [clang, gcc]
+        build_type: [shared, static]
+        sanitizers: ['', ASan]
+
+        include:
+          # Translate human readable labels
+          - os: 'linux'
+            image: 'ubuntu-latest'
+          - os: 'macos'
+            image: 'macos-latest'
+          - cc: 'clang'
+            cxx: 'clang++'
+          - cc: 'gcc'
+            cxx: 'g++'
+          - build_type: 'shared'
+            cmake_shared: 'YES'
+          - build_type: 'static'
+            cmake_shared: 'NO'
+          - sanitizers: 'ASan'
+            san_cflags: '-fsanitize=address,undefined -fno-sanitize-recover=all'
+
+          # When building shared libraries, they will be loaded
+          # dynamically from Python when testing. This means that
+          # we have to use a preloaded shared libasan.
+          - sanitizers: 'ASan'
+            os: 'linux'
+            cc: 'gcc'
+            build_type: 'shared'
+            test_env: 'LD_PRELOAD=$(gcc -print-file-name=libasan.so)'
+          - sanitizers: 'ASan'
+            os: 'linux'
+            cc: 'clang'
+            build_type: 'shared'
+            # clang defaults to -static-libsasn
+            asan_cflags: '-shared-libasan'
+            test_env: 'LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so)'
+
+          # We have to disable LeakSanitizer in shared library builds
+          # because we get false positives from Python.
+          - sanitizers: 'ASan'
+            build_type: 'shared'
+            asan_opts: 'detect_leaks=0'
+
+          # The static build can run with LeakSanitizer.
+          # gcc defaults to -shared-libasan and needs -static-libasan
+          - sanitizers: 'ASan'
+            cc: 'gcc'
+            build_type: 'static'
+            asan_cflags: '-static-libasan'
+
+        exclude:
+          # gcc is just an alias for clang on macOS
+          - os: 'macos'
+            cc: 'gcc'
+          # Shared libasan doesn't work with macOS system Python.
+          - os: 'macos'
+            sanitizers: 'ASan'
+            build_type: 'shared'
+
+    runs-on: ${{ matrix.image }}
+
     env:
-       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
-       CC: ${{ matrix.compiler.c }}
-       CXX: ${{ matrix.compiler.cpp }}
-       CFLAGS: ${{ matrix.compiler.cflags }}
-       CXXFLAGS: ${{ matrix.compiler.cflags }}
+       ASAN_OPTIONS: ${{ matrix.asan_opts }}
+       CC: ${{ matrix.cc }}
+       CXX: ${{ matrix.cxx }}
+       CFLAGS: '${{ matrix.san_cflags }} ${{ matrix.asan_cflags }}'
+       CXXFLAGS: '${{ matrix.san_cflags }} ${{ matrix.asan_cflags }}'
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install valgrind
-      run: |
-         sudo apt update
-         sudo apt install -y valgrind
     - name: Build and test
       run: |
-         cmake $CMAKE_OPTIONS -DCMAKE_BUILD_TYPE=Debug -S . -B build
+         cmake \
+            -DBUILD_SHARED_LIBS=${{ matrix.cmake_shared }} \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -S . -B build
          cmake --build build
-         ctest --test-dir build --output-on-failure
-         make leakcheck
-
-  macos:
-
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        cmake_opts:
-          - '-DBUILD_SHARED_LIBS=YES'
-          - ''
-        compiler:
-          - c: 'clang'
-            cpp: 'clang++'
-          - c: 'gcc'
-            cpp: 'g++'
-    env:
-       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
-       CC: ${{ matrix.compiler.c }}
-       CXX: ${{ matrix.compiler.cpp }}
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build and test
-      run: |
-         cmake $CMAKE_OPTIONS -DCMAKE_BUILD_TYPE=Debug -S . -B build
-         cmake --build build
-         ctest --test-dir build --output-on-failure
+         # https://github.com/actions/runner-images/issues/9491
+         sudo sysctl vm.mmap_rnd_bits=28 || true
+         ${{ matrix.test_env }} ctest --test-dir build --output-on-failure
 
   windows:
 
@@ -95,18 +120,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cmake_opts:
-          - '-DBUILD_SHARED_LIBS=YES'
-          - ''
-    env:
-       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
+        build_type: [shared, static]
+        include:
+          - build_type: 'shared'
+            cmake_shared: 'YES'
+          - build_type: 'static'
+            cmake_shared: 'NO'
 
     steps:
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build and test
       run: |
-        cmake %CMAKE_OPTIONS%  -DCMAKE_BUILD_TYPE=Debug -S . -B build
+        cmake ^
+            -DBUILD_SHARED_LIBS=${{ matrix.cmake_shared }} ^
+            -DCMAKE_BUILD_TYPE=Debug ^
+            -S . -B build
         cmake --build build
         ctest --test-dir build -C Debug --output-on-failure
       shell: cmd
