@@ -62,6 +62,27 @@ jobs:
          ctest --test-dir build --output-on-failure
          make leakcheck
 
+  sanitizers:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    env:
+       CC: 'clang'
+       CXX: 'clang++'
+       CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all'
+       CXXFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all'
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and test
+      run: |
+         cmake -DBUILD_SHARED_LIBS=NO -DCMAKE_BUILD_TYPE=Debug -S . -B build
+         cmake --build build
+         # https://github.com/actions/runner-images/issues/9491
+         sudo sysctl vm.mmap_rnd_bits=28
+         ctest --test-dir build --output-on-failure
+
   macos:
 
     runs-on: macos-latest
