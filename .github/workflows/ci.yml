@@ -67,21 +67,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - cmake_opts: '-DBUILD_SHARED_LIBS=NO'
+          - cmake_opts: '-DBUILD_SHARED_LIBS=YES'
+            cflags: '-shared-libasan'
+            test_env: 'LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so)'
+            asan_options: 'detect_leaks=0'
     env:
+       CMAKE_OPTIONS: ${{ matrix.cmake_opts }}
        CC: 'clang'
        CXX: 'clang++'
-       CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all'
-       CXXFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all'
+       CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all ${{ matrix.cflags }}'
+       CXXFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all ${{ matrix.cflags }}'
+       ASAN_OPTIONS: ${{ matrix.asan_options }}
 
     steps:
     - uses: actions/checkout@v4
     - name: Build and test
       run: |
-         cmake -DBUILD_SHARED_LIBS=NO -DCMAKE_BUILD_TYPE=Debug -S . -B build
+         cmake $CMAKE_OPTIONS -DCMAKE_BUILD_TYPE=Debug -S . -B build
          cmake --build build
          # https://github.com/actions/runner-images/issues/9491
          sudo sysctl vm.mmap_rnd_bits=28
-         ctest --test-dir build --output-on-failure
+         env ${{ matrix.test_env }} ctest --test-dir build --output-on-failure
 
   macos:
 
