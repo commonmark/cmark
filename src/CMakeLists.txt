@@ -28,7 +28,6 @@ add_library(cmark
   xml.c)
 cmark_add_compile_options(cmark)
 set_target_properties(cmark PROPERTIES
-  MACOSX_RPATH TRUE
   OUTPUT_NAME "cmark"
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
   PDB_NAME libcmark
@@ -56,7 +55,8 @@ add_executable(cmark_exe
   main.c)
 cmark_add_compile_options(cmark_exe)
 set_target_properties(cmark_exe PROPERTIES
-  OUTPUT_NAME "cmark")
+  OUTPUT_NAME "cmark"
+  INSTALL_RPATH "${Base_rpath}")
 target_link_libraries(cmark_exe PRIVATE
   cmark)
 
