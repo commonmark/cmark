@@ -25,9 +25,6 @@ install: all
 clean:
 	-rmdir /s /q $(BUILDDIR) $(MINGW_INSTALLDIR) 2> nul
 
-$(SRCDIR)\case_fold_switch.inc: $(DATADIR)\CaseFolding-3.2.0.txt
-	perl mkcasefold.pl < $? > $@
-
 test: $(SPEC) all
 	@cd $(BUILDDIR) && $(MAKE) /nologo test ARGS="-V" && cd ..
 

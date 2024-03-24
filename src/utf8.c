@@ -224,17 +224,39 @@ void cmark_utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
   cmark_strbuf_put(buf, dst, len);
 }
 
+#include "case_fold.inc"
+
+int cf_compare(const void *v1, const void *v2) {
+  uint32_t entry1 = *(uint32_t *) v1;
+  uint32_t entry2 = *(uint32_t *) v2;
+
+  return (int32_t) CF_CODE_POINT(entry1) - (int32_t) CF_CODE_POINT(entry2);
+}
+
 void cmark_utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str,
                               bufsize_t len) {
   int32_t c;
 
-#define bufpush(x) cmark_utf8proc_encode_char(x, dest)
-
   while (len > 0) {
     bufsize_t char_len = cmark_utf8proc_iterate(str, len, &c);
 
-    if (char_len >= 0) {
-#include "case_fold_switch.inc"
+    if (char_len == 1) {
+      if (c >= 'A' && c <= 'Z')
+        c += 'a' - 'A';
+      cmark_strbuf_putc(dest, c);
+    } else if (c >= CF_MAX) {
+        cmark_strbuf_put(dest, str, char_len);
+    } else if (char_len >= 0) {
+      uint32_t key = c;
+      uint32_t *entry = bsearch(&key, cf_table,
+                                CF_TABLE_SIZE, sizeof(uint32_t),
+                                cf_compare);
+      if (entry == NULL) {
+        cmark_strbuf_put(dest, str, char_len);
+      } else {
+        cmark_strbuf_put(dest, cf_repl + CF_REPL_IDX(*entry),
+                         CF_REPL_SIZE(*entry));
+      }
     } else {
       encode_unknown(dest);
       char_len = -char_len;

@@ -122,10 +122,10 @@ archive:
 clean:
 	rm -rf $(BUILDDIR) $(MINGW_BUILDDIR) $(MINGW_INSTALLDIR)
 
-# We include case_fold_switch.inc in the repository, so this shouldn't
+# We include case_fold.inc in the repository, so this shouldn't
 # normally need to be generated.
-$(SRCDIR)/case_fold_switch.inc: $(DATADIR)/CaseFolding.txt
-	perl tools/mkcasefold.pl < $< > $@
+$(SRCDIR)/case_fold.inc: $(DATADIR)/CaseFolding.txt
+	python3 tools/make_case_fold_inc.py < $< > $@
 
 # We include scanners.c in the repository, so this shouldn't
 # normally need to be generated.
