@@ -33,12 +33,6 @@ int cmark_isspace(char c) { return cmark_ctype_class[(uint8_t)c] == 1; }
  */
 int cmark_ispunct(char c) { return cmark_ctype_class[(uint8_t)c] == 2; }
 
-int cmark_isalnum(char c) {
-  uint8_t result;
-  result = cmark_ctype_class[(uint8_t)c];
-  return (result == 3 || result == 4);
-}
-
 int cmark_isdigit(char c) { return cmark_ctype_class[(uint8_t)c] == 3; }
 
 int cmark_isalpha(char c) { return cmark_ctype_class[(uint8_t)c] == 4; }

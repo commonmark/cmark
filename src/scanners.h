@@ -28,7 +28,6 @@ bufsize_t _scan_atx_heading_start(const unsigned char *p);
 bufsize_t _scan_setext_heading_line(const unsigned char *p);
 bufsize_t _scan_open_code_fence(const unsigned char *p);
 bufsize_t _scan_close_code_fence(const unsigned char *p);
-bufsize_t _scan_entity(const unsigned char *p);
 bufsize_t _scan_dangerous_url(const unsigned char *p);
 
 #define scan_scheme(c, n) _scan_at(&_scan_scheme, c, n)
@@ -53,7 +52,6 @@ bufsize_t _scan_dangerous_url(const unsigned char *p);
   _scan_at(&_scan_setext_heading_line, c, n)
 #define scan_open_code_fence(c, n) _scan_at(&_scan_open_code_fence, c, n)
 #define scan_close_code_fence(c, n) _scan_at(&_scan_close_code_fence, c, n)
-#define scan_entity(c, n) _scan_at(&_scan_entity, c, n)
 #define scan_dangerous_url(c, n) _scan_at(&_scan_dangerous_url, c, n)
 
 #ifdef __cplusplus
