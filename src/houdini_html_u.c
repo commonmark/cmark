@@ -21,29 +21,38 @@
 /* Binary tree lookup code for entities added by JGM */
 
 static const unsigned char *S_lookup(int i, int low, int hi,
-                                     const unsigned char *s, int len) {
+                                     const unsigned char *s, int len,
+                                     bufsize_t *size_out) {
   int j;
+  uint32_t value = cmark_entities[i];
+  const unsigned char *ent_name = cmark_entity_text + ENT_TEXT_IDX(value);
+  int ent_len = ENT_NAME_SIZE(value);
+  int min_len = len < ent_len ? len : ent_len;
   int cmp =
-      strncmp((const char *)s, (const char *)cmark_entities[i].entity, len);
-  if (cmp == 0 && cmark_entities[i].entity[len] == 0) {
-    return (const unsigned char *)cmark_entities[i].bytes;
+      strncmp((const char *)s, (const char *)ent_name, min_len);
+  if (cmp == 0)
+    cmp = len - ent_len;
+  if (cmp == 0) {
+    *size_out = ENT_REPL_SIZE(value);
+    return ent_name + ent_len;
   } else if (cmp <= 0 && i > low) {
     j = i - ((i - low) / 2);
     if (j == i)
       j -= 1;
-    return S_lookup(j, low, i - 1, s, len);
+    return S_lookup(j, low, i - 1, s, len, size_out);
   } else if (cmp > 0 && i < hi) {
     j = i + ((hi - i) / 2);
     if (j == i)
       j += 1;
-    return S_lookup(j, i + 1, hi, s, len);
+    return S_lookup(j, i + 1, hi, s, len, size_out);
   } else {
     return NULL;
   }
 }
 
-static const unsigned char *S_lookup_entity(const unsigned char *s, int len) {
-  return S_lookup(CMARK_NUM_ENTITIES / 2, 0, CMARK_NUM_ENTITIES - 1, s, len);
+static const unsigned char *S_lookup_entity(const unsigned char *s, int len,
+                                            bufsize_t *size_out) {
+  return S_lookup(ENT_TABLE_SIZE / 2, 0, ENT_TABLE_SIZE - 1, s, len, size_out);
 }
 
 bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
@@ -97,18 +106,19 @@ bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
   }
 
   else {
-    if (size > CMARK_ENTITY_MAX_LENGTH)
-      size = CMARK_ENTITY_MAX_LENGTH;
+    if (size > ENT_MAX_LENGTH)
+      size = ENT_MAX_LENGTH;
 
-    for (i = CMARK_ENTITY_MIN_LENGTH; i < size; ++i) {
+    for (i = ENT_MIN_LENGTH; i < size; ++i) {
       if (src[i] == ' ')
         break;
 
       if (src[i] == ';') {
-        const unsigned char *entity = S_lookup_entity(src, i);
+        bufsize_t size;
+        const unsigned char *entity = S_lookup_entity(src, i, &size);
 
         if (entity != NULL) {
-          cmark_strbuf_puts(ob, (const char *)entity);
+          cmark_strbuf_put(ob, entity, size);
           return i + 1;
         }
 
