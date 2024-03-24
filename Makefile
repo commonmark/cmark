@@ -53,7 +53,9 @@ uninstall: $(BUILDDIR)/install_manifest.txt
 debug:
 	mkdir -p $(BUILDDIR); \
 	cd $(BUILDDIR); \
-	cmake .. -DCMAKE_BUILD_TYPE=Debug; \
+	cmake .. \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DBUILD_SHARED_LIBS=YES; \
 	$(MAKE)
 
 ubsan:
