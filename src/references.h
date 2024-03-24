@@ -33,8 +33,8 @@ cmark_reference_map *cmark_reference_map_new(cmark_mem *mem);
 void cmark_reference_map_free(cmark_reference_map *map);
 cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
                                         cmark_chunk *label);
-extern void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
-                                   cmark_chunk *url, cmark_chunk *title);
+void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
+                            cmark_chunk *url, cmark_chunk *title);
 
 #ifdef __cplusplus
 }

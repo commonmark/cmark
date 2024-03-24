@@ -195,7 +195,7 @@ void cmark_strbuf_normalize_whitespace(cmark_strbuf *s) {
 }
 
 // Destructively unescape a string: remove backslashes before punctuation chars.
-extern void cmark_strbuf_unescape(cmark_strbuf *buf) {
+void cmark_strbuf_unescape(cmark_strbuf *buf) {
   bufsize_t r, w;
 
   for (r = 0, w = 0; r < buf->size; ++r) {
