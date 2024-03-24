@@ -71,7 +71,3 @@ int houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src, bufsize_t size,
 
   return 1;
 }
-
-int houdini_escape_html(cmark_strbuf *ob, const uint8_t *src, bufsize_t size) {
-  return houdini_escape_html0(ob, src, size, 1);
-}
