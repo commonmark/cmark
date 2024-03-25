@@ -25,7 +25,7 @@ extern "C" {
 
 bufsize_t houdini_unescape_ent(cmark_strbuf *ob, const uint8_t *src,
                                bufsize_t size);
-int houdini_escape_html0(cmark_strbuf *ob, const uint8_t *src,
+int houdini_escape_html(cmark_strbuf *ob, const uint8_t *src,
                          bufsize_t size, int secure);
 int houdini_unescape_html(cmark_strbuf *ob, const uint8_t *src,
                           bufsize_t size);

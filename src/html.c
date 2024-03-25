@@ -17,7 +17,7 @@
 
 static void escape_html(cmark_strbuf *dest, const unsigned char *source,
                         bufsize_t length) {
-  houdini_escape_html0(dest, source, length, 0);
+  houdini_escape_html(dest, source, length, 0);
 }
 
 static inline void cr(cmark_strbuf *html) {
