@@ -145,6 +145,7 @@ bufsize_t _scan_html_declaration(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
+  (void) marker;
 /*!re2c
   declaration { return (bufsize_t)(p - start); }
   * { return 0; }
