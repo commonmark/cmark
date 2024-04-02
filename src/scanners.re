@@ -27,8 +27,6 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   re2c:define:YYCTXMARKER = marker;
   re2c:yyfill:enable = 0;
 
-  wordchar = [^\x00-\x20];
-
   spacechar = [ \t\v\f\r\n];
 
   reg_char     = [^\\()\x00-\x20];
