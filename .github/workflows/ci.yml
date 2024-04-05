@@ -110,8 +110,6 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug \
             -S . -B build
          cmake --build build
-         # https://github.com/actions/runner-images/issues/9491
-         sudo sysctl vm.mmap_rnd_bits=28 || true
          ${{ matrix.test_env }} ctest --test-dir build --output-on-failure
 
   windows:
