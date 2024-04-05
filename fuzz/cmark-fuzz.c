@@ -64,9 +64,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     if (doc != NULL) {
       free(cmark_render_commonmark(doc, options, fuzz_config.width));
       free(cmark_render_html(doc, options));
-      free(cmark_render_latex(doc, options, fuzz_config.width));
       free(cmark_render_man(doc, options, fuzz_config.width));
-      free(cmark_render_xml(doc, options));
 
       cmark_node_free(doc);
     }

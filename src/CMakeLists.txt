@@ -14,18 +14,14 @@ add_library(cmark
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
-  html.c
   inlines.c
   iterator.c
-  latex.c
-  man.c
   node.c
   references.c
   render.c
   scanners.c
   scanners.re
-  utf8.c
-  xml.c)
+  utf8.c)
 cmark_add_compile_options(cmark)
 set_target_properties(cmark PROPERTIES
   MACOSX_RPATH TRUE

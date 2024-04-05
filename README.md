@@ -1,3 +1,7 @@
+cmark-lemmy
+
+A modified version of [cmark](https://github.com/commonmark/cmark) for parsing [Lemmy-flavored markdown](https://join-lemmy.org/docs/users/02-media.html#text).
+
 cmark
 =====
 

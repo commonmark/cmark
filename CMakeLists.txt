@@ -105,12 +105,8 @@ endfunction()
 add_subdirectory(src)
 # TODO(compnerd) should this be enabled for MinGW, which sets CMAKE_SYSTEM_NAME
 # to Windows, but defines `MINGW`.
-if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
-  add_subdirectory(man)
-endif()
 if(BUILD_TESTING)
   add_subdirectory(api_test)
-  add_subdirectory(test testdir)
 endif()
 if(CMARK_LIB_FUZZER)
   add_subdirectory(fuzz)

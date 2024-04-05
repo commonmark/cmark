@@ -33,16 +33,3 @@ cmark_mem DEFAULT_MEM_ALLOCATOR = {xcalloc, xrealloc, free};
 cmark_mem *cmark_get_default_mem_allocator(void) {
   return &DEFAULT_MEM_ALLOCATOR;
 }
-
-
-char *cmark_markdown_to_html(const char *text, size_t len, int options) {
-  cmark_node *doc;
-  char *result;
-
-  doc = cmark_parse_document(text, len, options);
-
-  result = cmark_render_html(doc, options);
-  cmark_node_free(doc);
-
-  return result;
-}

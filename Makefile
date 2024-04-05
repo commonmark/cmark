@@ -25,8 +25,6 @@ AFL_PATH?=/usr/local/bin
 
 .PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl libFuzzer lint
 
-all: cmake_build man/man3/cmark.3
-
 $(CMARK): cmake_build
 
 cmake_build: $(BUILDDIR)
@@ -112,9 +110,6 @@ mingw:
 	cd $(MINGW_BUILDDIR); \
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
 	$(MAKE) && $(MAKE) install
-
-man/man3/cmark.3: src/cmark.h | $(CMARK)
-	python man/make_man_page.py $< > $@ \
 
 archive:
 	git archive --prefix=$(RELEASE)/ -o $(RELEASE).tar.gz HEAD

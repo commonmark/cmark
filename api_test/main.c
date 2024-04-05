@@ -20,17 +20,8 @@ static const cmark_node_type node_types[] = {
     CMARK_NODE_STRONG,    CMARK_NODE_LINK,        CMARK_NODE_IMAGE};
 static const int num_node_types = sizeof(node_types) / sizeof(*node_types);
 
-static void test_md_to_html(test_batch_runner *runner, const char *markdown,
-                            const char *expected_html, const char *msg);
-
 static void test_content(test_batch_runner *runner, cmark_node_type type,
                          int allowed_content);
-
-static void test_char(test_batch_runner *runner, int valid, const char *utf8,
-                      const char *msg);
-
-static void test_incomplete_char(test_batch_runner *runner, const char *utf8,
-                                 const char *msg);
 
 static void test_continuation_byte(test_batch_runner *runner, const char *utf8);
 
@@ -38,39 +29,6 @@ static void version(test_batch_runner *runner) {
   INT_EQ(runner, cmark_version(), CMARK_VERSION, "cmark_version");
   STR_EQ(runner, cmark_version_string(), CMARK_VERSION_STRING,
          "cmark_version_string");
-}
-
-static void constructor(test_batch_runner *runner) {
-  for (int i = 0; i < num_node_types; ++i) {
-    cmark_node_type type = node_types[i];
-    cmark_node *node = cmark_node_new(type);
-    OK(runner, node != NULL, "new type %d", type);
-    INT_EQ(runner, cmark_node_get_type(node), type, "get_type %d", type);
-
-    switch (node->type) {
-    case CMARK_NODE_HEADING:
-      INT_EQ(runner, cmark_node_get_heading_level(node), 1,
-             "default heading level is 1");
-      node->as.heading.level = 1;
-      break;
-
-    case CMARK_NODE_LIST:
-      INT_EQ(runner, cmark_node_get_list_type(node), CMARK_BULLET_LIST,
-             "default is list type is bullet");
-      INT_EQ(runner, cmark_node_get_list_delim(node), CMARK_NO_DELIM,
-             "default is list delim is NO_DELIM");
-      INT_EQ(runner, cmark_node_get_list_start(node), 0,
-             "default is list start is 0");
-      INT_EQ(runner, cmark_node_get_list_tight(node), 0,
-             "default is list is loose");
-      break;
-
-    default:
-      break;
-    }
-
-    cmark_node_free(node);
-  }
 }
 
 static void accessors(test_batch_runner *runner) {
@@ -114,7 +72,6 @@ static void accessors(test_batch_runner *runner) {
   INT_EQ(runner, cmark_node_get_list_start(ordered_list), 2, "get_list_start");
   INT_EQ(runner, cmark_node_get_list_tight(ordered_list), 0,
          "get_list_tight loose");
-
   cmark_node *fenced = cmark_node_next(ordered_list);
   STR_EQ(runner, cmark_node_get_literal(fenced), "fenced\n",
          "get_literal fenced code");
@@ -176,31 +133,6 @@ static void accessors(test_batch_runner *runner) {
   const char *literal = cmark_node_get_literal(string);
   OK(runner, cmark_node_set_literal(string, literal + sizeof("prefix")),
      "set_literal suffix");
-
-  char *rendered_html = cmark_render_html(doc,
-                          CMARK_OPT_DEFAULT | CMARK_OPT_UNSAFE);
-  static const char expected_html[] =
-      "<h3>Header</h3>\n"
-      "<ol start=\"3\">\n"
-      "<li>\n"
-      "<p>Item 1</p>\n"
-      "</li>\n"
-      "<li>\n"
-      "<p>Item 2</p>\n"
-      "</li>\n"
-      "</ol>\n"
-      "<ul>\n"
-      "<li>Item 1</li>\n"
-      "<li>Item 2</li>\n"
-      "</ul>\n"
-      "<pre><code class=\"language-LANG\">FENCED\n"
-      "</code></pre>\n"
-      "<pre><code>CODE\n"
-      "</code></pre>\n"
-      "<div>HTML</div>\n"
-      "<p><a href=\"URL\" title=\"TITLE\">LINK</a></p>\n";
-  STR_EQ(runner, rendered_html, expected_html, "setters work");
-  free(rendered_html);
 
   // Getter errors
 
@@ -315,20 +247,11 @@ static void iterator_delete(test_batch_runner *runner) {
     }
   }
 
-  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
-  static const char expected[] = "<p>a  c</p>\n"
-                                 "<p>a  c</p>\n";
-  STR_EQ(runner, html, expected, "iterate and delete nodes");
-
-  cmark_mem *allocator = cmark_get_default_mem_allocator();
-
-  allocator->free(html);
   cmark_iter_free(iter);
   cmark_node_free(doc);
 }
 
 static void create_tree(test_batch_runner *runner) {
-  char *html;
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
 
   cmark_node *p = cmark_node_new(CMARK_NODE_PARAGRAPH);
@@ -356,10 +279,6 @@ static void create_tree(test_batch_runner *runner) {
   cmark_node_set_literal(str2, "world");
   OK(runner, cmark_node_append_child(emph, str2), "append3");
   INT_EQ(runner, cmark_node_check(doc, NULL), 0, "append3 consistent");
-
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p>Hello, <em>world</em>!</p>\n", "render_html");
-  free(html);
 
   OK(runner, cmark_node_insert_before(str1, str3), "ins before1");
   INT_EQ(runner, cmark_node_check(doc, NULL), 0, "ins before1 consistent");
@@ -393,17 +312,11 @@ static void create_tree(test_batch_runner *runner) {
 
   cmark_node_unlink(emph);
 
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p>brzz!</p>\n", "render_html after shuffling");
-  free(html);
-
   cmark_node_free(doc);
   cmark_node_free(emph);
 }
 
 static void custom_nodes(test_batch_runner *runner) {
-  char *html;
-  char *man;
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
   cmark_node *p = cmark_node_new(CMARK_NODE_PARAGRAPH);
   cmark_node_append_child(doc, p);
@@ -421,16 +334,6 @@ static void custom_nodes(test_batch_runner *runner) {
   // leave on_exit unset
   STR_EQ(runner, cmark_node_get_on_exit(cb), "", "get_on_exit (empty)");
   cmark_node_append_child(doc, cb);
-
-  html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p><ON ENTER|Hello|ON EXIT></p>\n<on enter|\n",
-         "render_html");
-  free(html);
-
-  man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, man, ".PP\n<ON ENTER|Hello|ON EXIT>\n<on enter|\n",
-         "render_man");
-  free(man);
 
   cmark_node_free(doc);
 }
@@ -505,177 +408,6 @@ static void test_content(test_batch_runner *runner, cmark_node_type type,
   cmark_node_free(node);
 }
 
-static void parser(test_batch_runner *runner) {
-  test_md_to_html(runner, "No newline", "<p>No newline</p>\n",
-                  "document without trailing newline");
-}
-
-static void render_html(test_batch_runner *runner) {
-  char *html;
-
-  static const char markdown[] = "foo *bar*\n"
-                                 "\n"
-                                 "paragraph 2\n";
-  cmark_node *doc =
-      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-
-  cmark_node *paragraph = cmark_node_first_child(doc);
-  html = cmark_render_html(paragraph, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p>foo <em>bar</em></p>\n", "render single paragraph");
-  free(html);
-
-  cmark_node *string = cmark_node_first_child(paragraph);
-  html = cmark_render_html(string, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "foo ", "render single inline");
-  free(html);
-
-  cmark_node *emph = cmark_node_next(string);
-  html = cmark_render_html(emph, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<em>bar</em>", "render inline with children");
-  free(html);
-
-  cmark_node_free(doc);
-}
-
-static void render_xml(test_batch_runner *runner) {
-  char *xml;
-
-  static const char markdown[] = "foo *bar*\n"
-                                 "\n"
-                                 "control -\x0C-\n"
-                                 "fffe -\xEF\xBF\xBE-\n"
-                                 "ffff -\xEF\xBF\xBF-\n"
-                                 "escape <>&\"\n"
-                                 "\n"
-                                 "```\ncode\n```\n";
-  cmark_node *doc =
-      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-
-  xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <paragraph>\n"
-                      "    <text xml:space=\"preserve\">foo </text>\n"
-                      "    <emph>\n"
-                      "      <text xml:space=\"preserve\">bar</text>\n"
-                      "    </emph>\n"
-                      "  </paragraph>\n"
-                      "  <paragraph>\n"
-                      "    <text xml:space=\"preserve\">control -" UTF8_REPL "-</text>\n"
-                      "    <softbreak />\n"
-                      "    <text xml:space=\"preserve\">fffe -" UTF8_REPL "-</text>\n"
-                      "    <softbreak />\n"
-                      "    <text xml:space=\"preserve\">ffff -" UTF8_REPL "-</text>\n"
-                      "    <softbreak />\n"
-                      "    <text xml:space=\"preserve\">escape &lt;&gt;&amp;&quot;</text>\n"
-                      "  </paragraph>\n"
-                      "  <code_block xml:space=\"preserve\">code\n"
-                      "</code_block>\n"
-                      "</document>\n",
-         "render document");
-  free(xml);
-  cmark_node *paragraph = cmark_node_first_child(doc);
-  xml = cmark_render_xml(paragraph, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<paragraph sourcepos=\"1:1-1:9\">\n"
-                      "  <text sourcepos=\"1:1-1:4\" xml:space=\"preserve\">foo </text>\n"
-                      "  <emph sourcepos=\"1:5-1:9\">\n"
-                      "    <text sourcepos=\"1:6-1:8\" xml:space=\"preserve\">bar</text>\n"
-                      "  </emph>\n"
-                      "</paragraph>\n",
-         "render first paragraph with source pos");
-  free(xml);
-  cmark_node_free(doc);
-}
-
-static void render_man(test_batch_runner *runner) {
-  char *man;
-
-  static const char markdown[] = "foo *bar*\n"
-                                 "\n"
-                                 "- Lorem ipsum dolor sit amet,\n"
-                                 "  consectetur adipiscing elit,\n"
-                                 "- sed do eiusmod tempor incididunt\n"
-                                 "  ut labore et dolore magna aliqua.\n";
-  cmark_node *doc =
-      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-
-  man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 20);
-  STR_EQ(runner, man, ".PP\n"
-                      "foo \\f[I]bar\\f[]\n"
-                      ".IP \\[bu] 2\n"
-                      "Lorem ipsum dolor\n"
-                      "sit amet,\n"
-                      "consectetur\n"
-                      "adipiscing elit,\n"
-                      ".IP \\[bu] 2\n"
-                      "sed do eiusmod\n"
-                      "tempor incididunt ut\n"
-                      "labore et dolore\n"
-                      "magna aliqua.\n",
-         "render document with wrapping");
-  free(man);
-  man = cmark_render_man(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, man, ".PP\n"
-                      "foo \\f[I]bar\\f[]\n"
-                      ".IP \\[bu] 2\n"
-                      "Lorem ipsum dolor sit amet,\n"
-                      "consectetur adipiscing elit,\n"
-                      ".IP \\[bu] 2\n"
-                      "sed do eiusmod tempor incididunt\n"
-                      "ut labore et dolore magna aliqua.\n",
-         "render document without wrapping");
-  free(man);
-  cmark_node_free(doc);
-}
-
-static void render_latex(test_batch_runner *runner) {
-  char *latex;
-
-  static const char markdown[] = "foo *bar* $%\n"
-                                 "\n"
-                                 "- Lorem ipsum dolor sit amet,\n"
-                                 "  consectetur adipiscing elit,\n"
-                                 "- sed do eiusmod tempor incididunt\n"
-                                 "  ut labore et dolore magna aliqua.\n";
-  cmark_node *doc =
-      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-
-  latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 20);
-  STR_EQ(runner, latex, "foo \\emph{bar} \\$\\%\n"
-                        "\n"
-                        "\\begin{itemize}\n"
-                        "\\item Lorem ipsum\n"
-                        "dolor sit amet,\n"
-                        "consectetur\n"
-                        "adipiscing elit,\n"
-                        "\n"
-                        "\\item sed do eiusmod\n"
-                        "tempor incididunt ut\n"
-                        "labore et dolore\n"
-                        "magna aliqua.\n"
-                        "\n"
-                        "\\end{itemize}\n",
-         "render document with wrapping");
-  free(latex);
-  latex = cmark_render_latex(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, latex, "foo \\emph{bar} \\$\\%\n"
-                        "\n"
-                        "\\begin{itemize}\n"
-                        "\\item Lorem ipsum dolor sit amet,\n"
-                        "consectetur adipiscing elit,\n"
-                        "\n"
-                        "\\item sed do eiusmod tempor incididunt\n"
-                        "ut labore et dolore magna aliqua.\n"
-                        "\n"
-                        "\\end{itemize}\n",
-         "render document without wrapping");
-  free(latex);
-  cmark_node_free(doc);
-}
-
 static void render_commonmark(test_batch_runner *runner) {
   char *commonmark;
 
@@ -721,74 +453,10 @@ static void render_commonmark(test_batch_runner *runner) {
 }
 
 static void utf8(test_batch_runner *runner) {
-  // Ranges
-  test_char(runner, 1, "\x01", "valid utf8 01");
-  test_char(runner, 1, "\x7F", "valid utf8 7F");
-  test_char(runner, 0, "\x80", "invalid utf8 80");
-  test_char(runner, 0, "\xBF", "invalid utf8 BF");
-  test_char(runner, 0, "\xC0\x80", "invalid utf8 C080");
-  test_char(runner, 0, "\xC1\xBF", "invalid utf8 C1BF");
-  test_char(runner, 1, "\xC2\x80", "valid utf8 C280");
-  test_char(runner, 1, "\xDF\xBF", "valid utf8 DFBF");
-  test_char(runner, 0, "\xE0\x80\x80", "invalid utf8 E08080");
-  test_char(runner, 0, "\xE0\x9F\xBF", "invalid utf8 E09FBF");
-  test_char(runner, 1, "\xE0\xA0\x80", "valid utf8 E0A080");
-  test_char(runner, 1, "\xED\x9F\xBF", "valid utf8 ED9FBF");
-  test_char(runner, 0, "\xED\xA0\x80", "invalid utf8 EDA080");
-  test_char(runner, 0, "\xED\xBF\xBF", "invalid utf8 EDBFBF");
-  test_char(runner, 0, "\xF0\x80\x80\x80", "invalid utf8 F0808080");
-  test_char(runner, 0, "\xF0\x8F\xBF\xBF", "invalid utf8 F08FBFBF");
-  test_char(runner, 1, "\xF0\x90\x80\x80", "valid utf8 F0908080");
-  test_char(runner, 1, "\xF4\x8F\xBF\xBF", "valid utf8 F48FBFBF");
-  test_char(runner, 0, "\xF4\x90\x80\x80", "invalid utf8 F4908080");
-  test_char(runner, 0, "\xF7\xBF\xBF\xBF", "invalid utf8 F7BFBFBF");
-  test_char(runner, 0, "\xF8", "invalid utf8 F8");
-  test_char(runner, 0, "\xFF", "invalid utf8 FF");
-
-  // Incomplete byte sequences at end of input
-  test_incomplete_char(runner, "\xE0\xA0", "invalid utf8 E0A0");
-  test_incomplete_char(runner, "\xF0\x90\x80", "invalid utf8 F09080");
-
   // Invalid continuation bytes
   test_continuation_byte(runner, "\xC2\x80");
   test_continuation_byte(runner, "\xE0\xA0\x80");
   test_continuation_byte(runner, "\xF0\x90\x80\x80");
-
-  // Test string containing null character
-  static const char string_with_null[] = "((((\0))))";
-  char *html = cmark_markdown_to_html(
-      string_with_null, sizeof(string_with_null) - 1, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<p>((((" UTF8_REPL "))))</p>\n", "utf8 with U+0000");
-  free(html);
-
-  // Test NUL followed by newline
-  static const char string_with_nul_lf[] = "```\n\0\n```\n";
-  html = cmark_markdown_to_html(
-      string_with_nul_lf, sizeof(string_with_nul_lf) - 1, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<pre><code>\xef\xbf\xbd\n</code></pre>\n",
-         "utf8 with \\0\\n");
-  free(html);
-}
-
-static void test_char(test_batch_runner *runner, int valid, const char *utf8,
-                      const char *msg) {
-  char buf[20];
-  sprintf(buf, "((((%s))))", utf8);
-
-  if (valid) {
-    char expected[30];
-    sprintf(expected, "<p>((((%s))))</p>\n", utf8);
-    test_md_to_html(runner, buf, expected, msg);
-  } else {
-    test_md_to_html(runner, buf, "<p>((((" UTF8_REPL "))))</p>\n", msg);
-  }
-}
-
-static void test_incomplete_char(test_batch_runner *runner, const char *utf8,
-                                 const char *msg) {
-  char buf[20];
-  sprintf(buf, "----%s", utf8);
-  test_md_to_html(runner, buf, "<p>----" UTF8_REPL "</p>\n", msg);
 }
 
 static void test_continuation_byte(test_batch_runner *runner,
@@ -806,98 +474,7 @@ static void test_continuation_byte(test_batch_runner *runner,
       strcat(expected, UTF8_REPL);
     }
     strcat(expected, "))))</p>\n");
-
-    char *html =
-        cmark_markdown_to_html(buf, strlen(buf), CMARK_OPT_VALIDATE_UTF8);
-    STR_EQ(runner, html, expected, "invalid utf8 continuation byte %d/%d", pos,
-           len);
-    free(html);
   }
-}
-
-static void line_endings(test_batch_runner *runner) {
-  // Test list with different line endings
-  static const char list_with_endings[] = "- a\n- b\r\n- c\r- d";
-  char *html = cmark_markdown_to_html(
-      list_with_endings, sizeof(list_with_endings) - 1, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html,
-         "<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n<li>d</li>\n</ul>\n",
-         "list with different line endings");
-  free(html);
-
-  static const char crlf_lines[] = "line\r\nline\r\n";
-  html = cmark_markdown_to_html(crlf_lines, sizeof(crlf_lines) - 1,
-                                CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS);
-  STR_EQ(runner, html, "<p>line<br />\nline</p>\n",
-         "crlf endings with CMARK_OPT_HARDBREAKS");
-  free(html);
-  html = cmark_markdown_to_html(crlf_lines, sizeof(crlf_lines) - 1,
-                                CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS);
-  STR_EQ(runner, html, "<p>line line</p>\n",
-         "crlf endings with CMARK_OPT_NOBREAKS");
-  free(html);
-
-  static const char no_line_ending[] = "```\nline\n```";
-  html = cmark_markdown_to_html(no_line_ending, sizeof(no_line_ending) - 1,
-                                CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<pre><code>line\n</code></pre>\n",
-         "fenced code block with no final newline");
-  free(html);
-}
-
-static void numeric_entities(test_batch_runner *runner) {
-  test_md_to_html(runner, "&#0;", "<p>" UTF8_REPL "</p>\n",
-                  "Invalid numeric entity 0");
-  test_md_to_html(runner, "&#55295;", "<p>\xED\x9F\xBF</p>\n",
-                  "Valid numeric entity 0xD7FF");
-  test_md_to_html(runner, "&#xD800;", "<p>" UTF8_REPL "</p>\n",
-                  "Invalid numeric entity 0xD800");
-  test_md_to_html(runner, "&#xDFFF;", "<p>" UTF8_REPL "</p>\n",
-                  "Invalid numeric entity 0xDFFF");
-  test_md_to_html(runner, "&#57344;", "<p>\xEE\x80\x80</p>\n",
-                  "Valid numeric entity 0xE000");
-  test_md_to_html(runner, "&#x10FFFF;", "<p>\xF4\x8F\xBF\xBF</p>\n",
-                  "Valid numeric entity 0x10FFFF");
-  test_md_to_html(runner, "&#x110000;", "<p>" UTF8_REPL "</p>\n",
-                  "Invalid numeric entity 0x110000");
-  test_md_to_html(runner, "&#x80000000;", "<p>&amp;#x80000000;</p>\n",
-                  "Invalid numeric entity 0x80000000");
-  test_md_to_html(runner, "&#xFFFFFFFF;", "<p>&amp;#xFFFFFFFF;</p>\n",
-                  "Invalid numeric entity 0xFFFFFFFF");
-  test_md_to_html(runner, "&#99999999;", "<p>&amp;#99999999;</p>\n",
-                  "Invalid numeric entity 99999999");
-
-  test_md_to_html(runner, "&#;", "<p>&amp;#;</p>\n",
-                  "Min decimal entity length");
-  test_md_to_html(runner, "&#x;", "<p>&amp;#x;</p>\n",
-                  "Min hexadecimal entity length");
-  test_md_to_html(runner, "&#999999999;", "<p>&amp;#999999999;</p>\n",
-                  "Max decimal entity length");
-  test_md_to_html(runner, "&#x000000041;", "<p>&amp;#x000000041;</p>\n",
-                  "Max hexadecimal entity length");
-}
-
-static void test_safe(test_batch_runner *runner) {
-  // Test safe mode
-  static const char raw_html[] = "<div>\nhi\n</div>\n\n<a>hi</"
-                                 "a>\n[link](JAVAscript:alert('hi'))\n![image]("
-                                 "file:my.js)\n";
-  char *html = cmark_markdown_to_html(raw_html, sizeof(raw_html) - 1,
-                                      CMARK_OPT_DEFAULT);
-  STR_EQ(runner, html, "<!-- raw HTML omitted -->\n<p><!-- raw HTML omitted "
-                       "-->hi<!-- raw HTML omitted -->\n<a "
-                       "href=\"\">link</a>\n<img src=\"\" alt=\"image\" "
-                       "/></p>\n",
-         "input with raw HTML and dangerous links");
-  free(html);
-}
-
-static void test_md_to_html(test_batch_runner *runner, const char *markdown,
-                            const char *expected_html, const char *msg) {
-  char *html = cmark_markdown_to_html(markdown, strlen(markdown),
-                                      CMARK_OPT_VALIDATE_UTF8);
-  STR_EQ(runner, html, expected_html, msg);
-  free(html);
 }
 
 static void test_feed_across_line_ending(test_batch_runner *runner) {
@@ -944,32 +521,6 @@ static void sub_document(test_batch_runner *runner) {
     cmark_parser_free(parser);
   }
 
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <list type=\"bullet\" tight=\"false\">\n"
-                      "    <item>\n"
-                      "      <paragraph>\n"
-                      "        <text xml:space=\"preserve\">Hello “ </text>\n"
-                      "        <link destination=\"http://www.google.com\">\n"
-                      "          <text xml:space=\"preserve\">http://www.google.com</text>\n"
-                      "        </link>\n"
-                      "      </paragraph>\n"
-                      "    </item>\n"
-                      "    <item>\n"
-                      "      <paragraph>\n"
-                      "        <text xml:space=\"preserve\">Bye “ </text>\n"
-                      "        <link destination=\"http://www.geocities.com\">\n"
-                      "          <text xml:space=\"preserve\">http://www.geocities.com</text>\n"
-                      "        </link>\n"
-                      "      </paragraph>\n"
-                      "    </item>\n"
-                      "  </list>\n"
-                      "</document>\n",
-         "nested document XML is as expected");
-  free(xml);
-
   char *cmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
   STR_EQ(runner, cmark, "  - Hello “ <http://www.google.com>\n"
                         "\n"
@@ -980,168 +531,11 @@ static void sub_document(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
-static void source_pos(test_batch_runner *runner) {
-  static const char markdown[] =
-    "# Hi *there*.\n"
-    "\n"
-    "Hello &ldquo; <http://www.google.com>\n"
-    "there `hi` -- [okay](www.google.com (ok)).\n"
-    "\n"
-    "> 1. Okay.\n"
-    ">    Sure.\n"
-    ">\n"
-    "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
-
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
-                      "    <text sourcepos=\"1:3-1:5\" xml:space=\"preserve\">Hi </text>\n"
-                      "    <emph sourcepos=\"1:6-1:12\">\n"
-                      "      <text sourcepos=\"1:7-1:11\" xml:space=\"preserve\">there</text>\n"
-                      "    </emph>\n"
-                      "    <text sourcepos=\"1:13-1:13\" xml:space=\"preserve\">.</text>\n"
-                      "  </heading>\n"
-                      "  <paragraph sourcepos=\"3:1-4:42\">\n"
-                      "    <text sourcepos=\"3:1-3:14\" xml:space=\"preserve\">Hello “ </text>\n"
-                      "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\">\n"
-                      "      <text sourcepos=\"3:16-3:36\" xml:space=\"preserve\">http://www.google.com</text>\n"
-                      "    </link>\n"
-                      "    <softbreak />\n"
-                      "    <text sourcepos=\"4:1-4:6\" xml:space=\"preserve\">there </text>\n"
-                      "    <code sourcepos=\"4:8-4:9\" xml:space=\"preserve\">hi</code>\n"
-                      "    <text sourcepos=\"4:11-4:14\" xml:space=\"preserve\"> -- </text>\n"
-                      "    <link sourcepos=\"4:15-4:41\" destination=\"www.google.com\" title=\"ok\">\n"
-                      "      <text sourcepos=\"4:16-4:19\" xml:space=\"preserve\">okay</text>\n"
-                      "    </link>\n"
-                      "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
-                      "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
-                      "      <item sourcepos=\"6:3-8:1\">\n"
-                      "        <paragraph sourcepos=\"6:6-7:10\">\n"
-                      "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "      <item sourcepos=\"9:3-10:20\">\n"
-                      "        <paragraph sourcepos=\"9:6-10:20\">\n"
-                      "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
-                      "          <softbreak />\n"
-                      "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
-                      "            <text sourcepos=\"10:8-10:9\" xml:space=\"preserve\">ok</text>\n"
-                      "          </image>\n"
-                      "        </paragraph>\n"
-                      "      </item>\n"
-                      "    </list>\n"
-                      "  </block_quote>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
-}
-
-static void source_pos_inlines(test_batch_runner *runner) {
-  {
-    static const char markdown[] =
-      "*first*\n"
-      "second\n";
-
-    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                        "<document sourcepos=\"1:1-2:6\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                        "  <paragraph sourcepos=\"1:1-2:6\">\n"
-                        "    <emph sourcepos=\"1:1-1:7\">\n"
-                        "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
-                        "    </emph>\n"
-                        "    <softbreak />\n"
-                        "    <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
-                        "  </paragraph>\n"
-                        "</document>\n",
-                        "sourcepos are as expected");
-    free(xml);
-    cmark_node_free(doc);
-  }
-  {
-    static const char markdown[] =
-      "*first\n"
-      "second*\n";
-
-    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                        "<document sourcepos=\"1:1-2:7\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                        "  <paragraph sourcepos=\"1:1-2:7\">\n"
-                        "    <emph sourcepos=\"1:1-2:7\">\n"
-                        "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
-                        "      <softbreak />\n"
-                        "      <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
-                        "    </emph>\n"
-                        "  </paragraph>\n"
-                        "</document>\n",
-                        "sourcepos are as expected");
-    free(xml);
-    cmark_node_free(doc);
-  }
-  {
-    static const char markdown[] =
-      "` It is one backtick\n"
-      "`` They are two backticks\n";
-
-    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                        "<document sourcepos=\"1:1-2:25\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                        "  <paragraph sourcepos=\"1:1-2:25\">\n"
-                        "    <text sourcepos=\"1:1-1:20\" xml:space=\"preserve\">` It is one backtick</text>\n"
-                        "    <softbreak />\n"
-                        "    <text sourcepos=\"2:1-2:25\" xml:space=\"preserve\">`` They are two backticks</text>\n"
-                        "  </paragraph>\n"
-                        "</document>\n",
-                        "sourcepos are as expected");
-    free(xml);
-    cmark_node_free(doc);
-  }
-}
-
-static void ref_source_pos(test_batch_runner *runner) {
-  static const char markdown[] =
-    "Let's try [reference] links.\n"
-    "\n"
-    "[reference]: https://github.com (GitHub)\n";
-
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
-  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
-  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-3:40\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <paragraph sourcepos=\"1:1-1:28\">\n"
-                      "    <text sourcepos=\"1:1-1:10\" xml:space=\"preserve\">Let's try </text>\n"
-                      "    <link sourcepos=\"1:11-1:21\" destination=\"https://github.com\" title=\"GitHub\">\n"
-                      "      <text sourcepos=\"1:12-1:20\" xml:space=\"preserve\">reference</text>\n"
-                      "    </link>\n"
-                      "    <text sourcepos=\"1:22-1:28\" xml:space=\"preserve\"> links.</text>\n"
-                      "  </paragraph>\n"
-                      "</document>\n",
-         "sourcepos are as expected");
-  free(xml);
-  cmark_node_free(doc);
-}
-
 int main(void) {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
 
   version(runner);
-  constructor(runner);
   accessors(runner);
   free_parent(runner);
   node_check(runner);
@@ -1150,22 +544,11 @@ int main(void) {
   create_tree(runner);
   custom_nodes(runner);
   hierarchy(runner);
-  parser(runner);
-  render_html(runner);
-  render_xml(runner);
-  render_man(runner);
-  render_latex(runner);
   render_commonmark(runner);
   utf8(runner);
-  line_endings(runner);
-  numeric_entities(runner);
   test_cplusplus(runner);
-  test_safe(runner);
   test_feed_across_line_ending(runner);
   sub_document(runner);
-  source_pos(runner);
-  source_pos_inlines(runner);
-  ref_source_pos(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

@@ -19,14 +19,6 @@ extern "C" {
  * ## Simple Interface
  */
 
-/** Convert 'text' (assumed to be a UTF-8 encoded string with length
- * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
- * UTF-8-encoded string. It is the caller's responsibility
- * to free the returned buffer.
- */
-CMARK_EXPORT
-char *cmark_markdown_to_html(const char *text, size_t len, int options);
-
 /** ## Node Structure
  */
 
@@ -533,40 +525,11 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
 
-/**
- * ## Rendering
- */
-
-/** Render a 'node' tree as XML.  It is the caller's responsibility
- * to free the returned buffer.
- */
-CMARK_EXPORT
-char *cmark_render_xml(cmark_node *root, int options);
-
-/** Render a 'node' tree as an HTML fragment.  It is up to the user
- * to add an appropriate header and footer. It is the caller's
- * responsibility to free the returned buffer.
- */
-CMARK_EXPORT
-char *cmark_render_html(cmark_node *root, int options);
-
-/** Render a 'node' tree as a groff man page, without the header.
- * It is the caller's responsibility to free the returned buffer.
- */
-CMARK_EXPORT
-char *cmark_render_man(cmark_node *root, int options, int width);
-
 /** Render a 'node' tree as a commonmark document.
  * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
-
-/** Render a 'node' tree as a LaTeX document.
- * It is the caller's responsibility to free the returned buffer.
- */
-CMARK_EXPORT
-char *cmark_render_latex(cmark_node *root, int options, int width);
 
 /**
  * ## Options
