@@ -4,7 +4,7 @@
 # Will work with either python 2 or python 3
 # Requires cmark library to be installed
 
-from ctypes import CDLL, c_char_p, c_long
+from ctypes import *
 import sys
 import platform
 
@@ -18,20 +18,26 @@ else:
     libname = "libcmark.so"
 cmark = CDLL(libname)
 
+class cmark_mem(Structure):
+    _fields_ = [("calloc", c_void_p),
+                ("realloc", c_void_p),
+                ("free", CFUNCTYPE(None, c_void_p))]
+
+get_alloc = cmark.cmark_get_default_mem_allocator
+get_alloc.restype = POINTER(cmark_mem)
+free_func = get_alloc().contents.free
+
 markdown = cmark.cmark_markdown_to_html
-markdown.restype = c_char_p
-markdown.argtypes = [c_char_p, c_long, c_long]
+markdown.restype = POINTER(c_char)
+markdown.argtypes = [c_char_p, c_size_t, c_int]
 
 opts = 0 # defaults
 
 def md2html(text):
-    if sys.version_info >= (3,0):
-        textbytes = text.encode('utf-8')
-        textlen = len(textbytes)
-        return markdown(textbytes, textlen, opts).decode('utf-8')
-    else:
-        textbytes = text
-        textlen = len(text)
-        return markdown(textbytes, textlen, opts)
+    text = text.encode('utf-8')
+    cstring = markdown(text, len(text), opts)
+    result = string_at(cstring).decode('utf-8')
+    free_func(cstring)
+    return result
 
 sys.stdout.write(md2html(sys.stdin.read()))
