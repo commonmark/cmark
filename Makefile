@@ -89,10 +89,12 @@ afl:
 	    $(CMARK) $(CMARK_OPTS)
 
 libFuzzer:
-	CC=clang CXX=clang++ \
-	CFLAGS=-fsanitize=address LDFLAGS=-fsanitize=address \
-	    cmake -S . -B $(BUILDDIR) \
-	        -DCMARK_LIB_FUZZER=ON
+	cmake \
+	    -S . -B $(BUILDDIR) \
+	    -DCMAKE_C_COMPILER=clang \
+	    -DCMAKE_CXX_COMPILER=clang++ \
+	    -DCMAKE_BUILD_TYPE=Asan \
+	    -DCMARK_LIB_FUZZER=ON
 	cmake --build $(BUILDDIR)
 	mkdir -p fuzz/corpus
 	$(BUILDDIR)/fuzz/cmark-fuzz \
