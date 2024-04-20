@@ -11,7 +11,7 @@ project(cmark
   LANGUAGES C CXX
   VERSION 0.31.0)
 
-if(CMAKE_BUILD_TYPE MATCHES "asan|ubsan")
+if(CMAKE_BUILD_TYPE STREQUAL Asan)
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
   include(FindAsan)
 endif()
@@ -85,10 +85,10 @@ function(cmark_add_compile_options target)
             -Wall -Wextra -pedantic
             $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>)
   endif()
-  if(CMAKE_BUILD_TYPE MATCHES profile)
+  if(CMAKE_BUILD_TYPE STREQUAL Profile)
     target_compile_options(${target} PRIVATE -pg)
   endif()
-  if(CMAKE_BUILD_TYPE MATCHES ubsan)
+  if(CMAKE_BUILD_TYPE STREQUAL Ubsan)
     target_compile_options(${target} PRIVATE -fsanitize=undefined)
   endif()
   if(CMARK_LIB_FUZZER)
