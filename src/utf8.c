@@ -199,12 +199,6 @@ void cmark_utf8proc_encode_char(int32_t uc, cmark_strbuf *buf) {
     dst[0] = (uint8_t)(0xC0 + (uc >> 6));
     dst[1] = 0x80 + (uc & 0x3F);
     len = 2;
-  } else if (uc == 0xFFFF) {
-    dst[0] = 0xFF;
-    len = 1;
-  } else if (uc == 0xFFFE) {
-    dst[0] = 0xFE;
-    len = 1;
   } else if (uc < 0x10000) {
     dst[0] = (uint8_t)(0xE0 + (uc >> 12));
     dst[1] = 0x80 + ((uc >> 6) & 0x3F);
