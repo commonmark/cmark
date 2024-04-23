@@ -275,3 +275,10 @@ Case fold test
 .
 <p><a href="/url">link</a></p>
 ````````````````````````````````
+
+https://github.com/commonmark/cmark/issues/548
+```````````````````````````````` example
+(&#xFFFE;&#xFFFF;)
+.
+<p>(￾￿)</p>
+````````````````````````````````
