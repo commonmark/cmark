@@ -69,6 +69,21 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+if (DEFINED CMAKE_INSTALL_RPATH)
+  set(Base_rpath "${CMAKE_INSTALL_RPATH}")
+else()
+  if(BUILD_SHARED_LIBS)
+    set(p "${CMAKE_INSTALL_FULL_LIBDIR}")
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${p}" i)
+    if("${i}" STREQUAL "-1")
+      set(Base_rpath "${p}")
+    endif()
+  endif()
+endif()
+
+# Append non-standard external dependency directories, if any.
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # Check integrity of node structure when compiled as debug
 add_compile_options($<$<CONFIG:Debug>:-DCMARK_DEBUG_NODES>)
 

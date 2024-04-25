@@ -55,7 +55,8 @@ add_executable(cmark_exe
   main.c)
 cmark_add_compile_options(cmark_exe)
 set_target_properties(cmark_exe PROPERTIES
-  OUTPUT_NAME "cmark")
+  OUTPUT_NAME "cmark"
+  INSTALL_RPATH "${Base_rpath}")
 target_link_libraries(cmark_exe PRIVATE
   cmark)
 
