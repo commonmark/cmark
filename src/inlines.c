@@ -462,13 +462,17 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     after_char = 10;
   }
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
-                  (!cmark_utf8proc_is_punctuation_or_symbol(after_char) ||
+                  ((!cmark_utf8proc_is_punctuation_or_symbol(after_char) ||
                    cmark_utf8proc_is_space(before_char) ||
-                   cmark_utf8proc_is_punctuation_or_symbol(before_char));
+                    cmark_utf8proc_is_punctuation_or_symbol(before_char)) ||
+                   (cmark_utf8proc_is_CJK(before_char) ||
+                    cmark_utf8proc_is_CJK(after_char)));
   right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
-                   (!cmark_utf8proc_is_punctuation_or_symbol(before_char) ||
-                    cmark_utf8proc_is_space(after_char) ||
-                    cmark_utf8proc_is_punctuation_or_symbol(after_char));
+                   ((!cmark_utf8proc_is_punctuation_or_symbol(before_char)
+                     || cmark_utf8proc_is_space(after_char) ||
+                     cmark_utf8proc_is_punctuation_or_symbol(after_char)) ||
+                    (cmark_utf8proc_is_CJK(before_char) ||
+                     cmark_utf8proc_is_CJK(after_char)));
   if (c == '_') {
     *can_open = left_flanking &&
                 (!right_flanking ||
