@@ -426,3 +426,24 @@ int cmark_utf8proc_is_punctuation_or_symbol(int32_t uc) {
          (uc >= 129940 && uc <= 129994)));
   }
 }
+
+// matches anything in
+// CJK Unified Ideographs Basic Block: U+4E00 - U+9FFF
+// CJK Unified Ideographs Extension A: U+3400 - U+4DBF
+// CJK Unified Ideographs Extension B: U+20000 - U+2A6DF
+// CJK Unified Ideographs Extension C: U+2A700 - U+2B73F
+// CJK Unified Ideographs Extension D: U+2B740 - U+2B81F
+// CJK Compatibility Ideographs: U+F900 - U+FAFF
+// CJK Compatibility Ideographs Supplement: U+2F800 - U+2FA1F
+int cmark_utf8proc_is_CJK(int32_t uc) {
+  if (uc < 0x4e00) {
+    return 0;
+  } else {
+    return ( (uc >= 0x4e00 && uc <= 0x9fff) ||
+             (uc >= 0x3400 && uc <= 0x4dbf) ||
+             (uc >= 0xf900 && uc <= 0xfaff) ||
+             (uc >= 0x20000 && uc <= 0x2a6df) ||
+             (uc >= 0x2a700 && uc <= 0x2b81f) ||
+             (uc >= 0x2f800 && uc <= 0x2fa1f) );
+  }
+}
