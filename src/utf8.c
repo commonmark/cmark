@@ -439,11 +439,38 @@ int cmark_utf8proc_is_CJK(int32_t uc) {
   if (uc < 0x4e00) {
     return 0;
   } else {
-    return ( (uc >= 0x4e00 && uc <= 0x9fff) ||
-             (uc >= 0x3400 && uc <= 0x4dbf) ||
-             (uc >= 0xf900 && uc <= 0xfaff) ||
-             (uc >= 0x20000 && uc <= 0x2a6df) ||
-             (uc >= 0x2a700 && uc <= 0x2b81f) ||
-             (uc >= 0x2f800 && uc <= 0x2fa1f) );
+    return (
+          (uc >= 0x2e80 && uc <= 0x2eff) // CJK Radicals Supplement
+       || (uc >= 0x2f00 && uc <= 0x2fdf) // Kangxi Radicals
+       || (uc >= 0x2ff0 && uc <= 0x2fff) // Ideographic Description Characters
+       || (uc >= 0x3000 && uc <= 0x303f) // JK Symbols and Punctuation
+       || (uc >= 0x3040 && uc <= 0x309f) // Hiragana
+       || (uc >= 0x30a0 && uc <= 0x30ff) // Katakana
+       || (uc >= 0x3100 && uc <= 0x312f) // Bopomofo
+       || (uc >= 0x3130 && uc <= 0x318f) // Kanbun
+       || (uc >= 0x3190 && uc <= 0x319f) // Kanbun
+       || (uc >= 0x31c0 && uc <= 0x31ef) // CJK Strokes
+       || (uc >= 0x31f0 && uc <= 0x31ff) // Katakana Phonetic Extensions
+       || (uc >= 0x3200 && uc <= 0x32ff) // Enclosed CJK Letters & Months
+       || (uc >= 0x3300 && uc <= 0x33ff) // CJK Compatibility
+       || (uc >= 0x3400 && uc <= 0x4dbf) // CJK Unified Ideographs Extension A
+       || (uc >= 0x4e00 && uc <= 0x9fff) // CJK Unified Ideographs
+       || (uc >= 0xa000 && uc <= 0xa48f) // Yi Syllables
+       || (uc >= 0xa490 && uc <= 0xa4cf) // Yi Radicals
+       || (uc >= 0xf900 && uc <= 0xfaff) // CJK Compatibility Ideographs
+       || (uc >= 0xfe10 && uc <= 0xfe1f) // Vertical forms
+       || (uc >= 0xfe30 && uc <= 0xfe4f) // CJK Compatibility Forms
+       || (uc >= 0xFE50 && uc <= 0xFE6F) // Small Form Variants
+       || (uc >= 0xFF00 && uc <= 0xFFEE) // Halfwidth and Fullwidth Forms
+       || (uc >= 0x1B000 && uc <= 0x1B0FF) // Kana Supplement
+       || (uc >= 0x1B100 && uc <= 0x1B12F) // Kana Extended-A
+       || (uc >= 0x1B130 && uc <= 0x1B16F) // Small Kana Extension
+       || (uc >= 0x20000 && uc <= 0x2A6DF) // CJK Unified Ideographs Extension B
+       || (uc >= 0x2A700 && uc <= 0x2B73F) // CJK Unified Ideographs Extension C
+       || (uc >= 0x2B740 && uc <= 0x2B81F) // CJK Unified Ideographs Extension D
+       || (uc >= 0x2B820 && uc <= 0x2CEAF) // CJK Unified Ideographs Extension E
+       || (uc >= 0x2CEB0 && uc <= 0x2EBEF) // CJK Unified Ideographs Extension F
+       || (uc >= 0x2F800 && uc <= 0x2FA1F) // CJK Compatibility Ideographs Supp
+       || (uc >= 0x30000 && uc <= 0x3134F)); // CJK Unified Ideographs Exten
   }
 }
