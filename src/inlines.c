@@ -444,6 +444,18 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     if (len == -1) {
       before_char = 10;
     }
+    if (before_char >= 0xfe00 && before_char <= 0xfe02) {
+      // standard variation selector, go back one more code point:
+      while (peek_at(subj, before_char_pos) >> 6 == 2 &&
+             before_char_pos > 0) {
+        before_char_pos -= 1;
+      }
+      len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
+                                   subj->pos - before_char_pos, &before_char);
+      if (len == -1) {
+        before_char = 10;
+      }
+    }
   }
 
   if (c == '\'' || c == '"') {
