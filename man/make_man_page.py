@@ -47,19 +47,19 @@ def md2man(text):
         textlen = len(text)
         return render_man(parse_document(textbytes, textlen), 0, 72)
 
-comment_start_re = re.compile('^\/\*\* ?')
-comment_delim_re = re.compile('^[/ ]\** ?')
-comment_end_re = re.compile('^ \**\/')
-function_re = re.compile('^ *(?:CMARK_EXPORT\s+)?(?P<type>(?:const\s+)?\w+(?:\s*[*])?)\s*(?P<name>\w+)\s*\((?P<args>[^)]*)\)')
-blank_re = re.compile('^\s*$')
-macro_re = re.compile('CMARK_EXPORT *')
-typedef_start_re = re.compile('typedef.*{$')
-typedef_end_re = re.compile('}')
-single_quote_re = re.compile("(?<!\w)'([^']+)'(?!\w)")
-double_quote_re = re.compile("(?<!\w)''([^']+)''(?!\w)")
+comment_start_re = re.compile(r'^\/\*\* ?')
+comment_delim_re = re.compile(r'^[/ ]\** ?')
+comment_end_re = re.compile(r'^ \**\/')
+function_re = re.compile(r'^ *(?:CMARK_EXPORT\s+)?(?P<type>(?:const\s+)?\w+(?:\s*[*])?)\s*(?P<name>\w+)\s*\((?P<args>[^)]*)\)')
+blank_re = re.compile(r'^\s*$')
+macro_re = re.compile(r'CMARK_EXPORT *')
+typedef_start_re = re.compile(r'typedef.*{$')
+typedef_end_re = re.compile(r'}')
+single_quote_re = re.compile(r"(?<!\w)'([^']+)'(?!\w)")
+double_quote_re = re.compile(r"(?<!\w)''([^']+)''(?!\w)")
 
 def handle_quotes(s):
-    return re.sub(double_quote_re, '**\g<1>**', re.sub(single_quote_re, '*\g<1>*', s))
+    return re.sub(double_quote_re, r'**\g<1>**', re.sub(single_quote_re, r'*\g<1>*', s))
 
 typedef = False
 mdlines = []
