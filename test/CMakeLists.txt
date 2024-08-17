@@ -63,6 +63,12 @@ IF (Python3_Interpreter_FOUND)
                                                          --spec "${CMAKE_CURRENT_SOURCE_DIR}/regression.txt"
                                                          --program "$<TARGET_FILE:cmark_exe>")
 
+  add_test(NAME cjkemphasistest_executable
+           COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/spec_tests.py"
+                                                         --no-normalize
+                                                         --spec "${CMAKE_CURRENT_SOURCE_DIR}/cjkemphasis.txt"
+                                                         --program "$<TARGET_FILE:cmark_exe>")
+
 ELSE(Python3_Interpreter_FOUND)
 
   message(WARNING "A Python 3 Interpreter is required to run the spec tests")
