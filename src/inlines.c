@@ -444,8 +444,10 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     if (len == -1) {
       before_char = 10;
     }
-    if (before_char >= 0xfe00 && before_char <= 0xfe02) {
+    if ((before_char >> 4) == 0xfe0 && ((before_char >= 0xfe00 && before_char <= 0xfe02) || before_char == 0xfe0e)) {
       // standard variation selector, go back one more code point:
+      //   U+FE00..U+FE02: can follow a ideograph
+      //   U+FE0E: forces the previous character to be rendered as not emoji but text (e.g. U+303D, U+3297)
       before_char_pos -= 1;
       while (peek_at(subj, before_char_pos) >> 6 == 2 &&
              before_char_pos > 0) {
