@@ -770,8 +770,10 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   closer_num_chars -= use_delims;
   opener_inl->len = opener_num_chars;
   opener_inl->data[opener_num_chars] = 0;
+  opener_inl->end_column -= use_delims;
   closer_inl->len = closer_num_chars;
   closer_inl->data[closer_num_chars] = 0;
+  closer_inl->start_column += use_delims;
 
   // free delimiters between opener and closer
   delim = closer->previous;
@@ -809,8 +811,8 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 
   emph->start_line = opener_inl->start_line;
   emph->end_line = closer_inl->end_line;
-  emph->start_column = opener_inl->start_column;
-  emph->end_column = closer_inl->end_column;
+  emph->start_column = opener_inl->start_column + opener_inl->len;
+  emph->end_column = closer_inl->end_column - closer_inl->len;
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
