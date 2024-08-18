@@ -982,7 +982,7 @@ static void sub_document(test_batch_runner *runner) {
 
 static void source_pos(test_batch_runner *runner) {
   static const char markdown[] =
-    "# Hi *there*.\n"
+    "# Hi **there*.\n"
     "\n"
     "Hello &ldquo; <http://www.google.com>\n"
     "there `hi` -- [okay](www.google.com (ok)).\n"
@@ -998,12 +998,12 @@ static void source_pos(test_batch_runner *runner) {
   STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                       "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
                       "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                      "  <heading sourcepos=\"1:1-1:13\" level=\"1\">\n"
-                      "    <text sourcepos=\"1:3-1:5\" xml:space=\"preserve\">Hi </text>\n"
-                      "    <emph sourcepos=\"1:6-1:12\">\n"
-                      "      <text sourcepos=\"1:7-1:11\" xml:space=\"preserve\">there</text>\n"
+                      "  <heading sourcepos=\"1:1-1:14\" level=\"1\">\n"
+                      "    <text sourcepos=\"1:3-1:6\" xml:space=\"preserve\">Hi *</text>\n"
+                      "    <emph sourcepos=\"1:7-1:13\">\n"
+                      "      <text sourcepos=\"1:8-1:12\" xml:space=\"preserve\">there</text>\n"
                       "    </emph>\n"
-                      "    <text sourcepos=\"1:13-1:13\" xml:space=\"preserve\">.</text>\n"
+                      "    <text sourcepos=\"1:14-1:14\" xml:space=\"preserve\">.</text>\n"
                       "  </heading>\n"
                       "  <paragraph sourcepos=\"3:1-4:42\">\n"
                       "    <text sourcepos=\"3:1-3:14\" xml:space=\"preserve\">Hello “ </text>\n"
