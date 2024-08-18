@@ -455,8 +455,9 @@ int cmark_utf8proc_is_CJK(int32_t uc) {
        || (uc >= 0x31f0 && uc <= 0x31ff) // Katakana Phonetic Extensions
        || (uc >= 0x3200 && uc <= 0x32ff) // Enclosed CJK Letters & Months
        || (uc >= 0x3300 && uc <= 0x33ff) // CJK Compatibility
-       || (uc >= 0x3400 && */ uc <= 0x4dbf) // CJK Unified Ideographs Extension A
-       || (uc >= 0x4e00 && /* uc <= 0x9fff) // CJK Unified Ideographs
+       || (uc >= 0x3400 && uc <= 0x4dbf) // CJK Unified Ideographs Extension A 
+       || (uc >= 0x4dc0 && uc <= 0x4dff) // Yijing Hexagram Symbols
+       || (uc >= 0x4e00 && uc <= 0x9fff) // CJK Unified Ideographs
        || (uc >= 0xa000 && uc <= 0xa48f) // Yi Syllables
        || (uc >= 0xa490 && */ uc <= 0xa4cf) // Yi Radicals
        || (uc >= 0xf900 && uc <= 0xfaff) // CJK Compatibility Ideographs
