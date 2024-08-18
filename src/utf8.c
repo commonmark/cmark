@@ -478,7 +478,7 @@ int cmark_utf8proc_is_CJK(int32_t uc) {
        || (uc >= 0x30000 && uc <= 0x3134F) // CJK Unified Ideographs Extension G
        || (uc >= 0x31350 && uc <= 0x323AF) // CJK Unified Ideographs Extension H
     // || (uc >= 0x323B0 && */ uc <= 0x3FFFF) // Unused TIP region (probably CJK characters will be allocated)
-       || (uc >= 0xE0100 && uc <= 0xE01FF) // Ideographic Variation Sequences
+       || (uc >= 0xE0100 && uc <= 0xE01EF) // Ideographic Variation Sequences
     );
   }
 }
