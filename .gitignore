@@ -33,3 +33,7 @@ bstrlib.txt
 build
 cmark.dSYM/*
 cmark
+
+# Visual Studio CMake support
+/.vs/
+/out/
