@@ -448,7 +448,7 @@ int cmark_utf8proc_is_CJK(int32_t uc) {
        || (uc >= 0x3040 && uc <= 0x309f) // Hiragana
        || (uc >= 0x30a0 && uc <= 0x30ff) // Katakana
        || (uc >= 0x3100 && uc <= 0x312f) // Bopomofo
-       || (uc >= 0x3130 && uc <= 0x318f) // Kanbun
+       || (uc >= 0x3130 && uc <= 0x318f) // Hangul Compatibility Jamo
        || (uc >= 0x3190 && uc <= 0x319f) // Kanbun
        || (uc >= 0x31a0 && uc <= 0x31bf) // Bopomofo Extended
        || (uc >= 0x31c0 && uc <= 0x31ef) // CJK Strokes
