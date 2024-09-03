@@ -6,7 +6,7 @@
 
 static void S_node_unlink(cmark_node *node);
 
-static inline bool S_is_block(cmark_node *node) {
+bool cmark_is_block(cmark_node *node) {
   if (node == NULL) {
     return false;
   }
@@ -14,12 +14,28 @@ static inline bool S_is_block(cmark_node *node) {
          node->type <= CMARK_NODE_LAST_BLOCK;
 }
 
-static inline bool S_is_inline(cmark_node *node) {
+bool cmark_is_inline(cmark_node *node) {
   if (node == NULL) {
     return false;
   }
   return node->type >= CMARK_NODE_FIRST_INLINE &&
          node->type <= CMARK_NODE_LAST_INLINE;
+}
+
+bool cmark_is_leaf(cmark_node *node) {
+  if (node == NULL) {
+    return false;
+  }
+  switch (node->type) {
+    case CMARK_NODE_THEMATIC_BREAK: return true;
+    case CMARK_NODE_CODE_BLOCK : return true;
+    case CMARK_NODE_TEXT : return true;
+    case CMARK_NODE_SOFTBREAK : return true;
+    case CMARK_NODE_LINEBREAK : return true;
+    case CMARK_NODE_CODE : return true;
+    case CMARK_NODE_HTML_INLINE: return true;
+  }
+  return false;
 }
 
 static bool S_can_contain(cmark_node *node, cmark_node *child) {
@@ -47,7 +63,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_DOCUMENT:
   case CMARK_NODE_BLOCK_QUOTE:
   case CMARK_NODE_ITEM:
-    return S_is_block(child) && child->type != CMARK_NODE_ITEM;
+    return cmark_is_block(child) && child->type != CMARK_NODE_ITEM;
 
   case CMARK_NODE_LIST:
     return child->type == CMARK_NODE_ITEM;
@@ -62,7 +78,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
   case CMARK_NODE_CUSTOM_INLINE:
-    return S_is_inline(child);
+    return cmark_is_inline(child);
 
   default:
     break;

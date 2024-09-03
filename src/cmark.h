@@ -2,6 +2,7 @@
 #define CMARK_H
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <cmark_export.h>
 #include <cmark_version.h>
 
@@ -103,6 +104,23 @@ typedef struct cmark_mem {
 /** Returns a pointer to the default memory allocator.
  */
 CMARK_EXPORT cmark_mem *cmark_get_default_mem_allocator(void);
+
+/**
+ * ## Classifying nodes
+ */
+
+/** Returns true if the node is a block node.
+  */
+CMARK_EXPORT bool cmark_is_block(cmark_node *node);
+
+/** Returns true if the node is an inline node.
+  */
+CMARK_EXPORT bool cmark_is_inline(cmark_node *node);
+
+/** Returns true if the node is a leaf node (a node that cannot
+    contain children).
+  */
+CMARK_EXPORT bool cmark_is_leaf(cmark_node *node);
 
 /**
  * ## Creating and Destroying Nodes
