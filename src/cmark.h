@@ -111,16 +111,16 @@ CMARK_EXPORT cmark_mem *cmark_get_default_mem_allocator(void);
 
 /** Returns true if the node is a block node.
   */
-CMARK_EXPORT bool cmark_is_block(cmark_node *node);
+CMARK_EXPORT bool cmark_node_is_block(cmark_node *node);
 
 /** Returns true if the node is an inline node.
   */
-CMARK_EXPORT bool cmark_is_inline(cmark_node *node);
+CMARK_EXPORT bool cmark_node_is_inline(cmark_node *node);
 
 /** Returns true if the node is a leaf node (a node that cannot
     contain children).
   */
-CMARK_EXPORT bool cmark_is_leaf(cmark_node *node);
+CMARK_EXPORT bool cmark_node_is_leaf(cmark_node *node);
 
 /**
  * ## Creating and Destroying Nodes

@@ -73,6 +73,24 @@ static void constructor(test_batch_runner *runner) {
   }
 }
 
+static void classifiers(test_batch_runner *runner) {
+  cmark_node *node = cmark_node_new(CMARK_NODE_BLOCK_QUOTE);
+  OK(runner, cmark_node_is_block(node), "is block CMARK_NODE_BLOCK_QUOTE");
+  OK(runner, !cmark_node_is_inline(node), "is not inline CMARK_NODE_BLOCK_QUOTE");
+  OK(runner, !cmark_node_is_leaf(node), "is not leaf CMARK_NODE_BLOCK_QUOTE");
+  cmark_node_free(node);
+  node = cmark_node_new(CMARK_NODE_EMPH);
+  OK(runner, !cmark_node_is_block(node), "is not block CMARK_NODE_EMPH");
+  OK(runner, cmark_node_is_inline(node), "is inline CMARK_NODE_EMPH");
+  OK(runner, !cmark_node_is_leaf(node), "is not leaf CMARK_NODE_EMPH");
+  cmark_node_free(node);
+  node = cmark_node_new(CMARK_NODE_THEMATIC_BREAK);
+  OK(runner, cmark_node_is_block(node), "is block CMARK_NODE_THEMATIC_BREAK");
+  OK(runner, !cmark_node_is_inline(node), "is not inline CMARK_NODE_THEMATIC_BREAK");
+  OK(runner, cmark_node_is_leaf(node), "is leaf CMARK_NODE_THEMATIC_BREAK");
+  cmark_node_free(node);
+}
+
 static void accessors(test_batch_runner *runner) {
   static const char markdown[] = "## Header\n"
                                  "\n"
@@ -1142,6 +1160,7 @@ int main(void) {
 
   version(runner);
   constructor(runner);
+  classifiers(runner);
   accessors(runner);
   free_parent(runner);
   node_check(runner);
