@@ -1,4 +1,4 @@
-.TH cmark 3 "September 02, 2024" "cmark 0.31.1" "Library Functions Manual"
+.TH cmark 3 "September 05, 2024" "cmark 0.31.1" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -125,19 +125,19 @@ Returns a pointer to the default memory allocator.
 Classifying nodes
 
 .PP
-\fIbool\f[] \fBcmark_is_block\f[](\fIcmark_node *node\f[])
+\fIbool\f[] \fBcmark_node_is_block\f[](\fIcmark_node *node\f[])
 
 .PP
 Returns true if the node is a block node. */
 
 .PP
-\fIbool\f[] \fBcmark_is_inline\f[](\fIcmark_node *node\f[])
+\fIbool\f[] \fBcmark_node_is_inline\f[](\fIcmark_node *node\f[])
 
 .PP
 Returns true if the node is an inline node. */
 
 .PP
-\fIbool\f[] \fBcmark_is_leaf\f[](\fIcmark_node *node\f[])
+\fIbool\f[] \fBcmark_node_is_leaf\f[](\fIcmark_node *node\f[])
 
 .PP
 Returns true if the node is a leaf node (a node that cannot contain
