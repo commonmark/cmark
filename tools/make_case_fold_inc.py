@@ -1,4 +1,4 @@
-# Creates a C lookup table for Unicode case folding.
+# Creates a C lookup table for Unicode case folding (https://unicode.org/Public/UCD/latest/ucd/CaseFolding.txt).
 # Usage: python3 tools/make_case_fold_inc.py < data/CaseFolding.txt > src/case_fold.inc
 
 import sys, re
