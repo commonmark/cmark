@@ -7,9 +7,10 @@ import platform
 import os
 
 class cmark_mem(Structure):
-    _fields_ = [("calloc", c_void_p),
+    _fields_ = [("ctx", c_void_p),
+                ("calloc", c_void_p),
                 ("realloc", c_void_p),
-                ("free", CFUNCTYPE(None, c_void_p))]
+                ("free", CFUNCTYPE(None, c_void_p, c_void_p))]
 
 def pipe_through_prog(prog, text):
     p1 = Popen(prog.split(), stdout=PIPE, stdin=PIPE, stderr=PIPE)
@@ -30,7 +31,7 @@ def to_html(lib, text):
     # 1 << 17 == CMARK_OPT_UNSAFE
     cstring = markdown(textbytes, textlen, 1 << 17)
     result = string_at(cstring).decode('utf-8')
-    free_func(cstring)
+    free_func(None, cstring)
 
     return [0, result, '']
 
@@ -55,7 +56,7 @@ def to_commonmark(lib, text):
     node = parse_document(textbytes, textlen, 0)
     cstring = render_commonmark(node, 0, 0)
     result = string_at(cstring).decode('utf-8')
-    free_func(cstring)
+    free_func(None, cstring)
     free_node(node)
 
     return [0, result, '']
@@ -85,4 +86,3 @@ class CMark:
             cmark = CDLL(libpath)
             self.to_html = lambda x: to_html(cmark, x)
             self.to_commonmark = lambda x: to_commonmark(cmark, x)
-
