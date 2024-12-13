@@ -137,6 +137,7 @@ jobs:
         ctest --test-dir build -C Debug --output-on-failure
       shell: cmd
     - name: Upload artifact
+      if: ${{ matrix.build_type == 'static' }}
       uses: actions/upload-artifact@v4
       with:
         name: cmark windows ${{ matrix.build_type }}
