@@ -138,7 +138,8 @@ jobs:
         ctest --test-dir build -C Debug --output-on-failure
       shell: cmd
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: cmark ${{ matrix.cmake_opts }}
-        path: build/src/cmark.exe
+        name: cmark windows ${{ matrix.build_type }}
+        path: build/src/Debug/cmark.exe
+        if-no-files-found: error
