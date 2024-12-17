@@ -30,57 +30,56 @@ all: cmake_build man/man3/cmark.3
 $(CMARK): cmake_build
 
 cmake_build: $(BUILDDIR)
-	@$(MAKE) -j2 -C $(BUILDDIR)
+	cmake --build $(BUILDDIR)
 	@echo "Binaries can be found in $(BUILDDIR)/src"
 
 $(BUILDDIR):
 	@cmake --version > /dev/null || (echo "You need cmake to build this program: http://www.cmake.org/download/" && exit 1)
-	mkdir -p $(BUILDDIR); \
-	cd $(BUILDDIR); \
-	cmake .. \
-		-G "$(GENERATOR)" \
-		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
-		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-		-DBUILD_SHARED_LIBS=YES
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+	    -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+	    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+	    -DBUILD_SHARED_LIBS=YES
 
 install: $(BUILDDIR)
-	$(MAKE) -C $(BUILDDIR) install
+	cmake --install $(BUILDDIR)
 
 uninstall: $(BUILDDIR)/install_manifest.txt
 	xargs rm < $<
 
 debug:
-	mkdir -p $(BUILDDIR); \
-	cd $(BUILDDIR); \
-	cmake .. \
-		-DCMAKE_BUILD_TYPE=Debug \
-		-DBUILD_SHARED_LIBS=YES; \
-	$(MAKE)
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_SHARED_LIBS=YES
+	cmake --build $(BUILDDIR)
 
 ubsan:
-	mkdir -p $(BUILDDIR); \
-	cd $(BUILDDIR); \
-	cmake .. -DCMAKE_BUILD_TYPE=Ubsan; \
-	$(MAKE)
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_BUILD_TYPE=Ubsan
+	cmake --build $(BUILDDIR)
 
 asan:
-	mkdir -p $(BUILDDIR); \
-	cd $(BUILDDIR); \
-	cmake .. -DCMAKE_BUILD_TYPE=Asan; \
-	$(MAKE)
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_BUILD_TYPE=Asan
+	cmake --build $(BUILDDIR)
 
 prof:
-	mkdir -p $(BUILDDIR); \
-	cd $(BUILDDIR); \
-	cmake .. -DCMAKE_BUILD_TYPE=Profile; \
-	$(MAKE)
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_BUILD_TYPE=Profile
+	cmake --build $(BUILDDIR)
 
 afl:
 	@[ -n "$(AFL_PATH)" ] || { echo '$$AFL_PATH not set'; false; }
-	mkdir -p $(BUILDDIR)
-	cd $(BUILDDIR) && cmake .. -DBUILD_TESTING=NO -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-clang
-	$(MAKE)
+	cmake \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
+	    -DBUILD_TESTING=NO \
+	    -DCMAKE_C_COMPILER=$(AFL_PATH)/afl-clang
+	cmake --build $(BUILDDIR)
 	$(AFL_PATH)/afl-fuzz \
 	    -i fuzz/afl_test_cases \
 	    -o fuzz/afl_results \
@@ -90,7 +89,7 @@ afl:
 
 libFuzzer:
 	cmake \
-	    -S . -B $(BUILDDIR) \
+	    -S . -B $(BUILDDIR) -G "$(GENERATOR)" \
 	    -DCMAKE_C_COMPILER=clang \
 	    -DCMAKE_CXX_COMPILER=clang++ \
 	    -DCMAKE_BUILD_TYPE=Asan \
@@ -110,10 +109,12 @@ lint: $(BUILDDIR)
 	exit $$errs
 
 mingw:
-	mkdir -p $(MINGW_BUILDDIR); \
-	cd $(MINGW_BUILDDIR); \
-	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
-	$(MAKE) && $(MAKE) install
+	cmake \
+	    -S . -B $(MINGW_BUILDDIR) -G "$(GENERATOR)" \
+	    -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake \
+	    -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR)
+	cmake --build $(MINGW_BUILDDIR)
+	cmake --install $(MINGW_BUILDDIR)
 
 man/man3/cmark.3: src/cmark.h | $(CMARK)
 	python3 man/make_man_page.py $< > $@ \
