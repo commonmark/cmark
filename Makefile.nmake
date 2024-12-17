@@ -2,7 +2,6 @@ SRCDIR=src
 DATADIR=data
 BUILDDIR=build
 INSTALLDIR=windows
-SPEC=test/spec.txt
 PROG=$(BUILDDIR)\src\cmark.exe
 GENERATOR=NMake Makefiles
 
@@ -21,7 +20,7 @@ install: all
 clean:
 	-rmdir /s /q $(BUILDDIR) $(MINGW_INSTALLDIR) 2> nul
 
-test: $(SPEC) all
+test: all
 	ctest --test-dir $(BUILDDIR) --output-on-failure
 
 distclean: clean

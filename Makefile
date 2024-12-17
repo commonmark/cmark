@@ -153,11 +153,11 @@ update-spec:
 	curl 'https://raw.githubusercontent.com/jgm/CommonMark/master/spec.txt'\
  > $(SPEC)
 
-test: $(SPEC) cmake_build
+test: cmake_build
 	ctest --test-dir $(BUILDDIR) --output-on-failure || (cat $(BUILDDIR)/Testing/Temporary/LastTest.log && exit 1)
 
-$(ALLTESTS): $(SPEC)
-	python3 test/spec_tests.py --spec $< --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
+$(ALLTESTS):
+	python3 test/spec_tests.py --spec $(SPEC) --dump-tests | python3 -c 'import json; import sys; tests = json.loads(sys.stdin.read()); print("\n".join([test["markdown"] for test in tests]))' > $@
 
 leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
