@@ -84,19 +84,15 @@ For a more portable method, you can use [cmake] manually. [cmake] knows
 how to create build environments for many build systems.  For example,
 on FreeBSD:
 
-    mkdir build
-    cd build
-    cmake ..  # optionally: -DCMAKE_INSTALL_PREFIX=path
-    make      # executable will be created as build/src/cmark
-    make test
-    make install
+    cmake -S . -B build  # optionally: -DCMAKE_INSTALL_PREFIX=path
+    cmake --build build  # executable will be created as build/src/cmark
+    ctest --test-dir build
+    cmake --install build
 
 Or, to create Xcode project files on OSX:
 
-    mkdir build
-    cd build
-    cmake -G Xcode ..
-    open cmark.xcodeproj
+    cmake -S . -B build -G Xcode
+    open build/cmark.xcodeproj
 
 The GNU Makefile also provides a few other targets for developers.
 To run a benchmark:
