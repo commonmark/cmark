@@ -1,16 +1,15 @@
-add_executable(heading_tests
-    heading_tests.c
-    test_utils.c)
-target_link_libraries(heading_tests cmark)
-target_include_directories(heading_tests PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_BINARY_DIR}/src)
+set(TEST_TARGETS
+    heading_tests
+    strikethrough_tests
+    mark_tests)
 
-add_executable(strikethrough_tests strikethrough_tests.c test_utils.c)
-target_link_libraries(strikethrough_tests cmark)
-target_include_directories(heading_tests PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_BINARY_DIR}/src)
+foreach(TARGET ${TEST_TARGETS})
+    add_executable(${TARGET} ${TARGET}.c test_utils.c)
+    target_link_libraries(${TARGET} cmark)
+    add_test(NAME ${TARGET} COMMAND ${TARGET})
 
-add_test(NAME heading_tests COMMAND heading_tests)
-add_test(NAME strikethrough_tests COMMAND strikethrough_tests)
+    if(WIN32 AND BUILD_SHARED_LIBS)
+        set_tests_properties(${TARGET} PROPERTIES
+            ENVIRONMENT "PATH=$<TARGET_FILE_DIR:cmark>$<SEMICOLON>$ENV{PATH}")
+    endif()
+endforeach()

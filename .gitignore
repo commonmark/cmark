@@ -37,3 +37,6 @@ cmark
 # Visual Studio CMake support
 /.vs/
 /out/
+
+# Clangd
+.cache/*
