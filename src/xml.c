@@ -174,7 +174,20 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       escape_xml_str(xml, node->as.custom.on_exit);
       cmark_strbuf_putc(xml, '"');
       break;
+    case CMARK_NODE_STRONG:
+    case CMARK_NODE_EMPH:
+    case CMARK_NODE_STRIKETHROUGH:
+      break;
     case CMARK_NODE_LINK:
+      cmark_strbuf_puts(xml, " destination=\"");
+      escape_xml_str(xml, node->as.link.url);
+      cmark_strbuf_putc(xml, '"');
+      if (node->as.link.title) {
+        cmark_strbuf_puts(xml, " title=\"");
+        escape_xml_str(xml, node->as.link.title);
+        cmark_strbuf_putc(xml, '"');
+      }
+      break;
     case CMARK_NODE_IMAGE:
       cmark_strbuf_puts(xml, " destination=\"");
       escape_xml_str(xml, node->as.link.url);

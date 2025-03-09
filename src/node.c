@@ -215,6 +215,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "emph";
   case CMARK_NODE_STRONG:
     return "strong";
+  case CMARK_NODE_STRIKETHROUGH:
+    return "strikethrough";
   case CMARK_NODE_LINK:
     return "link";
   case CMARK_NODE_IMAGE:

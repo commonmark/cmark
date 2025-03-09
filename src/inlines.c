@@ -77,6 +77,9 @@ static inline bool S_is_line_end_char(char c) {
 static delimiter *S_insert_emph(subject *subj, delimiter *opener,
                                 delimiter *closer);
 
+static delimiter *S_insert_strikethrough(subject *subj, delimiter *opener,
+                                         delimiter *closer);
+
 static int parse_inline(subject *subj, cmark_node *parent, int options);
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
@@ -655,7 +658,8 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   delimiter *old_closer;
   bool opener_found;
   int openers_bottom_index = 0;
-  bufsize_t openers_bottom[15] = {stack_bottom, stack_bottom, stack_bottom,
+  bufsize_t openers_bottom[18] = {stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom,
@@ -686,6 +690,10 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
         openers_bottom_index = 8 +
                 (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
+      case '~':
+        openers_bottom_index = 14 +
+                (closer->can_open ? 2 : 0) + (closer->length % 2);
+        break;
       default:
         assert(false);
       }
@@ -711,6 +719,12 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
       if (closer->delim_char == '*' || closer->delim_char == '_') {
         if (opener_found) {
           closer = S_insert_emph(subj, opener, closer);
+        } else {
+          closer = closer->next;
+        }
+      } else if (closer->delim_char == '~') {
+        if (opener_found && opener->length >= 2 && closer->length >= 2) {
+          closer = S_insert_strikethrough(subj, opener, closer);
         } else {
           closer = closer->next;
         }
@@ -813,6 +827,86 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   emph->end_line = closer_inl->end_line;
   emph->start_column = opener_inl->start_column + opener_inl->len;
   emph->end_column = closer_inl->end_column - closer_inl->len;
+
+  // if opener has 0 characters, remove it and its associated inline
+  if (opener_num_chars == 0) {
+    cmark_node_free(opener_inl);
+    remove_delimiter(subj, opener);
+  }
+
+  // if closer has 0 characters, remove it and its associated inline
+  if (closer_num_chars == 0) {
+    // remove empty closer inline
+    cmark_node_free(closer_inl);
+    // remove closer from list
+    tmp_delim = closer->next;
+    remove_delimiter(subj, closer);
+    closer = tmp_delim;
+  }
+
+  return closer;
+}
+
+static delimiter *S_insert_strikethrough(subject *subj, delimiter *opener,
+                                delimiter *closer) {
+  delimiter *delim, *tmp_delim;
+  bufsize_t use_delims;
+  cmark_node *opener_inl = opener->inl_text;
+  cmark_node *closer_inl = closer->inl_text;
+  bufsize_t opener_num_chars = opener_inl->len;
+  bufsize_t closer_num_chars = closer_inl->len;
+  cmark_node *tmp, *tmpnext, *strike;
+
+  // calculate the actual number of characters used from this closer
+  use_delims = 2;
+
+  // remove used characters from associated inlines.
+  opener_num_chars -= use_delims;
+  closer_num_chars -= use_delims;
+  opener_inl->len = opener_num_chars;
+  opener_inl->data[opener_num_chars] = 0;
+  opener_inl->end_column -= use_delims;
+  closer_inl->len = closer_num_chars;
+  closer_inl->data[closer_num_chars] = 0;
+  closer_inl->start_column += use_delims;
+
+  // free delimiters between opener and closer
+  delim = closer->previous;
+  while (delim != NULL && delim != opener) {
+    tmp_delim = delim->previous;
+    remove_delimiter(subj, delim);
+    delim = tmp_delim;
+  }
+
+  // create new strike node
+  strike = make_simple(subj->mem, CMARK_NODE_STRIKETHROUGH);
+
+  tmp = opener_inl->next;
+  if (tmp && tmp != closer_inl) {
+    strike->first_child = tmp;
+    tmp->prev = NULL;
+
+    while (tmp && tmp != closer_inl) {
+      tmpnext = tmp->next;
+      tmp->parent = strike;
+      if (tmpnext == closer_inl) {
+        strike->last_child = tmp;
+        tmp->next = NULL;
+      }
+      tmp = tmpnext;
+    }
+  }
+
+  opener_inl->next = strike;
+  closer_inl->prev = strike;
+  strike->prev = opener_inl;
+  strike->next = closer_inl;
+  strike->parent = opener_inl->parent;
+
+  strike->start_line = opener_inl->start_line;
+  strike->end_line = closer_inl->end_line;
+  strike->start_column = opener_inl->start_column + opener_inl->len;
+  strike->end_column = closer_inl->end_column - closer_inl->len;
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
@@ -1286,13 +1380,14 @@ static cmark_node *handle_newline(subject *subj) {
 
 static bufsize_t subject_find_special_char(subject *subj, int options) {
   // "\r\n\\`&_*[]<!"
+  // + "~"
   static const int8_t SPECIAL_CHARS[256] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1359,6 +1454,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
   case '_':
   case '\'':
   case '"':
+  case '~':
     new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0);
     break;
   case '-':
