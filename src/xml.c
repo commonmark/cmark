@@ -189,6 +189,20 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         escape_xml_str(xml, node->as.link.title);
         cmark_strbuf_putc(xml, '"');
       }
+      if (node->as.link.width > 0) {
+        char tbuf[32];
+        sprintf(tbuf, "%d", node->as.link.width);
+        cmark_strbuf_puts(xml, " width=\"");
+        cmark_strbuf_puts(xml, tbuf);
+        cmark_strbuf_putc(xml, '"');
+      }
+      if (node->as.link.height > 0) {
+        char tbuf[32];
+        sprintf(tbuf, "%d", node->as.link.height);
+        cmark_strbuf_puts(xml, " height=\"");
+        cmark_strbuf_puts(xml, tbuf);
+        cmark_strbuf_putc(xml, '"');
+      }
       break;
     default:
       break;

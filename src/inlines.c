@@ -185,6 +185,8 @@ static inline cmark_node *make_autolink(subject *subj, int start_column,
   cmark_node *link = make_simple(subj->mem, CMARK_NODE_LINK);
   link->as.link.url = cmark_clean_autolink(subj->mem, &url, is_email);
   link->as.link.title = NULL;
+  link->as.link.width = 0;
+  link->as.link.height = 0;
   link->start_line = link->end_line = subj->line;
   link->start_column = start_column + 1;
   link->end_column = end_column + 1;
@@ -1156,6 +1158,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   cmark_reference *ref = NULL;
   cmark_chunk url_chunk, title_chunk;
   unsigned char *url, *title;
+  int width = 0, height = 0;
   bracket *opener;
   cmark_node *inl;
   cmark_chunk raw_label;
@@ -1200,7 +1203,19 @@ static cmark_node *handle_close_bracket(subject *subj) {
                    ? starttitle
                    : starttitle + scan_link_title(&subj->input, starttitle);
 
-    endall = endtitle + scan_spacechars(&subj->input, endtitle);
+    if (is_image) {
+      pair pstruct;
+      pstruct.first = &width;
+      pstruct.second = &height;
+      bufsize_t startsize = endtitle + scan_spacechars(&subj->input, endtitle);
+    // ensure there are spaces between title (or url if title is empty) and size info
+      int has_space = (starttitle == endtitle) ? starttitle > endurl : startsize > endtitle;
+      bufsize_t endsize = !has_space ? startsize
+                                     : startsize + scan_image_size(&subj->input, startsize, &pstruct);
+      endall = endsize + scan_spacechars(&subj->input, endsize);
+    } else {
+      endall = endtitle + scan_spacechars(&subj->input, endtitle);
+    }
 
     if (peek_at(subj, endall) == ')') {
       subj->pos = endall + 1;
@@ -1259,6 +1274,8 @@ match:
   inl = make_simple(subj->mem, is_image ? CMARK_NODE_IMAGE : CMARK_NODE_LINK);
   inl->as.link.url = url;
   inl->as.link.title = title;
+  inl->as.link.width = width;
+  inl->as.link.height = height;
   inl->start_line = inl->end_line = subj->line;
   inl->start_column = opener->inl_text->start_column;
   inl->end_column = subj->pos + subj->column_offset + subj->block_offset;

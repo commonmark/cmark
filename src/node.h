@@ -39,6 +39,8 @@ typedef struct {
 typedef struct {
   unsigned char *url;
   unsigned char *title;
+  int width;
+  int height;
 } cmark_link;
 
 typedef struct {

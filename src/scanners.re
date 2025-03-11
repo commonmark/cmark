@@ -20,6 +20,34 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 	return res;
 }
 
+bufsize_t _scan_at_ext(bufsize_t (*scanner)(const unsigned char *, void *),
+                       cmark_chunk *c, bufsize_t offset, void *d)
+{
+	bufsize_t res;
+	unsigned char *ptr = (unsigned char *)c->data;
+
+        if (ptr == NULL || offset > c->len) {
+          return 0;
+        } else {
+	  unsigned char lim = ptr[c->len];
+
+	  ptr[c->len] = '\0';
+	  res = scanner(ptr + offset, d);
+	  ptr[c->len] = lim;
+        }
+
+	return res;
+}
+
+static int natoi(const char *buf, size_t len) {
+  char pb[len + 1];
+  for (size_t i = 0; i < len; ++i) {
+    pb[i] = buf[i];
+  }
+  pb[len] = '\0';
+  return atoi(pb);
+}
+
 /*!re2c
   re2c:define:YYCTYPE  = "unsigned char";
   re2c:define:YYCURSOR = p;
@@ -254,6 +282,37 @@ bufsize_t _scan_link_title(const unsigned char *p)
   ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
   ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
   [(] (escaped_char|[^()\x00])* [)]  { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+// Try to match an image size (=WxH, =Wx, =xH), returning number of chars matched.
+// Extract the width and height to @d.
+bufsize_t _scan_image_size(const unsigned char *p, void *d)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+  pair *data = (pair *)d;
+  int *pwidth = (int *)(data->first);
+  int *pheight = (int *)(data->second);
+  *pwidth = 0;
+  *pheight = 0;
+
+/*!re2c
+  [=] [0-9]+ 'x' {
+    *pwidth = natoi((const char *)start + 1, p - start - 2);
+    return (bufsize_t)(p - start);
+  }
+  [=] [0-9]+ 'x' [0-9]+ {
+    const unsigned char *x_pos = (unsigned char *)memchr(start, 'x', p - start);
+    *pwidth = natoi((const char *)start + 1, x_pos - start - 1);
+    *pheight = natoi((const char *)x_pos + 1, p - x_pos - 1);
+    return (bufsize_t)(p - start);
+  }
+  [=] 'x' [0-9]+ {
+    *pheight = natoi((const char *)start + 2, p - start - 2);
+    return (bufsize_t)(p - start);
+  }
   * { return 0; }
 */
 }

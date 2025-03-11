@@ -5,8 +5,16 @@
 extern "C" {
 #endif
 
+typedef struct pair {
+  void *first;
+  void *second;
+} pair;
+
 bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c,
                    bufsize_t offset);
+// @d is the user data.
+bufsize_t _scan_at_ext(bufsize_t (*scanner)(const unsigned char *, void *), cmark_chunk *c,
+                       bufsize_t offset, void *d);
 bufsize_t _scan_scheme(const unsigned char *p);
 bufsize_t _scan_autolink_uri(const unsigned char *p);
 bufsize_t _scan_autolink_email(const unsigned char *p);
@@ -23,6 +31,7 @@ bufsize_t _scan_html_block_end_3(const unsigned char *p);
 bufsize_t _scan_html_block_end_4(const unsigned char *p);
 bufsize_t _scan_html_block_end_5(const unsigned char *p);
 bufsize_t _scan_link_title(const unsigned char *p);
+bufsize_t _scan_image_size(const unsigned char *p, void *d);
 bufsize_t _scan_spacechars(const unsigned char *p);
 bufsize_t _scan_atx_heading_start(const unsigned char *p);
 bufsize_t _scan_setext_heading_line(const unsigned char *p);
@@ -46,6 +55,7 @@ bufsize_t _scan_dangerous_url(const unsigned char *p);
 #define scan_html_block_end_4(c, n) _scan_at(&_scan_html_block_end_4, c, n)
 #define scan_html_block_end_5(c, n) _scan_at(&_scan_html_block_end_5, c, n)
 #define scan_link_title(c, n) _scan_at(&_scan_link_title, c, n)
+#define scan_image_size(c, n, d) _scan_at_ext(&_scan_image_size, c, n, d)
 #define scan_spacechars(c, n) _scan_at(&_scan_spacechars, c, n)
 #define scan_atx_heading_start(c, n) _scan_at(&_scan_atx_heading_start, c, n)
 #define scan_setext_heading_line(c, n)                                         \

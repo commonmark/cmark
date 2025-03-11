@@ -1,6 +1,7 @@
 set(TEST_TARGETS
     heading_tests
     strikethrough_tests
+    image_tests
     mark_tests)
 
 foreach(TARGET ${TEST_TARGETS})
