@@ -66,6 +66,8 @@ void cmark_strbuf_rtrim(cmark_strbuf *buf);
 void cmark_strbuf_trim(cmark_strbuf *buf);
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s);
 void cmark_strbuf_unescape(cmark_strbuf *s);
+// Unescape the @c.
+void cmark_strbuf_unescape_char(cmark_strbuf *s, char c);
 
 #ifdef __cplusplus
 }

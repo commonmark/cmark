@@ -207,3 +207,17 @@ void cmark_strbuf_unescape(cmark_strbuf *buf) {
 
   cmark_strbuf_truncate(buf, w);
 }
+
+// Destructively unescape a string: remove backslashes before @c.
+void cmark_strbuf_unescape_char(cmark_strbuf *buf, char c) {
+  bufsize_t r, w;
+
+  for (r = 0, w = 0; r < buf->size; ++r) {
+    if (buf->ptr[r] == '\\' && buf->ptr[r + 1] == c)
+      r++;
+
+    buf->ptr[w++] = buf->ptr[r];
+  }
+
+  cmark_strbuf_truncate(buf, w);
+}

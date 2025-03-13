@@ -34,6 +34,7 @@ bool cmark_node_is_leaf(cmark_node *node) {
     case CMARK_NODE_LINEBREAK : return true;
     case CMARK_NODE_CODE : return true;
     case CMARK_NODE_HTML_INLINE: return true;
+    case CMARK_NODE_FORMULA_INLINE: return true;
   }
   return false;
 }
@@ -75,6 +76,8 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_HEADING:
   case CMARK_NODE_EMPH:
   case CMARK_NODE_STRONG:
+  case CMARK_NODE_STRIKETHROUGH:
+  case CMARK_NODE_MARK:
   case CMARK_NODE_LINK:
   case CMARK_NODE_IMAGE:
   case CMARK_NODE_CUSTOM_INLINE:
@@ -131,6 +134,7 @@ static void S_free_nodes(cmark_node *e) {
     case CMARK_NODE_HTML_INLINE:
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:
+    case CMARK_NODE_FORMULA_INLINE:
       mem->free(e->data);
       break;
     case CMARK_NODE_LINK:
@@ -219,6 +223,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "strikethrough";
   case CMARK_NODE_MARK:
     return "mark";
+  case CMARK_NODE_FORMULA_INLINE:
+    return "formula_inline";
   case CMARK_NODE_LINK:
     return "link";
   case CMARK_NODE_IMAGE:
@@ -315,6 +321,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FORMULA_INLINE:
     return node->data ? (char *)node->data : "";
 
   default:
@@ -335,6 +342,7 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FORMULA_INLINE:
     node->len = cmark_set_cstr(node->mem, &node->data, content);
     return 1;
 

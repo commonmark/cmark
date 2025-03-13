@@ -357,6 +357,41 @@ static bufsize_t scan_to_closing_backticks(subject *subj,
   return 0;
 }
 
+
+// Try to process a dollar inline formula span that began with a
+// dollar (already parsed). Return 0 if you don't find matching closing
+// dollar, otherwise return the position in the subject
+// after the closing dollar.
+static bufsize_t scan_to_closing_dollar(subject *subj) {
+  bufsize_t startpos = subj->pos;
+
+  // read non dollar
+  unsigned char c;
+  size_t slash_cnt = 0;
+  // Directly skip the escaped dollar.
+  while ((c = peek_char(subj)) && (c != '$' || slash_cnt % 2 == 1)) {
+    if (c == '\\') {
+      ++slash_cnt;
+    } else {
+      slash_cnt = 0;
+    }
+    if (c == '\r' || c == '\n') {
+      // Line break is not allowed.
+      break;
+    }
+    advance(subj);
+  }
+  if (!is_eof(subj) && c == '$') {
+    advance(subj);
+    return (subj->pos);
+  } else {
+    // Rewind it.
+    subj->pos = startpos;
+    return 0;
+  }
+}
+
+
 // Destructively modify string, converting newlines to
 // spaces, then removing a single leading + trailing space,
 // unless the code span consists entirely of space characters.
@@ -412,13 +447,78 @@ static cmark_node *handle_backticks(subject *subj, int options) {
                      endpos - startpos - openticks.len);
     S_normalize_code(&buf);
 
-    cmark_node *node = make_literal(subj, CMARK_NODE_CODE, startpos,
-                                    endpos - openticks.len - 1);
+    // VNoteX: let's fix it to include the ticks.
+    cmark_node *node = make_literal(subj, CMARK_NODE_CODE, startpos - openticks.len,
+                                    endpos - 1);
     node->len = buf.size;
     node->data = cmark_strbuf_detach(&buf);
     adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
     return node;
   }
+}
+
+
+// Parse dollar inline formula section or raw dollar, return an inline.
+// Assumes that the subject has a dollar at the current position.
+static cmark_node *handle_dollar(subject *subj) {
+  bufsize_t initpos = subj->pos;
+  // Skip the open dollar.
+  advance(subj);
+  bufsize_t startpos = subj->pos;
+
+  // Pre check.
+  if (subj->pos > 1) {
+    unsigned char before_char = peek_at(subj, subj->pos - 2);
+    if (before_char == '$' ||
+        (before_char >= '0' && before_char <= '9') ||
+        before_char == '\\') {
+      // Not a legal open dollar.
+      return make_str(subj, initpos, initpos, cmark_chunk_literal("$"));
+    }
+  }
+
+  bufsize_t endpos = scan_to_closing_dollar(subj);
+  if (endpos == 0) {
+    subj->pos = startpos;
+    return make_str(subj, initpos, initpos, cmark_chunk_literal("$"));
+  }
+
+  // Post check.
+  {
+    // $$ is invalid.
+    if (endpos - startpos == 1) {
+      return make_str(subj, initpos, startpos, cmark_chunk_literal("$$"));
+    }
+
+    // No space before the closing dollar.
+    unsigned char before_char = peek_at(subj, endpos - 2);
+    if (endpos - startpos == 1 || before_char == ' ' || before_char == '\t') {
+      // Not a legal closing dollar.
+      subj->pos = startpos;
+      return make_str(subj, initpos, initpos, cmark_chunk_literal("$"));
+    }
+
+    // No digit after the closing dollar.
+    if (endpos < subj->input.len) {
+      unsigned char after_char = peek_at(subj, endpos);
+      if (after_char >= '0' && after_char <= '9') {
+        // Not a legal closing dollar.
+        subj->pos = startpos;
+        return make_str(subj, initpos, initpos, cmark_chunk_literal("$"));
+      }
+    }
+  }
+
+  cmark_strbuf buf = CMARK_BUF_INIT(subj->mem);
+
+  cmark_strbuf_set(&buf, subj->input.data + startpos,
+                   endpos - startpos - 1);
+  cmark_strbuf_unescape_char(&buf, '$');
+
+  cmark_node *node = make_literal(subj, CMARK_NODE_FORMULA_INLINE, startpos, endpos - 2);
+  node->len = buf.size;
+  node->data = cmark_strbuf_detach(&buf);
+  return node;
 }
 
 
@@ -1330,10 +1430,10 @@ static cmark_node *handle_newline(subject *subj) {
 
 static bufsize_t subject_find_special_char(subject *subj, int options) {
   // "\r\n\\`&_*[]<!"
-  // Add '~', '='.
+  // Add '~', '=', '$'.
   static const int8_t SPECIAL_CHARS[256] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1390,6 +1490,9 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     break;
   case '`':
     new_inl = handle_backticks(subj, options);
+    break;
+  case '$':
+    new_inl = handle_dollar(subj);
     break;
   case '\\':
     new_inl = handle_backslash(subj);

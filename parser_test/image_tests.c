@@ -5,14 +5,14 @@ static int test_basic_image() {
     const char *markdown = "![Alt text](image.png)\n";
     const char *expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                            "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
-                           "  <paragraph>\n"
-                           "    <image destination=\"image.png\">\n"
-                           "      <text xml:space=\"preserve\">Alt text</text>\n"
+                           "<document sourcepos=\"1:1-1:22\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                           "  <paragraph sourcepos=\"1:1-1:22\">\n"
+                           "    <image sourcepos=\"1:1-1:22\" destination=\"image.png\">\n"
+                           "      <text sourcepos=\"1:3-1:10\" xml:space=\"preserve\">Alt text</text>\n"
                            "    </image>\n"
                            "  </paragraph>\n"
                            "</document>\n";
-    return test_xml(markdown, expected, CMARK_OPT_DEFAULT);
+    return test_xml(markdown, expected, CMARK_OPT_SOURCEPOS);
 }
 
 static int test_image_with_title() {

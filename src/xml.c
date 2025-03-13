@@ -119,6 +119,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_HTML_INLINE:
+    case CMARK_NODE_FORMULA_INLINE:
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
       escape_xml(xml, node->data, node->len);
       cmark_strbuf_puts(xml, "</");

@@ -41,15 +41,14 @@ bufsize_t _scan_at_ext(bufsize_t (*scanner)(const unsigned char *, void *),
 }
 
 static int natoi(const char *buf, size_t len) {
-  char pb[len + 1];
+  char pb[48];
+  assert(len < 48U);
   for (size_t i = 0; i < len; ++i) {
     pb[i] = buf[i];
   }
   pb[len] = '\0';
   return atoi(pb);
 }
-
-
 
 // Try to match a scheme including colon.
 bufsize_t _scan_scheme(const unsigned char *p)
