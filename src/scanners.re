@@ -40,7 +40,8 @@ bufsize_t _scan_at_ext(bufsize_t (*scanner)(const unsigned char *, void *),
 }
 
 static int natoi(const char *buf, size_t len) {
-  char pb[len + 1];
+  char pb[48];
+  assert(len < 48U);
   for (size_t i = 0; i < len; ++i) {
     pb[i] = buf[i];
   }
@@ -370,6 +371,28 @@ bufsize_t _scan_close_code_fence(const unsigned char *p)
 /*!re2c
   [`]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
   [~]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_formula_block_start(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  '$$' [\r]?[\n] { return (bufsize_t)(p - start); }
+  '\\begin{' [^}\r\n\x00]+ '}' [\r]?[\n] { return (bufsize_t)(p - start); }
+  * { return 0; }
+*/
+}
+
+bufsize_t _scan_formula_block_end(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+/*!re2c
+  '$$' [\r]?[\n] { return (bufsize_t)(p - start); }
+  '\\end{' [^}\r\n\x00]+ '}' [\r]?[\n] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }

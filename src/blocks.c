@@ -171,7 +171,8 @@ static inline bool can_contain(cmark_node_type parent_type,
 static inline bool accepts_lines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
           block_type == CMARK_NODE_HEADING ||
-          block_type == CMARK_NODE_CODE_BLOCK);
+          block_type == CMARK_NODE_CODE_BLOCK ||
+          block_type == CMARK_NODE_FORMULA_BLOCK);
 }
 
 static inline bool contains_inlines(cmark_node_type block_type) {
@@ -270,6 +271,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->end_column = parser->last_line_length;
   } else if (S_type(b) == CMARK_NODE_DOCUMENT ||
              (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
+             S_type(b) == CMARK_NODE_FORMULA_BLOCK ||
              (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext)) {
     b->end_line = parser->line_number;
     b->end_column = parser->curline.size;
@@ -326,6 +328,11 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
         pos += 1;
       cmark_strbuf_drop(node_content, pos);
     }
+    b->len = node_content->size;
+    b->data = cmark_strbuf_detach(node_content);
+    break;
+
+  case CMARK_NODE_FORMULA_BLOCK:
     b->len = node_content->size;
     b->data = cmark_strbuf_detach(node_content);
     break;
@@ -859,6 +866,37 @@ static bool parse_code_block_prefix(cmark_parser *parser, cmark_chunk *input,
   return res;
 }
 
+static bool parse_formula_block_prefix(cmark_parser *parser, cmark_chunk *input,
+                                       cmark_node *container, bool *should_continue) {
+  bool res = false;
+  bufsize_t matched = 0;
+
+  if (parser->indent <= 3) {
+    matched = scan_formula_block_end(input, parser->first_nonspace);
+  }
+
+  if (matched &&
+      (matched == container->as.formula.fence_length ||
+       matched == container->as.formula.fence_length - 2)) {
+    // closing fence - and since we're at
+    // the end of a line, we can stop processing it:
+    *should_continue = false;
+    S_advance_offset(parser, input, matched, false);
+    parser->current = finalize(parser, container);
+  } else {
+    // skip opt. spaces of fence parser->offset
+    int i = container->as.formula.fence_offset;
+
+    while (i > 0 && S_is_space_or_tab(peek_at(input, parser->offset))) {
+      S_advance_offset(parser, input, 1, true);
+      i--;
+    }
+    res = true;
+  }
+
+  return res;
+}
+
 static bool parse_html_block_prefix(cmark_parser *parser,
                                     cmark_node *container) {
   bool res = false;
@@ -924,6 +962,7 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
           // first blank line was processed. Certain block types accept
           // empty lines as content, so add them here.
           if (parser->current->type == CMARK_NODE_CODE_BLOCK ||
+              parser->current->type == CMARK_NODE_FORMULA_BLOCK ||
               parser->current->type == CMARK_NODE_HTML_BLOCK) {
             add_line(input, parser);
           }
@@ -940,6 +979,10 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       break;
     case CMARK_NODE_CODE_BLOCK:
       if (!parse_code_block_prefix(parser, input, container, &should_continue))
+        goto done;
+      break;
+    case CMARK_NODE_FORMULA_BLOCK:
+      if (!parse_formula_block_prefix(parser, input, container, &should_continue))
         goto done;
       break;
     case CMARK_NODE_HEADING:
@@ -986,6 +1029,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
   int save_column;
 
   while (cont_type != CMARK_NODE_CODE_BLOCK &&
+         cont_type != CMARK_NODE_FORMULA_BLOCK &&
          cont_type != CMARK_NODE_HTML_BLOCK) {
 
     S_find_first_nonspace(parser, input);
@@ -1037,6 +1081,17 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.code.fence_offset =
           (int8_t)(parser->first_nonspace - parser->offset);
       (*container)->as.code.info = NULL;
+      S_advance_offset(parser, input,
+                       parser->first_nonspace + matched - parser->offset,
+                       false);
+
+    } else if (!indented && (matched = scan_formula_block_start(
+                                 input, parser->first_nonspace))) {
+      *container = add_child(parser, *container, CMARK_NODE_FORMULA_BLOCK,
+                             parser->first_nonspace + 1);
+      (*container)->as.formula.fence_length = matched;
+      (*container)->as.formula.fence_offset =
+          (int8_t)(parser->first_nonspace - parser->offset);
       S_advance_offset(parser, input,
                        parser->first_nonspace + matched - parser->offset,
                        false);
@@ -1175,6 +1230,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   const bool last_line_blank =
       (parser->blank && ctype != CMARK_NODE_BLOCK_QUOTE &&
        ctype != CMARK_NODE_HEADING && ctype != CMARK_NODE_THEMATIC_BREAK &&
+       ctype != CMARK_NODE_FORMULA_BLOCK &&
        !(ctype == CMARK_NODE_CODE_BLOCK && container->as.code.fenced) &&
        !(ctype == CMARK_NODE_ITEM && container->first_child == NULL &&
          container->start_line == parser->line_number));
@@ -1204,7 +1260,8 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
       assert(parser->current != NULL);
     }
 
-    if (S_type(container) == CMARK_NODE_CODE_BLOCK) {
+    if (S_type(container) == CMARK_NODE_CODE_BLOCK ||
+        S_type(container) == CMARK_NODE_FORMULA_BLOCK) {
       add_line(input, parser);
     } else if (S_type(container) == CMARK_NODE_HTML_BLOCK) {
       add_line(input, parser);

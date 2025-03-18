@@ -5,6 +5,7 @@ set(TEST_TARGETS
     block_quote_tests
     mark_tests
     formula_inline_tests
+    formula_block_tests
     code_tests)
 
 foreach(TARGET ${TEST_TARGETS})

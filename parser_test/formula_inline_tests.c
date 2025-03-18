@@ -53,12 +53,12 @@ int test_formula_inline_not_closed() {
 }
 
 int test_formula_inline_empty() {
-  return test_xml("$$",
+  return test_xml("abc $$",
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
       "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
       "  <paragraph>\n"
-      "    <text xml:space=\"preserve\">$$</text>\n"
+      "    <text xml:space=\"preserve\">abc $$</text>\n"
       "  </paragraph>\n"
       "</document>\n",
       CMARK_OPT_DEFAULT);

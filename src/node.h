@@ -31,6 +31,11 @@ typedef struct {
 } cmark_code;
 
 typedef struct {
+  uint8_t fence_length;
+  uint8_t fence_offset;
+} cmark_formula;
+
+typedef struct {
   int internal_offset;
   int8_t level;
   bool setext;
@@ -82,6 +87,7 @@ struct cmark_node {
     cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
+    cmark_formula formula;
     int html_block_type;
   } as;
 };
