@@ -23,6 +23,8 @@
 #include "buffer.h"
 #include "chunk.h"
 
+#define UNUSED(x) (void)(x)
+
 #define CODE_INDENT 4
 #define TAB_STOP 4
 
@@ -165,7 +167,9 @@ static inline bool can_contain(cmark_node_type parent_type,
   return (parent_type == CMARK_NODE_DOCUMENT ||
           parent_type == CMARK_NODE_BLOCK_QUOTE ||
           parent_type == CMARK_NODE_ITEM ||
-          (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM));
+          (parent_type == CMARK_NODE_LIST && child_type == CMARK_NODE_ITEM) ||
+          (parent_type == CMARK_NODE_TABLE && child_type == CMARK_NODE_TABLE_ROW) ||
+          (parent_type == CMARK_NODE_TABLE_ROW && child_type == CMARK_NODE_TABLE_CELL));
 }
 
 static inline bool accepts_lines(cmark_node_type block_type) {
@@ -177,7 +181,8 @@ static inline bool accepts_lines(cmark_node_type block_type) {
 
 static inline bool contains_inlines(cmark_node_type block_type) {
   return (block_type == CMARK_NODE_PARAGRAPH ||
-          block_type == CMARK_NODE_HEADING);
+          block_type == CMARK_NODE_HEADING ||
+          block_type == CMARK_NODE_TABLE_CELL);
 }
 
 static void add_line(cmark_chunk *ch, cmark_parser *parser) {
@@ -343,6 +348,11 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->data = cmark_strbuf_detach(node_content);
     break;
 
+  case CMARK_NODE_TABLE_CELL:
+    /* b->len = node_content->size; */
+    /* b->data = cmark_strbuf_detach(node_content); */
+    break;
+
   case CMARK_NODE_LIST:      // determine tight/loose status
     b->as.list.tight = true; // tight by default
     item = b->first_child;
@@ -417,6 +427,10 @@ static void process_inlines(cmark_mem *mem, cmark_node *root,
     cur = cmark_iter_get_node(iter);
     if (ev_type == CMARK_EVENT_ENTER) {
       if (contains_inlines(S_type(cur))) {
+        // For table delimiter cell, do not parse inlines.
+        if (S_type(cur) == CMARK_NODE_TABLE_CELL && cur->as.table_cell.is_delimiter) {
+          continue;
+        }
         cmark_parse_inlines(mem, cur, refmap, options);
         mem->free(cur->data);
         cur->data = NULL;
@@ -866,6 +880,146 @@ static bool parse_code_block_prefix(cmark_parser *parser, cmark_chunk *input,
   return res;
 }
 
+typedef struct {
+  cmark_parser *parser;
+  cmark_node *container;
+  const unsigned char *data;
+
+  // For delimiter row check.
+  // [S, C, D, C, S] for space/colon/dash.
+  bool delimiter_row_chars_met[5];
+
+  bufsize_t cell_start_offset;
+} table_row_scan_context;
+
+// @on_char will be called for each char consumed, except the escaped one.
+// Returns columns count on matched. Otherwise, returns 0.
+static int scan_table_row_helper(const unsigned char *data, bufsize_t len,
+                                 table_row_scan_context *context,
+                                 bool (*on_char)(table_row_scan_context *, bufsize_t, int, char)) {
+  bufsize_t offset = 0;
+
+  // Unlike GFM, the first and trailing '|' is necessary.
+  if (offset >= len || data[offset] != '|') {
+    return 0;
+  }
+
+  ++offset;
+  if (context) {
+    context->cell_start_offset = offset;
+  }
+
+  bool is_escaped = false;
+  bool nonspace_after_last_delimiter = false;
+  bool has_valid_delimiter = false;
+  int cols = 0;
+  while (offset < len) {
+    const char c = data[offset];
+    if (c == '\n' || c == '\r') {
+      break;
+    }
+    if (c == '\\' && !is_escaped) {
+      nonspace_after_last_delimiter = true;
+      is_escaped = true;
+      ++offset;
+      continue;
+    }
+
+    if (is_escaped) {
+      is_escaped = false;
+      ++offset;
+      continue;
+    }
+
+    if (on_char && !on_char(context, offset, cols, c)) {
+      return 0;
+    }
+
+    if (c == '|') {
+      ++cols;
+      has_valid_delimiter = true;
+      nonspace_after_last_delimiter = false;
+    } else if (!S_is_space_or_tab(c)) {
+      nonspace_after_last_delimiter = true;
+    }
+    ++offset;
+  }
+
+  if (nonspace_after_last_delimiter || !has_valid_delimiter) {
+    return 0;
+  } else {
+    return cols;
+  }
+}
+
+static int scan_table_header(const unsigned char *data, bufsize_t len) {
+  return scan_table_row_helper(data, len, NULL, NULL);
+}
+
+static int scan_table_row(const unsigned char *data, bufsize_t len) {
+  return scan_table_row_helper(data, len, NULL, NULL);
+}
+
+static bool scan_table_delimiter_row_scan_row_helper(table_row_scan_context *context,
+                                                     bufsize_t offset, int cols, char c) {
+  UNUSED(offset);
+  UNUSED(cols);
+  switch (c) {
+    case '-':
+      if (context->delimiter_row_chars_met[2] &&
+          (context->delimiter_row_chars_met[3] || context->delimiter_row_chars_met[4])) {
+        return false;
+      }
+      context->delimiter_row_chars_met[2] = true;
+      break;
+    case ':':
+      if (context->delimiter_row_chars_met[4] || context->delimiter_row_chars_met[3]) {
+        return false;
+      } else if (context->delimiter_row_chars_met[2]) {
+        context->delimiter_row_chars_met[3] = true;
+      } else if (context->delimiter_row_chars_met[1]) {
+        return false;
+      } else {
+        context->delimiter_row_chars_met[1] = true;
+      }
+      break;
+    case '|':
+      if (!context->delimiter_row_chars_met[2]) {
+        return false;
+      }
+      memset(context->delimiter_row_chars_met, 0, sizeof(context->delimiter_row_chars_met));
+      break;
+    default:
+      if (S_is_space_or_tab(c)) {
+        if (context->delimiter_row_chars_met[4] ||
+            context->delimiter_row_chars_met[3] ||
+            context->delimiter_row_chars_met[2]) {
+          context->delimiter_row_chars_met[4] = true;
+        } else if (context->delimiter_row_chars_met[1]) {
+          return false;
+        } else {
+          context->delimiter_row_chars_met[0] = true;
+        }
+      } else {
+        return false;
+      }
+  }
+  return true;
+}
+
+// Returns columns count on matched. Otherwise, returns 0.
+static int scan_table_delimiter_row(const unsigned char *data, bufsize_t len) {
+  table_row_scan_context context;
+  memset(&context, 0, sizeof(context));
+  int ret = scan_table_row_helper(data, len, &context,
+                                  scan_table_delimiter_row_scan_row_helper);
+  if (ret > 0) {
+    return ret;
+  } else {
+    return 0;
+  }
+}
+
 static bool parse_formula_block_prefix(cmark_parser *parser, cmark_chunk *input,
                                        cmark_node *container, bool *should_continue) {
   bool res = false;
@@ -996,6 +1150,15 @@ static cmark_node *check_open_blocks(cmark_parser *parser, cmark_chunk *input,
       if (parser->blank)
         goto done;
       break;
+    case CMARK_NODE_TABLE:
+      if (!scan_table_row(input->data + parser->first_nonspace, input->len - parser->first_nonspace))
+        goto done;
+      break;
+    case CMARK_NODE_TABLE_ROW:
+      // Fallthrough.
+    case CMARK_NODE_TABLE_CELL:
+      // A table row and cell can't contain more than one line.
+      goto done;
     default:
       break;
     }
@@ -1015,6 +1178,196 @@ done:
   return container;
 }
 
+static bool parse_table_row_cells_scan_row_helper(table_row_scan_context *context,
+                                            bufsize_t offset, int cols, char c) {
+  UNUSED(offset);
+  if (c == '|') {
+    cmark_node *cell_node = add_child(context->parser, context->container,
+                                      CMARK_NODE_TABLE_CELL,
+                                      context->container->start_column + context->cell_start_offset);
+    cell_node->start_line = cell_node->end_line = context->container->start_line;
+    // Do not include the pipes.
+    cell_node->end_column = context->container->start_column + offset - 1;
+
+    const unsigned char *cell_content = context->data + context->cell_start_offset;
+    unsigned char *mutable_data = (unsigned char *)context->data;
+    mutable_data[offset] = '\0';
+    cmark_node_set_literal(cell_node, (char *)cell_content);
+    mutable_data[offset] = '|';
+
+    cell_node->as.table_cell.idx = cols;
+    cell_node->as.table_cell.is_delimiter = false;
+
+    // For next cell.
+    context->cell_start_offset = offset + 1;
+  }
+  return true;
+}
+
+static bool parse_table_row_cells(cmark_parser *parser, cmark_node *container,
+                                  const unsigned char *data, bufsize_t len) {
+  if (0 >= len || data[0] != '|') {
+    return false;
+  }
+
+  table_row_scan_context context;
+  memset(&context, 0, sizeof(context));
+  context.parser = parser;
+  context.container = container;
+  context.data = data;
+  return scan_table_row_helper(data, len, &context, parse_table_row_cells_scan_row_helper);
+}
+
+static cmark_node *try_opening_new_table_row(cmark_parser *parser, cmark_node *container,
+                                             cmark_chunk *input) {
+  if (parser->blank) {
+    return NULL;
+  }
+
+  const unsigned char *data = input->data + parser->first_nonspace;
+  const bufsize_t len = input->len - parser->first_nonspace;
+
+  int matched = scan_table_row(data, len);
+  if (matched == 0) {
+    return NULL;
+  }
+
+  cmark_node *row = add_child(parser, container, CMARK_NODE_TABLE_ROW, container->start_column);
+  row->end_column = container->end_column;
+  row->as.table_row.type = CMARK_TABLE_ROW_TYPE_DATA;
+  if (!parse_table_row_cells(parser, row, data, len)) {
+    cmark_node_free(row);
+    return NULL;
+  }
+
+  // Minus the extra '\n'.
+  S_advance_offset(parser, input, input->len - parser->offset - 1, false);
+  return row;
+}
+
+static cmark_table_align parse_table_cell_alignment(const unsigned char *data, bufsize_t len) {
+  bool align_left = false;
+  bool align_right = false;
+  bool dash_met = false;
+  for (bufsize_t i = 0; i < len; ++i) {
+    switch (data[i]) {
+    case '-':
+      dash_met = true;
+      break;
+    case ':':
+      if (dash_met) {
+        align_right = true;
+      } else {
+        align_left = true;
+      }
+      break;
+    default:
+      assert(S_is_space_or_tab(data[i]));
+      break;
+    }
+  }
+  if (align_left && align_right) {
+    return CMARK_TABLE_ALIGN_CENTER;
+  } else if (align_left) {
+    return CMARK_TABLE_ALIGN_LEFT;
+  } else if (align_right) {
+    return CMARK_TABLE_ALIGN_RIGHT;
+  } else {
+    return CMARK_TABLE_ALIGN_NONE;
+  }
+}
+
+static cmark_node *try_opening_new_table_header(cmark_parser *parser, cmark_node *container,
+                                                cmark_chunk *input) {
+  const unsigned char *data = input->data + parser->first_nonspace;
+  const bufsize_t len = input->len - parser->first_nonspace;
+
+  // Check if current line is the delimiter row. If yes, change the type of the parent container
+  // from PARAGRAPH to TABLE.
+  int del_matched = scan_table_delimiter_row(data, len);
+  if (del_matched == 0) {
+    return NULL;
+  }
+
+  // Try parsing parent node content as the header row.
+  int header_matched = scan_table_header(parser->content.ptr, parser->content.size);
+  if (header_matched == 0) {
+    return NULL;
+  }
+
+  // Columns count must match.
+  if (del_matched != header_matched) {
+    return NULL;
+  }
+
+  container->type = CMARK_NODE_TABLE;
+
+  cmark_node *header_row = add_child(parser, container, CMARK_NODE_TABLE_ROW, container->start_column);
+  header_row->start_line = header_row->end_line = container->start_line;
+  // Minus the extra '\n'.
+  header_row->end_column = container->start_column + parser->content.size - 2;
+  header_row->as.table_row.type = CMARK_TABLE_ROW_TYPE_HEADER;
+  if (!parse_table_row_cells(parser, header_row, parser->content.ptr, parser->content.size)) {
+    container->type = CMARK_NODE_PARAGRAPH;
+    cmark_node_free(header_row);
+    return NULL;
+  }
+
+  cmark_node *delimiter_row = add_child(parser, container, CMARK_NODE_TABLE_ROW, container->start_column);
+  delimiter_row->as.table_row.type = CMARK_TABLE_ROW_TYPE_DELIMITER;
+  if (!parse_table_row_cells(parser, delimiter_row, data, len)) {
+    container->type = CMARK_NODE_PARAGRAPH;
+    cmark_node_free(header_row);
+    cmark_node_free(delimiter_row);
+    return NULL;
+  }
+
+  // Init table data.
+  memset(&container->as.table, 0, sizeof(cmark_table));
+  container->as.table.columns_cnt = header_matched;
+  cmark_table_align *alignments = (cmark_table_align *)parser->mem
+    ->calloc(header_matched, sizeof(cmark_table_align));
+  cmark_node *cell_node = delimiter_row->first_child;
+  while (cell_node) {
+    assert(cell_node->as.table_cell.idx < header_matched);
+    cell_node->as.table_cell.is_delimiter = true;
+    alignments[cell_node->as.table_cell.idx] = parse_table_cell_alignment(cell_node->data, cell_node->len);
+    cell_node = cell_node->next;
+  }
+  container->as.table.alignments = alignments;
+
+  // Minus the extra '\n'.
+  S_advance_offset(parser, input, input->len - parser->offset - 1, false);
+
+  // Clear parser content after successfully creating table header and delimiter rows
+  cmark_strbuf_clear(&parser->content);
+
+  return delimiter_row;
+}
+
+static bool try_opening_new_table_blocks(cmark_parser *parser, cmark_node **container,
+                                         cmark_chunk *input, bool indented) {
+  if (indented) {
+    return false;
+  }
+
+  cmark_node_type parent_type = cmark_node_get_type(*container);
+  cmark_node *new_container = NULL;
+  if (parent_type == CMARK_NODE_TABLE) {
+    new_container = try_opening_new_table_row(parser, *container, input);
+  } else if (parent_type == CMARK_NODE_PARAGRAPH){
+    // Now we are checking the delimiter row and the header row has already
+    // been recognized as a paragraph.
+    new_container = try_opening_new_table_header(parser, *container, input);
+  }
+  if (new_container) {
+    *container = new_container;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                             cmark_chunk *input, bool all_matched) {
   bool indented;
@@ -1030,7 +1383,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
   while (cont_type != CMARK_NODE_CODE_BLOCK &&
          cont_type != CMARK_NODE_FORMULA_BLOCK &&
-         cont_type != CMARK_NODE_HTML_BLOCK) {
+         cont_type != CMARK_NODE_HTML_BLOCK &&
+         cont_type != CMARK_NODE_TABLE_CELL) {
 
     S_find_first_nonspace(parser, input);
     indented = parser->indent >= CODE_INDENT;
@@ -1195,7 +1549,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.code.fence_length = 0;
       (*container)->as.code.fence_offset = 0;
       (*container)->as.code.info = NULL;
-
+    } else if (try_opening_new_table_blocks(parser, container, input, indented)) {
+      break;
     } else {
       break;
     }

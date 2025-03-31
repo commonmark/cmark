@@ -41,6 +41,33 @@ typedef struct {
   bool setext;
 } cmark_heading;
 
+typedef enum {
+  CMARK_TABLE_ALIGN_NONE = 0,    // No alignment specified (---)
+  CMARK_TABLE_ALIGN_LEFT = 1,    // :---
+  CMARK_TABLE_ALIGN_CENTER = 2,  // :---:
+  CMARK_TABLE_ALIGN_RIGHT = 3    // ---:
+} cmark_table_align;
+
+typedef enum {
+  CMARK_TABLE_ROW_TYPE_HEADER,
+  CMARK_TABLE_ROW_TYPE_DELIMITER,
+  CMARK_TABLE_ROW_TYPE_DATA
+} cmark_table_row_type;
+
+typedef struct {
+  int columns_cnt;
+  cmark_table_align *alignments;
+} cmark_table;
+
+typedef struct {
+  cmark_table_row_type type;
+} cmark_table_row;
+
+typedef struct {
+  int idx;
+  bool is_delimiter;
+} cmark_table_cell;
+
 typedef struct {
   unsigned char *url;
   unsigned char *title;
@@ -88,6 +115,9 @@ struct cmark_node {
     cmark_link link;
     cmark_custom custom;
     cmark_formula formula;
+    cmark_table table;
+    cmark_table_row table_row;
+    cmark_table_cell table_cell;
     int html_block_type;
   } as;
 };

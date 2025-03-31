@@ -181,6 +181,53 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_STRIKETHROUGH:
     case CMARK_NODE_MARK:
       break;
+    case CMARK_NODE_TABLE:
+      snprintf(buffer, BUFFER_SIZE, " columns=\"%d\"", node->as.table.columns_cnt);
+      cmark_strbuf_puts(xml, buffer);
+      break;
+
+    case CMARK_NODE_TABLE_ROW:
+      switch (node->as.table_row.type) {
+        case CMARK_TABLE_ROW_TYPE_HEADER:
+          cmark_strbuf_puts(xml, " type=\"header\"");
+          break;
+        case CMARK_TABLE_ROW_TYPE_DELIMITER:
+          cmark_strbuf_puts(xml, " type=\"delimiter\"");
+          break;
+        case CMARK_TABLE_ROW_TYPE_DATA:
+          cmark_strbuf_puts(xml, " type=\"data\"");
+          break;
+      }
+      break;
+
+    case CMARK_NODE_TABLE_CELL:
+      if (node->parent && node->parent->parent &&
+          node->parent->parent->type == CMARK_NODE_TABLE) {
+        int col_num = 0;
+        cmark_node *cell = node->parent->first_child;
+        while (cell && cell != node) {
+          col_num++;
+          cell = cell->next;
+        }
+        if (col_num < node->parent->parent->as.table.columns_cnt) {
+          switch(node->parent->parent->as.table.alignments[col_num]) {
+            case CMARK_TABLE_ALIGN_LEFT:
+              cmark_strbuf_puts(xml, " align=\"left\"");
+              break;
+            case CMARK_TABLE_ALIGN_CENTER:
+              cmark_strbuf_puts(xml, " align=\"center\"");
+              break;
+            case CMARK_TABLE_ALIGN_RIGHT:
+              cmark_strbuf_puts(xml, " align=\"right\"");
+              break;
+            case CMARK_TABLE_ALIGN_NONE:
+              cmark_strbuf_puts(xml, " align=\"none\"");
+              break;
+          }
+        }
+      }
+      break;
+
     case CMARK_NODE_LINK:
     case CMARK_NODE_IMAGE:
       cmark_strbuf_puts(xml, " destination=\"");

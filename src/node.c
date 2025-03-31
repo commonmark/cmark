@@ -84,6 +84,28 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
   case CMARK_NODE_CUSTOM_INLINE:
     return cmark_node_is_inline(child);
 
+  case CMARK_NODE_TABLE:
+    return child->type == CMARK_NODE_TABLE_ROW;
+
+  case CMARK_NODE_TABLE_ROW:
+    return child->type == CMARK_NODE_TABLE_CELL;
+
+  case CMARK_NODE_TABLE_CELL:
+    switch (child->type) {
+      case CMARK_NODE_TEXT:
+      case CMARK_NODE_CODE:
+      case CMARK_NODE_EMPH:
+      case CMARK_NODE_STRONG:
+      case CMARK_NODE_LINK:
+      case CMARK_NODE_IMAGE:
+      case CMARK_NODE_STRIKETHROUGH:
+      case CMARK_NODE_HTML_INLINE:
+      case CMARK_NODE_MARK:
+        return true;
+      default:
+        return false;
+    }
+
   default:
     break;
   }
@@ -137,12 +159,17 @@ static void S_free_nodes(cmark_node *e) {
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_FORMULA_INLINE:
     case CMARK_NODE_FORMULA_BLOCK:
+    case CMARK_NODE_TABLE_CELL:
       mem->free(e->data);
       break;
     case CMARK_NODE_LINK:
     case CMARK_NODE_IMAGE:
       mem->free(e->as.link.url);
       mem->free(e->as.link.title);
+      break;
+    case CMARK_NODE_TABLE:
+      mem->free(e->as.table.alignments);
+      e->as.table.alignments = NULL;
       break;
     case CMARK_NODE_CUSTOM_BLOCK:
     case CMARK_NODE_CUSTOM_INLINE:
@@ -229,6 +256,12 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "formula_inline";
   case CMARK_NODE_FORMULA_BLOCK:
     return "formula_block";
+  case CMARK_NODE_TABLE:
+    return "table";
+  case CMARK_NODE_TABLE_ROW:
+    return "table_row";
+  case CMARK_NODE_TABLE_CELL:
+    return "table_cell";
   case CMARK_NODE_LINK:
     return "link";
   case CMARK_NODE_IMAGE:
@@ -327,6 +360,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
   case CMARK_NODE_CODE_BLOCK:
   case CMARK_NODE_FORMULA_INLINE:
   case CMARK_NODE_FORMULA_BLOCK:
+  case CMARK_NODE_TABLE_CELL:
     return node->data ? (char *)node->data : "";
 
   default:
@@ -349,6 +383,7 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   case CMARK_NODE_CODE_BLOCK:
   case CMARK_NODE_FORMULA_INLINE:
   case CMARK_NODE_FORMULA_BLOCK:
+  case CMARK_NODE_TABLE_CELL:
     node->len = cmark_set_cstr(node->mem, &node->data, content);
     return 1;
 

@@ -6,7 +6,9 @@ set(TEST_TARGETS
     mark_tests
     formula_inline_tests
     formula_block_tests
-    code_tests)
+    code_tests
+    table_tests
+    link_tests)
 
 foreach(TARGET ${TEST_TARGETS})
     add_executable(${TARGET} ${TARGET}.c test_utils.c)
