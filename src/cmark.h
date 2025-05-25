@@ -536,6 +536,13 @@ void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
 
+/**
+ * Deep copy a parser object, returning a new parser
+ * likely to be used in streaming mode.
+ */
+CMARK_EXPORT
+cmark_parser *cmark_parser_fork(cmark_parser *parser);
+
 /** Parse a CommonMark document in 'buffer' of length 'len'.
  * Returns a pointer to a tree of nodes.  The memory allocated for
  * the node tree should be released using 'cmark_node_free'
