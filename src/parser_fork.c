@@ -3,7 +3,7 @@
 #include "node.h"
 #include "buffer.h"
 #include "chunk.h"
-#include "cmark-gfm.h"
+#include "cmark.h"
 #include "references.h"
 #include "map.h"
 #include "syntax_extension.h"
