@@ -31,6 +31,8 @@
     (_enum '(no_list bullet_list ordered_list)))
   (define _cmark_delim_type
     (_enum '(no_delim period_delim paren_delim)))
+  (define _cmark_marker_type
+    (_enum '(no_marker numeric_marker asterisk_marker hyphen_marker plus_marker)))
   (define _cmark_opts
     (let ([opts '([sourcepos  1] ; include sourcepos attribute on block elements
                   [hardbreaks 2] ; render `softbreak` elements as hard line breaks
@@ -79,6 +81,8 @@
   (defcmark cmark_node_set_list_type    (_fun _node _cmark_list_type -> _bool))
   (defcmark cmark_node_get_list_delim   (_fun _node -> _cmark_delim_type))
   (defcmark cmark_node_set_list_delim   (_fun _node _cmark_delim_type -> _bool))
+  (defcmark cmark_node_get_list_marker   (_fun _node -> _cmark_marker_type))
+  (defcmark cmark_node_set_list_marker   (_fun _node _cmark_marker_type -> _bool))
   (defcmark cmark_node_get_list_start   (_fun _node -> _int))
   (defcmark cmark_node_set_list_start   (_fun _node _int -> _bool))
   (defcmark cmark_node_get_list_tight   (_fun _node -> _bool))
@@ -130,7 +134,7 @@
   (define-getters+setters getters+setters
     [heading heading_level] [code-block fence_info]
     [link url title] [image url title]
-    [list list_type list_delim list_start list_tight])
+    [list list_type list_delim list_marker list_start list_tight])
 
   (provide cmark->sexpr)
   (define (cmark->sexpr node)

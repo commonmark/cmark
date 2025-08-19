@@ -20,6 +20,7 @@ typedef struct {
   unsigned char delimiter;
   unsigned char bullet_char;
   bool tight;
+  cmark_marker_type marker;
 } cmark_list;
 
 typedef struct {
