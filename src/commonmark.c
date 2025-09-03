@@ -239,8 +239,12 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT(listmarker);
         renderer->begin_content = true;
       }
-      for (i = marker_width; i--;) {
-        cmark_strbuf_putc(renderer->prefix, ' ');
+      if (node->first_child == NULL) {
+        BLANKLINE();
+      } else {
+        for (i = marker_width; i--;) {
+          cmark_strbuf_putc(renderer->prefix, ' ');
+        }
       }
     } else {
       cmark_strbuf_truncate(renderer->prefix,
