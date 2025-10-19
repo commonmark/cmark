@@ -58,7 +58,7 @@ There are also libraries that wrap `libcmark` for
 [Ruby](https://github.com/gjtorikian/commonmarker),
 [Lua](https://github.com/jgm/cmark-lua),
 [Perl](https://metacpan.org/release/CommonMark),
-[Python](https://pypi.python.org/pypi/paka.cmark),
+[Python](https://pypi.org/project/umarkdown/),
 [R](https://cran.r-project.org/package=commonmark),
 [Scala](https://github.com/sparsetech/cmark-scala) and
 [PHP](https://www.php.net/manual/en/book.cmark.php).
