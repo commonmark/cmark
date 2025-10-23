@@ -9,15 +9,7 @@ else()
   set(PYTHON_REQUIRED)
 endif()
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
-  find_package(Python3 ${PYTHON_REQUIRED} COMPONENTS Interpreter)
-else()
-  find_package(PythonInterp 3 ${PYTHON_REQUIRED})
-  set(Python3_Interpreter_FOUND ${PYTHONINTERP_FOUND})
-  add_executable(Python3::Interpreter IMPORTED)
-  set_target_properties(Python3::Interpreter PROPERTIES
-    IMPORTED_LOCATION ${PYTHON_EXECUTABLE})
-endif()
+find_package(Python3 ${PYTHON_REQUIRED} COMPONENTS Interpreter)
 
 IF (Python3_Interpreter_FOUND)
 
