@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.7)
-
-if(POLICY CMP0092)
-  cmake_policy(SET CMP0092 NEW)
-endif()
+cmake_minimum_required(VERSION 3.14)
 
 project(cmark
   LANGUAGES C CXX
   VERSION 0.31.1)
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED YES)
+set(CMAKE_C_EXTENSIONS NO)
 
 if(CMAKE_BUILD_TYPE STREQUAL Asan)
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
@@ -53,12 +53,6 @@ endif()
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 option(BUILD_SHARED_LIBS "Build the CMark library as shared"
   ${_CMARK_BUILD_SHARED_LIBS_DEFAULT})
-
-if(NOT MSVC)
-  set(CMAKE_C_STANDARD 99)
-  set(CMAKE_C_STANDARD_REQUIRED YES)
-  set(CMAKE_C_EXTENSIONS NO)
-endif()
 
 # -fvisibility=hidden
 set(CMAKE_C_VISIBILITY_PRESET hidden)
