@@ -138,7 +138,7 @@ jobs:
       shell: cmd
     - name: Upload artifact
       if: ${{ matrix.build_type == 'static' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: cmark windows ${{ matrix.build_type }}
         path: build/src/Debug/cmark.exe
