@@ -409,7 +409,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       case EMAIL_AUTOLINK:
         LIT("\\href{");
         OUT(url, false, URL);
-        LIT("}\\nolinkurl{");
+        LIT("}{\\nolinkurl{");
         break;
       case NORMAL_LINK:
         LIT("\\href{");
@@ -425,6 +425,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT("{"); // error?
       }
     } else {
+      if (get_link_type(node) == EMAIL_AUTOLINK) {
+        LIT("}"); // Close up \nolinkurl argument
+      }
       LIT("}");
     }
 
