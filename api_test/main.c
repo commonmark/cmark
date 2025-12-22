@@ -8,6 +8,7 @@
 
 #include "harness.h"
 #include "cplusplus.h"
+#include "delim_test.h"
 
 #define UTF8_REPL "\xEF\xBF\xBD"
 
@@ -1185,6 +1186,7 @@ int main(void) {
   source_pos(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  test_delimiters(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

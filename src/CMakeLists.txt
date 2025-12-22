@@ -10,6 +10,7 @@ add_library(cmark
   buffer.c
   cmark.c
   cmark_ctype.c
+  cmark_delim.c
   commonmark.c
   houdini_href_e.c
   houdini_html_e.c
@@ -72,6 +73,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
 
 install(FILES
   cmark.h
+  cmark_delim.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
