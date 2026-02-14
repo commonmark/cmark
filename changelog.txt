@@ -1,3 +1,42 @@
+[0.31.2]
+
+  * Export `cmark_node_is_inline`, `cmark_node_is_block`,
+    `cmark_node_is_leaf` [non-breaking API change].
+
+  * Don't append a newline character when rendering inline nodes
+    (Samuel Williams).
+
+  * Fix inline source positions (#551, Nick Wellnhofer).
+    Account for partially removed delimiter chars.
+
+  * Commonmark renderer: fix bug with empty item at end of list (#583).
+
+  * Fix email autolink rendering in latex (#595).
+
+  * CMake: Remove handling CMP0063 (Christophh Grüninger).
+    Required CMake is 3.7 which automatically sets CMP0063 to NEW.
+
+  * Makefile: Don't depend on $(SPEC) (Nick Wellnhofer).
+    The spec file is always present.
+
+  * Makefile: Clean up cmake invocations (Nick Wellnhofer).
+    Use cmake command to build and install instead of invoking make. Also
+    use -G option consistently. This allows to use other generators like
+    Ninja: `make GENERATOR=Ninja`.
+
+  * Fix python warnings about regexp escape sequences
+    (Azamat H. Hackimov).
+
+  * Update cmake_minimum_required to 3.14 (Azamat H. Hackimov).
+
+  * Update to Unicode 17.0 (Dmitry Atamanov).
+
+  * README: Make cmake instructions more portable and simple
+    (Nick Wellnhofer). Don't assume that make is used. Don't
+    change directories.
+
+  * Replace link to unmaintained Python bindings (Ofek Lev).
+
 [0.31.1]
 
   * Flag root node as open in `cmark_parser_new_with_mem_into_root` (#532).
