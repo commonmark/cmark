@@ -1038,7 +1038,7 @@ static void source_pos(test_batch_runner *runner) {
                       "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
                       "  </paragraph>\n"
                       "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delim=\"period\" tight=\"false\">\n"
+                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delimiter=\"period\" tight=\"false\">\n"
                       "      <item sourcepos=\"6:3-8:1\">\n"
                       "        <paragraph sourcepos=\"6:6-7:10\">\n"
                       "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"

@@ -134,9 +134,9 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         cmark_strbuf_puts(xml, buffer);
         delim = cmark_node_get_list_delim(node);
         if (delim == CMARK_PAREN_DELIM) {
-          cmark_strbuf_puts(xml, " delim=\"paren\"");
+          cmark_strbuf_puts(xml, " delimiter=\"paren\"");
         } else if (delim == CMARK_PERIOD_DELIM) {
-          cmark_strbuf_puts(xml, " delim=\"period\"");
+          cmark_strbuf_puts(xml, " delimiter=\"period\"");
         }
         break;
       case CMARK_BULLET_LIST:
