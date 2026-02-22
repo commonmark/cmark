@@ -347,6 +347,10 @@ CMARK_EXPORT int cmark_node_get_list_tight(cmark_node *node);
  */
 CMARK_EXPORT int cmark_node_set_list_tight(cmark_node *node, int tight);
 
+/** Returns the list item number of 'node' or 0 if it is not an ordered list.
+ */
+CMARK_EXPORT int cmark_node_get_item_number(cmark_node *node);
+
 /** Returns the info string from a fenced code block.
  */
 CMARK_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);

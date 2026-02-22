@@ -336,6 +336,17 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
     b->data = cmark_strbuf_detach(node_content);
     break;
 
+  case CMARK_NODE_ITEM:
+    if (parent->as.list.list_type != CMARK_ORDERED_LIST)
+      break;
+
+    if (b->prev == NULL)
+      b->as.item.number = parent->as.list.start;
+    else
+      b->as.item.number = b->prev->as.item.number + 1;
+
+    break;
+
   case CMARK_NODE_LIST:      // determine tight/loose status
     b->as.list.tight = true; // tight by default
     item = b->first_child;
