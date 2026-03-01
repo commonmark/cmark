@@ -1,28 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import re
 import argparse
-import sys
-import platform
 import itertools
 import multiprocessing
+import re
+import sys
 import queue
-import time
 from cmark import CMark
-
-TIMEOUT = 5
-
-parser = argparse.ArgumentParser(description='Run cmark tests.')
-parser.add_argument('--program', dest='program', nargs='?', default=None,
-        help='program to test')
-parser.add_argument('--library-dir', dest='library_dir', nargs='?',
-        default=None, help='directory containing dynamic library')
-args = parser.parse_args(sys.argv[1:])
-
-allowed_failures = {"many references": True}
-
-cmark = CMark(prog=args.program, library_dir=args.library_dir)
 
 def hash_collisions():
     REFMAP_SIZE = 16
@@ -133,13 +118,18 @@ pathological_cmark = {
 
 whitespace_re = re.compile('/s+/')
 
-def run_pathological(q, inp):
+def run_pathological(q, inp, prog, lib_dir):
+    cmark = CMark(prog=prog, library_dir=lib_dir)
     q.put(cmark.to_html(inp))
 
-def run_pathological_cmark(q, inp):
+def run_pathological_cmark(q, inp, prog, lib_dir):
+    cmark = CMark(prog=prog, library_dir=lib_dir)
     q.put(cmark.to_commonmark(inp))
 
-def run_tests():
+def run_tests(args):
+    allowed_failures = {"many references": True}
+    TIMEOUT = 5
+
     q = multiprocessing.Queue()
     passed = []
     errored = []
@@ -150,12 +140,16 @@ def run_tests():
     for description in (*pathological, *pathological_cmark):
         if description in pathological:
             (inp, regex) = pathological[description]
-            p = multiprocessing.Process(target=run_pathological,
-                      args=(q, inp))
+            p = multiprocessing.Process(
+                target=run_pathological,
+                args=(q, inp, args.program, args.library_dir)
+            )
         else:
             (inp, regex) = pathological_cmark[description]
-            p = multiprocessing.Process(target=run_pathological_cmark,
-                      args=(q, inp))
+            p = multiprocessing.Process(
+                target=run_pathological_cmark,
+                args=(q, inp, args.program, args.library_dir)
+            )
         p.start()
         try:
             # wait TIMEOUT seconds or until it finishes
@@ -199,4 +193,10 @@ def run_tests():
         exit(0)
 
 if __name__ == "__main__":
-    run_tests()
+    parser = argparse.ArgumentParser(description='Run cmark tests.')
+    parser.add_argument('--program', dest='program', nargs='?', default=None,
+                    help='program to test')
+    parser.add_argument('--library-dir', dest='library_dir', nargs='?',
+                    default=None, help='directory containing dynamic library')
+    args = parser.parse_args(sys.argv[1:])
+    run_tests(args)
