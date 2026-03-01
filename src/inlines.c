@@ -86,7 +86,7 @@ static bufsize_t subject_find_special_char(subject *subj, int options);
 // Create an inline with a literal string value.
 static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
                                        int start_column, int end_column) {
-  cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
+  cmark_node *e = (cmark_node *)subj->mem->calloc(subj->mem->ctx, 1, sizeof(*e));
   e->mem = subj->mem;
   e->type = (uint16_t)t;
   e->start_line = e->end_line = subj->line;
@@ -98,7 +98,7 @@ static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
 
 // Create an inline with no value.
 static inline cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
-  cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
+  cmark_node *e = (cmark_node *)mem->calloc(mem->ctx, 1, sizeof(*e));
   e->mem = mem;
   e->type = t;
   return e;
@@ -106,7 +106,7 @@ static inline cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
 
 static cmark_node *make_str(subject *subj, int sc, int ec, cmark_chunk s) {
   cmark_node *e = make_literal(subj, CMARK_NODE_TEXT, sc, ec);
-  e->data = (unsigned char *)subj->mem->realloc(NULL, s.len + 1);
+  e->data = (unsigned char *)subj->mem->realloc(subj->mem->ctx, NULL, s.len + 1);
   if (s.data != NULL) {
     memcpy(e->data, s.data, s.len);
   }
@@ -161,7 +161,7 @@ static unsigned char *cmark_strdup(cmark_mem *mem, unsigned char *src) {
     return NULL;
   }
   size_t len = strlen((char *)src);
-  unsigned char *data = (unsigned char *)mem->realloc(NULL, len + 1);
+  unsigned char *data = (unsigned char *)mem->realloc(mem->ctx, NULL, len + 1);
   memcpy(data, src, len + 1);
   return data;
 }
@@ -516,7 +516,7 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
   if (delim->previous != NULL) {
     delim->previous->next = delim->next;
   }
-  subj->mem->free(delim);
+  subj->mem->free(subj->mem->ctx, delim);
 }
 
 static void pop_bracket(subject *subj) {
@@ -525,12 +525,12 @@ static void pop_bracket(subject *subj) {
     return;
   b = subj->last_bracket;
   subj->last_bracket = subj->last_bracket->previous;
-  subj->mem->free(b);
+  subj->mem->free(subj->mem->ctx, b);
 }
 
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,
                            bool can_close, cmark_node *inl_text) {
-  delimiter *delim = (delimiter *)subj->mem->calloc(1, sizeof(delimiter));
+  delimiter *delim = (delimiter *)subj->mem->calloc(subj->mem->ctx, 1, sizeof(delimiter));
   delim->delim_char = c;
   delim->can_open = can_open;
   delim->can_close = can_close;
@@ -546,7 +546,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
 }
 
 static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
-  bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
+  bracket *b = (bracket *)subj->mem->calloc(subj->mem->ctx, 1, sizeof(bracket));
   if (subj->last_bracket != NULL) {
     subj->last_bracket->bracket_after = true;
   }
@@ -992,7 +992,7 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
     subj->pos += matchlen;
     cmark_node *node = make_literal(subj, CMARK_NODE_HTML_INLINE,
                                     subj->pos - matchlen - 1, subj->pos - 1);
-    node->data = (unsigned char *)subj->mem->realloc(NULL, len + 1);
+    node->data = (unsigned char *)subj->mem->realloc(subj->mem->ctx, NULL, len + 1);
     memcpy(node->data, src, len);
     node->data[len] = 0;
     node->len = len;

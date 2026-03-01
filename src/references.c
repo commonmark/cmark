@@ -8,10 +8,10 @@
 static void reference_free(cmark_reference_map *map, cmark_reference *ref) {
   cmark_mem *mem = map->mem;
   if (ref != NULL) {
-    mem->free(ref->label);
-    mem->free(ref->url);
-    mem->free(ref->title);
-    mem->free(ref);
+    mem->free(mem->ctx, ref->label);
+    mem->free(mem->ctx, ref->url);
+    mem->free(mem->ctx, ref->title);
+    mem->free(mem->ctx, ref);
   }
 }
 
@@ -37,7 +37,7 @@ static unsigned char *normalize_reference(cmark_mem *mem, cmark_chunk *ref) {
   assert(result);
 
   if (result[0] == '\0') {
-    mem->free(result);
+    mem->free(mem->ctx, result);
     return NULL;
   }
 
@@ -55,7 +55,7 @@ void cmark_reference_create(cmark_reference_map *map, cmark_chunk *label,
 
   assert(map->sorted == NULL);
 
-  ref = (cmark_reference *)map->mem->calloc(1, sizeof(*ref));
+  ref = (cmark_reference *)map->mem->calloc(map->mem->ctx, 1, sizeof(*ref));
   ref->label = reflabel;
   ref->url = cmark_clean_url(map->mem, url);
   ref->title = cmark_clean_title(map->mem, title);
@@ -94,7 +94,7 @@ static void sort_references(cmark_reference_map *map) {
   unsigned int i = 0, last = 0, size = map->size;
   cmark_reference *r = map->refs, **sorted = NULL;
 
-  sorted = (cmark_reference **)map->mem->calloc(size, sizeof(cmark_reference *));
+  sorted = (cmark_reference **)map->mem->calloc(map->mem->ctx, size, sizeof(cmark_reference *));
   while (r) {
     sorted[i++] = r;
     r = r->next;
@@ -133,7 +133,7 @@ cmark_reference *cmark_reference_lookup(cmark_reference_map *map,
 
   ref = (cmark_reference **)bsearch(norm, map->sorted, map->size, sizeof(cmark_reference *),
                 refsearch);
-  map->mem->free(norm);
+  map->mem->free(map->mem->ctx, norm);
 
   if (ref != NULL) {
     r = ref[0];
@@ -159,13 +159,13 @@ void cmark_reference_map_free(cmark_reference_map *map) {
     ref = next;
   }
 
-  map->mem->free(map->sorted);
-  map->mem->free(map);
+  map->mem->free(map->mem->ctx, map->sorted);
+  map->mem->free(map->mem->ctx, map);
 }
 
 cmark_reference_map *cmark_reference_map_new(cmark_mem *mem) {
   cmark_reference_map *map =
-      (cmark_reference_map *)mem->calloc(1, sizeof(cmark_reference_map));
+      (cmark_reference_map *)mem->calloc(mem->ctx, 1, sizeof(cmark_reference_map));
   map->mem = mem;
   return map;
 }

@@ -73,7 +73,7 @@ static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
   cmark_node *e;
 
-  e = (cmark_node *)mem->calloc(1, sizeof(*e));
+  e = (cmark_node *)mem->calloc(mem->ctx, 1, sizeof(*e));
   e->mem = mem;
   e->type = (uint16_t)tag;
   e->flags = CMARK_NODE__OPEN;
@@ -91,7 +91,7 @@ static cmark_node *make_document(cmark_mem *mem) {
 }
 
 cmark_parser *cmark_parser_new_with_mem_into_root(int options, cmark_mem *mem, cmark_node *root) {
-  cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
+  cmark_parser *parser = (cmark_parser *)mem->calloc(mem->ctx, 1, sizeof(cmark_parser));
   parser->mem = mem;
 
   cmark_strbuf_init(mem, &parser->curline, 256);
@@ -134,7 +134,7 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
   cmark_reference_map_free(parser->refmap);
-  mem->free(parser);
+  mem->free(mem->ctx, parser);
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b);
@@ -411,7 +411,7 @@ static void process_inlines(cmark_mem *mem, cmark_node *root,
     if (ev_type == CMARK_EVENT_ENTER) {
       if (contains_inlines(S_type(cur))) {
         cmark_parse_inlines(mem, cur, refmap, options);
-        mem->free(cur->data);
+        mem->free(mem->ctx, cur->data);
         cur->data = NULL;
         cur->len = 0;
       }
@@ -452,7 +452,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       }
     }
 
-    data = (cmark_list *)mem->calloc(1, sizeof(*data));
+    data = (cmark_list *)mem->calloc(mem->ctx, 1, sizeof(*data));
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
@@ -492,7 +492,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
         }
       }
 
-      data = (cmark_list *)mem->calloc(1, sizeof(*data));
+      data = (cmark_list *)mem->calloc(mem->ctx, 1, sizeof(*data));
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
       data->bullet_char = 0;
@@ -1130,7 +1130,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       /* TODO: static */
       memcpy(&((*container)->as.list), data, sizeof(*data));
-      parser->mem->free(data);
+      parser->mem->free(parser->mem->ctx, data);
     } else if (indented && !maybe_lazy && !parser->blank) {
       S_advance_offset(parser, input, CODE_INDENT, true);
       *container = add_child(parser, *container, CMARK_NODE_CODE_BLOCK,
