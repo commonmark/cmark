@@ -482,6 +482,16 @@ int cmark_node_set_list_tight(cmark_node *node, int tight) {
   }
 }
 
+int cmark_node_get_item_number(cmark_node *node) {
+  if (node == NULL)
+    return 0;
+
+  if (node->type == CMARK_NODE_ITEM)
+    return node->as.item.number;
+  else
+    return 0;
+}
+
 const char *cmark_node_get_fence_info(cmark_node *node) {
   if (node == NULL) {
     return NULL;

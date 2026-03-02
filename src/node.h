@@ -37,6 +37,10 @@ typedef struct {
 } cmark_heading;
 
 typedef struct {
+  int number;
+} cmark_item;
+
+typedef struct {
   unsigned char *url;
   unsigned char *title;
 } cmark_link;
@@ -78,6 +82,7 @@ struct cmark_node {
     cmark_list list;
     cmark_code code;
     cmark_heading heading;
+    cmark_item item;
     cmark_link link;
     cmark_custom custom;
     int html_block_type;
