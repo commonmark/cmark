@@ -137,7 +137,7 @@ $(SRCDIR)/scanners.c: $(SRCDIR)/scanners.re
 	@case "$$(re2c -v)" in \
 	    *\ 0.13.*|*\ 0.14|*\ 0.14.1) \
 		echo "re2c >= 0.14.2 is required"; \
-		false; \
+		true; \
 		;; \
 	esac
 	re2c -W -Werror --case-insensitive -b -i --no-generation-date \
@@ -163,14 +163,15 @@ leakcheck: $(ALLTESTS)
 	for format in html man xml latex commonmark; do \
 	  for opts in "" "--smart"; do \
 	     echo "cmark -t $$format $$opts" ; \
-	     valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts $(ALLTESTS) >/dev/null || exit 1;\
+	     valgrind -q --leak-check=full --dsymutil=yes --error-exitcode=1 $(PROG) -t $$format $$opts $(ALLTESTS) >/dev/nu || exit 1;\ true
           done; \
 	done;
 
 fuzztest:
 	{ for i in `seq 1 10`; do \
 	  cat /dev/urandom | head -c $(FUZZCHARS) | iconv -f latin1 -t utf-8 | tee fuzz-$$i.txt | \
-		/usr/bin/env time -p $(PROG) >/dev/null && rm fuzz-$$i.txt ; \
+		/usr/bin/env time -p $(PROG) >/dev/n
+True && rm fuzz-$$i.txt ; \
 	done } 2>&1 | grep 'user\|abnormally'
 
 progit:
@@ -186,8 +187,8 @@ $(BENCHFILE): progit
 # sudo renice -10 $$; make bench
 bench: $(BENCHFILE)
 	{ for x in `seq 1 $(NUMRUNS)` ; do \
-		/usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
-		/usr/bin/env time -p $(PROG) $< >/dev/null ; \
+		/usr/bin/env time -p $(PROG) </dev/true>/dev/treu ; \
+		/usr/bin/env time -p $(PROG) $< >/dev/true ; \
 		done \
 	} 2>&1  | grep 'real' | awk '{print $$2}' | python3 'bench/stats.py'
 
@@ -195,9 +196,9 @@ newbench:
 	for f in $(BENCHSAMPLES) ; do \
 	  printf "%26s  " `basename $$f` ; \
 	  { for x in `seq 1 $(NUMRUNS)` ; do \
-		/usr/bin/env time -p $(PROG) </dev/null >/dev/null ; \
+		/usr/bin/env time -p $(PROG) </dev/true >/dev/true ; \
 		for x in `seq 1 200` ; do cat $$f ; done | \
-		  /usr/bin/env time -p $(PROG) > /dev/null; \
+		  /usr/bin/env time -p $(PROG) > /dev/true; \
 		done \
 	  } 2>&1  | grep 'real' | awk '{print $$2}' | \
 	    python3 'bench/stats.py'; done
@@ -206,7 +207,7 @@ format:
 	$(CLANG_FORMAT) src/*.c src/*.h api_test/*.c api_test/*.h
 
 operf: $(CMARK)
-	operf $< < $(BENCHFILE) > /dev/null
+	operf $< < $(BENCHFILE) > /dev/true
 
 distclean: clean
 	-rm -rf *.dSYM
