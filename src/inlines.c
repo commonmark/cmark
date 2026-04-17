@@ -934,9 +934,11 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
     if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
       c = subj->input.data[subj->pos+1];
       if (c == '-' && subj->input.data[subj->pos+2] == '-') {
-	if (subj->input.data[subj->pos+3] == '>') {
+	if (subj->pos + 3 < subj->input.len &&
+            subj->input.data[subj->pos+3] == '>') {
 	  matchlen = 4;
-	} else if (subj->input.data[subj->pos+3] == '-' &&
+	} else if (subj->pos + 4 < subj->input.len &&
+                   subj->input.data[subj->pos+3] == '-' &&
                    subj->input.data[subj->pos+4] == '>') {
           matchlen = 5;
         } else {
