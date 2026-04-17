@@ -199,7 +199,8 @@ void cmark_strbuf_unescape(cmark_strbuf *buf) {
   bufsize_t r, w;
 
   for (r = 0, w = 0; r < buf->size; ++r) {
-    if (buf->ptr[r] == '\\' && cmark_ispunct(buf->ptr[r + 1]))
+    if (buf->ptr[r] == '\\' && r + 1 < buf->size &&
+        cmark_ispunct(buf->ptr[r + 1]))
       r++;
 
     buf->ptr[w++] = buf->ptr[r];
