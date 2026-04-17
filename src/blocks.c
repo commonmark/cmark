@@ -224,17 +224,17 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
 static bool S_ends_with_blank_line(cmark_node *node) {
-  if (S_last_line_checked(node)) {
-    return(S_last_line_blank(node));
-  } else if ((S_type(node) == CMARK_NODE_LIST ||
-              S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
+  while (!S_last_line_checked(node)) {
     S_set_last_line_checked(node);
-    return(S_ends_with_blank_line(node->last_child));
-  } else {
-    S_set_last_line_checked(node);
-    return (S_last_line_blank(node));
+    if (S_type(node) != CMARK_NODE_LIST && S_type(node) != CMARK_NODE_ITEM)
+      break;
+    if (!node->last_child)
+      break;
+    node = node->last_child;
   }
+  return S_last_line_blank(node);
 }
+
 
 // returns true if content remains after link defs are resolved.
 static bool resolve_reference_link_definitions(cmark_parser *parser) {
