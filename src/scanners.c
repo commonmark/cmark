@@ -13,9 +13,20 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c,
   } else {
     unsigned char lim = ptr[c->len];
 
-    ptr[c->len] = '\0';
-    res = scanner(ptr + offset);
-    ptr[c->len] = lim;
+    // The re2c scanners are built with yyfill:enable = 0, so they
+    // require a NUL sentinel at ptr[c->len].  In the common case the
+    // chunk is backed by a cmark_strbuf which is already NUL-terminated
+    // at that position, so we avoid the transient write entirely (it
+    // would otherwise mutate shared backing storage and break both
+    // const-correctness and reentrancy).  Only when the sentinel is
+    // missing do we fall back to patching the byte around the call.
+    if (lim == '\0') {
+      res = scanner(ptr + offset);
+    } else {
+      ptr[c->len] = '\0';
+      res = scanner(ptr + offset);
+      ptr[c->len] = lim;
+    }
   }
 
   return res;
