@@ -4,8 +4,8 @@
 
 bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, bufsize_t offset)
 {
-	bufsize_t res;
-	unsigned char *ptr = (unsigned char *)c->data;
+bufsize_t res;
+unsigned char *ptr = (unsigned char *)c->data;
 
         if (ptr == NULL || offset > c->len) {
           return 0;
@@ -42,8 +42,6 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 
   reg_char     = [^\\()\x00-\x20];
 
-  escaped_char = [\\][!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-];
-
   tagname = [A-Za-z][A-Za-z0-9-]*;
 
   blocktagname = 'address'|'article'|'aside'|'base'|'basefont'|'blockquote'|'body'|'caption'|'center'|'col'|'colgroup'|'dd'|'details'|'dialog'|'dir'|'div'|'dl'|'dt'|'fieldset'|'figcaption'|'figure'|'footer'|'form'|'frame'|'frameset'|'h1'|'h2'|'h3'|'h4'|'h5'|'h6'|'head'|'header'|'hr'|'html'|'iframe'|'legend'|'li'|'link'|'main'|'menu'|'menuitem'|'nav'|'noframes'|'ol'|'optgroup'|'option'|'p'|'param'|'section'|'search'|'title'|'summary'|'table'|'tbody'|'td'|'tfoot'|'th'|'thead'|'title'|'tr'|'track'|'ul';
@@ -72,12 +70,6 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   cdata = "CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])*;
 
   htmltag = opentag | closetag;
-
-  in_parens_nosp   = [(] (reg_char|escaped_char|[\\])* [)];
-
-  in_double_quotes = ["] (escaped_char|[^"\x00])* ["];
-  in_single_quotes = ['] (escaped_char|[^'\x00])* ['];
-  in_parens        = [(] (escaped_char|[^)\x00])* [)];
 
   scheme           = [A-Za-z][A-Za-z0-9.+-]{1,31};
 */
@@ -262,9 +254,9 @@ bufsize_t _scan_link_title(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
-  ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
-  [(] (escaped_char|[^()\x00])* [)]  { return (bufsize_t)(p - start); }
+  ["] ([\\][^\x00]|[^"\\\x00])* ["]  { return (bufsize_t)(p - start); }
+  ['] ([\\][^\x00]|[^'\\\x00])* [']  { return (bufsize_t)(p - start); }
+  [(] ([\\][^\x00]|[^()\\\x00])* [)] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
