@@ -1,4 +1,6 @@
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -270,9 +272,23 @@ static bufsize_t cmark_set_cstr(cmark_mem *mem, unsigned char **dst,
   bufsize_t len;
 
   if (src && src[0]) {
-      len = (bufsize_t)strlen(src);
-      *dst = (unsigned char *)mem->realloc(NULL, len + 1);
-      memcpy(*dst, src, len + 1);
+      size_t srclen = strlen(src);
+      if (srclen > (size_t)(INT32_MAX - 1)) {
+        fprintf(stderr,
+                "[cmark] cmark_set_cstr: input exceeds %d bytes, aborting\n",
+                INT32_MAX - 1);
+        abort();
+      }
+      len = (bufsize_t)srclen;
+      unsigned char *buf =
+          (unsigned char *)mem->realloc(NULL, (size_t)len + 1);
+      if (buf == NULL) {
+        fprintf(stderr,
+                "[cmark] cmark_set_cstr: allocator returned NULL, aborting\n");
+        abort();
+      }
+      memcpy(buf, src, (size_t)len + 1);
+      *dst = buf;
   } else {
       len = 0;
       *dst = NULL;
