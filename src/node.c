@@ -124,6 +124,7 @@ static void S_free_nodes(cmark_node *e) {
   while (e != NULL) {
     switch (e->type) {
     case CMARK_NODE_CODE_BLOCK:
+    case CMARK_NODE_FRONT_MATTER:
       mem->free(e->data);
       mem->free(e->as.code.info);
       break;
@@ -199,6 +200,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "heading";
   case CMARK_NODE_THEMATIC_BREAK:
     return "thematic_break";
+  case CMARK_NODE_FRONT_MATTER:
+    return "front_matter";
   case CMARK_NODE_TEXT:
     return "text";
   case CMARK_NODE_SOFTBREAK:
@@ -311,6 +314,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FRONT_MATTER:
     return node->data ? (char *)node->data : "";
 
   default:
@@ -331,6 +335,7 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   case CMARK_NODE_HTML_INLINE:
   case CMARK_NODE_CODE:
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FRONT_MATTER:
     node->len = cmark_set_cstr(node->mem, &node->data, content);
     return 1;
 
@@ -487,7 +492,8 @@ const char *cmark_node_get_fence_info(cmark_node *node) {
     return NULL;
   }
 
-  if (node->type == CMARK_NODE_CODE_BLOCK) {
+  if (node->type == CMARK_NODE_CODE_BLOCK ||
+      node->type == CMARK_NODE_FRONT_MATTER) {
     return node->as.code.info ? (char *)node->as.code.info : "";
   } else {
     return NULL;
@@ -499,7 +505,8 @@ int cmark_node_set_fence_info(cmark_node *node, const char *info) {
     return 0;
   }
 
-  if (node->type == CMARK_NODE_CODE_BLOCK) {
+  if (node->type == CMARK_NODE_CODE_BLOCK ||
+      node->type == CMARK_NODE_FRONT_MATTER) {
     cmark_set_cstr(node->mem, &node->as.code.info, info);
     return 1;
   } else {
