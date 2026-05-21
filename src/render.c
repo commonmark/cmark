@@ -116,7 +116,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
       bufsize_t remainder_len = renderer->buffer->size -
                                 renderer->last_breakable - 1;
       unsigned char *remainder =
-          (unsigned char *)renderer->mem->realloc(NULL, remainder_len);
+          (unsigned char *)renderer->mem->realloc(renderer->mem->ctx, NULL, remainder_len);
       memcpy(remainder, src, remainder_len);
       // truncate at last_breakable
       cmark_strbuf_truncate(renderer->buffer, renderer->last_breakable);
@@ -126,7 +126,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                        renderer->prefix->size);
       cmark_strbuf_put(renderer->buffer, remainder, remainder_len);
       renderer->column = renderer->prefix->size + remainder_len;
-      renderer->mem->free(remainder);
+      renderer->mem->free(renderer->mem->ctx, remainder);
       renderer->last_breakable = 0;
       renderer->begin_line = false;
       renderer->begin_content = false;
