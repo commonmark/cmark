@@ -308,3 +308,16 @@ Issue #608:
 </ul>
 ````````````````````````````````
 
+Issue #611:
+```````````````````````````````` example
+<![CDATA[ text ]]>
+<![cdata[ text ]]>
+<PrE>text</pRe>
+<foo>text</foo>
+.
+<![CDATA[ text ]]>
+<p>&lt;![cdata[ text ]]&gt;</p>
+<PrE>text</pRe>
+<p><foo>text</foo></p>
+````````````````````````````````
+

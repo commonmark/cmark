@@ -171,10 +171,10 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
   const unsigned char *marker = NULL;
 /*!re2c
   [<] ('script'|'pre'|'textarea'|'style') (spacechar | [>]) { return 1; }
-  '<!--' { return 2; }
-  '<?' { return 3; }
-  '<!' [A-Za-z] { return 4; }
-  '<![CDATA[' { return 5; }
+  "<!--" { return 2; }
+  "<?" { return 3; }
+  "<!" [A-Za-z] { return 4; }
+  "<![CDATA[" { return 5; }
   [<] [/]? blocktagname (spacechar | [/]? [>])  { return 6; }
   * { return 0; }
 */
@@ -208,7 +208,7 @@ bufsize_t _scan_html_block_end_2(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '-->' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "-->" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -219,7 +219,7 @@ bufsize_t _scan_html_block_end_3(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '?>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "?>" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -230,7 +230,7 @@ bufsize_t _scan_html_block_end_4(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* ">" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -241,7 +241,7 @@ bufsize_t _scan_html_block_end_5(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* ']]>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "]]>" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
