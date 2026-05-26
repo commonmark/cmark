@@ -429,7 +429,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT("](");
         OUT(cmark_node_get_url(node), false, URL);
         title = cmark_node_get_title(node);
-        if (strlen(title) > 0) {
+        if (title[0]) {
           LIT(" \"");
           OUT(title, false, TITLE);
           LIT("\"");
@@ -446,7 +446,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("](");
       OUT(cmark_node_get_url(node), false, URL);
       title = cmark_node_get_title(node);
-      if (strlen(title) > 0) {
+      if (title[0]) {
         OUT(" \"", allow_wrap, LITERAL);
         OUT(title, false, TITLE);
         LIT("\"");
