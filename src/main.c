@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
       i += 1;
       if (i < argc) {
         width = (int)strtol(argv[i], &unparsed, 10);
-        if (unparsed && strlen(unparsed) > 0) {
+        if (unparsed && unparsed[0]) {
           fprintf(stderr, "failed parsing width '%s' at '%s'\n", argv[i],
                   unparsed);
           exit(1);
