@@ -131,9 +131,13 @@ int main(int argc, char *argv[]) {
           fprintf(stderr, "width value out of range: '%s'\n", argv[i]);
           exit(1);
         }
-        if (unparsed && unparsed[0]) {
+        if (unparsed == argv[i] || (unparsed && unparsed[0])) {
           fprintf(stderr, "failed parsing width '%s' at '%s'\n", argv[i],
                   unparsed);
+          exit(1);
+        }
+        if (width < 0) {
+          fprintf(stderr, "width must be >= 0: '%s'\n", argv[i]);
           exit(1);
         }
       } else {
