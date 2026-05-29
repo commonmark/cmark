@@ -17,7 +17,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
     return NULL;
   }
   cmark_mem *mem = root->mem;
-  cmark_iter *iter = (cmark_iter *)mem->calloc(1, sizeof(cmark_iter));
+  cmark_iter *iter = (cmark_iter *)mem->calloc(mem->ctx, 1, sizeof(cmark_iter));
   iter->mem = mem;
   iter->root = root;
   iter->cur.ev_type = CMARK_EVENT_NONE;
@@ -27,7 +27,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
   return iter;
 }
 
-void cmark_iter_free(cmark_iter *iter) { iter->mem->free(iter); }
+void cmark_iter_free(cmark_iter *iter) { iter->mem->free(iter->mem->ctx, iter); }
 
 static bool S_is_leaf(cmark_node *node) {
   return ((1 << node->type) & S_leaf_mask) != 0;
@@ -111,7 +111,7 @@ void cmark_consolidate_text_nodes(cmark_node *root) {
         cmark_node_free(tmp);
         tmp = next;
       }
-      iter->mem->free(cur->data);
+      iter->mem->free(iter->mem->ctx, cur->data);
       cur->len = buf.size;
       cur->data = cmark_strbuf_detach(&buf);
     }
