@@ -30,6 +30,8 @@ parser.add_argument('--debug-normalization', dest='debug_normalization',
         default=False, help='filter stdin through normalizer for testing')
 parser.add_argument('-n', '--number', type=int, default=None,
         help='only consider the test with the given number')
+parser.add_argument('--track', metavar='path',
+        help='track which test cases pass/fail in the given JSON file and only report changes')
 parser.add_argument('--fuzz-corpus',
         help='convert test cases to fuzz corpus')
 args = parser.parse_args(sys.argv[1:])
@@ -37,44 +39,54 @@ args = parser.parse_args(sys.argv[1:])
 def out(str):
     sys.stdout.buffer.write(str.encode('utf-8')) 
 
-def print_test_header(headertext, example_number, start_line, end_line):
-    out("Example %d (lines %d-%d) %s\n" % (example_number,start_line,end_line,headertext))
+def print_test_header(test):
+    out("Example %d (lines %d-%d) %s\n"
+        % (test['example'], test['start_line'], test['end_line'], test['section']))
 
-def do_test(converter, test, normalize, result_counts):
-    [retcode, actual_html, err] = converter(test['markdown'])
-    if retcode == 0:
-        expected_html = test['html']
-        unicode_error = None
-        if normalize:
-            try:
-                passed = normalize_html(actual_html) == normalize_html(expected_html)
-            except UnicodeDecodeError as e:
-                unicode_error = e
-                passed = False
-        else:
-            passed = actual_html == expected_html
-        if passed:
-            result_counts['pass'] += 1
-        else:
-            print_test_header(test['section'], test['example'], test['start_line'], test['end_line'])
+def do_test(converter, test, normalize, prev_result):
+    [retcode, actual_html_bytes, err] = converter(test['markdown'])
+    if retcode != 0:
+        if prev_result != 'error':
+            print_test_header(test)
+            out("program returned error code %d\n" % retcode)
+            sys.stdout.buffer.write(err)
+        return 'error'
+
+    expected_html = test['html']
+
+    try:
+        actual_html = actual_html_bytes
+    except UnicodeDecodeError as e:
+        if prev_result != 'fail':
+            print_test_header(test)
             out(test['markdown'] + '\n')
-            if unicode_error:
-                out("Unicode error: " + str(unicode_error) + '\n')
-                out("Expected: " + repr(expected_html) + '\n')
-                out("Got:      " + repr(actual_html) + '\n')
-            else:
-                expected_html_lines = expected_html.splitlines(True)
-                actual_html_lines = actual_html.splitlines(True)
-                for diffline in unified_diff(expected_html_lines, actual_html_lines,
-                                "expected HTML", "actual HTML"):
-                    out(diffline)
+            out("Unicode error: " + str(e) + '\n')
+            out("Expected: " + repr(expected_html) + '\n')
+            out("Got:      " + repr(actual_html_bytes) + '\n')
             out('\n')
-            result_counts['fail'] += 1
-    else:
-        print_test_header(test['section'], test['example'], test['start_line'], test['end_line'])
-        out("program returned error code %d\n" % retcode)
-        sys.stdout.buffer.write(err)
-        result_counts['error'] += 1
+        return 'fail'
+
+    if normalize:
+        actual_html = normalize_html(actual_html) + '\n'
+        expected_html = normalize_html(expected_html) + '\n'
+
+    if actual_html != expected_html:
+        if prev_result != 'fail':
+            print_test_header(test)
+            out(test['markdown'] + '\n')
+            expected_html_lines = expected_html.splitlines(True)
+            actual_html_lines = actual_html.splitlines(True)
+            for diffline in unified_diff(expected_html_lines, actual_html_lines,
+                            "expected HTML", "actual HTML"):
+                out(diffline)
+            out('\n')
+        return 'fail'
+
+    if prev_result and prev_result != 'pass':
+        print_test_header(test)
+        print('fixed!')
+
+    return 'pass'
 
 def get_tests(specfile):
     line_number = 0
@@ -95,7 +107,7 @@ def get_tests(specfile):
             l = line.strip()
             if l == "`" * 32 + " example":
                 state = 1
-            elif l == "`" * 32:
+            elif state == 2 and l == "`" * 32:
                 state = 0
                 example_number = example_number + 1
                 end_line = line_number
@@ -144,7 +156,8 @@ if __name__ == "__main__":
         pattern_re = re.compile(args.pattern, re.IGNORECASE)
     else:
         pattern_re = re.compile('.')
-    tests = [ test for test in all_tests if re.search(pattern_re, test['section']) and (not args.number or test['example'] == args.number) ]
+    tests = [ test for test in all_tests if re.search(pattern_re, test['section'])
+                and (not args.number or test['example'] == args.number) ]
     if args.dump_tests:
         out(json.dumps(tests, ensure_ascii=False, indent=2))
         exit(0)
@@ -152,7 +165,26 @@ if __name__ == "__main__":
         skipped = len(all_tests) - len(tests)
         converter = CMark(prog=args.program, library_dir=args.library_dir).to_html
         result_counts = {'pass': 0, 'fail': 0, 'error': 0, 'skip': skipped}
+
+        previous = {}
+
+        if args.track:
+            try:
+                with open(args.track) as f:
+                    previous = json.load(f)
+            except FileNotFoundError:
+                pass
+
+        results = {}
+
         for test in tests:
-            do_test(converter, test, args.normalize, result_counts)
+            result = do_test(converter, test, args.normalize, previous.get(str(test['example'])))
+            result_counts[result] += 1
+            results[test['example']] = result
+
+        if args.track:
+            with open(args.track, 'w') as f:
+                json.dump(results, f)
+
         out("{pass} passed, {fail} failed, {error} errored, {skip} skipped\n".format(**result_counts))
         exit(result_counts['fail'] + result_counts['error'])
