@@ -242,9 +242,9 @@ void cmark_utf8proc_case_fold(cmark_strbuf *dest, const uint8_t *str,
         cmark_strbuf_put(dest, str, char_len);
     } else if (char_len >= 0) {
       uint32_t key = c;
-      uint32_t *entry = bsearch(&key, cf_table,
-                                CF_TABLE_SIZE, sizeof(uint32_t),
-                                cf_compare);
+      const uint32_t *entry = bsearch(&key, cf_table,
+                                      CF_TABLE_SIZE, sizeof(uint32_t),
+                                      cf_compare);
       if (entry == NULL) {
         cmark_strbuf_put(dest, str, char_len);
       } else {
