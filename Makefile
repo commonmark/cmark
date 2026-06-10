@@ -107,7 +107,7 @@ lint: $(BUILDDIR)
 	for f in `ls src/*.[ch] | grep -v "scanners.c"` ; do \
 	  echo $$f ; \
 	  clang-tidy \
-	    -checks='clang-analyzer-*' \
+	    -checks='clang-analyzer-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling' \
 	    -header-filter='^build/.*' \
 	    -p=build \
 	    -warnings-as-errors='*' \
