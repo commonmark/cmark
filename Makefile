@@ -104,8 +104,15 @@ libFuzzer:
 
 lint: $(BUILDDIR)
 	errs=0 ; \
-	for f in `ls src/*.[ch] | grep -v "scanners.c"` ; \
-	  do echo $$f ; clang-tidy -header-filter='^build/.*' -p=build -warnings-as-errors='*' $$f || errs=1 ; done ; \
+	for f in `ls src/*.[ch] | grep -v "scanners.c"` ; do \
+	  echo $$f ; \
+	  clang-tidy \
+	    -checks='clang-analyzer-*' \
+	    -header-filter='^build/.*' \
+	    -p=build \
+	    -warnings-as-errors='*' \
+	    $$f || errs=1 ; \
+	done ; \
 	exit $$errs
 
 mingw:
