@@ -85,4 +85,3 @@ class CMark:
             cmark = CDLL(libpath)
             self.to_html = lambda x: to_html(cmark, x)
             self.to_commonmark = lambda x: to_commonmark(cmark, x)
-
