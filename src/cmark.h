@@ -93,7 +93,9 @@ typedef struct cmark_iter cmark_iter;
  */
 
 /** Defines the memory allocation functions to be used by CMark
- * when parsing and allocating a document tree
+ * when parsing and allocating a document tree.  Allocation functions
+ * must not return NULL; if they are unable to satisfy a request,
+ * they must abort the program (e.g. by calling abort()).
  */
 typedef struct cmark_mem {
   void *(*calloc)(size_t, size_t);
