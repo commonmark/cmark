@@ -321,3 +321,13 @@ Issue #611:
 <p><foo>text</foo></p>
 ````````````````````````````````
 
+Issue #468: Link reference definition title followed by trailing
+garbage on the same line must not be treated as a title.
+```````````````````````````````` example
+[bla]: /bla
+"The title" garbage
+[bla]
+.
+<p>&quot;The title&quot; garbage
+<a href="/bla">bla</a></p>
+````````````````````````````````

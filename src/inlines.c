@@ -1495,6 +1495,10 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
       if (!skip_line_end(&subj)) {
         return 0;
       }
+      // the previously scanned title turned out to be invalid (it was
+      // followed by trailing garbage instead of the end of the line), so
+      // the reference has no title after all.
+      title = cmark_chunk_literal("");
     } else {
       return 0;
     }
