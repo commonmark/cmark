@@ -984,7 +984,6 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
   bufsize_t matched = 0;
   int lev = 0;
   bool save_partially_consumed_tab;
-  bool has_content;
   int save_offset;
   int save_column;
 
@@ -1057,17 +1056,15 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       // text
     } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
                (lev =
-                    scan_setext_heading_line(input, parser->first_nonspace))) {
-      // finalize paragraph, resolving reference links
-      has_content = resolve_reference_link_definitions(parser);
-
-      if (has_content) {
-
-        (*container)->type = (uint16_t)CMARK_NODE_HEADING;
-        (*container)->as.heading.level = lev;
-        (*container)->as.heading.setext = true;
-        S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
-      }
+                    scan_setext_heading_line(input, parser->first_nonspace)) &&
+               resolve_reference_link_definitions(parser)) {
+      // Setext underline only if paragraph content remains after resolving
+      // reference definitions; otherwise fall through so `---` can still
+      // be a thematic break.
+      (*container)->type = (uint16_t)CMARK_NODE_HEADING;
+      (*container)->as.heading.level = lev;
+      (*container)->as.heading.setext = true;
+      S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
                (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
