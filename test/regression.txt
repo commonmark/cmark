@@ -331,3 +331,21 @@ garbage on the same line must not be treated as a title.
 <p>&quot;The title&quot; garbage
 <a href="/bla">bla</a></p>
 ````````````````````````````````
+
+Issue #619: `---` after a link reference definition is a thematic
+break, not a paragraph.
+```````````````````````````````` example
+[f]:r
+---
+.
+<hr />
+````````````````````````````````
+
+```````````````````````````````` example
+[foo]: /url
+---
+[foo]
+.
+<hr />
+<p><a href="/url">foo</a></p>
+````````````````````````````````
