@@ -482,6 +482,31 @@ int cmark_node_set_list_tight(cmark_node *node, int tight) {
   }
 }
 
+int cmark_node_get_item_index(cmark_node *node) {
+  if (node == NULL) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_ITEM) {
+    return node->as.list.start;
+  } else {
+    return 0;
+  }
+}
+
+int cmark_node_set_item_index(cmark_node *node, int idx) {
+  if (node == NULL || idx < 0) {
+    return 0;
+  }
+
+  if (node->type == CMARK_NODE_ITEM) {
+    node->as.list.start = idx;
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 const char *cmark_node_get_fence_info(cmark_node *node) {
   if (node == NULL) {
     return NULL;
