@@ -46,9 +46,10 @@ typedef enum {
   CMARK_NODE_PARAGRAPH,
   CMARK_NODE_HEADING,
   CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_FRONT_MATTER,
 
   CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
-  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_FRONT_MATTER,
 
   /* Inline */
   CMARK_NODE_TEXT,
@@ -640,6 +641,13 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
 /** Convert straight quotes to curly, `---` to em dashes, `--` to en dashes.
  */
 #define CMARK_OPT_SMART (1 << 10)
+
+/** Parse front matter ("---" delimited block at the start of the document)
+ *  and expose it as a CMARK_NODE_FRONT_MATTER node.  The raw content between
+ *  the delimiters is available via cmark_node_get_literal(); how it is
+ *  interpreted (e.g. as YAML, TOML, JSON) is left to the caller.
+ */
+#define CMARK_OPT_FRONT_MATTER (1 << 11)
 
 /**
  * ## Version information

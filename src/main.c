@@ -40,6 +40,7 @@ void print_usage(void) {
   printf("  --safe           Omit raw HTML and dangerous URLs\n");
   printf("  --unsafe         Render raw HTML and dangerous URLs\n");
   printf("  --smart          Use smart punctuation\n");
+  printf("  --front-matter   Parse front matter (--- delimited block at start of document)\n");
   printf("  --validate-utf8  Replace invalid UTF-8 sequences with U+FFFD\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
@@ -112,6 +113,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_NOBREAKS;
     } else if (strcmp(argv[i], "--smart") == 0) {
       options |= CMARK_OPT_SMART;
+    } else if (strcmp(argv[i], "--front-matter") == 0) {
+      options |= CMARK_OPT_FRONT_MATTER;
     } else if (strcmp(argv[i], "--safe") == 0) {
       options |= CMARK_OPT_SAFE;
     } else if (strcmp(argv[i], "--unsafe") == 0) {

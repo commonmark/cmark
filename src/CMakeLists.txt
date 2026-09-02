@@ -20,6 +20,7 @@ add_library(cmark
   latex.c
   man.c
   node.c
+  front_matter.c
   references.c
   render.c
   scanners.c

@@ -16,6 +16,7 @@
 #include "cmark.h"
 #include "node.h"
 #include "references.h"
+#include "front_matter.h"
 #include "utf8.h"
 #include "scanners.h"
 #include "inlines.h"
@@ -97,6 +98,8 @@ cmark_parser *cmark_parser_new_with_mem_into_root(int options, cmark_mem *mem, c
   cmark_strbuf_init(mem, &parser->curline, 256);
   cmark_strbuf_init(mem, &parser->linebuf, 0);
   cmark_strbuf_init(mem, &parser->content, 0);
+  cmark_strbuf_init(mem, &parser->front_matter_buf, 0);
+  cmark_strbuf_init(mem, &parser->front_matter_info, 0);
 
   root->flags = CMARK_NODE__OPEN;
 
@@ -133,6 +136,8 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_mem *mem = parser->mem;
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
+  cmark_strbuf_free(&parser->front_matter_buf);
+  cmark_strbuf_free(&parser->front_matter_info);
   cmark_reference_map_free(parser->refmap);
   mem->free(parser);
 }
@@ -1301,6 +1306,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->line_number++;
 
+  if ((parser->options & CMARK_OPT_FRONT_MATTER) &&
+      cmark_front_matter_process_line(parser, &input))
+    goto finished;
+
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
 
   if (!last_matched_container)
@@ -1334,6 +1343,14 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
 
   cmark_consolidate_text_nodes(parser->root);
 
+  // If front matter scanning was still active when the document ended, no
+  // closing delimiter was found.  The entire document (after the opening ---)
+  // is treated as front matter.
+  if ((parser->options & CMARK_OPT_FRONT_MATTER) && parser->front_matter_scanning)
+    cmark_front_matter_process_line(parser, NULL);
+
+  cmark_strbuf_free(&parser->front_matter_buf);
+  cmark_strbuf_free(&parser->front_matter_info);
   cmark_strbuf_free(&parser->curline);
 
 #if CMARK_DEBUG_NODES
