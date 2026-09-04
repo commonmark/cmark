@@ -349,3 +349,19 @@ break, not a paragraph.
 <hr />
 <p><a href="/url">foo</a></p>
 ````````````````````````````````
+
+Issue #618: a blank line inside a list item that has only trailing
+spaces (fewer than the item's own indent) should not evict a later
+indented line from the item, the same as a fully empty blank line or
+one padded out to the item's indent width would.
+
+```````````````````````````````` example
+- [r]:x
+
+ 
+  l
+.
+<ul>
+<li>l</li>
+</ul>
+````````````````````````````````

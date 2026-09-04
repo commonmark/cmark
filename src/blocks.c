@@ -289,7 +289,12 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   {
     has_content = resolve_reference_link_definitions(parser);
     if (!has_content) {
-      // remove blank node (former reference def)
+      // remove blank node (former reference def), but if it was the
+      // opening line of a list item, remember that the item did have
+      // real content, since parent->first_child is about to go back
+      // to NULL along with this node.
+      if (parent && S_type(parent) == CMARK_NODE_ITEM)
+        parent->flags |= CMARK_NODE__ITEM_HAD_CONTENT;
       cmark_node_free(b);
     } else {
       b->len = node_content->size;
@@ -805,10 +810,17 @@ static bool parse_node_item_prefix(cmark_parser *parser, cmark_chunk *input,
                                         container->as.list.padding,
                      true);
     res = true;
-  } else if (parser->blank && container->first_child != NULL) {
-    // if container->first_child is NULL, then the opening line
-    // of the list item was blank after the list marker; in this
-    // case, we are done with the list item.
+  } else if (parser->blank &&
+            (container->first_child != NULL ||
+             (container->flags & CMARK_NODE__ITEM_HAD_CONTENT))) {
+    // if container->first_child is NULL and the item never had any
+    // other content either, then the opening line of the list item
+    // was blank after the list marker; in this case, we are done with
+    // the list item. CMARK_NODE__ITEM_HAD_CONTENT covers the case
+    // where the item's only line so far was a link reference
+    // definition: its paragraph gets freed once the reference
+    // resolves, leaving first_child NULL again even though the
+    // opening line was not blank.
     S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                      false);
     res = true;
