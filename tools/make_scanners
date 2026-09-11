@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Creates C scanner code using re2c.
+# Usage: ./tools/make_scanners src/scanners.re src/scanners.c
+# Environment variable: RE2C_EXECUTABLE, CLANG_FORMAT_EXECUTABLE
+
+set -eu
+
+in=${1?no input file}
+out=${2?no output file}
+
+: "${RE2C_EXECUTABLE:=re2c}"
+: "${CLANG_FORMAT_EXECUTABLE:=clang-format}"
+
+case "$("$RE2C_EXECUTABLE" -v)" in
+	*\ 0.13.*|*\ 0.14|*\ 0.14.1)
+		echo "re2c >= 0.14.2 is required"
+		false
+		;;
+esac
+
+"$RE2C_EXECUTABLE" -W -Werror -b -i --no-generation-date \
+	               -o "$out" "$in"
+"$CLANG_FORMAT_EXECUTABLE" -i "$out"
