@@ -5,6 +5,19 @@ configure_file(libcmark.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
   @ONLY)
 
+find_program(PYTHON3_EXECUTABLE python3 OPTIONAL)
+
+if(PYTHON3_EXECUTABLE)
+  add_custom_command(
+    OUTPUT case_fold.inc
+    COMMAND ${PYTHON3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make_case_fold_inc.py
+            < ${CMAKE_CURRENT_SOURCE_DIR}/../data/CaseFolding.txt
+            > case_fold.inc
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../data/CaseFolding.txt
+    VERBATIM)
+endif()
+
 find_program(RE2C_EXECUTABLE re2c OPTIONAL)
 find_program(CLANG_FORMAT_EXECUTABLE clang-format OPTIONAL)
 
@@ -23,6 +36,7 @@ endif()
 add_library(cmark
   blocks.c
   buffer.c
+  case_fold.inc
   cmark.c
   cmark_ctype.c
   commonmark.c
