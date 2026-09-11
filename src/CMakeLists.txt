@@ -5,6 +5,21 @@ configure_file(libcmark.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
   @ONLY)
 
+find_program(RE2C_EXECUTABLE re2c OPTIONAL)
+find_program(CLANG_FORMAT_EXECUTABLE clang-format OPTIONAL)
+
+if(RE2C_EXECUTABLE AND CLANG_FORMAT_EXECUTABLE)
+  add_custom_command(
+    OUTPUT scanners.c
+    COMMAND RE2C_EXECUTABLE=${RE2C_EXECUTABLE}
+            CLANG_FORMAT_EXECUTABLE=${CLANG_FORMAT_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make_scanners
+            ${CMAKE_CURRENT_SOURCE_DIR}/scanners.re
+            scanners.c
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scanners.re
+    VERBATIM)
+endif()
+
 add_library(cmark
   blocks.c
   buffer.c
