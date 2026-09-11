@@ -20,7 +20,7 @@ VERSION?=$(SPECVERSION)
 RELEASE?=cmark-$(VERSION)
 INSTALL_PREFIX?=/usr/local
 CLANG_CHECK?=clang-check
-CLANG_FORMAT=clang-format -style llvm -sort-includes=0 -i
+CLANG_FORMAT=clang-format -i
 AFL_PATH?=/usr/local/bin
 
 .PHONY: all cmake_build leakcheck clean fuzztest test debug ubsan asan mingw archive newbench bench format update-spec afl libFuzzer lint

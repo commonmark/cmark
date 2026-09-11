@@ -1,0 +1,5 @@
+---
+BasedOnStyle: LLVM
+SortIncludes:
+  Enabled:         true
+  IgnoreCase:      false
