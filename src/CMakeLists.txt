@@ -16,6 +16,13 @@ if(PYTHON3_EXECUTABLE)
             > case_fold.inc
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../data/CaseFolding.txt
     VERBATIM)
+  add_custom_command(
+    OUTPUT entities.inc
+    COMMAND ${PYTHON3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make_entities_inc.py
+            > entities.inc
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/make_entities_inc.py
+    VERBATIM)
 endif()
 
 find_program(RE2C_EXECUTABLE re2c OPTIONAL)
@@ -40,6 +47,7 @@ add_library(cmark
   cmark.c
   cmark_ctype.c
   commonmark.c
+  entities.inc
   houdini_href_e.c
   houdini_html_e.c
   houdini_html_u.c
