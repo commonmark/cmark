@@ -842,7 +842,6 @@ static bool parse_code_block_prefix(cmark_parser *parser, cmark_chunk *input,
       // closing fence - and since we're at
       // the end of a line, we can stop processing it:
       *should_continue = false;
-      S_advance_offset(parser, input, matched, false);
       parser->current = finalize(parser, container);
     } else {
       // skip opt. spaces of fence parser->offset
