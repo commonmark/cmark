@@ -312,7 +312,10 @@ static bool validate_protocol(const char protocol[], uint8_t *data, size_t rewin
     return true;
   }
 
-  char prev_char = data[-((ptrdiff_t)rewind) - len - 1];
+  // Compute the offset as a signed value: with size_t operands the index
+  // becomes a huge unsigned number and adding it to `data` wraps the pointer,
+  // which is undefined behaviour even though the address computed is in bounds.
+  char prev_char = data[-((ptrdiff_t)(rewind + len + 1))];
 
   // Make sure the character before the protocol is non-alphanumeric
   return !cmark_isalnum(prev_char);
