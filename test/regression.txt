@@ -230,6 +230,14 @@ x <!A>
 <p>x <!A></p>
 ````````````````````````````````
 
+An unclosed HTML comment must not stop later declarations and CDATA
+sections from being recognized as raw HTML.
+```````````````````````````````` example
+a <!-- x <!B> <![CDATA[y]]> c
+.
+<p>a &lt;!-- x <!B> <![CDATA[y]]> c</p>
+````````````````````````````````
+
 An underscore that is not part of a delimiter should not prevent another
 pair of underscores from forming part of their own.
 ```````````````````````````````` example
