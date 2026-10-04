@@ -1196,6 +1196,9 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   if (parser->current != last_matched_container &&
       container == last_matched_container && !parser->blank &&
       S_type(parser->current) == CMARK_NODE_PARAGRAPH) {
+    // Like any paragraph line, skip the leading spaces and tabs.
+    S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
+                     false);
     add_line(input, parser);
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:
