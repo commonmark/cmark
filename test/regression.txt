@@ -108,6 +108,24 @@ City:
 </span></p>
 ````````````````````````````````
 
+The leading spaces of a lazy continuation line are not part of the
+paragraph content, as for any other paragraph line.
+
+```````````````````````````````` example
+> `a
+ b`
+
+- `c
+ d`
+.
+<blockquote>
+<p><code>a b</code></p>
+</blockquote>
+<ul>
+<li><code>c d</code></li>
+</ul>
+````````````````````````````````
+
 Issue #530 - link parsing corner cases
 
 ```````````````````````````````` example
