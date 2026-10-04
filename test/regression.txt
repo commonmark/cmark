@@ -257,6 +257,19 @@ x <- 1
 </code></pre>
 ````````````````````````````````
 
+Code spans after an unmatched backtick string of a different length.
+The failed scan for the closer of ``` `` ``` must not hide the second
+single-backtick span.
+```````````````````````````````` example
+``x
+`i`
+`j`
+.
+<p>``x
+<code>i</code>
+<code>j</code></p>
+````````````````````````````````
+
 https://github.com/commonmark/commonmark.js/issues/283
 ```````````````````````````````` example
 x<!x>
