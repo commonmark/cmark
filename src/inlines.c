@@ -931,7 +931,7 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
   // finally, try to match an html tag
   if (subj->pos + 2 <= subj->input.len) {
     int c = subj->input.data[subj->pos];
-    if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
+    if (c == '!') {
       c = subj->input.data[subj->pos+1];
       if (c == '-' && subj->input.data[subj->pos+2] == '-') {
 	if (subj->pos + 3 < subj->input.len &&
@@ -941,7 +941,7 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
                    subj->input.data[subj->pos+3] == '-' &&
                    subj->input.data[subj->pos+4] == '>') {
           matchlen = 5;
-        } else {
+        } else if ((subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
           matchlen = scan_html_comment(&subj->input, subj->pos + 1);
           if (matchlen > 0) {
             matchlen += 1; // prefix "<"
