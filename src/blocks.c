@@ -578,6 +578,11 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   const unsigned char *end = buffer + len;
   static const uint8_t repl[] = {239, 191, 189};
 
+  // An empty chunk has nothing to process. Returning here also preserves
+  // last_buffer_ended_with_cr and avoids reading past the end of buffer.
+  if (len == 0)
+    return;
+
   if (len > UINT_MAX - parser->total_size)
     parser->total_size = UINT_MAX;
   else
