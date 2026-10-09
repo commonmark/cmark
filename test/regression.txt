@@ -349,3 +349,13 @@ break, not a paragraph.
 <hr />
 <p><a href="/url">foo</a></p>
 ````````````````````````````````
+
+A pointy-bracket link destination may not contain a line ending, even
+when the newline is preceded by a backslash.
+```````````````````````````````` example
+[a](<b\
+c>)
+.
+<p>[a](&lt;b<br />
+c&gt;)</p>
+````````````````````````````````
