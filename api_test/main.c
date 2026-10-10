@@ -692,6 +692,31 @@ static void render_latex(test_batch_runner *runner) {
          "render document without wrapping");
   free(latex);
   cmark_node_free(doc);
+
+  // An ordered list nested inside a bullet list is still the first
+  // enumerate level, so its start value must go into enumi, not enumii.
+  static const char nested[] = "- outer\n"
+                               "\n"
+                               "  5. five\n"
+                               "  6. six\n";
+  cmark_node *nested_doc =
+      cmark_parse_document(nested, sizeof(nested) - 1, CMARK_OPT_DEFAULT);
+  latex = cmark_render_latex(nested_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, latex, "\\begin{itemize}\n"
+                        "\\item outer\n"
+                        "\n"
+                        "\\begin{enumerate}\n"
+                        "\\setcounter{enumi}{4}\n"
+                        "\\item five\n"
+                        "\n"
+                        "\\item six\n"
+                        "\n"
+                        "\\end{enumerate}\n"
+                        "\n"
+                        "\\end{itemize}\n",
+         "enumerate counter ignores bullet list nesting");
+  free(latex);
+  cmark_node_free(nested_doc);
 }
 
 static void render_commonmark(test_batch_runner *runner) {

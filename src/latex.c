@@ -209,7 +209,7 @@ static int S_get_enumlevel(cmark_node *node) {
   cmark_node *tmp = node;
   while (tmp) {
     if (tmp->type == CMARK_NODE_LIST &&
-        cmark_node_get_list_type(node) == CMARK_ORDERED_LIST) {
+        cmark_node_get_list_type(tmp) == CMARK_ORDERED_LIST) {
       enumlevel++;
     }
     tmp = tmp->parent;
