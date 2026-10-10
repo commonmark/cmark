@@ -954,6 +954,22 @@ static void test_feed_across_line_ending(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
+static void test_feed_empty_chunk(test_batch_runner *runner) {
+  // An empty chunk between the CR and the LF must not split the line.
+  // The chunk is exactly sized so that reading past its end trips ASan.
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  char *chunk = (char *)malloc(6);
+  memcpy(chunk, "line1\r", 6);
+  cmark_parser_feed(parser, chunk, 6);
+  cmark_parser_feed(parser, chunk + 6, 0);
+  free(chunk);
+  cmark_parser_feed(parser, "\nline2\r\n", 8);
+  cmark_node *document = cmark_parser_finish(parser);
+  OK(runner, document->first_child->next == NULL, "document has one paragraph");
+  cmark_parser_free(parser);
+  cmark_node_free(document);
+}
+
 static void sub_document(test_batch_runner *runner) {
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
   cmark_node *list = cmark_node_new(CMARK_NODE_LIST);
@@ -1206,6 +1222,7 @@ int main(void) {
   test_cplusplus(runner);
   test_safe(runner);
   test_feed_across_line_ending(runner);
+  test_feed_empty_chunk(runner);
   sub_document(runner);
   source_pos(runner);
   source_pos_inlines(runner);
