@@ -1102,9 +1102,15 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
       if (input->data[i] == '>') {
         ++i;
         break;
-      } else if (input->data[i] == '\\')
-        i += 2;
-      else if (input->data[i] == '\n' || input->data[i] == '<')
+      } else if (input->data[i] == '\\') {
+        // a backslash escape may cover the next character, but it cannot
+        // smuggle a line ending into the destination, which is forbidden
+        // inside pointy brackets.
+        if (i + 1 < input->len && input->data[i + 1] != '\n')
+          i += 2;
+        else
+          return -1;
+      } else if (input->data[i] == '\n' || input->data[i] == '<')
         return -1;
       else
         ++i;
