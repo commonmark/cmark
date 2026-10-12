@@ -246,8 +246,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         }
       }
     } else {
-      cmark_strbuf_truncate(renderer->prefix,
-                            renderer->prefix->size - marker_width);
+      // the prefix spaces are only pushed when the item has children:
+      if (node->first_child != NULL) {
+        cmark_strbuf_truncate(renderer->prefix,
+                              renderer->prefix->size - marker_width);
+      }
       CR();
     }
     break;
