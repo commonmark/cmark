@@ -759,6 +759,20 @@ static void render_commonmark(test_batch_runner *runner) {
   STR_EQ(runner, commonmark, "Hi", "render single inline node");
   free(commonmark);
 
+  static const char empty_item[] = "> - a\n"
+                                   "> -\n"
+                                   "> - b\n";
+  cmark_node *empty_item_doc =
+      cmark_parse_document(empty_item, sizeof(empty_item) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(empty_item_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, ">   - a\n"
+                             ">   - \n"
+                             ">   - b\n",
+         "render empty list item inside block quote");
+  free(commonmark);
+
+  cmark_node_free(empty_item_doc);
   cmark_node_free(text);
   cmark_node_free(doc);
 }
