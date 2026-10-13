@@ -773,6 +773,37 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
 
   cmark_node_free(empty_item_doc);
+
+  // Hard line breaks are written as a backslash break in every position.
+  // Two trailing spaces would be stripped as insignificant whitespace at the
+  // start of a line, or after a space, losing the break on a round trip.
+  static const char lead_break[] = "\\\nfoo\n";
+  cmark_node *lead_break_doc =
+      cmark_parse_document(lead_break, sizeof(lead_break) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(lead_break_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "\\\nfoo\n",
+         "render hard break at start of line");
+  free(commonmark);
+  cmark_node_free(lead_break_doc);
+
+  static const char space_break[] = "foo \\\nbar\n";
+  cmark_node *space_break_doc =
+      cmark_parse_document(space_break, sizeof(space_break) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(space_break_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "foo \\\nbar\n",
+         "render hard break after a space");
+  free(commonmark);
+  cmark_node_free(space_break_doc);
+
+  static const char plain_break[] = "foo\\\nbar\n";
+  cmark_node *plain_break_doc =
+      cmark_parse_document(plain_break, sizeof(plain_break) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(plain_break_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "foo\\\nbar\n",
+         "render ordinary hard break");
+  free(commonmark);
+  cmark_node_free(plain_break_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
