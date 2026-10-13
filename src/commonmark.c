@@ -331,7 +331,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_LINEBREAK:
     if (!(CMARK_OPT_HARDBREAKS & options)) {
-      LIT("  ");
+      // A backslash line break is unambiguous in every position. Two trailing
+      // spaces are only recognized as a hard break when they follow text on
+      // the line; at the start of a line, or after a space, they are stripped
+      // as insignificant whitespace and the break is lost on a round trip.
+      LIT("\\");
     }
     CR();
     break;
