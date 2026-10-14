@@ -67,7 +67,6 @@ typedef struct {
   bracket *last_bracket;
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
-  bool no_link_openers;
 } subject;
 
 static inline bool S_is_line_end_char(char c) {
@@ -209,7 +208,6 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
     e->backticks[i] = 0;
   }
   e->scanned_for_backticks = false;
-  e->no_link_openers = true;
 }
 
 static inline int isbacktick(int c) { return (c == '`'); }
@@ -557,9 +555,6 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   b->position = subj->pos;
   b->bracket_after = false;
   subj->last_bracket = b;
-  if (!image) {
-    subj->no_link_openers = false;
-  }
 }
 
 // Assumes the subject has a c at the current position.
@@ -1158,7 +1153,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   // Now we check to see if it's a link/image.
   is_image = opener->image;
 
-  if (!is_image && subj->no_link_openers) {
+  if (!is_image && !opener->active) {
     // take delimiter off stack
     pop_bracket(subj);
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
@@ -1259,11 +1254,18 @@ match:
   process_emphasis(subj, opener->position);
   pop_bracket(subj);
 
-  // Now, if we have a link, we also want to deactivate links until
-  // we get a new opener. (This code can be removed if we decide to allow links
-  // inside links.)
+  // Links may not contain other links, at any level of nesting, so
+  // deactivate every remaining link opener. This prevents an enclosing
+  // [ from being turned into a link that wraps the one just created.
+  // (This loop can be removed if we decide to allow links inside links.)
   if (!is_image) {
-    subj->no_link_openers = true;
+    bracket *b = subj->last_bracket;
+    while (b != NULL) {
+      if (!b->image) {
+        b->active = false;
+      }
+      b = b->previous;
+    }
   }
 
   return NULL;
