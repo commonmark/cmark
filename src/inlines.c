@@ -1399,9 +1399,12 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     startpos = subj->pos;
     subj->pos = endpos;
 
-    // if we're at a newline, strip trailing spaces.
+    // if we're at a newline, strip trailing spaces.  Only spaces are
+    // removed before a line ending; trailing tabs are preserved, as the
+    // spec strips only spaces at the end of a line (a final tab is kept).
     if (S_is_line_end_char(peek_char(subj))) {
-      cmark_chunk_rtrim(&contents);
+      while (contents.len > 0 && contents.data[contents.len - 1] == ' ')
+        contents.len--;
     }
 
     new_inl = make_str(subj, startpos, endpos - 1, contents);

@@ -526,6 +526,13 @@ static void test_content(test_batch_runner *runner, cmark_node_type type,
 static void parser(test_batch_runner *runner) {
   test_md_to_html(runner, "No newline", "<p>No newline</p>\n",
                   "document without trailing newline");
+
+  // Only spaces are removed before a soft line break; a trailing tab is
+  // kept, matching the spec (which strips only end-of-line spaces).
+  test_md_to_html(runner, "foo\t\nbar\n", "<p>foo\t\nbar</p>\n",
+                  "trailing tab kept before soft line break");
+  test_md_to_html(runner, "foo \nbar\n", "<p>foo\nbar</p>\n",
+                  "trailing space removed before soft line break");
 }
 
 static void render_html(test_batch_runner *runner) {
