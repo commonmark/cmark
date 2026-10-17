@@ -606,6 +606,16 @@ static void render_xml(test_batch_runner *runner) {
          "render first paragraph with source pos");
   free(xml);
   cmark_node_free(doc);
+
+  cmark_node *link = cmark_node_new(CMARK_NODE_LINK);
+  cmark_node_set_title(link, "a\nb\tc\rd & \"");
+  xml = cmark_render_xml(link, CMARK_OPT_DEFAULT);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<link destination=\"\" title=\"a&#10;b&#9;c&#13;d &amp; &quot;\" />\n",
+         "preserve whitespace in XML attributes");
+  free(xml);
+  cmark_node_free(link);
 }
 
 static void render_man(test_batch_runner *runner) {
