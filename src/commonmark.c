@@ -30,6 +30,11 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   char encoded[ENCODED_SIZE];
   int options = renderer->options;
 
+  if ((escape == URL || escape == TITLE) && c == '&') {
+    cmark_render_ascii(renderer, "&amp;");
+    return;
+  }
+
   needs_escaping =
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
@@ -289,7 +294,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT(fencechar);
     }
     LIT(" ");
-    OUT(info, false, LITERAL);
+    OUT(info, false, TITLE);
     CR();
     OUT(cmark_node_get_literal(node), false, LITERAL);
     CR();

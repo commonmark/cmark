@@ -804,6 +804,31 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(plain_break_doc);
 
+  static const char metadata[] =
+      "[x](/a&amp;copy;&amp;#65;&amp;#x41; "
+      "\"&amp;copy;&amp;#65;&amp;#x41;\")\n\n"
+      "``` lang&amp;copy;&amp;#65;&amp;#x41;\n"
+      "x &copy;\n"
+      "```\n";
+  cmark_node *metadata_doc =
+      cmark_parse_document(metadata, sizeof(metadata) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(metadata_doc, CMARK_OPT_DEFAULT, 0);
+  cmark_node *roundtrip =
+      cmark_parse_document(commonmark, strlen(commonmark), CMARK_OPT_DEFAULT);
+  cmark_node *link = cmark_node_first_child(cmark_node_first_child(roundtrip));
+  cmark_node *code = cmark_node_last_child(roundtrip);
+  STR_EQ(runner, cmark_node_get_url(link), "/a&copy;&#65;&#x41;",
+         "roundtrip literal entities in link destination");
+  STR_EQ(runner, cmark_node_get_title(link), "&copy;&#65;&#x41;",
+         "roundtrip literal entities in link title");
+  STR_EQ(runner, cmark_node_get_fence_info(code), "lang&copy;&#65;&#x41;",
+         "roundtrip literal entities in code info");
+  STR_EQ(runner, cmark_node_get_literal(code), "x &copy;\n",
+         "roundtrip literal entities in code body");
+  free(commonmark);
+  cmark_node_free(roundtrip);
+  cmark_node_free(metadata_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
