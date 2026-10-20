@@ -804,6 +804,21 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(plain_break_doc);
 
+  // An info string containing a backtick forces a tilde fence, which must
+  // be longer than any run of tildes in the code.
+  static const char tilde_fence[] = "~~~~~ a`b\n"
+                                    "~~~\n"
+                                    "<b>x</b>\n"
+                                    "~~~~~\n";
+  cmark_node *tilde_fence_doc =
+      cmark_parse_document(tilde_fence, sizeof(tilde_fence) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(tilde_fence_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "~~~~ a`b\n~~~\n<b>x</b>\n~~~~\n",
+         "render tilde fence longer than tildes in code");
+  free(commonmark);
+  cmark_node_free(tilde_fence_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
