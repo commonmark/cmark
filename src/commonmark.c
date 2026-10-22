@@ -119,10 +119,26 @@ static int shortest_unused_backtick_sequence(const char *code) {
   return (int)i;
 }
 
+// Returns true if <url> would be parsed back as an autolink.
+static bool is_valid_autolink(cmark_mem *mem, const char *url, bool is_email) {
+  cmark_strbuf buf = CMARK_BUF_INIT(mem);
+  bufsize_t matchlen;
+  bool valid;
+
+  cmark_strbuf_puts(&buf, url);
+  cmark_strbuf_putc(&buf, '>');
+  matchlen =
+      is_email ? _scan_autolink_email(buf.ptr) : _scan_autolink_uri(buf.ptr);
+  valid = matchlen == buf.size;
+  cmark_strbuf_free(&buf);
+  return valid;
+}
+
 static bool is_autolink(cmark_node *node) {
   const unsigned char *title;
   const unsigned char *url;
   cmark_node *link_text;
+  bool is_email = false;
 
   if (node->type != CMARK_NODE_LINK) {
     return false;
@@ -146,9 +162,11 @@ static bool is_autolink(cmark_node *node) {
   cmark_consolidate_text_nodes(link_text);
   if (strncmp((const char *)url, "mailto:", 7) == 0) {
     url += 7;
+    is_email = true;
   }
   return link_text->data != NULL &&
-         strcmp((const char *)url, (char *)link_text->data) == 0;
+         strcmp((const char *)url, (char *)link_text->data) == 0 &&
+         is_valid_autolink(node->mem, (const char *)url, is_email);
 }
 
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
