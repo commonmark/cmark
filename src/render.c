@@ -18,6 +18,13 @@ static inline void S_blankline(cmark_renderer *renderer) {
   }
 }
 
+// Characters that must not begin a line produced by wrapping, because
+// they could then be read as a list marker, a setext heading underline,
+// or a code fence in commonmark output.
+static inline bool S_bad_line_start(unsigned char c) {
+  return cmark_isdigit(c) || c == '-' || c == '+' || c == '=' || c == '~';
+}
+
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                   cmark_escaping escape) {
   int length = (int)strlen(source);
@@ -74,9 +81,10 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         while (source[i + 1] == ' ') {
           i++;
         }
-        // We don't allow breaks that make a digit the first character
-        // because this causes problems with commonmark output.
-        if (!cmark_isdigit(source[i + 1])) {
+        // We don't allow breaks that make a digit (or another character
+        // that can start a block) the first character because this causes
+        // problems with commonmark output.
+        if (!S_bad_line_start(source[i + 1])) {
           renderer->last_breakable = last_nonspace;
         }
       }
@@ -105,10 +113,20 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
           renderer->begin_content && cmark_isdigit(c) == 1;
     }
 
+    // The text after a break may come from a later node than the space,
+    // so it could not be checked when the break was recorded:
+    if (renderer->last_breakable > 0 &&
+        renderer->buffer->size > renderer->last_breakable + 1 &&
+        S_bad_line_start(renderer->buffer->ptr[renderer->last_breakable + 1])) {
+      renderer->last_breakable = 0;
+    }
+
     // If adding the character went beyond width, look for an
-    // earlier place where the line could be broken:
+    // earlier place where the line could be broken (once we know
+    // what the new line would start with):
     if (renderer->width > 0 && renderer->column > renderer->width &&
-        !renderer->begin_line && renderer->last_breakable > 0) {
+        !renderer->begin_line && renderer->last_breakable > 0 &&
+        renderer->buffer->size > renderer->last_breakable + 1) {
 
       // copy from last_breakable to remainder
       unsigned char *src = renderer->buffer->ptr +
