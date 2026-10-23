@@ -373,9 +373,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (extra_spaces) {
       LIT(" ");
     }
-    // Don't wrap inside code spans: the literal isn't escaped, so text
-    // moved to the start of a line could be read as a block.
-    OUT(cmark_node_get_literal(node), false, LITERAL);
+    OUT(cmark_node_get_literal(node), allow_wrap, LITERAL);
     if (extra_spaces) {
       LIT(" ");
     }

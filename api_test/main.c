@@ -825,8 +825,8 @@ static void render_commonmark(test_batch_runner *runner) {
   cmark_node *code_wrap_doc =
       cmark_parse_document(code_wrap, sizeof(code_wrap) - 1, CMARK_OPT_DEFAULT);
   commonmark = cmark_render_commonmark(code_wrap_doc, CMARK_OPT_DEFAULT, 12);
-  STR_EQ(runner, commonmark, "See\n`the <script>x</script> tag`\nhere\n",
-         "render code span without wrapping inside it");
+  STR_EQ(runner, commonmark, "See `the <script>x</script>\ntag` here\n",
+         "render wrapped code span without HTML at line start");
   free(commonmark);
   cmark_node_free(code_wrap_doc);
 

@@ -18,11 +18,46 @@ static inline void S_blankline(cmark_renderer *renderer) {
   }
 }
 
-// Characters that must not begin a line produced by wrapping, because
-// they could then be read as a list marker, a setext heading underline,
-// or a code fence in commonmark output.
-static inline bool S_bad_line_start(unsigned char c) {
-  return cmark_isdigit(c) || c == '-' || c == '+' || c == '=' || c == '~';
+// Decide whether the text at the start of a line produced by wrapping
+// could be read as the start of a block in commonmark output (list marker,
+// heading, block quote, HTML block, thematic break, setext underline, code
+// fence). Returns 1 if so, 0 if not, -1 if more text is needed to tell.
+static int S_bad_line_start(const unsigned char *s, bufsize_t len) {
+  bufsize_t i = 0;
+
+  if (len == 0) {
+    return -1;
+  }
+  switch (s[0]) {
+  case '#':
+  case '>':
+  case '<':
+  case '-':
+  case '=':
+  case '+':
+  case '*':
+  case '_':
+  case '~':
+  case '`':
+    return 1;
+  }
+  if (cmark_isdigit(s[0])) {
+    // ordered list markers have at most 9 digits
+    while (i < len && i < 10 && cmark_isdigit(s[i])) {
+      i++;
+    }
+    if (i == len) {
+      return -1;
+    }
+    return i < 10 && (s[i] == '.' || s[i] == ')');
+  }
+  if (cmark_isalpha(s[0])) {
+    if (len < 2) {
+      return -1;
+    }
+    return s[1] == '.';
+  }
+  return 0;
 }
 
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
@@ -33,6 +68,10 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
   int i = 0;
   int last_nonspace;
   int len;
+  int breakable;
+  unsigned char peek[12];
+  int n;
+  bufsize_t j;
   int k = renderer->buffer->size - 1;
 
   wrap = wrap && !renderer->no_linebreaks;
@@ -81,10 +120,10 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
         while (source[i + 1] == ' ') {
           i++;
         }
-        // We don't allow breaks that make a digit (or another character
-        // that can start a block) the first character because this causes
-        // problems with commonmark output.
-        if (!S_bad_line_start(source[i + 1])) {
+        // Keep the previous break point if this one would put something
+        // that can start a block at the beginning of a line (see below).
+        if (S_bad_line_start((const unsigned char *)source + i + 1,
+                             length - i - 1) != 1) {
           renderer->last_breakable = last_nonspace;
         }
       }
@@ -113,12 +152,25 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
           renderer->begin_content && cmark_isdigit(c) == 1;
     }
 
-    // The text after a break may come from a later node than the space,
-    // so it could not be checked when the break was recorded:
-    if (renderer->last_breakable > 0 &&
-        renderer->buffer->size > renderer->last_breakable + 1 &&
-        S_bad_line_start(renderer->buffer->ptr[renderer->last_breakable + 1])) {
-      renderer->last_breakable = 0;
+    // We don't allow breaks that would put something that can start a
+    // block at the beginning of a line, because this causes problems with
+    // commonmark output. The text after a break may come from a later
+    // node than the space, so check what has been output since it
+    // (and at what is still to come from this one, if that isn't enough):
+    breakable = 0;
+    if (renderer->last_breakable > 0) {
+      n = 0;
+      for (j = renderer->last_breakable + 1;
+           j < renderer->buffer->size && n < (int)sizeof(peek); j++) {
+        peek[n++] = renderer->buffer->ptr[j];
+      }
+      for (j = i + len; j < length && n < (int)sizeof(peek); j++) {
+        peek[n++] = (unsigned char)source[j];
+      }
+      breakable = S_bad_line_start(peek, n);
+      if (breakable == 1) {
+        renderer->last_breakable = 0;
+      }
     }
 
     // If adding the character went beyond width, look for an
@@ -126,7 +178,7 @@ static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
     // what the new line would start with):
     if (renderer->width > 0 && renderer->column > renderer->width &&
         !renderer->begin_line && renderer->last_breakable > 0 &&
-        renderer->buffer->size > renderer->last_breakable + 1) {
+        breakable == 0) {
 
       // copy from last_breakable to remainder
       unsigned char *src = renderer->buffer->ptr +
