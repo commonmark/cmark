@@ -819,6 +819,19 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // A line ending in a link title must not start a new output line, where
+  // it would lose the container prefix and could open a block.
+  static const char title_newline[] = "> [a](b \"x\n"
+                                      "> \\~~~\")\n";
+  cmark_node *title_newline_doc =
+      cmark_parse_document(title_newline, sizeof(title_newline) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(title_newline_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "> [a](b \"x&#10;~~~\")\n",
+         "render line ending in link title");
+  free(commonmark);
+  cmark_node_free(title_newline_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
