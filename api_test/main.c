@@ -819,6 +819,36 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // Wrapping must not move text that could start a block to the
+  // beginning of a line.
+  static const char code_wrap[] = "See `the <script>x</script> tag` here\n";
+  cmark_node *code_wrap_doc =
+      cmark_parse_document(code_wrap, sizeof(code_wrap) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(code_wrap_doc, CMARK_OPT_DEFAULT, 12);
+  STR_EQ(runner, commonmark, "See `the <script>x</script>\ntag` here\n",
+         "render wrapped code span without HTML at line start");
+  free(commonmark);
+  cmark_node_free(code_wrap_doc);
+
+  static const char dash_wrap[] = "aaaa bbbb - cccc\n";
+  cmark_node *dash_wrap_doc =
+      cmark_parse_document(dash_wrap, sizeof(dash_wrap) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(dash_wrap_doc, CMARK_OPT_DEFAULT, 9);
+  STR_EQ(runner, commonmark, "aaaa\nbbbb -\ncccc\n",
+         "render wrapped text without a list marker at line start");
+  free(commonmark);
+  cmark_node_free(dash_wrap_doc);
+
+  static const char softbreak_wrap[] = "aaaa\n\\- foo bar\n";
+  cmark_node *softbreak_wrap_doc =
+      cmark_parse_document(softbreak_wrap, sizeof(softbreak_wrap) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(softbreak_wrap_doc, CMARK_OPT_DEFAULT, 5);
+  STR_EQ(runner, commonmark, "aaaa -\nfoo\nbar\n",
+         "render wrapped soft break without a list marker at line start");
+  free(commonmark);
+  cmark_node_free(softbreak_wrap_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
