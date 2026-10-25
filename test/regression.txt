@@ -385,3 +385,20 @@ c>)
 <p>[a](&lt;b<br />
 c&gt;)</p>
 ````````````````````````````````
+
+Links may not contain other links at any level of nesting, even when a
+bracket is opened between the inner link and the enclosing `]`.
+```````````````````````````````` example
+[foo [bar](/uri)[x]](/uri)
+.
+<p>[foo <a href="/uri">bar</a>[x]](/uri)</p>
+````````````````````````````````
+
+The same holds for a reference link enclosing an inline link.
+```````````````````````````````` example
+[ref]: /url
+
+[a[b](c)d[e]f][ref]
+.
+<p>[a<a href="c">b</a>d[e]f]<a href="/url">ref</a></p>
+````````````````````````````````
