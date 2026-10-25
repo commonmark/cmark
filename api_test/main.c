@@ -717,6 +717,26 @@ static void render_latex(test_batch_runner *runner) {
          "enumerate counter ignores bullet list nesting");
   free(latex);
   cmark_node_free(nested_doc);
+
+  // A code block containing \end{verbatim} must not close the verbatim
+  // environment and let the following lines be read as LaTeX.
+  static const char code[] = "    a\n"
+                             "    \\end{verbatim}\n"
+                             "    \\input{secret}\n";
+  cmark_node *code_doc =
+      cmark_parse_document(code, sizeof(code) - 1, CMARK_OPT_DEFAULT);
+  latex = cmark_render_latex(code_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, latex,
+         "\\begin{verbatim}\n"
+         "a\n"
+         "\\end{verbatim}\n"
+         "\\texttt{\\textbackslash{}end\\{verbatim\\}}\n"
+         "\\begin{verbatim}\n"
+         "\\input{secret}\n"
+         "\\end{verbatim}\n",
+         "escape \\end{verbatim} inside code block");
+  free(latex);
+  cmark_node_free(code_doc);
 }
 
 static void render_commonmark(test_batch_runner *runner) {
