@@ -314,9 +314,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
         b->as.code.info = NULL;
       } else {
         cmark_strbuf tmp = CMARK_BUF_INIT(parser->mem);
-        houdini_unescape_html_f(&tmp, node_content->ptr, pos);
+        cmark_unescape_string(&tmp, node_content->ptr, pos);
         cmark_strbuf_trim(&tmp);
-        cmark_strbuf_unescape(&tmp);
         b->as.code.info = cmark_strbuf_detach(&tmp);
       }
 

@@ -866,16 +866,47 @@ static cmark_node *handle_entity(subject *subj) {
   return make_str_from_buf(subj, subj->pos - 1 - len, subj->pos - 1, &ent);
 }
 
-// Clean a URL: remove surrounding whitespace, and remove \ that escape
-// punctuation.
+// Decode entity references and backslash escapes in a single pass, so an
+// escaped & does not start an entity and a decoded entity is never taken
+// as a backslash escape.
+void cmark_unescape_string(cmark_strbuf *buf, const unsigned char *src,
+                           bufsize_t len) {
+  bufsize_t i = 0, org, ent;
+
+  while (i < len) {
+    org = i;
+    while (i < len && src[i] != '\\' && src[i] != '&')
+      i++;
+
+    if (i > org)
+      cmark_strbuf_put(buf, src + org, i - org);
+
+    if (i >= len)
+      break;
+
+    if (src[i] == '\\') {
+      if (i + 1 < len && cmark_ispunct(src[i + 1]))
+        i++;
+      cmark_strbuf_putc(buf, src[i]);
+      i++;
+    } else {
+      i++;
+      ent = houdini_unescape_ent(buf, src + i, len - i);
+      i += ent;
+      if (ent == 0)
+        cmark_strbuf_putc(buf, '&');
+    }
+  }
+}
+
+// Clean a URL: remove surrounding whitespace, and decode entities and
+// backslash escapes.
 unsigned char *cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
   cmark_chunk_trim(url);
 
-  houdini_unescape_html_f(&buf, url->data, url->len);
-
-  cmark_strbuf_unescape(&buf);
+  cmark_unescape_string(&buf, url->data, url->len);
   return cmark_strbuf_detach(&buf);
 }
 
@@ -893,12 +924,11 @@ unsigned char *cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
   // remove surrounding quotes if any:
   if ((first == '\'' && last == '\'') || (first == '(' && last == ')') ||
       (first == '"' && last == '"')) {
-    houdini_unescape_html_f(&buf, title->data + 1, title->len - 2);
+    cmark_unescape_string(&buf, title->data + 1, title->len - 2);
   } else {
-    houdini_unescape_html_f(&buf, title->data, title->len);
+    cmark_unescape_string(&buf, title->data, title->len);
   }
 
-  cmark_strbuf_unescape(&buf);
   return cmark_strbuf_detach(&buf);
 }
 
