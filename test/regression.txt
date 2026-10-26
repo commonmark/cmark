@@ -385,3 +385,33 @@ c>)
 <p>[a](&lt;b<br />
 c&gt;)</p>
 ````````````````````````````````
+
+Backslash escapes and entity references in link destinations, link
+titles and info strings are decoded in a single pass: an escaped `&`
+does not start an entity, and an entity that decodes to `\` does not
+escape the next character.
+```````````````````````````````` example
+[a](\&copy; "\&copy;")
+
+[b](&#92;&#42;)
+.
+<p><a href="&amp;copy;" title="&amp;copy;">a</a></p>
+<p><a href="%5C*">b</a></p>
+````````````````````````````````
+
+```````````````````````````````` example
+[c]
+
+[c]: \&amp; "&#92;&#34;"
+.
+<p><a href="&amp;amp;" title="\&quot;">c</a></p>
+````````````````````````````````
+
+```````````````````````````````` example
+``` \&copy;
+x
+```
+.
+<pre><code class="language-&amp;copy;">x
+</code></pre>
+````````````````````````````````
