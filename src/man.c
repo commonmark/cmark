@@ -116,7 +116,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_ITEM:
     if (entering) {
-      new_block_number = allocator->calloc(1, sizeof(struct block_number));
+      new_block_number = allocator->calloc(allocator->ctx, 1, sizeof(struct block_number));
       new_block_number->number = 0;
       new_block_number->parent = renderer->block_number_in_list_item;
       renderer->block_number_in_list_item = new_block_number;
@@ -145,7 +145,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         new_block_number = renderer->block_number_in_list_item;
         renderer->block_number_in_list_item =
           renderer->block_number_in_list_item->parent;
-        allocator->free(new_block_number);
+        allocator->free(allocator->ctx, new_block_number);
       }
       CR();
     }
