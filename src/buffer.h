@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 typedef int32_t bufsize_t;
+#define BUFSIZE_MAX INT32_MAX
 
 typedef struct {
   cmark_mem *mem;
