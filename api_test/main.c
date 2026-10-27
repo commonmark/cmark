@@ -819,6 +819,26 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // Raw HTML that could start an HTML block is indented after a line break,
+  // so it stays in the paragraph when the output is parsed again.
+  static const char html_soft[] = "a\n    <div>\n";
+  cmark_node *html_soft_doc =
+      cmark_parse_document(html_soft, sizeof(html_soft) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(html_soft_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "a\n    <div>\n",
+         "render raw HTML after a soft break");
+  free(commonmark);
+  cmark_node_free(html_soft_doc);
+
+  static const char html_hard[] = "a\\\n    <script>\n";
+  cmark_node *html_hard_doc =
+      cmark_parse_document(html_hard, sizeof(html_hard) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(html_hard_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "a\\\n    <script>\n",
+         "render raw HTML after a hard break");
+  free(commonmark);
+  cmark_node_free(html_hard_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
