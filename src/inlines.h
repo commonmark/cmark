@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-void cmark_unescape_string(cmark_strbuf *buf, const unsigned char *src,
-                           bufsize_t len);
+void cmark_unescape_string(bool backslash_escapes, cmark_strbuf *buf,
+                           const unsigned char *src, bufsize_t len);
 unsigned char *cmark_clean_url(cmark_mem *mem, cmark_chunk *url);
 unsigned char *cmark_clean_title(cmark_mem *mem, cmark_chunk *title);
 
