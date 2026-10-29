@@ -65,7 +65,6 @@ void cmark_strbuf_truncate(cmark_strbuf *buf, bufsize_t len);
 void cmark_strbuf_rtrim(cmark_strbuf *buf);
 void cmark_strbuf_trim(cmark_strbuf *buf);
 void cmark_strbuf_normalize_whitespace(cmark_strbuf *s);
-void cmark_strbuf_unescape(cmark_strbuf *s);
 
 #ifdef __cplusplus
 }
