@@ -819,6 +819,17 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // An HTML block that starts a list item goes on the marker line, so the
+  // content column matches the prefix and no extra space ends up in the HTML.
+  static const char html_item[] = "1. <e>\n";
+  cmark_node *html_item_doc =
+      cmark_parse_document(html_item, sizeof(html_item) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(html_item_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "1.  <e>\n",
+         "render HTML block as first child of a list item");
+  free(commonmark);
+  cmark_node_free(html_item_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
