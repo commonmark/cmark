@@ -819,6 +819,29 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // A link whose text equals its URL may only be written as <url> if that
+  // parses back as an autolink, not as raw HTML.
+  static const char not_autolink[] =
+      "[img src=x onerror=alert(1)](<mailto:img src=x onerror=alert(1)>)\n";
+  cmark_node *not_autolink_doc =
+      cmark_parse_document(not_autolink, sizeof(not_autolink) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(not_autolink_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark,
+         "[img src=x onerror=alert(1)](mailto:img%20src=x%20onerror=alert\\(1\\))\n",
+         "render link that is not a valid autolink");
+  free(commonmark);
+  cmark_node_free(not_autolink_doc);
+
+  static const char autolinks[] = "<http://a.b/c> <foo@bar.com>\n";
+  cmark_node *autolinks_doc =
+      cmark_parse_document(autolinks, sizeof(autolinks) - 1, CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(autolinks_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "<http://a.b/c> <foo@bar.com>\n",
+         "render autolinks");
+  free(commonmark);
+  cmark_node_free(autolinks_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
