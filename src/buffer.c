@@ -31,7 +31,10 @@ void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
 }
 
 static inline void S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
-  cmark_strbuf_grow(buf, buf->size + add);
+  // The sum must not wrap around to a negative target size, which would skip
+  // the growth. INT32_MAX exceeds the limit in cmark_strbuf_grow.
+  cmark_strbuf_grow(buf, add > INT32_MAX - buf->size ? INT32_MAX
+                                                     : buf->size + add);
 }
 
 void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {

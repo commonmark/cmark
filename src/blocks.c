@@ -618,6 +618,14 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
       process = true;
     }
 
+    // chunk_len would be truncated, and a line this long can't be buffered
+    // anyway.
+    if (eol - buffer > INT32_MAX) {
+      fprintf(stderr, "[cmark] line longer than %d bytes, aborting\n",
+              INT32_MAX);
+      abort();
+    }
+
     chunk_len = (eol - buffer);
     if (process) {
       if (parser->linebuf.size > 0) {
