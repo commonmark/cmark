@@ -415,3 +415,16 @@ x
 <pre><code class="language-&amp;copy;">x
 </code></pre>
 ````````````````````````````````
+
+A blank line indented less than the item content must not end a list
+item whose only paragraph was a link reference definition.
+```````````````````````````````` example
+- [r]:x
+
+ 
+  l
+.
+<ul>
+<li>l</li>
+</ul>
+````````````````````````````````

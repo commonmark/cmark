@@ -289,7 +289,10 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   {
     has_content = resolve_reference_link_definitions(parser);
     if (!has_content) {
-      // remove blank node (former reference def)
+      // remove blank node (former reference def), but remember that
+      // the enclosing list item had content
+      if (S_type(parent) == CMARK_NODE_ITEM)
+        parent->flags |= CMARK_NODE__ITEM_HAD_CONTENT;
       cmark_node_free(b);
     } else {
       b->len = node_content->size;
@@ -809,9 +812,11 @@ static bool parse_node_item_prefix(cmark_parser *parser, cmark_chunk *input,
                                         container->as.list.padding,
                      true);
     res = true;
-  } else if (parser->blank && container->first_child != NULL) {
-    // if container->first_child is NULL, then the opening line
-    // of the list item was blank after the list marker; in this
+  } else if (parser->blank &&
+             (container->first_child != NULL ||
+              (container->flags & CMARK_NODE__ITEM_HAD_CONTENT))) {
+    // if the list item has never had any content, then the opening
+    // line of the list item was blank after the list marker; in this
     // case, we are done with the list item.
     S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                      false);
