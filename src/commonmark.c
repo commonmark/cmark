@@ -301,7 +301,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_HTML_BLOCK:
-    BLANKLINE();
+    // Like a code block, start right after the list marker: a blank first line
+    // would make the item's content column one less than the prefix for
+    // "1.  " markers, and the extra space would end up in the HTML.
+    if (!(node->prev == NULL && node->parent &&
+          node->parent->type == CMARK_NODE_ITEM)) {
+      BLANKLINE();
+    }
     OUT(cmark_node_get_literal(node), false, LITERAL);
     BLANKLINE();
     break;
