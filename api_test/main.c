@@ -1030,6 +1030,38 @@ static void test_feed_empty_chunk(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
+static void test_long_code_fence(test_batch_runner *runner) {
+  // A closing fence must be at least as long as the opening fence, even
+  // when the opening fence is longer than 255 characters.
+  char markdown[1024];
+  char expected[512];
+  char *p = markdown;
+  char *q = expected;
+
+  memset(p, '`', 256);
+  p += 256;
+  strcpy(p, "\n");
+  p += 1;
+  memset(p, '`', 255);
+  p += 255;
+  strcpy(p, "\n<script>\n");
+  p += 10;
+  memset(p, '`', 256);
+  p += 256;
+  strcpy(p, "\n");
+
+  strcpy(q, "<pre><code>");
+  q += 11;
+  memset(q, '`', 255);
+  q += 255;
+  strcpy(q, "\n&lt;script&gt;\n</code></pre>\n");
+
+  char *html =
+      cmark_markdown_to_html(markdown, strlen(markdown), CMARK_OPT_DEFAULT);
+  STR_EQ(runner, html, expected, "255 backticks don't close a 256 fence");
+  free(html);
+}
+
 static void sub_document(test_batch_runner *runner) {
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
   cmark_node *list = cmark_node_new(CMARK_NODE_LIST);
@@ -1283,6 +1315,7 @@ int main(void) {
   test_safe(runner);
   test_feed_across_line_ending(runner);
   test_feed_empty_chunk(runner);
+  test_long_code_fence(runner);
   sub_document(runner);
   source_pos(runner);
   source_pos_inlines(runner);

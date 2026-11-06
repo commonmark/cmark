@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
   unsigned char *info;
-  uint8_t fence_length;
+  int fence_length;
   uint8_t fence_offset;
   unsigned char fence_char;
   int8_t fenced;
