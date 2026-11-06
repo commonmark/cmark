@@ -416,8 +416,9 @@ x
 </code></pre>
 ````````````````````````````````
 
-A blank line indented less than the item content must not end a list
-item whose only paragraph was a link reference definition.
+Issue #655:  A blank line indented less than the item content
+must not end a list item whose only paragraph was a link reference
+definition.
 ```````````````````````````````` example
 - [r]:x
 
