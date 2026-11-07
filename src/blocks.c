@@ -658,7 +658,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 }
 
 static void chop_trailing_hashtags(cmark_chunk *ch) {
-  bufsize_t n, orig_n;
+  bufsize_t n, orig_n, i;
 
   cmark_chunk_rtrim(ch);
   orig_n = n = ch->len - 1;
@@ -668,10 +668,22 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
     n--;
 
   // Check for a space before the final #s:
-  if (n != orig_n && n >= 0 && S_is_space_or_tab(peek_at(ch, n))) {
-    ch->len = n;
-    cmark_chunk_rtrim(ch);
+  if (n == orig_n || n < 0 || !S_is_space_or_tab(peek_at(ch, n))) {
+      return;
   }
+
+  // Check to make sure we have #s at beginning (see issue #656):
+  i = n;
+  while (i >= 0 && peek_at(ch, i) != '#') {
+      i--;
+  }
+
+  if (i < 0) { // We didn't find #, hence we had empty header (#656)
+    return;
+  }
+
+  ch->len = n;
+  cmark_chunk_rtrim(ch);
 }
 
 // Check for thematic break.  On failure, return 0 and update
@@ -1262,7 +1274,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
     } else if (accepts_lines(S_type(container))) {
       if (S_type(container) == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
-        chop_trailing_hashtags(input);
+          chop_trailing_hashtags(input);
       }
       S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                        false);

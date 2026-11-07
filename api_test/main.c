@@ -1120,13 +1120,15 @@ static void source_pos(test_batch_runner *runner) {
     ">    Sure.\n"
     ">\n"
     "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
+    ">    ![ok](hi \"yes\")\n"
+    ">\n"
+    "> #\n";
 
   cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
   char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
   STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                       "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "<document sourcepos=\"1:1-12:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
                       "  <heading sourcepos=\"1:1-1:14\" level=\"1\">\n"
                       "    <text sourcepos=\"1:3-1:6\" xml:space=\"preserve\">Hi *</text>\n"
                       "    <emph sourcepos=\"1:7-1:13\">\n"
@@ -1148,8 +1150,8 @@ static void source_pos(test_batch_runner *runner) {
                       "    </link>\n"
                       "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
                       "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delimiter=\"period\" tight=\"false\">\n"
+                      "  <block_quote sourcepos=\"6:1-12:3\">\n"
+                      "    <list sourcepos=\"6:3-11:1\" type=\"ordered\" start=\"1\" delimiter=\"period\" tight=\"false\">\n"
                       "      <item sourcepos=\"6:3-8:1\">\n"
                       "        <paragraph sourcepos=\"6:6-7:10\">\n"
                       "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
@@ -1157,7 +1159,7 @@ static void source_pos(test_batch_runner *runner) {
                       "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
                       "        </paragraph>\n"
                       "      </item>\n"
-                      "      <item sourcepos=\"9:3-10:20\">\n"
+                      "      <item sourcepos=\"9:3-11:1\">\n"
                       "        <paragraph sourcepos=\"9:6-10:20\">\n"
                       "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
                       "          <softbreak />\n"
@@ -1167,6 +1169,7 @@ static void source_pos(test_batch_runner *runner) {
                       "        </paragraph>\n"
                       "      </item>\n"
                       "    </list>\n"
+                      "    <heading sourcepos=\"12:3-12:3\" level=\"1\" />\n"
                       "  </block_quote>\n"
                       "</document>\n",
          "sourcepos are as expected");
