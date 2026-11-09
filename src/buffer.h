@@ -38,7 +38,7 @@ void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
 /**
  * Grow the buffer to hold at least `target_size` bytes.
  */
-void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size);
+void cmark_strbuf_grow(cmark_strbuf *buf, ptrdiff_t target_size);
 
 void cmark_strbuf_free(cmark_strbuf *buf);
 
@@ -53,10 +53,10 @@ static inline const char *cmark_strbuf_cstr(const cmark_strbuf *buf) {
 #define cmark_strbuf_at(buf, n) ((buf)->ptr[n])
 
 void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data,
-                      bufsize_t len);
+                      ptrdiff_t len);
 void cmark_strbuf_putc(cmark_strbuf *buf, int c);
 void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data,
-                      bufsize_t len);
+                      ptrdiff_t len);
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string);
 void cmark_strbuf_clear(cmark_strbuf *buf);
 
