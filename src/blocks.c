@@ -67,7 +67,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
                           size_t len, bool eof);
 
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
-                           bufsize_t bytes);
+                           ptrdiff_t bytes);
 
 static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
@@ -603,7 +603,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   parser->last_buffer_ended_with_cr = false;
   while (buffer < end) {
     const unsigned char *eol;
-    bufsize_t chunk_len;
+    ptrdiff_t chunk_len;
     bool process = false;
     for (eol = buffer; eol < end; ++eol) {
       if (S_is_line_end_char(*eol)) {
@@ -616,14 +616,6 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
     }
     if (eol >= end && eof) {
       process = true;
-    }
-
-    // chunk_len would be truncated, and a line this long can't be buffered
-    // anyway.
-    if (eol - buffer > INT32_MAX) {
-      fprintf(stderr, "[cmark] line longer than %d bytes, aborting\n",
-              INT32_MAX);
-      abort();
     }
 
     chunk_len = (eol - buffer);
@@ -1290,7 +1282,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
 
 /* See http://spec.commonmark.org/0.24/#phase-1-block-structure */
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
-                           bufsize_t bytes) {
+                           ptrdiff_t bytes) {
   cmark_node *last_matched_container;
   bool all_matched = true;
   cmark_node *container;
