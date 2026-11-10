@@ -32,6 +32,8 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 typedef struct delimiter {
   struct delimiter *previous;
   struct delimiter *next;
+  struct delimiter *previous_same;
+  struct delimiter *next_same;
   cmark_node *inl_text;
   bufsize_t position;
   bufsize_t length;
@@ -64,6 +66,7 @@ typedef struct {
   int column_offset;
   cmark_reference_map *refmap;
   delimiter *last_delim;
+  delimiter *last_delim_by_type[4];
   bracket *last_bracket;
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
@@ -201,6 +204,9 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   e->column_offset = 0;
   e->refmap = refmap;
   e->last_delim = NULL;
+  for (i = 0; i < 4; i++) {
+    e->last_delim_by_type[i] = NULL;
+  }
   e->last_bracket = NULL;
   for (i = 0; i <= MAXBACKTICKS; i++) {
     e->backticks[i] = 0;
@@ -500,6 +506,16 @@ static void print_delimiters(subject *subj)
 }
 */
 
+static int delimiter_type(unsigned char c) {
+  switch (c) {
+  case '\'': return 0;
+  case '"': return 1;
+  case '_': return 2;
+  case '*': return 3;
+  default: assert(false); return 0;
+  }
+}
+
 static void remove_delimiter(subject *subj, delimiter *delim) {
   if (delim == NULL)
     return;
@@ -512,6 +528,15 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
   }
   if (delim->previous != NULL) {
     delim->previous->next = delim->next;
+  }
+  if (delim->next_same != NULL) {
+    delim->next_same->previous_same = delim->previous_same;
+  } else {
+    subj->last_delim_by_type[delimiter_type(delim->delim_char)] =
+        delim->previous_same;
+  }
+  if (delim->previous_same != NULL) {
+    delim->previous_same->next_same = delim->next_same;
   }
   subj->mem->free(delim);
 }
@@ -540,6 +565,12 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
     delim->previous->next = delim;
   }
   subj->last_delim = delim;
+  int type = delimiter_type(c);
+  delim->previous_same = subj->last_delim_by_type[type];
+  if (delim->previous_same != NULL) {
+    delim->previous_same->next_same = delim;
+  }
+  subj->last_delim_by_type[type] = delim;
 }
 
 static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
@@ -688,7 +719,11 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
       }
 
       // Now look backwards for first matching opener:
-      opener = closer->previous;
+      // Delimiters of other types cannot match this closer. Keep a separate
+      // chain so nested smart quotes do not repeatedly scan intervening
+      // quotes or emphasis delimiters. The main list still determines order
+      // and which delimiters an emphasis match removes.
+      opener = closer->previous_same;
       opener_found = false;
       while (opener != NULL &&
              opener->position >= openers_bottom[openers_bottom_index]) {
@@ -702,7 +737,7 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
             break;
           }
         }
-        opener = opener->previous;
+        opener = opener->previous_same;
       }
       old_closer = closer;
       if (closer->delim_char == '*' || closer->delim_char == '_') {
