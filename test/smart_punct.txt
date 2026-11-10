@@ -176,8 +176,7 @@ No ellipses\.\.\.
 <p>No ellipses...</p>
 ````````````````````````````````
 
-Smart quotes and emphasis may overlap. Matching quotes must not discard
-intervening emphasis or quote delimiters.
+Current cmark output for crossing smart quotes and emphasis.
 
 ```````````````````````````````` example
 'a _b' c_ d
