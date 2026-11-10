@@ -175,3 +175,18 @@ No ellipses\.\.\.
 .
 <p>No ellipses...</p>
 ````````````````````````````````
+
+Smart quotes and emphasis may overlap. Matching quotes must not discard
+intervening emphasis or quote delimiters.
+
+```````````````````````````````` example
+'a _b' c_ d
+.
+<p>‘a <em>b’ c</em> d</p>
+````````````````````````````````
+
+```````````````````````````````` example
+"a 'b" c' d
+.
+<p>“a ‘b” c’ d</p>
+````````````````````````````````
