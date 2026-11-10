@@ -110,6 +110,17 @@ pathological = {
 #                  re.compile("(\\[0\\] ){4999}"))
     }
 
+# These must keep the existing smart-quote/emphasis precedence while avoiding
+# repeated scans across delimiters of other types (issue #521).
+pathological_smart = {
+    "nested single and double quotes":
+                 ("'x " * 100000 + "'\"x" * 100000,
+                  re.compile("^<p>(’x ){2}(‘x ){99998}‘“x(’“x){99999}</p>\n$")),
+    "nested quotes and emphasis":
+                 ('"x ' * 100000 + '"_x' * 100000,
+                  re.compile("^<p>(“x ){100000}“_x(”_x){99999}</p>\n$")),
+    }
+
 pathological_cmark = {
     "nested inlines":
                  ("*" * 20000 + "a" + "*" * 20000,
@@ -118,8 +129,8 @@ pathological_cmark = {
 
 whitespace_re = re.compile('/s+/')
 
-def run_pathological(q, inp, prog, lib_dir):
-    cmark = CMark(prog=prog, library_dir=lib_dir)
+def run_pathological(q, inp, prog, lib_dir, smart=False):
+    cmark = CMark(prog=prog, library_dir=lib_dir, smart=smart)
     q.put(cmark.to_html(inp))
 
 def run_pathological_cmark(q, inp, prog, lib_dir):
@@ -137,12 +148,18 @@ def run_tests(args):
     ignored = []
 
     print("Testing pathological cases:")
-    for description in (*pathological, *pathological_cmark):
+    for description in (*pathological, *pathological_smart, *pathological_cmark):
         if description in pathological:
             (inp, regex) = pathological[description]
             p = multiprocessing.Process(
                 target=run_pathological,
                 args=(q, inp, args.program, args.library_dir)
+            )
+        elif description in pathological_smart:
+            (inp, regex) = pathological_smart[description]
+            p = multiprocessing.Process(
+                target=run_pathological,
+                args=(q, inp, args.program, args.library_dir, True)
             )
         else:
             (inp, regex) = pathological_cmark[description]

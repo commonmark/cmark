@@ -175,3 +175,17 @@ No ellipses\.\.\.
 .
 <p>No ellipses...</p>
 ````````````````````````````````
+
+Current cmark output for crossing smart quotes and emphasis.
+
+```````````````````````````````` example
+'a _b' c_ d
+.
+<p>‘a <em>b’ c</em> d</p>
+````````````````````````````````
+
+```````````````````````````````` example
+"a 'b" c' d
+.
+<p>“a ‘b” c’ d</p>
+````````````````````````````````
