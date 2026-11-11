@@ -52,7 +52,8 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
         (c == '`' || c == '<' || c == '>' || cmark_isspace(c) || c == '\\' ||
          c == ')' || c == '(')) ||
        (escape == TITLE &&
-        (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\')));
+        (c == '`' || c == '<' || c == '>' || c == '"' || c == '\\' ||
+         c == '\n' || c == '\r')));
 
   if (needs_escaping) {
     if (escape == URL && cmark_isspace(c)) {
