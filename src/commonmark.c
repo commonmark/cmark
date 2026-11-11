@@ -151,6 +151,15 @@ static bool is_autolink(cmark_node *node) {
          strcmp((const char *)url, (char *)link_text->data) == 0;
 }
 
+// Raw HTML that could start an HTML block (types 1-6 can interrupt a
+// paragraph) must not begin a continuation line, or the paragraph is split
+// when the output is parsed again. Four spaces of indentation keep it inside.
+static bool starts_html_block(cmark_node *node) {
+  return node && node->type == CMARK_NODE_HTML_INLINE &&
+         _scan_html_block_start(
+             (const unsigned char *)cmark_node_get_literal(node)) != 0;
+}
+
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   cmark_node *tmp;
@@ -338,16 +347,25 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       LIT("\\");
     }
     CR();
+    if (starts_html_block(node->next)) {
+      LIT("    ");
+    }
     break;
 
   case CMARK_NODE_SOFTBREAK:
     if (CMARK_OPT_HARDBREAKS & options) {
       LIT("  ");
       CR();
+      if (starts_html_block(node->next)) {
+        LIT("    ");
+      }
     } else if (!renderer->no_linebreaks && renderer->width == 0 &&
                !(CMARK_OPT_HARDBREAKS & options) &&
                !(CMARK_OPT_NOBREAKS & options)) {
       CR();
+      if (starts_html_block(node->next)) {
+        LIT("    ");
+      }
     } else {
       OUT(" ", allow_wrap, LITERAL);
     }
