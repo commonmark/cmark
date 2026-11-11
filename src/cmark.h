@@ -96,9 +96,10 @@ typedef struct cmark_iter cmark_iter;
  * when parsing and allocating a document tree
  */
 typedef struct cmark_mem {
-  void *(*calloc)(size_t, size_t);
-  void *(*realloc)(void *, size_t);
-  void (*free)(void *);
+  void *ctx;
+  void *(*calloc)(void*, size_t, size_t);
+  void *(*realloc)(void*, void *, size_t);
+  void (*free)(void*, void *);
 } cmark_mem;
 
 /** Returns a pointer to the default memory allocator.
