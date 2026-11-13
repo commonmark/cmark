@@ -1265,6 +1265,94 @@ static void ref_source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void source_pos_setext_heading(test_batch_runner *runner) {
+  {
+    static const char markdown[] =
+      "Foo\n"
+      "---\n"
+      "bar\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-3:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <heading sourcepos=\"1:1-2:3\" level=\"2\">\n"
+                        "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">Foo</text>\n"
+                        "  </heading>\n"
+                        "  <paragraph sourcepos=\"3:1-3:3\">\n"
+                        "    <text sourcepos=\"3:1-3:3\" xml:space=\"preserve\">bar</text>\n"
+                        "  </paragraph>\n"
+                        "</document>\n",
+                        "setext heading followed by a paragraph ends on its underline");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+      "Foo\n"
+      "---\n"
+      "\n"
+      "bar\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-4:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <heading sourcepos=\"1:1-2:3\" level=\"2\">\n"
+                        "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">Foo</text>\n"
+                        "  </heading>\n"
+                        "  <paragraph sourcepos=\"4:1-4:3\">\n"
+                        "    <text sourcepos=\"4:1-4:3\" xml:space=\"preserve\">bar</text>\n"
+                        "  </paragraph>\n"
+                        "</document>\n",
+                        "setext heading followed by a blank line ends on its underline");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+      "Foo\n"
+      "---\r\n"
+      "bar\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-3:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <heading sourcepos=\"1:1-2:3\" level=\"2\">\n"
+                        "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">Foo</text>\n"
+                        "  </heading>\n"
+                        "  <paragraph sourcepos=\"3:1-3:3\">\n"
+                        "    <text sourcepos=\"3:1-3:3\" xml:space=\"preserve\">bar</text>\n"
+                        "  </paragraph>\n"
+                        "</document>\n",
+                        "setext heading with a CRLF underline ends on its underline");
+    free(xml);
+    cmark_node_free(doc);
+  }
+  {
+    static const char markdown[] =
+      "Foo\n"
+      "---\n";
+
+    cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                        "<document sourcepos=\"1:1-2:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                        "  <heading sourcepos=\"1:1-2:3\" level=\"2\">\n"
+                        "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">Foo</text>\n"
+                        "  </heading>\n"
+                        "</document>\n",
+                        "setext heading at the end of the document ends on its underline");
+    free(xml);
+    cmark_node_free(doc);
+  }
+}
+
 int main(void) {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1297,6 +1385,7 @@ int main(void) {
   source_pos(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  source_pos_setext_heading(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
