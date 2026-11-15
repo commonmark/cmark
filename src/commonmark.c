@@ -42,7 +42,8 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
             ((c == '-' && nextc == '-') ||
              (c == '.' && nextc == '.') ||
              c == '"' || c == '\'')) ||
-         (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
+         (renderer->begin_content &&
+          (c == '-' || c == '+' || c == '=' || c == '~') &&
           // begin_content doesn't get set to false til we've passed digits
           // at the beginning of line, so...
           !follows_digit) ||
