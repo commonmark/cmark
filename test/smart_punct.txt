@@ -176,16 +176,27 @@ No ellipses\.\.\.
 <p>No ellipses...</p>
 ````````````````````````````````
 
-Current cmark output for crossing smart quotes and emphasis.
+A matched quote pair seals its scope: delimiters between the quotes can
+no longer match anything outside them, so quotes and emphasis do not
+overlap.
 
 ```````````````````````````````` example
 'a _b' c_ d
 .
-<p>‘a <em>b’ c</em> d</p>
+<p>‘a _b’ c_ d</p>
 ````````````````````````````````
 
 ```````````````````````````````` example
 "a 'b" c' d
 .
-<p>“a ‘b” c’ d</p>
+<p>“a ’b” c’ d</p>
+````````````````````````````````
+
+Emphasis nested inside quotes still works when it pairs within the
+quotes.
+
+```````````````````````````````` example
+'a _b_ c'
+.
+<p>‘a <em>b</em> c’</p>
 ````````````````````````````````

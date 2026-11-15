@@ -759,6 +759,17 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
           } else {
             cmark_node_set_literal(opener->inl_text, LEFTDOUBLEQUOTE);
           }
+          // Seal the matched quote scope: delimiters between the pair
+          // can no longer match anything outside it, so quotes and
+          // emphasis never overlap and the result stays a proper tree.
+          {
+            delimiter *inner = opener->next;
+            while (inner != NULL && inner != old_closer) {
+              delimiter *next = inner->next;
+              remove_delimiter(subj, inner);
+              inner = next;
+            }
+          }
           remove_delimiter(subj, opener);
           remove_delimiter(subj, old_closer);
         }
