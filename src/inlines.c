@@ -1255,31 +1255,24 @@ noMatch:
 
       cmark_node *fnref = make_simple(subj->mem, CMARK_NODE_FOOTNOTE_REFERENCE);
 
-      // the start and end of the footnote ref is the opening and closing brace
-      // i.e. the subject's current position, and the opener's start_column
-      int fnref_end_column = subj->pos + subj->column_offset + subj->block_offset;
-      int fnref_start_column = opener->inl_text->start_column;
-
-      // any given node delineates a substring of the line being processed,
-      // with the remainder of the line being pointed to thru its 'literal'
-      // struct member.
-      // here, we copy the literal's pointer, moving it past the '^' character
-      // for a length equal to the size of footnote reference text.
-      // i.e. end_col minus start_col, minus the [ and the ^ characters
-      //
-      // this copies the footnote reference string, even if between the
-      // `opener` and the subject's current position there are other nodes
-      //
-      // (first, check for underflows)
-      if ((fnref_start_column + 2) <= fnref_end_column) {
-        fnref->as.literal = cmark_chunk_dup(literal, 1, (fnref_end_column - fnref_start_column) - 2);
-      } else {
-        fnref->as.literal = cmark_chunk_dup(literal, 1, 0);
+      // Sometimes, the footnote reference text gets parsed into multiple nodes
+      // (see longer comment below). Therefore, we iterate through the nodes,
+      // copying the text fragments into a new string buffer named `fnref_buf`.
+      cmark_strbuf fnref_buf = CMARK_BUF_INIT(subj->mem);
+      cmark_node *current_node = opener->inl_text->next;
+      fnref->start_line = current_node->start_line;
+      fnref->start_column = current_node->start_column;
+      // Don't copy the first character, which is '^'.
+      cmark_strbuf_put(&fnref_buf, literal->data + 1, literal->len - 1);
+      cmark_node *next_node = current_node->next;
+      while (next_node && next_node->type == CMARK_NODE_TEXT) {
+        current_node = next_node;
+        cmark_strbuf_put(&fnref_buf, current_node->as.literal.data, current_node->as.literal.len);
+        next_node = current_node->next;
       }
-
-      fnref->start_line = fnref->end_line = subj->line;
-      fnref->start_column = fnref_start_column;
-      fnref->end_column = fnref_end_column;
+      fnref->end_line = current_node->end_line;
+      fnref->end_column = current_node->end_column;
+      fnref->as.literal = cmark_chunk_buf_detach(&fnref_buf);
 
       // we then replace the opener with this new fnref node, the net effect
       // being replacing the opening '[' text node with a `^footnote-ref]` node.
@@ -1299,8 +1292,7 @@ noMatch:
       // the opener->inl_text->next.
       //
       // therefore, here we walk thru the list and free them all up
-      cmark_node *next_node;
-      cmark_node *current_node = opener->inl_text->next;
+      current_node = opener->inl_text->next;
       while(current_node) {
         next_node = current_node->next;
         cmark_node_free(current_node);

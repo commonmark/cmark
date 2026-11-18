@@ -1,3 +1,6 @@
+[0.29.0.gfm.14]
+  * Fix use-after-free in inline footnote reference parsing: https://github.com/github/cmark-gfm/security/advisories/GHSA-84x9-qqwv-3w4q
+
 [0.29.0.gfm.13]
   * Normalized marker row vs. delimiter row nomenclature (#273)
   * Exposed CMARK_NODE_FOOTNOTE_DEFINITION literal value (#336)
