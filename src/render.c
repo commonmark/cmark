@@ -170,6 +170,15 @@ char *cmark_render(cmark_node *root, int options, int width,
 
   while ((ev_type = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
     cur = cmark_iter_get_node(iter);
+    if (cur->type == CMARK_NODE_ITEM) {
+      // Calculate the list item's index, for the benefit of output formats
+      // like commonmark and plaintext.
+      if (cur->prev) {
+        cmark_node_set_item_index(cur, 1 + cmark_node_get_item_index(cur->prev));
+      } else {
+        cmark_node_set_item_index(cur, cmark_node_get_list_start(cur->parent));
+      }
+    }
     if (!render_node(&renderer, cur, ev_type, options)) {
       // a false value causes us to skip processing
       // the node's contents.  this is used for
