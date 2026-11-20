@@ -1,0 +1,144 @@
+# Front Matter
+
+Front matter is an optional metadata block at the very start of a document,
+delimited by `---` on its own line.  It is enabled with the `--front-matter`
+flag (or `CMARK_OPT_FRONT_MATTER` in the C API).  The raw content between the
+delimiters is exposed as a `CMARK_NODE_FRONT_MATTER` node; how it is
+interpreted is left to the caller.
+
+All examples in this file are run with `--front-matter` enabled.
+
+## Basic front matter
+
+A document that opens with `---` followed by a closing `---` produces a front
+matter node.  The front matter does not appear in the HTML output.
+
+```````````````````````````````` example
+---
+title: Hello
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+Front matter with no body produces no HTML output.
+
+```````````````````````````````` example
+---
+title: Hello
+---
+.
+````````````````````````````````
+
+## Info string
+
+An optional info string after the opening `---` describes the format of the
+content (e.g. `yaml`, `toml`, `json`).  It does not affect the HTML output.
+
+```````````````````````````````` example
+--- yaml
+title: Hello
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+Info strings with no space between `---` and the format name are also accepted.
+
+```````````````````````````````` example
+---yaml
+title: Hello
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+## Empty front matter
+
+An empty front matter block (opening and closing `---` on consecutive lines)
+is valid and produces no HTML output.
+
+```````````````````````````````` example
+---
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+## No closing delimiter
+
+If no closing `---` is found, the entire document (after the opening `---`) is
+treated as front matter.  Nothing is rendered to HTML.
+
+```````````````````````````````` example
+---
+title: Hello
+# Not a heading
+.
+````````````````````````````````
+
+## Not front matter
+
+Front matter is only recognised when `---` is the very first line.  A `---`
+elsewhere in the document is a thematic break.
+
+```````````````````````````````` example
+# Heading
+
+---
+title: Not front matter
+---
+.
+<h1>Heading</h1>
+<hr />
+<h2>title: Not front matter</h2>
+````````````````````````````````
+
+## Trailing whitespace on delimiter
+
+The closing delimiter may have trailing whitespace.
+
+```````````````````````````````` example
+---
+title: Hello
+---   
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+## Front matter content is not parsed as Markdown
+
+Block-level Markdown syntax inside the front matter block is not interpreted;
+it is captured as raw text.
+
+```````````````````````````````` example
+---
+# not a heading
+**not bold**
+- not a list
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
+
+## `...` is not a closing delimiter
+
+Unlike some tools (e.g. Jekyll), `...` is not treated as a closing delimiter.
+This implementation is format-agnostic; `...` is a YAML-specific convention
+with no meaning for other formats.
+
+```````````````````````````````` example
+---
+title: Hello
+...
+---
+# Body
+.
+<h1>Body</h1>
+````````````````````````````````
