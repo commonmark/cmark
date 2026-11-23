@@ -237,7 +237,8 @@ static bool S_ends_with_blank_line(cmark_node *node) {
 
 
 // returns true if content remains after link defs are resolved.
-static bool resolve_reference_link_definitions(cmark_parser *parser) {
+static bool resolve_reference_link_definitions(cmark_parser *parser,
+                                               cmark_node *paragraph) {
   bufsize_t pos;
   cmark_strbuf *node_content = &parser->content;
   cmark_chunk chunk = {node_content->ptr, node_content->size};
@@ -245,6 +246,11 @@ static bool resolve_reference_link_definitions(cmark_parser *parser) {
          (pos = cmark_parse_reference_inline(parser->mem, &chunk,
                                              parser->refmap))) {
 
+    // A definition can span several source lines, including its title.
+    for (bufsize_t i = 0; i < pos; ++i) {
+      if (chunk.data[i] == '\n')
+        ++paragraph->start_line;
+    }
     chunk.data += pos;
     chunk.len -= pos;
   }
@@ -287,7 +293,7 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
   {
-    has_content = resolve_reference_link_definitions(parser);
+    has_content = resolve_reference_link_definitions(parser, b);
     if (!has_content) {
       // remove blank node (former reference def), but remember that
       // the enclosing list item had content
@@ -1066,7 +1072,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
                (lev =
                     scan_setext_heading_line(input, parser->first_nonspace)) &&
-               resolve_reference_link_definitions(parser)) {
+               resolve_reference_link_definitions(parser, *container)) {
       // Setext underline only if paragraph content remains after resolving
       // reference definitions; otherwise fall through so `---` can still
       // be a thematic break.
