@@ -1267,6 +1267,40 @@ static void ref_source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void source_pos_after_reference_definitions(test_batch_runner *runner) {
+  static const char markdown[] =
+    "[a]: /a\r\n"
+    "[b]: /b\r\n"
+    "  \"title\"\r\n"
+    "Foo\r\n"
+    "bar\r\n"
+    "\r\n"
+    "> [h]: /h\r\n"
+    "> Heading\r\n"
+    "> ---\r\n";
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1,
+                                         CMARK_OPT_DEFAULT);
+  cmark_node *para = cmark_node_first_child(doc);
+  cmark_node *heading = cmark_node_first_child(cmark_node_next(para));
+
+  INT_EQ(runner, cmark_node_get_start_line(para), 4,
+         "paragraph after definitions");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_first_child(para)), 4,
+         "first text after definitions");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_last_child(para)), 5,
+         "second text after definitions");
+  INT_EQ(runner, cmark_node_get_end_line(para), 5, "paragraph end");
+  INT_EQ(runner, cmark_node_get_type(heading), CMARK_NODE_HEADING,
+         "setext heading");
+  INT_EQ(runner, cmark_node_get_start_line(heading), 8,
+         "heading after definition");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_first_child(heading)), 8,
+         "heading text after definition");
+  INT_EQ(runner, cmark_node_get_start_column(heading), 3,
+         "heading in block quote");
+  cmark_node_free(doc);
+}
+
 int main(void) {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1299,6 +1333,7 @@ int main(void) {
   source_pos(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  source_pos_after_reference_definitions(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
