@@ -16,7 +16,7 @@ def pipe_through_prog(prog, text):
     [result, err] = p1.communicate(input=text.encode('utf-8'))
     return [p1.returncode, result.decode('utf-8'), err]
 
-def to_html(lib, text):
+def to_html(lib, text, smart=False):
     get_alloc = lib.cmark_get_default_mem_allocator
     get_alloc.restype = POINTER(cmark_mem)
     free_func = get_alloc().contents.free
@@ -27,8 +27,9 @@ def to_html(lib, text):
 
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
-    # 1 << 17 == CMARK_OPT_UNSAFE
-    cstring = markdown(textbytes, textlen, 1 << 17)
+    # 1 << 17 == CMARK_OPT_UNSAFE, 1 << 10 == CMARK_OPT_SMART
+    options = (1 << 17) | ((1 << 10) if smart else 0)
+    cstring = markdown(textbytes, textlen, options)
     result = string_at(cstring).decode('utf-8')
     free_func(cstring)
 
@@ -66,6 +67,7 @@ class CMark:
         if prog:
             prog += ' --unsafe'
             self.to_html = lambda x: pipe_through_prog(prog, x)
+            self.to_html_smart = lambda x: pipe_through_prog(prog + ' --smart', x)
             self.to_commonmark = lambda x: pipe_through_prog(prog + ' -t commonmark', x)
         else:
             sysname = platform.system()
@@ -84,4 +86,5 @@ class CMark:
                     break
             cmark = CDLL(libpath)
             self.to_html = lambda x: to_html(cmark, x)
+            self.to_html_smart = lambda x: to_html(cmark, x, smart=True)
             self.to_commonmark = lambda x: to_commonmark(cmark, x)
