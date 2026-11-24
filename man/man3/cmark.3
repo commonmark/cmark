@@ -20,6 +20,18 @@ responsibility to free the returned buffer.
 
 .SS
 Node Structure
+.PP
+Only applications create \f[CR]CMARK_NODE_CUSTOM_BLOCK\f[] and
+\f[CR]CMARK_NODE_CUSTOM_INLINE\f[] nodes. A filter can create one with
+\f[CR]cmark_node_new\f[] and insert it into the syntax tree after
+parsing. A custom block can contain block or inline children. A custom
+inline can contain inline children.
+.PP
+For example, to highlight the children of a custom inline in HTML, use
+\f[CR]cmark_node_set_on_enter\f[] for the opening \f[CR]<mark>\f[] tag
+and \f[CR]cmark_node_set_on_exit\f[] for the closing \f[CR]</mark>\f[]
+tag. The HTML renderer writes these strings literally before and after
+the children.
 
 .PP
 .nf

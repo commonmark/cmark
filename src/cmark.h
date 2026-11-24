@@ -29,6 +29,17 @@ CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
 
 /** ## Node Structure
+ *
+ * Only applications create `CMARK_NODE_CUSTOM_BLOCK` and
+ * `CMARK_NODE_CUSTOM_INLINE` nodes. A filter can create one
+ * with `cmark_node_new` and insert it into the syntax tree after parsing.
+ * A custom block can contain block or inline children. A custom inline
+ * can contain inline children.
+ *
+ * For example, to highlight the children of a custom inline in HTML,
+ * use `cmark_node_set_on_enter` for the opening `<mark>` tag and
+ * `cmark_node_set_on_exit` for the closing `</mark>` tag. The HTML
+ * renderer writes these strings literally before and after the children.
  */
 
 typedef enum {
