@@ -32,6 +32,10 @@ IF (Python3_Interpreter_FOUND)
                                                            --spec "${CMAKE_CURRENT_SOURCE_DIR}/spec.txt"
                                                            --library-dir "$<TARGET_FILE_DIR:cmark>")
 
+    add_test(NAME roundtrip_status_library
+             COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_status_tests.py"
+                                                           --library-dir "$<TARGET_FILE_DIR:cmark>")
+
     add_test(NAME entity_library
              COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/entity_tests.py"
                                                            --library-dir "$<TARGET_FILE_DIR:cmark>")

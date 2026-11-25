@@ -41,6 +41,7 @@ def converter(md):
 tests = get_tests(args.spec)
 result_counts = {'pass': 0, 'fail': 0, 'error': 0, 'skip': 0}
 for test in tests:
-    do_test(converter, test, args.normalize, result_counts)
+    result = do_test(converter, test, args.normalize, None)
+    result_counts[result] += 1
 
-exit(result_counts['fail'] + result_counts['error'])
+exit(result_counts['fail'] + result_counts['error'] != 0)
