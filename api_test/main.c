@@ -833,6 +833,32 @@ static void render_commonmark(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void render_nested_bullet_lists(test_batch_runner *runner) {
+  static const char *const markdown[] = {
+      "1. *\n   - y\n",
+      "1. - x\n   - y\n",
+      "- - x\n  - y\n"};
+  static const char *const expected[] = {
+      "<ol>\n<li>\n<ul>\n<li></li>\n</ul>\n"
+      "<!-- end list -->\n<ul>\n<li>y</li>\n</ul>\n</li>\n</ol>\n",
+      "<ol>\n<li>\n<ul>\n<li>x</li>\n<li>y</li>\n</ul>\n</li>\n</ol>\n",
+      "<ul>\n<li>\n<ul>\n<li>x</li>\n<li>y</li>\n</ul>\n</li>\n</ul>\n"};
+
+  for (size_t i = 0; i < sizeof(markdown) / sizeof(*markdown); ++i) {
+    cmark_node *doc = cmark_parse_document(markdown[i], strlen(markdown[i]),
+                                          CMARK_OPT_DEFAULT);
+    char *commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
+    cmark_node *roundtrip = cmark_parse_document(commonmark, strlen(commonmark),
+                                                CMARK_OPT_DEFAULT);
+    char *html = cmark_render_html(roundtrip, CMARK_OPT_UNSAFE);
+    STR_EQ(runner, html, expected[i], "roundtrip nested bullet list %zu", i);
+    free(html);
+    cmark_node_free(roundtrip);
+    free(commonmark);
+    cmark_node_free(doc);
+  }
+}
+
 static void utf8(test_batch_runner *runner) {
   // Ranges
   test_char(runner, 1, "\x01", "valid utf8 01");
@@ -1286,6 +1312,7 @@ int main(void) {
   render_man(runner);
   render_latex(runner);
   render_commonmark(runner);
+  render_nested_bullet_lists(runner);
   utf8(runner);
   line_endings(runner);
   numeric_entities(runner);

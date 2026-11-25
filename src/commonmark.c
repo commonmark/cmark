@@ -214,7 +214,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
+      // A list that starts on its parent's marker line must not add
+      // leading spaces to any of its markers.
       marker_width = 4;
+      if (node->parent->prev == NULL && node->parent->parent &&
+          node->parent->parent->type == CMARK_NODE_ITEM) {
+        marker_width = 2;
+      }
     } else {
       list_number = cmark_node_get_list_start(node->parent);
       list_delim = cmark_node_get_list_delim(node->parent);
@@ -232,7 +238,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-        LIT("  - ");
+        LIT(marker_width == 2 ? "- " : "  - ");
         renderer->begin_content = true;
       } else {
         LIT(listmarker);
