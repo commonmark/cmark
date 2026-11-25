@@ -217,7 +217,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       // A list that starts on its parent's marker line must not add
       // leading spaces to any of its markers.
       marker_width = 4;
-      if (node->parent->prev == NULL && node->parent->parent &&
+      if (node->parent && node->parent->prev == NULL && node->parent->parent &&
           node->parent->parent->type == CMARK_NODE_ITEM) {
         marker_width = 2;
       }
