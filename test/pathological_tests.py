@@ -116,11 +116,25 @@ pathological_cmark = {
                   re.compile("^\\*+a\\*+$")),
     }
 
+# cases run with the --smart option
+pathological_smart = {
+    "nested single quotes with double quotes (issue #521)":
+                 (("'x " * 60000) + ("'\"x" * 60000),
+                  re.compile("^<p>’x ’x (‘x ){59998}‘“x(’“x){59999}</p>\n$")),
+    "nested double quotes with emph (issue #521)":
+                 (('"x ' * 60000) + ('"_x' * 60000),
+                  re.compile("^<p>(“x ){60000}“_x(”_x){59999}</p>\n$")),
+    }
+
 whitespace_re = re.compile('/s+/')
 
 def run_pathological(q, inp, prog, lib_dir):
     cmark = CMark(prog=prog, library_dir=lib_dir)
     q.put(cmark.to_html(inp))
+
+def run_pathological_smart(q, inp, prog, lib_dir):
+    cmark = CMark(prog=prog, library_dir=lib_dir)
+    q.put(cmark.to_html_smart(inp))
 
 def run_pathological_cmark(q, inp, prog, lib_dir):
     cmark = CMark(prog=prog, library_dir=lib_dir)
@@ -137,11 +151,18 @@ def run_tests(args):
     ignored = []
 
     print("Testing pathological cases:")
-    for description in (*pathological, *pathological_cmark):
+    for description in (*pathological, *pathological_smart,
+                        *pathological_cmark):
         if description in pathological:
             (inp, regex) = pathological[description]
             p = multiprocessing.Process(
                 target=run_pathological,
+                args=(q, inp, args.program, args.library_dir)
+            )
+        elif description in pathological_smart:
+            (inp, regex) = pathological_smart[description]
+            p = multiprocessing.Process(
+                target=run_pathological_smart,
                 args=(q, inp, args.program, args.library_dir)
             )
         else:

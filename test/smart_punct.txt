@@ -87,6 +87,45 @@ be an open quote:
 <p>[a]’s b’</p>
 ````````````````````````````````
 
+Quote pairs must nest properly.  When a pair of quotes
+matches, quotes between them can no longer be matched
+with quotes outside them, and fall back to their default
+(so a single quote is treated as an apostrophe):
+
+```````````````````````````````` example
+"'Hi" there'
+.
+<p>“’Hi” there’</p>
+````````````````````````````````
+
+```````````````````````````````` example
+'a "b' c"
+.
+<p>‘a “b’ c”</p>
+````````````````````````````````
+
+Properly nested quotes are matched:
+
+```````````````````````````````` example
+"a 'b' c"
+'a "b" c'
+.
+<p>“a ‘b’ c”
+‘a “b” c’</p>
+````````````````````````````````
+
+Quotes are matched independently of emphasis, so
+quote pairs and emphasis may overlap:
+
+```````````````````````````````` example
+'a _b' c_ d
+
+_a 'b_ c'
+.
+<p>‘a <em>b’ c</em> d</p>
+<p><em>a ‘b</em> c’</p>
+````````````````````````````````
+
 Quotes that are escaped come out as literal straight
 quotes:
 

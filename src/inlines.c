@@ -64,6 +64,7 @@ typedef struct {
   int column_offset;
   cmark_reference_map *refmap;
   delimiter *last_delim;
+  delimiter *last_quote;
   bracket *last_bracket;
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
@@ -201,6 +202,7 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   e->column_offset = 0;
   e->refmap = refmap;
   e->last_delim = NULL;
+  e->last_quote = NULL;
   e->last_bracket = NULL;
   for (i = 0; i <= MAXBACKTICKS; i++) {
     e->backticks[i] = 0;
@@ -500,13 +502,14 @@ static void print_delimiters(subject *subj)
 }
 */
 
-static void remove_delimiter(subject *subj, delimiter *delim) {
+static void remove_from_stack(subject *subj, delimiter **last,
+                              delimiter *delim) {
   if (delim == NULL)
     return;
   if (delim->next == NULL) {
     // end of list:
-    assert(delim == subj->last_delim);
-    subj->last_delim = delim->previous;
+    assert(delim == *last);
+    *last = delim->previous;
   } else {
     delim->next->previous = delim->previous;
   }
@@ -514,6 +517,14 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
     delim->previous->next = delim->next;
   }
   subj->mem->free(delim);
+}
+
+static void remove_delimiter(subject *subj, delimiter *delim) {
+  remove_from_stack(subj, &subj->last_delim, delim);
+}
+
+static void remove_quote(subject *subj, delimiter *delim) {
+  remove_from_stack(subj, &subj->last_quote, delim);
 }
 
 static void pop_bracket(subject *subj) {
@@ -542,6 +553,23 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
   subj->last_delim = delim;
 }
 
+static void push_quote(subject *subj, unsigned char c, bool can_open,
+                       bool can_close, cmark_node *inl_text) {
+  delimiter *delim = (delimiter *)subj->mem->calloc(1, sizeof(delimiter));
+  delim->delim_char = c;
+  delim->can_open = can_open;
+  delim->can_close = can_close;
+  delim->inl_text = inl_text;
+  delim->position = subj->pos;
+  delim->length = 1; // quotes are always a single character
+  delim->previous = subj->last_quote;
+  delim->next = NULL;
+  if (delim->previous != NULL) {
+    delim->previous->next = delim;
+  }
+  subj->last_quote = delim;
+}
+
 static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
   if (subj->last_bracket != NULL) {
@@ -560,7 +588,7 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
 }
 
 // Assumes the subject has a c at the current position.
-static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart) {
+static cmark_node *handle_delim(subject *subj, unsigned char c) {
   bufsize_t numdelims;
   cmark_node *inl_text;
   bool can_open, can_close;
@@ -568,20 +596,36 @@ static cmark_node *handle_delim(subject *subj, unsigned char c, bool smart) {
 
   numdelims = scan_delims(subj, c, &can_open, &can_close);
 
-  if (c == '\'' && smart) {
+  contents = cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims);
+
+  inl_text = make_str(subj, subj->pos - numdelims, subj->pos - 1, contents);
+
+  if (can_open || can_close) {
+    push_delimiter(subj, c, can_open, can_close, inl_text);
+  }
+
+  return inl_text;
+}
+
+// Assumes the subject has a c at the current position.
+static cmark_node *handle_quote(subject *subj, unsigned char c) {
+  bufsize_t numdelims;
+  cmark_node *inl_text;
+  bool can_open, can_close;
+  cmark_chunk contents;
+
+  numdelims = scan_delims(subj, c, &can_open, &can_close);
+
+  if (c == '\'') {
     contents = cmark_chunk_literal(RIGHTSINGLEQUOTE);
-  } else if (c == '"' && smart) {
+  } else { // c == '"'
     contents =
         cmark_chunk_literal(can_close ? RIGHTDOUBLEQUOTE : LEFTDOUBLEQUOTE);
-  } else {
-    contents = cmark_chunk_dup(&subj->input, subj->pos - numdelims, numdelims);
   }
 
   inl_text = make_str(subj, subj->pos - numdelims, subj->pos - 1, contents);
 
-  if ((can_open || can_close) && (!(c == '\'' || c == '"') || smart)) {
-    push_delimiter(subj, c, can_open, can_close, inl_text);
-  }
+  push_quote(subj, c, can_open, can_close, inl_text);
 
   return inl_text;
 }
@@ -652,8 +696,7 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   delimiter *old_closer;
   bool opener_found;
   int openers_bottom_index = 0;
-  bufsize_t openers_bottom[15] = {stack_bottom, stack_bottom, stack_bottom,
-                                  stack_bottom, stack_bottom, stack_bottom,
+  bufsize_t openers_bottom[12] = {stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom};
@@ -669,18 +712,12 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   while (closer != NULL) {
     if (closer->can_close) {
       switch (closer->delim_char) {
-      case '"':
-        openers_bottom_index = 0;
-        break;
-      case '\'':
-        openers_bottom_index = 1;
-        break;
       case '_':
-        openers_bottom_index = 2 +
+        openers_bottom_index = 0 +
                 (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       case '*':
-        openers_bottom_index = 8 +
+        openers_bottom_index = 6 +
                 (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       default:
@@ -705,28 +742,10 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
         opener = opener->previous;
       }
       old_closer = closer;
-      if (closer->delim_char == '*' || closer->delim_char == '_') {
-        if (opener_found) {
-          closer = S_insert_emph(subj, opener, closer);
-        } else {
-          closer = closer->next;
-        }
-      } else if (closer->delim_char == '\'' || closer->delim_char == '"') {
-        if (closer->delim_char == '\'') {
-          cmark_node_set_literal(closer->inl_text, RIGHTSINGLEQUOTE);
-        } else {
-          cmark_node_set_literal(closer->inl_text, RIGHTDOUBLEQUOTE);
-        }
+      if (opener_found) {
+        closer = S_insert_emph(subj, opener, closer);
+      } else {
         closer = closer->next;
-        if (opener_found) {
-          if (old_closer->delim_char == '\'') {
-            cmark_node_set_literal(opener->inl_text, LEFTSINGLEQUOTE);
-          } else {
-            cmark_node_set_literal(opener->inl_text, LEFTDOUBLEQUOTE);
-          }
-          remove_delimiter(subj, opener);
-          remove_delimiter(subj, old_closer);
-        }
       }
       if (!opener_found) {
         // set lower bound for future searches for openers
@@ -746,6 +765,86 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   while (subj->last_delim != NULL &&
          subj->last_delim->position >= stack_bottom) {
     remove_delimiter(subj, subj->last_delim);
+  }
+}
+
+// Match smart quotes.  This is done in a separate pass after emphasis,
+// so quotes and emphasis may overlap.  Quotes must nest properly with
+// respect to each other, though: when a pair matches, the quote
+// delimiters between them are removed.  This also guarantees that each
+// delimiter is scanned past at most once (see #521).
+static void process_quotes(subject *subj, bufsize_t stack_bottom) {
+  delimiter *candidate;
+  delimiter *closer = NULL;
+  delimiter *opener;
+  delimiter *old_closer;
+  delimiter *delim, *tmp_delim;
+  int openers_bottom_index;
+  bufsize_t openers_bottom[2] = {stack_bottom, stack_bottom};
+
+  // move back to first relevant delim.
+  candidate = subj->last_quote;
+  while (candidate != NULL && candidate->position >= stack_bottom) {
+    closer = candidate;
+    candidate = candidate->previous;
+  }
+
+  // now move forward, looking for closers, and handling each
+  while (closer != NULL) {
+    if (closer->can_close) {
+      openers_bottom_index = closer->delim_char == '\'' ? 0 : 1;
+
+      // Now look backwards for first matching opener:
+      opener = closer->previous;
+      while (opener != NULL &&
+             opener->position >= openers_bottom[openers_bottom_index] &&
+             !(opener->can_open && opener->delim_char == closer->delim_char)) {
+        opener = opener->previous;
+      }
+      if (opener != NULL &&
+          opener->position < openers_bottom[openers_bottom_index]) {
+        opener = NULL;
+      }
+      old_closer = closer;
+      closer = closer->next;
+      if (old_closer->delim_char == '\'') {
+        cmark_node_set_literal(old_closer->inl_text, RIGHTSINGLEQUOTE);
+      } else {
+        cmark_node_set_literal(old_closer->inl_text, RIGHTDOUBLEQUOTE);
+      }
+      if (opener != NULL) {
+        if (old_closer->delim_char == '\'') {
+          cmark_node_set_literal(opener->inl_text, LEFTSINGLEQUOTE);
+        } else {
+          cmark_node_set_literal(opener->inl_text, LEFTDOUBLEQUOTE);
+        }
+        // free delimiters between opener and closer
+        delim = old_closer->previous;
+        while (delim != NULL && delim != opener) {
+          tmp_delim = delim->previous;
+          remove_quote(subj, delim);
+          delim = tmp_delim;
+        }
+        remove_quote(subj, opener);
+        remove_quote(subj, old_closer);
+      } else {
+        // set lower bound for future searches for openers
+        openers_bottom[openers_bottom_index] = old_closer->position;
+        if (!old_closer->can_open) {
+          // we can remove a closer that can't be an
+          // opener, once we've seen there's no
+          // matching opener:
+          remove_quote(subj, old_closer);
+        }
+      }
+    } else {
+      closer = closer->next;
+    }
+  }
+  // free all delimiters in list until stack_bottom:
+  while (subj->last_quote != NULL &&
+         subj->last_quote->position >= stack_bottom) {
+    remove_quote(subj, subj->last_quote);
   }
 }
 
@@ -1160,7 +1259,7 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
 }
 
 // Return a link, an image, or a literal close bracket.
-static cmark_node *handle_close_bracket(subject *subj) {
+static cmark_node *handle_close_bracket(subject *subj, int options) {
   bufsize_t initial_pos, after_link_text_pos;
   bufsize_t endurl, starttitle, endtitle, endall;
   bufsize_t sps, n;
@@ -1287,6 +1386,9 @@ match:
   cmark_node_free(opener->inl_text);
 
   process_emphasis(subj, opener->position);
+  if (options & CMARK_OPT_SMART) {
+    process_quotes(subj, opener->position);
+  }
   pop_bracket(subj);
 
   // Now, if we have a link, we also want to deactivate links until
@@ -1395,9 +1497,17 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     break;
   case '*':
   case '_':
+    new_inl = handle_delim(subj, c);
+    break;
   case '\'':
   case '"':
-    new_inl = handle_delim(subj, c, (options & CMARK_OPT_SMART) != 0);
+    if (options & CMARK_OPT_SMART) {
+      new_inl = handle_quote(subj, c);
+    } else {
+      advance(subj);
+      new_inl = make_str(subj, subj->pos - 1, subj->pos - 1,
+                         cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
+    }
     break;
   case '-':
     new_inl = handle_hyphen(subj, (options & CMARK_OPT_SMART) != 0);
@@ -1411,7 +1521,7 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
     push_bracket(subj, false, new_inl);
     break;
   case ']':
-    new_inl = handle_close_bracket(subj);
+    new_inl = handle_close_bracket(subj, options);
     break;
   case '!':
     advance(subj);
@@ -1457,9 +1567,15 @@ void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
     ;
 
   process_emphasis(&subj, 0);
+  if (options & CMARK_OPT_SMART) {
+    process_quotes(&subj, 0);
+  }
   // free bracket and delim stack
   while (subj.last_delim) {
     remove_delimiter(&subj, subj.last_delim);
+  }
+  while (subj.last_quote) {
+    remove_quote(&subj, subj.last_quote);
   }
   while (subj.last_bracket) {
     pop_bracket(&subj);
