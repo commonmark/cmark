@@ -828,6 +828,24 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(tilde_fence_doc);
 
+  // Tildes at the start of a line of text must be escaped, or they open a
+  // code fence that a later ~~~ line in a code block closes.
+  static const char tilde_text[] = "foo\n"
+                                   "\\~~~\n"
+                                   "\n"
+                                   "```\n"
+                                   "~~~\n"
+                                   "<b>x</b>\n"
+                                   "```\n";
+  cmark_node *tilde_text_doc =
+      cmark_parse_document(tilde_text, sizeof(tilde_text) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(tilde_text_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "foo\n\\~~~\n\n``` \n~~~\n<b>x</b>\n```\n",
+         "render tildes at start of line in text");
+  free(commonmark);
+  cmark_node_free(tilde_text_doc);
+
   cmark_node_free(text);
   cmark_node_free(doc);
 }
