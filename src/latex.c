@@ -217,6 +217,36 @@ static int S_get_enumlevel(cmark_node *node) {
   return enumlevel;
 }
 
+// A literal \end{verbatim} would close the environment early and the
+// rest of the code block would be read as LaTeX, so close the environment
+// before each occurrence, print it escaped, and reopen.
+static void S_render_verbatim(cmark_renderer *renderer, const char *code) {
+  static const char end_verbatim[] = "\\end{verbatim}";
+  const char *match;
+  cmark_strbuf buf = CMARK_BUF_INIT(renderer->mem);
+
+  while ((match = strstr(code, end_verbatim)) != NULL) {
+    cmark_strbuf_set(&buf, (const unsigned char *)code,
+                     (bufsize_t)(match - code));
+    OUT((const char *)buf.ptr, false, LITERAL);
+    CR();
+    LIT("\\end{verbatim}");
+    CR();
+    LIT("\\texttt{");
+    OUT(end_verbatim, false, NORMAL);
+    LIT("}");
+    CR();
+    LIT("\\begin{verbatim}");
+    CR();
+    code = match + sizeof(end_verbatim) - 1;
+    if (*code == '\n') {
+      code++;
+    }
+  }
+  OUT(code, false, LITERAL);
+  cmark_strbuf_free(&buf);
+}
+
 static int S_render_node(cmark_renderer *renderer, cmark_node *node,
                          cmark_event_type ev_type, int options) {
   int list_number;
@@ -318,7 +348,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     CR();
     LIT("\\begin{verbatim}");
     CR();
-    OUT(cmark_node_get_literal(node), false, LITERAL);
+    S_render_verbatim(renderer, cmark_node_get_literal(node));
     CR();
     LIT("\\end{verbatim}");
     BLANKLINE();
