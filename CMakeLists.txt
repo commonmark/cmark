@@ -92,7 +92,8 @@ function(cmark_add_compile_options target)
   else()
     target_compile_options(${target} PRIVATE
             -Wall -Wextra -pedantic
-            $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>)
+            $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>
+            $<$<C_COMPILER_ID:AppleClang,Clang>:-Wshorten-64-to-32>)
   endif()
   if(CMAKE_BUILD_TYPE STREQUAL Profile)
     target_compile_options(${target} PRIVATE -pg)

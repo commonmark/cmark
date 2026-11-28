@@ -606,6 +606,16 @@ static void render_xml(test_batch_runner *runner) {
          "render first paragraph with source pos");
   free(xml);
   cmark_node_free(doc);
+
+  cmark_node *link = cmark_node_new(CMARK_NODE_LINK);
+  cmark_node_set_title(link, "a\nb\tc\rd & \"");
+  xml = cmark_render_xml(link, CMARK_OPT_DEFAULT);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<link destination=\"\" title=\"a&#10;b&#9;c&#13;d &amp; &quot;\" />\n",
+         "preserve whitespace in XML attributes");
+  free(xml);
+  cmark_node_free(link);
 }
 
 static void render_man(test_batch_runner *runner) {
@@ -734,22 +744,21 @@ static void render_commonmark(test_batch_runner *runner) {
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 26);
   STR_EQ(runner, commonmark, "> \\- foo *bar* \\*bar\\*\n"
                              "\n"
-                             "  - Lorem ipsum dolor sit\n"
-                             "    amet, consectetur\n"
-                             "    adipiscing elit,\n"
-                             "  - sed do eiusmod tempor\n"
-                             "    incididunt ut labore\n"
-                             "    et dolore magna\n"
-                             "    aliqua.\n",
+                             "- Lorem ipsum dolor sit\n"
+                             "  amet, consectetur\n"
+                             "  adipiscing elit,\n"
+                             "- sed do eiusmod tempor\n"
+                             "  incididunt ut labore et\n"
+                             "  dolore magna aliqua.\n",
          "render document with wrapping");
   free(commonmark);
   commonmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
   STR_EQ(runner, commonmark, "> \\- foo *bar* \\*bar\\*\n"
                              "\n"
-                             "  - Lorem ipsum dolor sit amet,\n"
-                             "    consectetur adipiscing elit,\n"
-                             "  - sed do eiusmod tempor incididunt\n"
-                             "    ut labore et dolore magna aliqua.\n",
+                             "- Lorem ipsum dolor sit amet,\n"
+                             "  consectetur adipiscing elit,\n"
+                             "- sed do eiusmod tempor incididunt\n"
+                             "  ut labore et dolore magna aliqua.\n",
          "render document without wrapping");
   free(commonmark);
 
@@ -766,9 +775,9 @@ static void render_commonmark(test_batch_runner *runner) {
       cmark_parse_document(empty_item, sizeof(empty_item) - 1,
                            CMARK_OPT_DEFAULT);
   commonmark = cmark_render_commonmark(empty_item_doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, commonmark, ">   - a\n"
-                             ">   - \n"
-                             ">   - b\n",
+  STR_EQ(runner, commonmark, "> - a\n"
+                             "> - \n"
+                             "> - b\n",
          "render empty list item inside block quote");
   free(commonmark);
 
@@ -828,6 +837,20 @@ static void render_commonmark(test_batch_runner *runner) {
   free(commonmark);
   cmark_node_free(roundtrip);
   cmark_node_free(metadata_doc);
+  // An info string containing a backtick forces a tilde fence, which must
+  // be longer than any run of tildes in the code.
+  static const char tilde_fence[] = "~~~~~ a`b\n"
+                                    "~~~\n"
+                                    "<b>x</b>\n"
+                                    "~~~~~\n";
+  cmark_node *tilde_fence_doc =
+      cmark_parse_document(tilde_fence, sizeof(tilde_fence) - 1,
+                           CMARK_OPT_DEFAULT);
+  commonmark = cmark_render_commonmark(tilde_fence_doc, CMARK_OPT_DEFAULT, 0);
+  STR_EQ(runner, commonmark, "~~~~ a`b\n~~~\n<b>x</b>\n~~~~\n",
+         "render tilde fence longer than tildes in code");
+  free(commonmark);
+  cmark_node_free(tilde_fence_doc);
 
   cmark_node_free(text);
   cmark_node_free(doc);
@@ -1040,6 +1063,38 @@ static void test_feed_empty_chunk(test_batch_runner *runner) {
   cmark_node_free(document);
 }
 
+static void test_long_code_fence(test_batch_runner *runner) {
+  // A closing fence must be at least as long as the opening fence, even
+  // when the opening fence is longer than 255 characters.
+  char markdown[1024];
+  char expected[512];
+  char *p = markdown;
+  char *q = expected;
+
+  memset(p, '`', 256);
+  p += 256;
+  strcpy(p, "\n");
+  p += 1;
+  memset(p, '`', 255);
+  p += 255;
+  strcpy(p, "\n<script>\n");
+  p += 10;
+  memset(p, '`', 256);
+  p += 256;
+  strcpy(p, "\n");
+
+  strcpy(q, "<pre><code>");
+  q += 11;
+  memset(q, '`', 255);
+  q += 255;
+  strcpy(q, "\n&lt;script&gt;\n</code></pre>\n");
+
+  char *html =
+      cmark_markdown_to_html(markdown, strlen(markdown), CMARK_OPT_DEFAULT);
+  STR_EQ(runner, html, expected, "255 backticks don't close a 256 fence");
+  free(html);
+}
+
 static void sub_document(test_batch_runner *runner) {
   cmark_node *doc = cmark_node_new(CMARK_NODE_DOCUMENT);
   cmark_node *list = cmark_node_new(CMARK_NODE_LIST);
@@ -1100,9 +1155,9 @@ static void sub_document(test_batch_runner *runner) {
   free(xml);
 
   char *cmark = cmark_render_commonmark(doc, CMARK_OPT_DEFAULT, 0);
-  STR_EQ(runner, cmark, "  - Hello “ <http://www.google.com>\n"
+  STR_EQ(runner, cmark, "- Hello “ <http://www.google.com>\n"
                         "\n"
-                        "  - Bye “ <http://www.geocities.com>\n",
+                        "- Bye “ <http://www.geocities.com>\n",
          "nested document CommonMark is as expected");
   free(cmark);
 
@@ -1120,13 +1175,15 @@ static void source_pos(test_batch_runner *runner) {
     ">    Sure.\n"
     ">\n"
     "> 2. Yes, okay.\n"
-    ">    ![ok](hi \"yes\")\n";
+    ">    ![ok](hi \"yes\")\n"
+    ">\n"
+    "> #\n";
 
   cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
   char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
   STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                       "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
-                      "<document sourcepos=\"1:1-10:20\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "<document sourcepos=\"1:1-12:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
                       "  <heading sourcepos=\"1:1-1:14\" level=\"1\">\n"
                       "    <text sourcepos=\"1:3-1:6\" xml:space=\"preserve\">Hi *</text>\n"
                       "    <emph sourcepos=\"1:7-1:13\">\n"
@@ -1148,8 +1205,8 @@ static void source_pos(test_batch_runner *runner) {
                       "    </link>\n"
                       "    <text sourcepos=\"4:42-4:42\" xml:space=\"preserve\">.</text>\n"
                       "  </paragraph>\n"
-                      "  <block_quote sourcepos=\"6:1-10:20\">\n"
-                      "    <list sourcepos=\"6:3-10:20\" type=\"ordered\" start=\"1\" delimiter=\"period\" tight=\"false\">\n"
+                      "  <block_quote sourcepos=\"6:1-12:3\">\n"
+                      "    <list sourcepos=\"6:3-11:1\" type=\"ordered\" start=\"1\" delimiter=\"period\" tight=\"false\">\n"
                       "      <item sourcepos=\"6:3-8:1\">\n"
                       "        <paragraph sourcepos=\"6:6-7:10\">\n"
                       "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
@@ -1157,7 +1214,7 @@ static void source_pos(test_batch_runner *runner) {
                       "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
                       "        </paragraph>\n"
                       "      </item>\n"
-                      "      <item sourcepos=\"9:3-10:20\">\n"
+                      "      <item sourcepos=\"9:3-11:1\">\n"
                       "        <paragraph sourcepos=\"9:6-10:20\">\n"
                       "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
                       "          <softbreak />\n"
@@ -1167,6 +1224,7 @@ static void source_pos(test_batch_runner *runner) {
                       "        </paragraph>\n"
                       "      </item>\n"
                       "    </list>\n"
+                      "    <heading sourcepos=\"12:3-12:3\" level=\"1\" />\n"
                       "  </block_quote>\n"
                       "</document>\n",
          "sourcepos are as expected");
@@ -1265,6 +1323,40 @@ static void ref_source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void source_pos_after_reference_definitions(test_batch_runner *runner) {
+  static const char markdown[] =
+    "[a]: /a\r\n"
+    "[b]: /b\r\n"
+    "  \"title\"\r\n"
+    "Foo\r\n"
+    "bar\r\n"
+    "\r\n"
+    "> [h]: /h\r\n"
+    "> Heading\r\n"
+    "> ---\r\n";
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1,
+                                         CMARK_OPT_DEFAULT);
+  cmark_node *para = cmark_node_first_child(doc);
+  cmark_node *heading = cmark_node_first_child(cmark_node_next(para));
+
+  INT_EQ(runner, cmark_node_get_start_line(para), 4,
+         "paragraph after definitions");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_first_child(para)), 4,
+         "first text after definitions");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_last_child(para)), 5,
+         "second text after definitions");
+  INT_EQ(runner, cmark_node_get_end_line(para), 5, "paragraph end");
+  INT_EQ(runner, cmark_node_get_type(heading), CMARK_NODE_HEADING,
+         "setext heading");
+  INT_EQ(runner, cmark_node_get_start_line(heading), 8,
+         "heading after definition");
+  INT_EQ(runner, cmark_node_get_start_line(cmark_node_first_child(heading)), 8,
+         "heading text after definition");
+  INT_EQ(runner, cmark_node_get_start_column(heading), 3,
+         "heading in block quote");
+  cmark_node_free(doc);
+}
+
 int main(void) {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1293,10 +1385,12 @@ int main(void) {
   test_safe(runner);
   test_feed_across_line_ending(runner);
   test_feed_empty_chunk(runner);
+  test_long_code_fence(runner);
   sub_document(runner);
   source_pos(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  source_pos_after_reference_definitions(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

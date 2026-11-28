@@ -129,11 +129,8 @@ static cmark_node *make_str_with_entities(subject *subj,
                                           cmark_chunk *content) {
   cmark_strbuf unescaped = CMARK_BUF_INIT(subj->mem);
 
-  if (houdini_unescape_html(&unescaped, content->data, content->len)) {
-    return make_str_from_buf(subj, start_column, end_column, &unescaped);
-  } else {
-    return make_str(subj, start_column, end_column, *content);
-  }
+  cmark_unescape_string(false, &unescaped, content->data, content->len);
+  return make_str_from_buf(subj, start_column, end_column, &unescaped);
 }
 
 // Like cmark_node_append_child but without costly sanity checks.
@@ -175,7 +172,7 @@ static unsigned char *cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
   if (is_email)
     cmark_strbuf_puts(&buf, "mailto:");
 
-  houdini_unescape_html_f(&buf, url->data, url->len);
+  cmark_unescape_string(false, &buf, url->data, url->len);
   return cmark_strbuf_detach(&buf);
 }
 
@@ -866,16 +863,50 @@ static cmark_node *handle_entity(subject *subj) {
   return make_str_from_buf(subj, subj->pos - 1 - len, subj->pos - 1, &ent);
 }
 
-// Clean a URL: remove surrounding whitespace, and remove \ that escape
-// punctuation.
+// Decode entity references and backslash escapes in a single pass, so an
+// escaped & does not start an entity and a decoded entity is never taken
+// as a backslash escape. The first parameter controls whether backslash
+// escapes are recognized.
+void cmark_unescape_string(bool backslash_escapes,
+                           cmark_strbuf *buf,
+                           const unsigned char *src,
+                           bufsize_t len) {
+  bufsize_t i = 0, org, ent;
+
+  while (i < len) {
+    org = i;
+    while (i < len && src[i] != '\\' && src[i] != '&')
+      i++;
+
+    if (i > org)
+      cmark_strbuf_put(buf, src + org, i - org);
+
+    if (i >= len)
+      break;
+
+    if (src[i] == '\\') {
+      if (backslash_escapes && i + 1 < len && cmark_ispunct(src[i + 1]))
+        i++;
+      cmark_strbuf_putc(buf, src[i]);
+      i++;
+    } else {
+      i++;
+      ent = houdini_unescape_ent(buf, src + i, len - i);
+      i += ent;
+      if (ent == 0)
+        cmark_strbuf_putc(buf, '&');
+    }
+  }
+}
+
+// Clean a URL: remove surrounding whitespace, and decode entities and
+// backslash escapes.
 unsigned char *cmark_clean_url(cmark_mem *mem, cmark_chunk *url) {
   cmark_strbuf buf = CMARK_BUF_INIT(mem);
 
   cmark_chunk_trim(url);
 
-  houdini_unescape_html_f(&buf, url->data, url->len);
-
-  cmark_strbuf_unescape(&buf);
+  cmark_unescape_string(true, &buf, url->data, url->len);
   return cmark_strbuf_detach(&buf);
 }
 
@@ -893,12 +924,11 @@ unsigned char *cmark_clean_title(cmark_mem *mem, cmark_chunk *title) {
   // remove surrounding quotes if any:
   if ((first == '\'' && last == '\'') || (first == '(' && last == ')') ||
       (first == '"' && last == '"')) {
-    houdini_unescape_html_f(&buf, title->data + 1, title->len - 2);
+      cmark_unescape_string(true, &buf, title->data + 1, title->len - 2);
   } else {
-    houdini_unescape_html_f(&buf, title->data, title->len);
+      cmark_unescape_string(true, &buf, title->data, title->len);
   }
 
-  cmark_strbuf_unescape(&buf);
   return cmark_strbuf_detach(&buf);
 }
 

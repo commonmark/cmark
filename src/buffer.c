@@ -30,17 +30,20 @@ void cmark_strbuf_init(cmark_mem *mem, cmark_strbuf *buf,
     cmark_strbuf_grow(buf, initial_size);
 }
 
-static inline void S_strbuf_grow_by(cmark_strbuf *buf, bufsize_t add) {
-  cmark_strbuf_grow(buf, buf->size + add);
+static inline void S_strbuf_grow_by(cmark_strbuf *buf, ptrdiff_t add) {
+  // The sum must not wrap around to a negative target size, which would skip
+  // the growth. INT32_MAX exceeds the limit in cmark_strbuf_grow.
+  cmark_strbuf_grow(buf, add > INT32_MAX - buf->size ? INT32_MAX
+                                                     : buf->size + add);
 }
 
-void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
+void cmark_strbuf_grow(cmark_strbuf *buf, ptrdiff_t target_size) {
   assert(target_size > 0);
 
   if (target_size < buf->asize)
     return;
 
-  if (target_size > (bufsize_t)(INT32_MAX / 2)) {
+  if (target_size > INT32_MAX / 2) {
     fprintf(stderr,
       "[cmark] cmark_strbuf_grow requests buffer with size > %d, aborting\n",
          (INT32_MAX / 2));
@@ -49,7 +52,7 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
 
   /* Oversize the buffer by 50% to guarantee amortized linear time
    * complexity on append operations. */
-  bufsize_t new_size = target_size + target_size / 2;
+  bufsize_t new_size = (bufsize_t)(target_size + target_size / 2);
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
@@ -76,7 +79,7 @@ void cmark_strbuf_clear(cmark_strbuf *buf) {
 }
 
 void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data,
-                      bufsize_t len) {
+                      ptrdiff_t len) {
   if (len <= 0 || data == NULL) {
     cmark_strbuf_clear(buf);
   } else {
@@ -85,7 +88,7 @@ void cmark_strbuf_set(cmark_strbuf *buf, const unsigned char *data,
         cmark_strbuf_grow(buf, len);
       memmove(buf->ptr, data, len);
     }
-    buf->size = len;
+    buf->size = (bufsize_t)len;
     buf->ptr[buf->size] = '\0';
   }
 }
@@ -97,18 +100,18 @@ void cmark_strbuf_putc(cmark_strbuf *buf, int c) {
 }
 
 void cmark_strbuf_put(cmark_strbuf *buf, const unsigned char *data,
-                      bufsize_t len) {
+                      ptrdiff_t len) {
   if (len <= 0)
     return;
 
   S_strbuf_grow_by(buf, len);
   memmove(buf->ptr + buf->size, data, len);
-  buf->size += len;
+  buf->size += (bufsize_t)len;
   buf->ptr[buf->size] = '\0';
 }
 
 void cmark_strbuf_puts(cmark_strbuf *buf, const char *string) {
-  cmark_strbuf_put(buf, (const unsigned char *)string, (bufsize_t)strlen(string));
+  cmark_strbuf_put(buf, (const unsigned char *)string, (ptrdiff_t)strlen(string));
 }
 
 unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
@@ -192,19 +195,4 @@ void cmark_strbuf_normalize_whitespace(cmark_strbuf *s) {
   }
 
   cmark_strbuf_truncate(s, w);
-}
-
-// Destructively unescape a string: remove backslashes before punctuation chars.
-void cmark_strbuf_unescape(cmark_strbuf *buf) {
-  bufsize_t r, w;
-
-  for (r = 0, w = 0; r < buf->size; ++r) {
-    if (buf->ptr[r] == '\\' && r + 1 < buf->size &&
-        cmark_ispunct(buf->ptr[r + 1]))
-      r++;
-
-    buf->ptr[w++] = buf->ptr[r];
-  }
-
-  cmark_strbuf_truncate(buf, w);
 }

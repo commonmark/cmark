@@ -46,14 +46,14 @@ static int utf8proc_charlen(const uint8_t *str, bufsize_t str_len) {
 }
 
 // Validate a single UTF-8 character according to RFC 3629.
-static int utf8proc_valid(const uint8_t *str, bufsize_t str_len) {
+static int utf8proc_valid(const uint8_t *str, ptrdiff_t str_len) {
   int length = utf8proc_utf8class[str[0]];
 
   if (!length)
     return -1;
 
-  if ((bufsize_t)length > str_len)
-    return -str_len;
+  if (length > str_len)
+    return -(int)str_len;
 
   switch (length) {
   case 2:
@@ -108,11 +108,11 @@ static int utf8proc_valid(const uint8_t *str, bufsize_t str_len) {
 }
 
 void cmark_utf8proc_check(cmark_strbuf *ob, const uint8_t *line,
-                          bufsize_t size) {
-  bufsize_t i = 0;
+                          ptrdiff_t size) {
+  ptrdiff_t i = 0;
 
   while (i < size) {
-    bufsize_t org = i;
+    ptrdiff_t org = i;
     int charlen = 0;
 
     while (i < size) {

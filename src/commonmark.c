@@ -78,13 +78,13 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   }
 }
 
-static int longest_backtick_sequence(const char *code) {
+static int longest_char_sequence(const char *code, char c) {
   int longest = 0;
   int current = 0;
   size_t i = 0;
   size_t code_len = strlen(code);
   while (i <= code_len) {
-    if (code[i] == '`') {
+    if (code[i] == c) {
       current++;
     } else {
       if (current > longest) {
@@ -219,7 +219,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-      marker_width = 4;
+      marker_width = 2;
     } else {
       list_number = cmark_node_get_list_start(node->parent);
       list_delim = cmark_node_get_list_delim(node->parent);
@@ -228,16 +228,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         tmp = tmp->prev;
         list_number += 1;
       }
-      // we ensure a width of at least 4 so
-      // we get nice transition from single digits
-      // to double
-      marker_width = (bufsize_t)snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
+      // we ensure a width of at least 4 so we get nice transition
+      // from single digits to double
+      marker_width = (bufsize_t)snprintf(listmarker, LISTMARKER_SIZE,
+               "%d%s%s", list_number,
                list_delim == CMARK_PAREN_DELIM ? ")" : ".",
                list_number < 10 ? "  " : " ");
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-        LIT("  - ");
+        LIT("- ");
         renderer->begin_content = true;
       } else {
         LIT(listmarker);
@@ -286,7 +286,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
 
-    numticks = longest_backtick_sequence(code) + 1;
+    numticks = longest_char_sequence(code, fencechar[0]) + 1;
     if (numticks < 3) {
       numticks = 3;
     }

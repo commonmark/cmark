@@ -67,7 +67,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
                           size_t len, bool eof);
 
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
-                           bufsize_t bytes);
+                           ptrdiff_t bytes);
 
 static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
@@ -237,7 +237,8 @@ static bool S_ends_with_blank_line(cmark_node *node) {
 
 
 // returns true if content remains after link defs are resolved.
-static bool resolve_reference_link_definitions(cmark_parser *parser) {
+static bool resolve_reference_link_definitions(cmark_parser *parser,
+                                               cmark_node *paragraph) {
   bufsize_t pos;
   cmark_strbuf *node_content = &parser->content;
   cmark_chunk chunk = {node_content->ptr, node_content->size};
@@ -245,6 +246,11 @@ static bool resolve_reference_link_definitions(cmark_parser *parser) {
          (pos = cmark_parse_reference_inline(parser->mem, &chunk,
                                              parser->refmap))) {
 
+    // A definition can span several source lines, including its title.
+    for (bufsize_t i = 0; i < pos; ++i) {
+      if (chunk.data[i] == '\n')
+        ++paragraph->start_line;
+    }
     chunk.data += pos;
     chunk.len -= pos;
   }
@@ -287,9 +293,12 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
   switch (S_type(b)) {
   case CMARK_NODE_PARAGRAPH:
   {
-    has_content = resolve_reference_link_definitions(parser);
+    has_content = resolve_reference_link_definitions(parser, b);
     if (!has_content) {
-      // remove blank node (former reference def)
+      // remove blank node (former reference def), but remember that
+      // the enclosing list item had content
+      if (S_type(parent) == CMARK_NODE_ITEM)
+        parent->flags |= CMARK_NODE__ITEM_HAD_CONTENT;
       cmark_node_free(b);
     } else {
       b->len = node_content->size;
@@ -314,9 +323,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
         b->as.code.info = NULL;
       } else {
         cmark_strbuf tmp = CMARK_BUF_INIT(parser->mem);
-        houdini_unescape_html_f(&tmp, node_content->ptr, pos);
+        cmark_unescape_string(true, &tmp, node_content->ptr, pos);
         cmark_strbuf_trim(&tmp);
-        cmark_strbuf_unescape(&tmp);
         b->as.code.info = cmark_strbuf_detach(&tmp);
       }
 
@@ -601,7 +609,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
   parser->last_buffer_ended_with_cr = false;
   while (buffer < end) {
     const unsigned char *eol;
-    bufsize_t chunk_len;
+    ptrdiff_t chunk_len;
     bool process = false;
     for (eol = buffer; eol < end; ++eol) {
       if (S_is_line_end_char(*eol)) {
@@ -656,7 +664,7 @@ static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
 }
 
 static void chop_trailing_hashtags(cmark_chunk *ch) {
-  bufsize_t n, orig_n;
+  bufsize_t n, orig_n, i;
 
   cmark_chunk_rtrim(ch);
   orig_n = n = ch->len - 1;
@@ -666,10 +674,22 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
     n--;
 
   // Check for a space before the final #s:
-  if (n != orig_n && n >= 0 && S_is_space_or_tab(peek_at(ch, n))) {
-    ch->len = n;
-    cmark_chunk_rtrim(ch);
+  if (n == orig_n || n < 0 || !S_is_space_or_tab(peek_at(ch, n))) {
+      return;
   }
+
+  // Check to make sure we have #s at beginning (see issue #656):
+  i = n;
+  while (i >= 0 && peek_at(ch, i) != '#') {
+      i--;
+  }
+
+  if (i < 0) { // We didn't find #, hence we had empty header (#656)
+    return;
+  }
+
+  ch->len = n;
+  cmark_chunk_rtrim(ch);
 }
 
 // Check for thematic break.  On failure, return 0 and update
@@ -810,9 +830,11 @@ static bool parse_node_item_prefix(cmark_parser *parser, cmark_chunk *input,
                                         container->as.list.padding,
                      true);
     res = true;
-  } else if (parser->blank && container->first_child != NULL) {
-    // if container->first_child is NULL, then the opening line
-    // of the list item was blank after the list marker; in this
+  } else if (parser->blank &&
+             (container->first_child != NULL ||
+              (container->flags & CMARK_NODE__ITEM_HAD_CONTENT))) {
+    // if the list item has never had any content, then the opening
+    // line of the list item was blank after the list marker; in this
     // case, we are done with the list item.
     S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                      false);
@@ -1040,7 +1062,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       (*container)->as.code.fenced = true;
       (*container)->as.code.fence_char = peek_at(input, parser->first_nonspace);
-      (*container)->as.code.fence_length = (matched > 255) ? 255 : matched;
+      (*container)->as.code.fence_length = matched;
       (*container)->as.code.fence_offset =
           (int8_t)(parser->first_nonspace - parser->offset);
       (*container)->as.code.info = NULL;
@@ -1062,7 +1084,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
     } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
                (lev =
                     scan_setext_heading_line(input, parser->first_nonspace)) &&
-               resolve_reference_link_definitions(parser)) {
+               resolve_reference_link_definitions(parser, *container)) {
       // Setext underline only if paragraph content remains after resolving
       // reference definitions; otherwise fall through so `---` can still
       // be a thematic break.
@@ -1258,7 +1280,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
     } else if (accepts_lines(S_type(container))) {
       if (S_type(container) == CMARK_NODE_HEADING &&
           container->as.heading.setext == false) {
-        chop_trailing_hashtags(input);
+          chop_trailing_hashtags(input);
       }
       S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                        false);
@@ -1278,7 +1300,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
 
 /* See http://spec.commonmark.org/0.24/#phase-1-block-structure */
 static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
-                           bufsize_t bytes) {
+                           ptrdiff_t bytes) {
   cmark_node *last_matched_container;
   bool all_matched = true;
   cmark_node *container;

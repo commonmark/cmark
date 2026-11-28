@@ -15,7 +15,7 @@
 
 // C0 control characters, U+FFFE and U+FFF aren't allowed in XML.
 static const char XML_ESCAPE_TABLE[256] = {
-    /* 0x00 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1,
+    /* 0x00 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 7, 1, 1, 8, 1, 1,
     /* 0x10 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     /* 0x20 */ 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     /* 0x30 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0,
@@ -37,11 +37,11 @@ static const char XML_ESCAPE_TABLE[256] = {
 #define UTF8_REPL "\xEF\xBF\xBD"
 
 static const char *XML_ESCAPES[] = {
-  "", UTF8_REPL, "&quot;", "&amp;", "&lt;", "&gt;"
+  "", UTF8_REPL, "&quot;", "&amp;", "&lt;", "&gt;", "&#9;", "&#10;", "&#13;"
 };
 
 static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
-                       bufsize_t size) {
+                       bufsize_t size, bool attribute) {
   bufsize_t i = 0, org, esc = 0;
 
   while (i < size) {
@@ -64,6 +64,9 @@ static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
       } else {
         cmark_strbuf_putc(ob, src[i]);
       }
+    } else if (esc >= 6 && !attribute) {
+      // Whitespace must be escaped in attributes (XML 1.0 section 3.3.3).
+      cmark_strbuf_putc(ob, src[i]);
     } else {
       cmark_strbuf_puts(ob, XML_ESCAPES[esc]);
     }
@@ -72,9 +75,9 @@ static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
   }
 }
 
-static void escape_xml_str(cmark_strbuf *dest, const unsigned char *source) {
+static void escape_xml_attr(cmark_strbuf *dest, const unsigned char *source) {
   if (source)
-    escape_xml(dest, source, (bufsize_t)strlen((char *)source));
+    escape_xml(dest, source, (bufsize_t)strlen((char *)source), true);
 }
 
 struct render_state {
@@ -120,7 +123,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_HTML_INLINE:
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
-      escape_xml(xml, node->data, node->len);
+      escape_xml(xml, node->data, node->len, false);
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
@@ -156,11 +159,11 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_CODE_BLOCK:
       if (node->as.code.info) {
         cmark_strbuf_puts(xml, " info=\"");
-        escape_xml_str(xml, node->as.code.info);
+        escape_xml_attr(xml, node->as.code.info);
         cmark_strbuf_putc(xml, '"');
       }
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
-      escape_xml(xml, node->data, node->len);
+      escape_xml(xml, node->data, node->len, false);
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
@@ -168,20 +171,20 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_CUSTOM_BLOCK:
     case CMARK_NODE_CUSTOM_INLINE:
       cmark_strbuf_puts(xml, " on_enter=\"");
-      escape_xml_str(xml, node->as.custom.on_enter);
+      escape_xml_attr(xml, node->as.custom.on_enter);
       cmark_strbuf_putc(xml, '"');
       cmark_strbuf_puts(xml, " on_exit=\"");
-      escape_xml_str(xml, node->as.custom.on_exit);
+      escape_xml_attr(xml, node->as.custom.on_exit);
       cmark_strbuf_putc(xml, '"');
       break;
     case CMARK_NODE_LINK:
     case CMARK_NODE_IMAGE:
       cmark_strbuf_puts(xml, " destination=\"");
-      escape_xml_str(xml, node->as.link.url);
+      escape_xml_attr(xml, node->as.link.url);
       cmark_strbuf_putc(xml, '"');
       if (node->as.link.title) {
         cmark_strbuf_puts(xml, " title=\"");
-        escape_xml_str(xml, node->as.link.title);
+        escape_xml_attr(xml, node->as.link.title);
         cmark_strbuf_putc(xml, '"');
       }
       break;
