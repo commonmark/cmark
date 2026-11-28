@@ -16,7 +16,7 @@ def pipe_through_prog(prog, text):
     [result, err] = p1.communicate(input=text.encode('utf-8'))
     return [p1.returncode, result.decode('utf-8'), err]
 
-def to_html(lib, text):
+def to_html(lib, text, options=0):
     get_alloc = lib.cmark_get_default_mem_allocator
     get_alloc.restype = POINTER(cmark_mem)
     free_func = get_alloc().contents.free
@@ -28,13 +28,13 @@ def to_html(lib, text):
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
     # 1 << 17 == CMARK_OPT_UNSAFE
-    cstring = markdown(textbytes, textlen, 1 << 17)
+    cstring = markdown(textbytes, textlen, (1 << 17) | options)
     result = string_at(cstring).decode('utf-8')
     free_func(cstring)
 
     return [0, result, '']
 
-def to_commonmark(lib, text):
+def to_commonmark(lib, text, options=0):
     get_alloc = lib.cmark_get_default_mem_allocator
     get_alloc.restype = POINTER(cmark_mem)
     free_func = get_alloc().contents.free
@@ -52,7 +52,7 @@ def to_commonmark(lib, text):
 
     textbytes = text.encode('utf-8')
     textlen = len(textbytes)
-    node = parse_document(textbytes, textlen, 0)
+    node = parse_document(textbytes, textlen, options)
     cstring = render_commonmark(node, 0, 0)
     result = string_at(cstring).decode('utf-8')
     free_func(cstring)
@@ -61,10 +61,12 @@ def to_commonmark(lib, text):
     return [0, result, '']
 
 class CMark:
-    def __init__(self, prog=None, library_dir=None):
+    def __init__(self, prog=None, library_dir=None, smart=False):
         self.prog = prog
         if prog:
             prog += ' --unsafe'
+            if smart:
+                prog += ' --smart'
             self.to_html = lambda x: pipe_through_prog(prog, x)
             self.to_commonmark = lambda x: pipe_through_prog(prog + ' -t commonmark', x)
         else:
@@ -83,5 +85,5 @@ class CMark:
                     libpath = candidate
                     break
             cmark = CDLL(libpath)
-            self.to_html = lambda x: to_html(cmark, x)
-            self.to_commonmark = lambda x: to_commonmark(cmark, x)
+            self.to_html = lambda x: to_html(cmark, x, (1 << 10) if smart else 0)
+            self.to_commonmark = lambda x: to_commonmark(cmark, x, (1 << 10) if smart else 0)
